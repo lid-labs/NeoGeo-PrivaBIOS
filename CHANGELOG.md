@@ -29,6 +29,12 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 
 ### Fixed
 
+- NeoSD Pro and BackBit stopped on the boot screen with GAME NGH 0000, an empty slot. The slots
+  were read once, on the first frame, likely before a flash cart has loaded its menu (not yet
+  confirmed on the board). They are now read again on each frame while none is found, for up to
+  270 frames, about when the original BIOS reads them (`src/c0/c0.s`, `ATTENTE_CARTE`,
+  `docs/DECISIONS.md` §31). Without a cartridge, the boot screen comes about 4.5 s later. New
+  scene `flash-cart`, mutation `carte-lente-ignoree`.
 - HARDWARE TESTS → WORK RAM no longer erases the save of a game already registered in backup RAM.
   The save was restored to work RAM before the TEST screen, the RAM test overwrote it, and the end
   of the demo wrote the damaged area back to backup RAM. It is now restored after the soft-DIP
