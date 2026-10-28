@@ -1014,6 +1014,26 @@ MUTATIONS = {
           "        cmpi.b  #16, %d0                | MUTATION : quatre lignes\n        bcs.s   2b\n        moveq   #4, %d6\n")],
         "le sous-écran CABINET SETTINGS n'a plus sa ligne DEBUG DIPS",
     ),
+    # L'écran ABOUT (`about.s`), le 2026-10-28.
+    "ab-ligne-absente": (
+        "ab-ecran", "dip.s",
+        [("        move.b  #17, (%a2)              | ABOUT, avant CABINET SETTINGS\n        clr.b   1(%a2)\n"
+          "        move.l  #.Ltxt_apropos, 6(%a2)\n        lea     T_ENTREE(%a2), %a2\n        addq.w  #1, %d6\n",
+          "                                        | MUTATION : pas de ligne ABOUT\n")],
+        "l'écran TEST n'a plus de ligne ABOUT",
+    ),
+    "ab-ne-s-ouvre-pas": (
+        "ab-ecran", "dip.s",
+        [("        jsr     _a_propos               | registres rendus\n",
+          "        nop                             | MUTATION : ABOUT ne s'ouvre pas\n")],
+        "A sur la ligne ABOUT n'ouvre pas l'écran",
+    ),
+    "ab-start-ignore": (
+        "ab-ecran", "about.s",
+        [("        btst    #5, %d0                 | START : retour\n        beq.s   .Lboucle\n",
+          "        bra.s   .Lboucle                | MUTATION : START ignoré\n")],
+        "START ne referme plus l'écran ABOUT",
+    ),
     # Les commutateurs 2, 3 et 8 de la carte (DECISIONS §21).
     "gel-jamais": (
         "dip-gel", "io.s",
