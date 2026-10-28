@@ -24,6 +24,12 @@
 #   BIOS_REF       jeu de BIOS SNK de la colonne `snk`, nom MAME (défaut euro ; japan, us…).
 #                  Les variantes restent sous `-bios euro` : c'est le membre sp-s2.sp1 du set
 #                  euro qu'elles remplacent, et leur région est la leur, pas celle-ci.
+#   BIOS_CACHE     dossier où garder les runs des colonnes snk et unibios40, et d'où les reprendre :
+#                  ils ne dépendent d'aucune image à l'essai. La clé couvre la version de MAME, le
+#                  jour (la machine prend la date de l'hôte), bios-probe.lua, verdict.sh, le jeu, son
+#                  romset et neogeo.zip (nom, taille, date), le BIOS et les réglages BIOS_SECONDES,
+#                  BIOS_SHOTS, BIOS_IMAGES. Seul un run sorti en 0 est gardé. La colonne vitesse_pct
+#                  d'un run repris est celle du run d'origine (relevée, jamais jugée)
 #
 # AUCUNE ROM N'EST VERSIONNÉE dans ce dépôt, ni BIOS ni jeu. Le dossier de ROMs est à toi.
 #
@@ -147,6 +153,13 @@ for v in $VARIANTES; do
   echo "$empreinte" > "$marqueur"
 done
 
+CACHE="${BIOS_CACHE:-}"
+if [ -n "$CACHE" ]; then
+  mkdir -p "$CACHE"; CACHE="$(cd "$CACHE" && pwd)"
+  CLE_BASE="$( { mame -version; date '+%Y-%m-%d'; cat "$ICI/bios-probe.lua" "$ICI/verdict.sh"; \
+    ls -l "$ROMS/neogeo.zip"; echo "$SECONDES $SHOTS $IMAGES"; } 2>&1 | shasum -a 256 | cut -d' ' -f1)"
+fi
+
 printf '%s\t%s\t%s\t%s\t%s\t%s\n' jeu bios verdict vifs_max vitesse_pct controle
 for g in $JEUX; do
   for v in snk unibios40 $VARIANTES; do
@@ -157,6 +170,13 @@ for g in $JEUX; do
     esac
     O="$WORK/M/$g-$v"; rm -rf "$O"; mkdir -p "$O"
     rc=0
+    cle=""
+    case "$v" in snk|unibios40)
+      [ -n "$CACHE" ] && cle="$( { echo "$CLE_BASE $g $v $B"; ls -l "$ROMS/$g.zip"; } | shasum -a 256 | cut -c1-32)" ;;
+    esac
+    if [ -n "$cle" ] && [ -s "$CACHE/$cle/rc" ]; then
+      rm -rf "$O"; cp -R "$CACHE/$cle" "$O"; rc=$(cat "$O/rc")
+    else
     # NVRAM isolée par run ($O est neuf) : sans cela, MAME partage son dossier nvram/<jeu>/
     # entre tous les runs du même jeu, BIOS confondus — un crédit laissé par un run se relit
     # sous le suivant, et le déterminisme annoncé plus haut ne tient plus dès qu'un BIOS crédite.
@@ -167,6 +187,13 @@ for g in $JEUX; do
       mame "$g" -rompath "$RP" -video none -sound none -nothrottle -seconds_to_run "$SECONDES" \
       -nvram_directory "$O/nvram" -cfg_directory "$O/cfg" \
       -skip_gameinfo -bios "$B" -autoboot_script "$ICI/bios-probe.lua" >"$O/mame.log" 2>&1 ) || rc=$?
+    echo "$rc" > "$O/rc"
+    # Gardé par une copie renommée d'un coup, comme `parcours.sh` : jamais d'entrée à moitié écrite.
+    if [ -n "$cle" ] && [ "$rc" -eq 0 ] && [ ! -e "$CACHE/$cle" ]; then
+      t="$CACHE/.$cle.$$"
+      if mkdir "$CACHE/.$cle.verrou" 2>/dev/null && cp -R "$O" "$t"; then mv "$t" "$CACHE/$cle"; fi; rm -rf "$t"
+    fi
+    fi
 
     # LA PREUVE QUE LA SUBSTITUTION A PRIS, lue à chaque run plutôt que supposée. MAME signale
     # « WRONG CHECKSUMS » quand l'image de BIOS ne correspond pas au CRC qu'il attend : cette ligne

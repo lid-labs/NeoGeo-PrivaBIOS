@@ -60,6 +60,33 @@ As of 28 October 2026: 158 scenes and 202 mutations, all caught.
 Work directories, captures and MAME state are written under the work directory you pass, outside the
 repository.
 
+## Speed
+
+One MAME uses one core, and every run is deterministic in its own directory, so the number of runs
+at once changes no verdict. `parcours.sh` and `non-regression.sh` default to the number of cores
+minus two (`--jobs` overrides it); `parcours-mutations.py --eprouver` proves several mutations at
+once (`--paralleles`, default half the cores minus one), each with two runs.
+
+Reference runs do not depend on the image under test: the `snk` and `unibios40` columns of the
+matrix, and the SNK witness runs of the scenes. With a cache directory (`matrice.sh`: `BIOS_CACHE`;
+`parcours.sh`: `--cache`), they are kept and reused while nothing they depend on has changed: MAME's
+version, the day (the machine takes the host's date), the jigs, the ROM sets (name, size, date) and
+the run's own settings. `non-regression.sh` keeps them in `<work-dir>/cache-temoins`, so a second
+run on the same day in the same work directory reuses them; the mutations share one cache.
+
+Measured on 28 October 2026, 14 cores, nothing else running, on the image of `main` (27e911c):
+
+| | Before | After |
+|---|---|---|
+| 30 scenes of `parcours.sh` | 154 s (`--jobs 2`) | 77 s (12 jobs), 75 s with the cache filled |
+| 6 mutations (`--eprouver`) | 49 s, one after the other | 30 s, six at once |
+| `non-regression.sh --rapide` | — | 30 s, then 16 s on the same work directory (matrix 19 s → 7 s) |
+
+Verdicts and measured values of the 30 scenes are identical in every case (`parcours.txt`
+compared line by line). The scenes stay near 75 s with the cache, likely bound by the longest runs
+of our own image (up to 11 500 frames), which are never cached; run durations were not measured
+one by one.
+
 ## Pitfalls, all paid for
 
 1. **Game zips are non-merged**: each carries its own full copy of the BIOS set, and MAME looks in

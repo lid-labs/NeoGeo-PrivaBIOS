@@ -6,7 +6,7 @@ pour prouver que la scène qui la juge sait échouer.
 
     python3 -I -B bench/parcours-mutations.py --liste
     python3 -I -B bench/parcours-mutations.py <nom> <copie-des-sources>
-    python3 -I -B bench/parcours-mutations.py --eprouver <dossier-roms> <dossier-travail> [noms…]
+    python3 -I -B bench/parcours-mutations.py --eprouver [--paralleles n] <dossier-roms> <dossier-travail> [noms…]
 
 La copie est modifiée en place ; elle doit être hors du dépôt (refus sinon). Chaque mutation
 remplace des passages exacts des sources et refuse de s'appliquer si l'un n'y est pas une et une
@@ -14,9 +14,15 @@ seule fois : une mutation qui ne s'applique plus ne prouve rien, elle doit le di
 
 --eprouver, pour chaque mutation (toutes par défaut) : copie `src/c0` dans le dossier de travail,
 applique la mutation, et lance `parcours.sh --sources <copie> --scenes <ses scènes>`. Elle est
-« tuée » si CHACUNE des scènes visées sort FAIL. Une ligne par mutation, puis le compte ; sortie
-en 1 si une mutation survit.
+« tuée » si CHACUNE des scènes visées sort FAIL. Une ligne par mutation, dans l'ordre où elles
+finissent, puis le compte ; sortie en 1 si une mutation survit.
+
+LES MUTATIONS SONT ÉPROUVÉES EN PARALLÈLE : chacune a sa copie des sources et son dossier, et rien
+ne passe de l'une à l'autre. --paralleles n à la fois (défaut : la moitié des cœurs moins un),
+chacune avec `parcours.sh --jobs 2`. Les runs témoins (BIOS SNK) ne dépendent d'aucune mutation :
+un seul cache (`parcours.sh --cache`, <dossier-travail>/cache-temoins) les sert à toutes.
 """
+import concurrent.futures
 import os
 import re
 import shutil
@@ -1282,29 +1288,42 @@ def appliquer(nom, dossier):
     open(chemin, "w", encoding="utf-8").write(texte)
 
 
-def eprouver(roms, travail, noms):
+def eprouver_une(nom, roms, travail):
+    """Une mutation : sa copie, son parcours. Rend (tuée, ligne de verdict)."""
+    scenes = MUTATIONS[nom][0].split()
+    d = os.path.join(travail, nom)
+    src = os.path.join(d, "src")
+    if os.path.isdir(src):
+        shutil.rmtree(src)
+    os.makedirs(d, exist_ok=True)
+    shutil.copytree(os.path.join(PAQUET, "src", "c0"), src)
+    appliquer(nom, src)
+    p = subprocess.run([os.path.join(ICI, "parcours.sh"), "--sources", src, "--scenes", " ".join(scenes),
+                        "--jobs", "2", "--cache", os.path.join(travail, "cache-temoins"),
+                        roms, os.path.join(d, "travail")], capture_output=True, text=True)
+    verdicts = {s: v for v, s in re.findall(r"^(PASS|FAIL)  (\S+)", p.stdout, re.M)}
+    tuee = all(verdicts.get(s) == "FAIL" for s in scenes)
+    raisons = "; ".join(l.strip() for l in p.stdout.splitlines() if l.startswith("FAIL  ")) or "aucun FAIL"
+    with open(os.path.join(d, "parcours.out"), "w") as f:
+        f.write(p.stdout + p.stderr)
+    return tuee, f"{'TUEE' if tuee else 'SURVIT'}\t{nom}\t{' '.join(scenes)}\t{raisons}"
+
+
+def eprouver(roms, travail, noms, paralleles):
     travail = os.path.realpath(travail)
     if travail == DEPOT or travail.startswith(DEPOT + os.sep):
         sys.exit(f"refus : {travail} est dans le dépôt")
     os.makedirs(travail, exist_ok=True)
+    noms = noms or list(MUTATIONS)
+    inconnues = [n for n in noms if n not in MUTATIONS]
+    if inconnues:
+        sys.exit(f"mutation(s) inconnue(s) : {' '.join(inconnues)}")
     survivantes = 0
-    for nom in noms or list(MUTATIONS):
-        scenes = MUTATIONS[nom][0].split()
-        d = os.path.join(travail, nom)
-        src = os.path.join(d, "src")
-        if os.path.isdir(src):
-            shutil.rmtree(src)
-        os.makedirs(d, exist_ok=True)
-        shutil.copytree(os.path.join(PAQUET, "src", "c0"), src)
-        appliquer(nom, src)
-        p = subprocess.run([os.path.join(ICI, "parcours.sh"), "--sources", src, "--scenes", " ".join(scenes),
-                            roms, os.path.join(d, "travail")], capture_output=True, text=True)
-        verdicts = {s: v for v, s in re.findall(r"^(PASS|FAIL)  (\S+)", p.stdout, re.M)}
-        tuee = all(verdicts.get(s) == "FAIL" for s in scenes)
-        survivantes += not tuee
-        raisons = "; ".join(l.strip() for l in p.stdout.splitlines() if l.startswith("FAIL  ")) or "aucun FAIL"
-        print(f"{'TUEE' if tuee else 'SURVIT'}\t{nom}\t{' '.join(scenes)}\t{raisons}", flush=True)
-        open(os.path.join(d, "parcours.out"), "w").write(p.stdout + p.stderr)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=paralleles) as pool:
+        for f in concurrent.futures.as_completed([pool.submit(eprouver_une, n, roms, travail) for n in noms]):
+            tuee, ligne = f.result()
+            survivantes += not tuee
+            print(ligne, flush=True)
     print(f"{survivantes} mutation(s) survivante(s)")
     return 1 if survivantes else 0
 
@@ -1315,7 +1334,14 @@ if __name__ == "__main__":
         for nom, (scenes, fichier, _, quoi) in MUTATIONS.items():
             print(f"{nom}\t{scenes}\t{fichier}\t{quoi}")
     elif len(a) >= 3 and a[0] == "--eprouver":
-        sys.exit(eprouver(a[1], a[2], a[3:]))
+        a = a[1:]
+        paralleles = max(1, (os.cpu_count() or 4) // 2 - 1)
+        if a[0] == "--paralleles":
+            paralleles = int(a[1])
+            a = a[2:]
+        if paralleles < 1 or len(a) < 2:
+            sys.exit(__doc__)
+        sys.exit(eprouver(a[0], a[1], a[2:], paralleles))
     elif len(a) == 2:
         appliquer(a[0], a[1])
         print(f"mutation {a[0]} appliquée à {a[1]}")

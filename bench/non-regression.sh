@@ -13,8 +13,11 @@
 #                         est acceptée, c'est ainsi que le harnais s'éprouve par mutation
 #   --matrice-ref <tsv>   relevé de référence de la matrice
 #                         (défaut : measured/2026-10-22-repetition-et-start-matrice.tsv)
-#   --jobs <n>            runs MAME en parallèle (défaut 4)
+#   --jobs <n>            runs MAME en parallèle (défaut : le nombre de cœurs moins deux)
 #
+# Les runs de référence, qui ne dépendent pas de notre image (colonnes snk et unibios40 de la matrice,
+# témoins SNK du parcours), sont gardés dans <dossier-travail>/cache-temoins et repris par la passe
+# suivante du même jour sur le même dossier (`matrice.sh`, BIOS_CACHE ; `parcours.sh --cache`).
 # Le dossier de travail reçoit les objets de la construction (BIOS_OBJ de `build/construire.sh`,
 # pour ne jamais se mêler à une autre construction), l'image, les romsets substitués, les sorties
 # brutes de chaque run et `resume.txt`.
@@ -108,7 +111,7 @@ RAPIDE=0
 SOURCES="$PAQUET/src/c0"
 MREF="$PAQUET/measured/2026-10-22-repetition-et-start-matrice.tsv"
 SREF="$PAQUET/measured/2026-10-22-soft-dip-multi-slot-lot1.tsv"
-JOBS=4
+JOBS=$(( $( (sysctl -n hw.ncpu || nproc) 2>/dev/null || echo 4) - 2 )); [ "$JOBS" -ge 1 ] || JOBS=1
 while [ $# -gt 0 ]; do
   case "$1" in
     --rapide) RAPIDE=1; shift ;;
@@ -389,6 +392,7 @@ done
 pids=""
 for lot in $LOTS; do
   ( BIOS_SANS_NULLBIOS=1 BIOS_JEUX="$(tr '\n' ' ' < "$lot")" BIOS_VARIANTES="sprixe=$IMG" \
+      BIOS_CACHE="$WORK/cache-temoins/matrice" \
       "$ICI/matrice.sh" "$ROMS" "$lot.d" > "$lot.tsv" 2> "$lot.err"; echo $? > "$lot.rc" ) &
   pids="$pids $!"
 done
@@ -462,7 +466,7 @@ fi
 
 # ---- 4. Le parcours du joueur (complet seulement) ----------------------------------------------
 etage "4 : parcours du joueur"
-"$ICI/parcours.sh" --image "$IMG" --jobs "$JOBS" "$ROMS" "$WORK/parcours" | grep -E '^(PASS|FAIL|CONNU|runs|PARCOURS)'
+"$ICI/parcours.sh" --image "$IMG" --jobs "$JOBS" --cache "$WORK/cache-temoins/parcours" "$ROMS" "$WORK/parcours" | grep -E '^(PASS|FAIL|CONNU|runs|PARCOURS)'
 rc=${PIPESTATUS[0]}
 conclure "4 parcours ($(grep -c '^PASS' "$WORK/parcours/parcours.txt" 2>/dev/null || echo 0) scènes PASS)" $rc
 finir 0
