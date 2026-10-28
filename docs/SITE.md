@@ -9,7 +9,6 @@ https://bios.sprixe.dev/. It replaces the `sprixe.dev/bios` page of the Sprixe s
 |---|---|
 | `index.html` | The whole page: header, comparison with UniBIOS 4.0, screens, download, method, FAQ, manual, changelog |
 | `site.css` | The styles. One dark appearance, in the colours of the BIOS screens |
-| `site.js` | Computes the tally and the two lists of differences from the comparison table, and the column names of the stacked table on phones. Without JS the page is complete |
 | `favicon.svg` | The tab icon |
 | `CNAME` | `bios.sprixe.dev` |
 | `serve.sh` | Local preview (not published) |
