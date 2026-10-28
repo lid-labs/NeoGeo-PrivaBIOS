@@ -30,9 +30,8 @@ in the backup RAM signature.
 ## Screenshots
 
 Taken under MAME 0.286 from the image this repository builds (SHA-256 `18da0b0a…`), with Magic
-Castle, a homebrew game made with the Sprixe studio, as the cartridge. Magic Castle's art is by
-[Ansimuz](https://ansimuz.itch.io/). The in-game menu and autofire screens are over Metal Slug
-(© SNK).
+Castle, a homebrew game made with the Sprixe studio, as the cartridge. The in-game menu and
+autofire screens are over Metal Slug (© SNK).
 
 | | | |
 |---|---|---|
