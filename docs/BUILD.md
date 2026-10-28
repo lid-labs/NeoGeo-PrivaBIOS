@@ -58,3 +58,8 @@ python3 -I bench/test_generer_contrats.py
 ```
 
 Regenerating the contracts from new traces does need it.
+
+## Releases
+
+A tag `vX.Y.Z` on `main` builds the image in CI and opens a draft GitHub release: see
+[RELEASE.md](RELEASE.md).

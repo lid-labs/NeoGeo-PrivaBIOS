@@ -1,0 +1,59 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Thibaut Lion
+#
+# A tag vX.Y.Z (or vX.Y.Z-beta.N) pushed on a commit of main: build.yml runs as for any push (its
+# checks and the image it builds), then a DRAFT GitHub release gets that image in both byte orders,
+# SHA256SUMS, and the tag's section of CHANGELOG.md as notes. Nothing is published here: a
+# maintainer reviews the draft and publishes it (docs/RELEASE.md). A tag with a "-" is marked as a
+# pre-release. Only the release job holds a write token, and it runs no build.
+name: release
+
+on:
+  push:
+    tags: ['v[0-9]+.[0-9]+.[0-9]+*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+
+  release:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Tag is on main
+        run: git merge-base --is-ancestor "$GITHUB_SHA" origin/main
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: sprixe-bios
+
+      - name: Release files and notes from CHANGELOG.md
+        run: python3 -I build/release.py "${GITHUB_REF_NAME#v}" sprixe-bios.sp1 dist
+
+      - name: Draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
+            echo "A release $GITHUB_REF_NAME already exists: delete it first (docs/RELEASE.md)." >&2
+            exit 1
+          fi
+          options=(--draft --verify-tag)
+          case "$GITHUB_REF_NAME" in *-*) options+=(--prerelease) ;; esac
+          gh release create "$GITHUB_REF_NAME" "${options[@]}" \
+            --title "Sprixe BIOS $GITHUB_REF_NAME" --notes-file dist/notes.md \
+            dist/*.rom dist/*.bin dist/SHA256SUMS

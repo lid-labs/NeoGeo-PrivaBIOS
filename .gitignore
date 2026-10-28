@@ -38,3 +38,6 @@ __pycache__/
 
 # Local site preview (site/serve.sh)
 /.site-preview/
+
+# Release files previewed locally (build/release.py)
+/dist/

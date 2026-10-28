@@ -23,6 +23,9 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 - The website, in `site/`: a static page published by GitHub Pages at bios.sprixe.dev once the
   repository is public (`.github/workflows/pages.yml`, activation steps in `docs/SITE.md`).
 - README: a Thanks section, for the hardware tester.
+- Release process: a tag `vX.Y.Z` on `main` builds the image and opens a draft GitHub release with
+  both byte orders, `SHA256SUMS` and the version's section of this file as notes
+  (`.github/workflows/release.yml`, `build/release.py`, `docs/RELEASE.md`).
 - The BIOS menus can be driven from a mahjong panel (`src/c0/panneau.s`, `docs/DECISIONS.md` §30).
   With board switch 3 ON, A-D act as buttons A-D, E/F as up/down and G/H as left/right; with it
   OFF, the panel reads as a joystick. The switch is read when a menu opens, as the Japanese SNK

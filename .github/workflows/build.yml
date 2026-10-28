@@ -4,13 +4,15 @@
 # Checks that no tracked file carries private data (bench/garde-publication.sh), builds the BIOS
 # image in Docker, checks its SHA-256 against build/expected-sha256.txt, and runs the generators'
 # tests. MAME is not run here: the scenes need ROM sets, which this repository never
-# provides (see docs/BENCH.md).
+# provides (see docs/BENCH.md). release.yml calls this workflow and publishes its artifact: a check
+# added here also guards every release.
 name: build
 
 on:
   push:
     branches: [main]
   pull_request:
+  workflow_call:
 
 permissions:
   contents: read
