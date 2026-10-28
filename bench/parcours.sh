@@ -38,8 +38,13 @@
 #                        (défaut : measured/2026-10-27-parcours-garanties.tsv)
 #   --ref-sinus <tsv>    celui de la table du sinus (défaut : measured/2026-10-28-parcours-sinus.tsv)
 #   --ref-panneau <tsv>  celui des menus au panneau de mahjong (défaut : measured/2026-10-28-parcours-panneau.tsv)
-#   --jobs <n>           runs MAME en parallèle (défaut 2)
+#   --jobs <n>           runs MAME en parallèle (défaut : le nombre de cœurs moins deux). Un MAME
+#                        n'occupe qu'un cœur ; les runs sont déterministes et chacun a son dossier,
+#                        donc le nombre de runs simultanés ne change aucun verdict
 #   --hashpath <dossier> le `hash/` de MAME, pour la liste logicielle du multi-slot
+#   --cache <dossier>    garde les runs TÉMOINS (BIOS SNK, ROMs d'origine) et les reprend quand rien
+#                        de ce dont ils dépendent n'a changé (voir `lancer`). Sans cette option, rien
+#                        n'est gardé ni repris
 #
 # Il faut aof, puzzledp, b2b, kof98, ncombat et neogeo dans <dossier-roms>, mslug pour les scènes bf-banque, bf-crc-banque et dip-vierge, ng_mv1 pour sans-cartouche, ng_mv2f pour les scènes dip-* et geste-*, kizuna pour dip-4p et dip-4p-off, janshin pour dip-mahjong, dip-mj-off, af-mahjong et les scènes pn-*, viewpoin pour af-tir, af-sauve et af-off, wh2 pour scores-gel, mslug2 pour cheats-vies et crc-banques, kof94 pour dd-effet, dd-off et dd-connu, ssideki pour demo-ssideki, alpham2 pour alpha-trajectoire et preisle2 pour howto-preisle2, non-merged (`docs/BENCH.md`,
 # piège 1) ; kof98 et ncombat ne tournent que sur la MV-6F, leur romset lu tel quel.
@@ -715,7 +720,8 @@ REF_AF="$PAQUET/measured/2026-10-27-parcours-autofire.tsv"
 REF_GAR="$PAQUET/measured/2026-10-27-parcours-garanties.tsv"
 REF_SINUS="$PAQUET/measured/2026-10-28-parcours-sinus.tsv"
 REF_PANNEAU="$PAQUET/measured/2026-10-28-parcours-panneau.tsv"
-JOBS=2
+JOBS=$(( $( (sysctl -n hw.ncpu || nproc) 2>/dev/null || echo 4) - 2 )); [ "$JOBS" -ge 1 ] || JOBS=1
+CACHE=""
 SCENES_TOUTES="boot-ecran boot-saut calendrier carte demo-son partie-credit partie-start fin-demo fin-titre scores dip-temps dip-langue region autotests jukebox menu-hud menu-reprise menu-son cheats restart ms-demo ms-select ms-garde aes-bascule aes-demo aes-start aes-menu aes-piece aes-retour dip-defauts dip-mmss dip-fois region-europe region-japon region-usa autotests-palette autotests-vram autotests-backup tests-entrees tests-barres tests-grille jukebox-pas jukebox-stop cheats-off partie-p2 carte-sauve ms-select-p2 aes-ms-select aes-pause aes-logo aes-fin aes-texte depart-force piece-son ms-seule jukebox-repete partie-p2-joint carte-chercher carte-supprimer carte-nom tests-p2 tests-dip dip-sans-donnees gs-compte gs-defauts gs-choix gs-mmss gs-fois gs-sans-donnees gs-banque me-ecran me-goto me-octet me-ligne me-page me-repete me-poke me-gel me-liste me-degel me-borne bf-editeur bf-banque bf-tests bf-jukebox sans-cartouche flash-cart cm-liste cm-libres cm-effacer cm-annuler cm-formater cm-non-formatee cm-sans-carte cm-protegee cm-insertion bf-carte aes-scores scores-gel bo-ecran ab-ecran bo-free-play bo-fp-p2 bo-fp-joint bo-no-continue bo-demo-muette bo-aes bf-borne cheats-vies bo-cd-menu bo-cd-gel dip-free-play dip-fp-p2 dip-fp-refus dip-fp-chaud dip-fp-reglage dip-fp-cabinet dip-setting geste-boot geste-jeu geste-partie demo-ssideki japon-intitules gs-japon gs-japon-garde crc-fixe crc-banques crc-miroir bf-crc bf-crc-banque dd-effet dd-off dip-gel dip-gel-off dip-gel-boot dip-mahjong dip-mj-off dip-4p dip-4p-off af-tir af-sauve af-off af-mahjong boot-graphismes ms-son-slot2 dip-vierge dip-corrompue tests-mahjong jukebox-veille cm-copier alpha-trajectoire howto-preisle2 tests-sauvegarde dd-connu pn-menu-on pn-menu-off pn-valeur pn-verrou pn-jeu"
 SCENES="$SCENES_TOUTES"
 HASHPATH="${BIOS_HASHPATH:-}"
@@ -741,12 +747,13 @@ while [ $# -gt 0 ]; do
     --ref-panneau) REF_PANNEAU="${2:?--ref-panneau attend un fichier}"; shift 2 ;;
     --jobs) JOBS="${2:?--jobs attend un nombre}"; shift 2 ;;
     --hashpath) HASHPATH="${2:?--hashpath attend un dossier}"; shift 2 ;;
+    --cache) CACHE="${2:?--cache attend un dossier}"; shift 2 ;;
     --) shift; break ;;
     -*) echo "option inconnue : $1" >&2; exit 2 ;;
     *) break ;;
   esac
 done
-ROMS="${1:?usage : bench/parcours.sh [--image f | --sources d] [--scenes l] [--ref f] [--ref-aes f] [--ref-couv f] [--ref-menu f] [--ref-carte f] [--ref-borne f] [--ref-cheats f] [--ref-dip f] [--ref-ssideki f] [--ref-crc f] [--ref-dip28 f] [--ref-af f] [--ref-garanties f] [--ref-sinus f] [--ref-panneau f] [--jobs n] <dossier-roms> <dossier-travail>}"
+ROMS="${1:?usage : bench/parcours.sh [--image f | --sources d] [--scenes l] [--ref f] [--ref-aes f] [--ref-couv f] [--ref-menu f] [--ref-carte f] [--ref-borne f] [--ref-cheats f] [--ref-dip f] [--ref-ssideki f] [--ref-crc f] [--ref-dip28 f] [--ref-af f] [--ref-garanties f] [--ref-sinus f] [--ref-panneau f] [--jobs n] [--cache d] <dossier-roms> <dossier-travail>}"
 WORK="${2:?dossier de travail attendu}"
 case "$JOBS" in ''|*[!0-9]*|0) echo "--jobs refusé : $JOBS" >&2; exit 2 ;; esac
 for s in $SCENES; do case " $SCENES_TOUTES " in *" $s "*) ;; *) echo "scène inconnue : $s" >&2; exit 2 ;; esac; done
@@ -1026,6 +1033,28 @@ echo "image ${EMP:0:16}…, scènes : $SCENES"
 PIDS=""
 NV_DE=""
 CARTE_DE=""
+# LE CACHE DES TÉMOINS (--cache). Un témoin est un run dont le nom porte « snk » (la règle de `sain`)
+# et qui ne lit aucun romset de $R, où est notre image ($R/aes excepté : le set `aes`, recopié de
+# neogeo.zip). Son résultat ne dépend donc pas de notre image : il est repris d'un run précédent
+# quand sa clé est la même. La clé couvre tout ce dont il dépend : MAME (version et configuration
+# effective, `-showconfig`, que le mame.ini de l'utilisateur peut changer), ce script entier (la ligne
+# de commande de `lancer`), les jigs (tous les .lua de bench/, qui se chargent l'un l'autre), la liste
+# logicielle, les romsets du dossier de ROMs (nom, taille, date à la seconde, liens suivis), le run
+# (nom, jig, BIOS, arguments, variables), la NVRAM et la carte mémoire qu'il reçoit d'un autre run,
+# et LE JOUR : la machine prend la date de l'hôte, que la ligne CLOCK et dates.txt relèvent. Seul
+# est gardé un run sorti en 0 dont les deux dates de dates.txt sont ce jour-là (minuit passé
+# pendant le run : pas gardé).
+empreinte_fichiers() { stat -L -f '%N %z %m' "$@" 2>/dev/null || stat -L -c '%n %s %Y' "$@"; }
+if [ -n "$CACHE" ]; then
+  mkdir -p "$CACHE"; CACHE="$(cd "$CACHE" && pwd)"
+  CLE_BASE="$( { mame -version; mame -showconfig; cat "$ICI/parcours.sh" "$ICI"/*.lua "$HASHPATH/neogeo.xml"; \
+    empreinte_fichiers "$ROMS"/*.zip; } 2>&1 | shasum -a 256 | cut -d' ' -f1)"
+fi
+temoin() { # temoin <nom> <arguments MAME>
+  case "-$1-" in *-snk-*) ;; *) return 1 ;; esac
+  local a="${2//"$R"\/aes/}"
+  case "$a" in *"$R"*) return 1 ;; esac
+}
 attendre_place() {
   local p n=0 reste="" premier=""
   for p in $PIDS; do n=$(( n + 1 )); done
@@ -1042,15 +1071,34 @@ lancer() {
     case "$CARTE_DE" in /*) cp "$CARTE_DE" "$o/carte.neo" ;; *) cp "$WORK/runs/$CARTE_DE/carte.neo" "$o/carte.neo" ;; esac
     CARTE_DE=""
   fi
+  local cle="" jour
+  jour="$(date '+%m/%d/%y %a')"
+  if [ -n "$CACHE" ] && temoin "$nom" "$args"; then
+    cle="$( { echo "$CLE_BASE $jour"; echo "$nom $lua ${BIOS_RUN:-euro}"; echo "${args//"$WORK"/<W>}"; printf '%s\n' "$@"
+      [ -d "$o/nvram" ] && (cd "$o/nvram" && find . -type f -exec shasum {} + | sort)
+      [ -f "$o/carte.neo" ] && shasum < "$o/carte.neo"; } | shasum -a 256 | cut -c1-32)"
+    if [ -s "$CACHE/$cle/rc" ]; then
+      rm -rf "${o:?}"; cp -R "$CACHE/$cle" "$o"; REPRIS=$(( REPRIS + 1 )); return
+    fi
+  fi
   args="${args//@/$o}"
   attendre_place
   ( cd "$o" && date '+%m/%d/%y %a' > dates.txt && env "$@" J_OUT="$o" T_OUT="$o" MS_OUT="$o/ms.tsv" \
       SDL_VIDEODRIVER=dummy SDL_MAC_BACKGROUND_APP=1 \
       mame $args -bios "${BIOS_RUN:-euro}" -video none -sound none -nothrottle -seconds_to_run 400 \
       -nvram_directory "$o/nvram" -cfg_directory "$o/cfg" -skip_gameinfo -autoboot_script "$ICI/$lua" > "$o/mame.log" 2>&1
-    echo $? > "$o/rc"; date '+%m/%d/%y %a' >> dates.txt ) &
+    echo $? > "$o/rc"; date '+%m/%d/%y %a' >> dates.txt
+    # Gardé par une copie renommée d'un coup : deux parcours simultanés (les mutations) ne
+    # laissent jamais une entrée à moitié écrite ; le second renonce.
+    if [ -n "$cle" ] && [ "$(cat "$o/rc")" = 0 ] && [ ! -e "$CACHE/$cle" ] \
+       && [ "$(sort -u dates.txt)" = "$jour" ]; then
+      # mkdir est atomique : un seul écrivain par clé. Un mv sur un dossier déjà là s'y rangerait.
+      t="$CACHE/.$cle.$$"   # $$ : ce parcours (BASHPID n'existe pas sous le bash 3.2 de macOS)
+      mkdir "$CACHE/.$cle.verrou" 2>/dev/null && cp -R "$o" "$t" && mv "$t" "$CACHE/$cle"; rm -rf "$t"
+    fi ) &
   PIDS="$PIDS $!"
 }
+REPRIS=0
 NOTRE="aof -rompath $R"
 SNK="aof -rompath $ROMS"
 PZ="puzzledp -rompath $R"
@@ -4240,6 +4288,6 @@ sys.exit(1 if echecs else 0)
 PY
 rc=$?
 cat "$WORK/parcours.txt"
-echo "runs : $DUREE_RUNS s ; en tout $(( $(date +%s) - DEBUT )) s ; travail : $WORK"
+echo "runs : $DUREE_RUNS s, ${REPRIS} témoin(s) repris du cache ; en tout $(( $(date +%s) - DEBUT )) s ; travail : $WORK"
 [ $rc -eq 0 ] && echo "PARCOURS : PASS" || echo "PARCOURS : FAIL"
 exit $rc
