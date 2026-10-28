@@ -61,7 +61,7 @@
 # a 40 × 28. Jeu aof sauf mention contraire.
 #   boot-ecran    sans entrée, l'image de la trame 100, la ligne CLOCK masquée (elle porte la
 #                 date de l'hôte), a l'empreinte du relevé ; et le plan fixe porte SPRIXE BIOS,
-#                 sprixe.dev/bios, SYSTEM MVS, REGION EUROPE, CARD NONE, GAME NGH 0044.
+#                 sprixe.dev/bios, v0.1 BETA, SYSTEM MVS, REGION EUROPE, CARD NONE, GAME NGH 0044.
 #   boot-saut     A à la trame 60 : la pause du boot finit au plus tard à la trame « fin_max »,
 #                 contre au moins « fin_min » sans A ; à la trame 100, moins de « reste_max » des
 #                 pixels allumés de l'écran de boot le sont encore à l'identique.
@@ -1945,7 +1945,7 @@ def boot_ecran():
     e = hache(a.tobytes())
     dit(f"empreinte {e} (ligne CLOCK y {y0}-{y0 + 15} masquée), {allum} pixels allumés")
     exiger(str(e) == S("boot-ecran", "empreinte"), f"empreinte {e}, relevé {S('boot-ecran', 'empreinte')}")
-    for x in ("SPRIXE BIOS", "sprixe.dev/bios", "SYSTEM ....... MVS", "REGION ....... EUROPE", "CARD ......... NONE", "GAME NGH ..... 0044"):
+    for x in ("SPRIXE BIOS", "sprixe.dev/bios", "v0.1 BETA", "SYSTEM ....... MVS", "REGION ....... EUROPE", "CARD ......... NONE", "GAME NGH ..... 0044"):
         exiger(x in t, f"plan fixe sans « {x} »")
 
 def boot_saut():
