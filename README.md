@@ -30,13 +30,13 @@ in the backup RAM signature.
 ## Screenshots
 
 Taken under MAME 0.286 from the image this repository builds (SHA-256 `18da0b0a…`), with Magic
-Castle, a homebrew game made with the Sprixe studio, as the cartridge. Magic Castle's art is by
-[Ansimuz](https://ansimuz.itch.io/).
+Castle, a homebrew game made with the Sprixe studio, as the cartridge. The in-game menu and
+autofire screens are over Metal Slug (© SNK).
 
 | | | |
 |---|---|---|
 | ![Boot screen](docs/screenshots/boot.png)<br>Boot screen | ![Test menu](docs/screenshots/test-menu.png)<br>Test menu (soft-DIP settings) | ![Cabinet settings](docs/screenshots/cabinet-settings.png)<br>Cabinet settings |
-| ![In-game menu](docs/screenshots/in-game-menu.png)<br>In-game menu | ![Autofire](docs/screenshots/autofire.png)<br>Autofire, per game | ![Debug dips](docs/screenshots/debug-dips.png)<br>Debug dips |
+| ![In-game menu over Metal Slug](docs/screenshots/in-game-menu.png)<br>In-game menu | ![Autofire over Metal Slug](docs/screenshots/autofire.png)<br>Autofire, per game | ![Debug dips](docs/screenshots/debug-dips.png)<br>Debug dips |
 | ![Hardware tests](docs/screenshots/hardware-tests.png)<br>Hardware tests | ![Cartridge CRC](docs/screenshots/cartridge-crc.png)<br>Cartridge CRC32 | ![Memory card](docs/screenshots/memory-card.png)<br>Memory card manager |
 | ![Jukebox](docs/screenshots/jukebox.png)<br>Jukebox | | |
 
