@@ -17,6 +17,7 @@ obj/
 /work/
 /bench-work/
 *.png
+!/docs/screenshots/*.png
 *.wav
 *.avi
 *.mp4
