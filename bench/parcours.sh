@@ -349,6 +349,10 @@
 #                 inchangés) ; A : CABINET SETTINGS, trois lignes, FREE PLAY OFF, NO CONTINUE OFF, DEMO SOUND ON,
 #                 START:BACK ; droite, bas A, bas droite : ON, ON, OFF ; START : la liste, sur CABINET SETTINGS ; START :
 #                 enregistré ($D0021D à 7, en complément) et la main au jeu.
+#   ab-ecran      la liste : ABOUT choisie après « haut » huit fois, juste avant CABINET SETTINGS (les chemins « haut »
+#                 une à sept fois inchangés) ; A : l'écran ABOUT, le nom et la version, le copyright, l'absence de garantie,
+#                 la GPL version 3 ou ultérieure, l'adresse du source, le testeur du matériel, START:BACK ; START : la
+#                 liste, sur ABOUT ; START : la main au jeu.
 #   bo-free-play  FREE PLAY ON, START sans pièce à 1000 : au moins « snk_min » des trames 1001-3099 sont celles du BIOS SNK
 #                 en free play au même instant après sa remise, la partie ; trame 1400, au moins « cases_min » cases
 #                 diffèrent de la démo de bo-dm0 ; aucun crédit. La démo d'avant : au moins « temoin_min » trames de la
@@ -675,6 +679,7 @@
 # (pn-menu-on, pn-valeur, pn-verrou, pn-jeu), pn-sans-1b (pn-menu-off, pn-verrou), pn-verrou-relu (pn-verrou), pn-e-f-echangees
 # (pn-menu-on, pn-valeur, pn-verrou, pn-jeu). 201 en tout. boot-sans-saut suit `_panneau_p1` dans `ecran.s`, rééprouvée et tuée le même jour.
 # Celle de la cartouche qui tarde, le 2026-10-28 : carte-lente-ignoree (flash-cart). 202 en tout.
+# Celles de l'écran ABOUT, le 2026-10-28 : ab-ligne-absente, ab-ne-s-ouvre-pas, ab-start-ignore (ab-ecran). 205 en tout.
 #
 # CE QU'IL NE COUVRE PAS : le matériel, hors du modèle de `bus-flottant.lua` ; NO SOFT DIP DATA sur un vrai jeu (aucun des 166 sets du
 # dossier n'a de bloc refusé : la scène est jouée sur une fixture) ; les commandes CARD autrement
@@ -711,7 +716,7 @@ REF_GAR="$PAQUET/measured/2026-10-27-parcours-garanties.tsv"
 REF_SINUS="$PAQUET/measured/2026-10-28-parcours-sinus.tsv"
 REF_PANNEAU="$PAQUET/measured/2026-10-28-parcours-panneau.tsv"
 JOBS=2
-SCENES_TOUTES="boot-ecran boot-saut calendrier carte demo-son partie-credit partie-start fin-demo fin-titre scores dip-temps dip-langue region autotests jukebox menu-hud menu-reprise menu-son cheats restart ms-demo ms-select ms-garde aes-bascule aes-demo aes-start aes-menu aes-piece aes-retour dip-defauts dip-mmss dip-fois region-europe region-japon region-usa autotests-palette autotests-vram autotests-backup tests-entrees tests-barres tests-grille jukebox-pas jukebox-stop cheats-off partie-p2 carte-sauve ms-select-p2 aes-ms-select aes-pause aes-logo aes-fin aes-texte depart-force piece-son ms-seule jukebox-repete partie-p2-joint carte-chercher carte-supprimer carte-nom tests-p2 tests-dip dip-sans-donnees gs-compte gs-defauts gs-choix gs-mmss gs-fois gs-sans-donnees gs-banque me-ecran me-goto me-octet me-ligne me-page me-repete me-poke me-gel me-liste me-degel me-borne bf-editeur bf-banque bf-tests bf-jukebox sans-cartouche flash-cart cm-liste cm-libres cm-effacer cm-annuler cm-formater cm-non-formatee cm-sans-carte cm-protegee cm-insertion bf-carte aes-scores scores-gel bo-ecran bo-free-play bo-fp-p2 bo-fp-joint bo-no-continue bo-demo-muette bo-aes bf-borne cheats-vies bo-cd-menu bo-cd-gel dip-free-play dip-fp-p2 dip-fp-refus dip-fp-chaud dip-fp-reglage dip-fp-cabinet dip-setting geste-boot geste-jeu geste-partie demo-ssideki japon-intitules gs-japon gs-japon-garde crc-fixe crc-banques crc-miroir bf-crc bf-crc-banque dd-effet dd-off dip-gel dip-gel-off dip-gel-boot dip-mahjong dip-mj-off dip-4p dip-4p-off af-tir af-sauve af-off af-mahjong boot-graphismes ms-son-slot2 dip-vierge dip-corrompue tests-mahjong jukebox-veille cm-copier alpha-trajectoire howto-preisle2 tests-sauvegarde dd-connu pn-menu-on pn-menu-off pn-valeur pn-verrou pn-jeu"
+SCENES_TOUTES="boot-ecran boot-saut calendrier carte demo-son partie-credit partie-start fin-demo fin-titre scores dip-temps dip-langue region autotests jukebox menu-hud menu-reprise menu-son cheats restart ms-demo ms-select ms-garde aes-bascule aes-demo aes-start aes-menu aes-piece aes-retour dip-defauts dip-mmss dip-fois region-europe region-japon region-usa autotests-palette autotests-vram autotests-backup tests-entrees tests-barres tests-grille jukebox-pas jukebox-stop cheats-off partie-p2 carte-sauve ms-select-p2 aes-ms-select aes-pause aes-logo aes-fin aes-texte depart-force piece-son ms-seule jukebox-repete partie-p2-joint carte-chercher carte-supprimer carte-nom tests-p2 tests-dip dip-sans-donnees gs-compte gs-defauts gs-choix gs-mmss gs-fois gs-sans-donnees gs-banque me-ecran me-goto me-octet me-ligne me-page me-repete me-poke me-gel me-liste me-degel me-borne bf-editeur bf-banque bf-tests bf-jukebox sans-cartouche flash-cart cm-liste cm-libres cm-effacer cm-annuler cm-formater cm-non-formatee cm-sans-carte cm-protegee cm-insertion bf-carte aes-scores scores-gel bo-ecran ab-ecran bo-free-play bo-fp-p2 bo-fp-joint bo-no-continue bo-demo-muette bo-aes bf-borne cheats-vies bo-cd-menu bo-cd-gel dip-free-play dip-fp-p2 dip-fp-refus dip-fp-chaud dip-fp-reglage dip-fp-cabinet dip-setting geste-boot geste-jeu geste-partie demo-ssideki japon-intitules gs-japon gs-japon-garde crc-fixe crc-banques crc-miroir bf-crc bf-crc-banque dd-effet dd-off dip-gel dip-gel-off dip-gel-boot dip-mahjong dip-mj-off dip-4p dip-4p-off af-tir af-sauve af-off af-mahjong boot-graphismes ms-son-slot2 dip-vierge dip-corrompue tests-mahjong jukebox-veille cm-copier alpha-trajectoire howto-preisle2 tests-sauvegarde dd-connu pn-menu-on pn-menu-off pn-valeur pn-verrou pn-jeu"
 SCENES="$SCENES_TOUTES"
 HASHPATH="${BIOS_HASHPATH:-}"
 while [ $# -gt 0 ]; do
@@ -1157,6 +1162,7 @@ runs_de() {
     cm-insertion) echo cm-insertion ;;
     bf-carte) echo "bf-carte bf-carte-libre" ;;
     bo-ecran) echo bo-ecran ;;
+    ab-ecran) echo ab-ecran ;;
     bo-free-play) echo "bo-set-fp bo-fp bo-snk-fp bo-set-0 bo-dm0" ;;
     bo-fp-p2) echo "bo-set-fp bo-fp-p2 bo-snk-p2 bo-fp" ;;
     bo-fp-joint) echo "bo-set-fp bo-fp-joint bo-snk-joint bo-fp" ;;
@@ -1495,6 +1501,9 @@ done
 # ---- Les réglages de la borne (relevé --ref-borne) : posés par l'éditeur, puis jugés après relance (plus bas).
 veut bo-ecran && lancer bo-ecran son.lua "$NOTRE" $EDIT J_APPUIS=$VERS_BORNE,330:droite,340:bas,346:A,352:bas,358:droite,370:START,390:START \
   J_TEXTE=310,325,365,385 J_SUIVRE=D0021D:1 J_FIN=600
+# L'écran ABOUT : « haut » huit fois, A.
+veut ab-ecran && lancer ab-ecran son.lua "$NOTRE" $EDIT J_APPUIS=${VERS_BORNE%,320:A},312:haut,320:A,360:START,390:START \
+  J_TEXTE=316,340,375 J_FIN=600
 for x in "0|" "fp|330:droite," "nc|330:bas,340:droite," "dm|330:bas,340:bas,350:droite," "cd|330:bas,338:bas,346:bas,354:droite,"; do
   IFS='|' read -r nom app <<< "$x"
   veut bo-set-$nom && lancer bo-set-$nom son.lua "$NOTRE" $EDIT J_APPUIS=$VERS_BORNE,${app}370:START,390:START J_TEXTE=365 J_FIN=500
@@ -3170,6 +3179,24 @@ def bo_ecran():
     exiger(v == 7, f"$D0021D vaut {v}, 7 attendu : les réglages ne sont pas enregistrés")
     exiger([k for k, x in e.ev if x == "REMISE" and k > 390], "START ne rend pas la main au jeu")
 
+def ab_ecran():
+    (e,) = sain("ab-ecran")
+    l0, l2 = lignes_liste(e, 316), lignes_liste(e, 375)
+    dit(f"la liste, ses huit dernières lignes : {' / '.join(l0[-8:])}")
+    exiger(l0[-8].startswith("> ABOUT"), f"« haut » huit fois ne mène pas à ABOUT : {l0[-8]}")
+    exiger(l0[-7].startswith("CABINET SETTINGS"), f"« {l0[-7]} » sous ABOUT, CABINET SETTINGS attendu")
+    t = e.texte(340)
+    dit("l'écran ABOUT : " + " / ".join(x.strip() for x in t.split("\n") if x.strip()))
+    exiger("SOFT DIP SETTINGS" not in t, "A ne quitte pas la liste")
+    for m in ("SPRIXE BIOS", "0.1 BETA", "COPYRIGHT 2026 THIBAUT LION", "THIS PROGRAM COMES WITH",
+              "ABSOLUTELY NO WARRANTY.", "IT IS FREE SOFTWARE: YOU MAY", "REDISTRIBUTE IT UNDER THE GNU",
+              "GPL VERSION 3 OR LATER.", "LICENSE AND SOURCE CODE:", "GITHUB.COM/LID-LABS/SPRIXE-BIOS",
+              "HARDWARE TESTING:", "SEBASTIAN KLOETZER", "START:BACK"):
+        exiger(m in t, f"trame 340 : pas de « {m} »")
+    exiger("SOFT DIP SETTINGS" in e.texte(375) and l2[-8].startswith("> ABOUT"),
+           "START ne rend pas la liste sur ABOUT")
+    exiger([k for k, x in e.ev if x == "REMISE" and k > 390], "START ne rend pas la main au jeu")
+
 def bo_reglage(run, m):
     exiger(re.search(m, run.texte(365)), f"{run.nom} : l'éditeur ne montre pas « {m} »")
 
@@ -3502,7 +3529,7 @@ JUGES = {"aes-bascule": aes_bascule, "aes-demo": aes_demo, "aes-start": aes_star
          "cm-annuler": cm_annuler, "cm-formater": cm_formater, "cm-non-formatee": cm_non_formatee,
          "cm-sans-carte": cm_sans_carte, "cm-protegee": cm_protegee, "cm-insertion": cm_insertion, "bf-carte": bf_carte,
          "aes-scores": aes_scores, "scores-gel": scores_gel,
-         "bo-ecran": bo_ecran, "bo-free-play": bo_free_play, "bo-fp-p2": bo_fp_p2, "bo-fp-joint": bo_fp_joint,
+         "bo-ecran": bo_ecran, "ab-ecran": ab_ecran, "bo-free-play": bo_free_play, "bo-fp-p2": bo_fp_p2, "bo-fp-joint": bo_fp_joint,
          "bo-no-continue": bo_no_continue, "bo-demo-muette": bo_demo_muette, "bo-aes": bo_aes, "bf-borne": bf_borne,
          "cheats-vies": cheats_vies, "bo-cd-menu": bo_cd_menu, "bo-cd-gel": bo_cd_gel,
          "demo-ssideki": demo_ssideki,

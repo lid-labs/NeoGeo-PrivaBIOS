@@ -183,6 +183,13 @@
 | OFF. Après les quatre autres, elle ne déplace aucun chemin (« bas » trois fois mène toujours à
 | CHEATS/DEBUG).
 |
+| LA LIGNE ABOUT, juste avant CABINET SETTINGS (« haut » huit fois, le 2026-10-28) : droite, gauche
+| ou A ouvrent l'écran des mentions légales et des crédits (`about.s`), que START referme. Placée
+| là, elle ne déplace aucun chemin de touches des relevés, comme CABINET SETTINGS avant elle. LA
+| LISTE EST PLEINE : avec les 12 réglages de cartouche du maximum mesuré (voir CABINET SETTINGS),
+| REGION et les huit lignes du BIOS, 21 lignes sur 21 (compté, pas vu à l'écran). Une ligne de plus
+| déborderait sur l'aide pour froman2b, pspikes2, tophuntr et turfmast.
+|
 | LES COMMANDES, P1 seul, sur front (relâché → appuyé). Lu dans « Memory mapped
 | registers » : REG_P1CNT ($300000) bits 0-4 haut, bas, gauche, droite, A ; REG_STATUS_B
 | ($380000) bit 0 START P1 ; actifs à l'état bas. Haut/bas : la ligne, en boucle.
@@ -243,9 +250,9 @@
         .equ    C_AIDE,   0x0777
 
         | Le cadre de pile : la table des lignes, un tampon de ligne, le bloc.
-        .equ    N_MAX,    22            | la région + 4 spéciaux + 10 à choix + la borne
-                                        | + les scores + la carte + le mode + les tests
-                                        | + le jukebox + la remise
+        .equ    N_MAX,    23            | la région + 4 spéciaux + 10 à choix + ABOUT
+                                        | + la borne + les scores + la carte + le mode
+                                        | + les tests + le jukebox + la remise
         .equ    T_ENTREE, 12            | +0 genre, +1 octet de GAME_DIP, +2 nombre de
                                         | choix, +3 défaut, +4 temps par défaut, +6 intitulé
         .equ    F_TABLE,  -(N_MAX * T_ENTREE)
@@ -275,7 +282,7 @@
         | 5 la région, 6 les autotests, 7 le jukebox, 8 le mode, 9 la carte mémoire,
         | 10 SCORE RESET, 11 CABINET SETTINGS ; au sous-écran, 12 FREE PLAY, 13 NO CONTINUE,
         | 14 DEMO SOUND, 15 CHEATS/DEBUG (le bit 0, 1, 2, 3 de la borne : genre - 12), 16 DEBUG DIPS
-        | (`debug.s`).
+        | (`debug.s`) ; 17 ABOUT (`about.s`), dans la liste.
 
 _editeur_dip:
         btst    #7, SYSTYPE             | TEST tenu : bit 7 à 0 (mesuré, voir l'en-tête)
@@ -441,6 +448,11 @@ _dip_table:
         bcs.s   .Lt_choix
         rts
 .Ltable_fin:
+        move.b  #17, (%a2)              | ABOUT, avant CABINET SETTINGS
+        clr.b   1(%a2)
+        move.l  #.Ltxt_apropos, 6(%a2)
+        lea     T_ENTREE(%a2), %a2
+        addq.w  #1, %d6
         move.b  #11, (%a2)              | CABINET SETTINGS, avant SCORE RESET
         clr.b   1(%a2)
         move.l  #.Ltxt_borne, 6(%a2)
@@ -479,8 +491,8 @@ _dip_table:
         | LES VALEURS REÇUES, rendues valides.
         lea     T_ENTREE(%a4), %a2      | après la région
         move.w  %d6, %d7
-        subi.w  #8 + 1, %d7             | les lignes de réglage : région, borne, scores,
-                                        | carte, mode, tests, jukebox, remise exclus
+        subi.w  #9 + 1, %d7             | les lignes de réglage : région, ABOUT, borne,
+                                        | scores, carte, mode, tests, jukebox, remise exclus
         bmi.s   2f
 1:      bsr     .Lnormaliser
         lea     T_ENTREE(%a2), %a2
@@ -822,6 +834,8 @@ _dip_table:
         beq     .Lch_borne
         cmpi.b  #16, %d0
         beq     .Lch_debug
+        cmpi.b  #17, %d0
+        beq     .Lch_apropos
         cmpi.b  #12, %d0
         bcc     .Lch_bval
         bsr.s   _dip_pas_valeur
@@ -904,6 +918,9 @@ _dip_pas_valeur:
         bra.s   1f
 .Lch_carte:
         jsr     _gestion_carte          | registres rendus
+        bra.s   1f
+.Lch_apropos:
+        jsr     _a_propos               | registres rendus
         bra.s   1f
 .Lch_debug:                             | CHEATS/DEBUG OFF (affiché) : la ligne ne s'ouvre pas
         btst    #3, F_BORNE(%a6)
@@ -1289,6 +1306,9 @@ _dip_valider:
 1:      cmpi.b  #11, (%a2)
         bne.s   1f
         moveq   #L_BORNE, %d4
+1:      cmpi.b  #17, (%a2)
+        bne.s   1f
+        moveq   #L_APROPOS, %d4
 1:      movea.l 6(%a2), %a3             | %a3 est libre une fois l'écran posé
         bsr     .Lcopier
         lea     F_TAMPON + COL_VALEUR(%a6), %a1
@@ -1299,6 +1319,8 @@ _dip_valider:
         beq.s   .Lv_mode
         cmpi.b  #10, %d0
         beq.s   .Lv_scores
+        cmpi.b  #17, %d0                | ABOUT : pas de valeur
+        beq     .Lv_fin
         cmpi.b  #12, %d0
         bcc     .Lv_borne
         bsr.s   _dip_valeur
@@ -1659,6 +1681,9 @@ _dip_copier:
 .Ltxt_borne:
         .ascii  "CABINET SETTINGS"
         .equ    L_BORNE, . - .Ltxt_borne
+.Ltxt_apropos:
+        .ascii  "ABOUT"
+        .equ    L_APROPOS, . - .Ltxt_apropos
 .Ltxt_libre:                            | les cinq intitulés du sous-écran, 12 caractères
         .ascii  "FREE PLAY   "
         .ascii  "NO CONTINUE "
