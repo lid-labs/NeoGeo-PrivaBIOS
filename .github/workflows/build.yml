@@ -1,8 +1,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Thibaut Lion
 #
-# Builds the BIOS image in Docker, checks its SHA-256 against build/expected-sha256.txt, and runs the
-# generators' tests. MAME is not run here: the scenes need ROM sets, which this repository never
+# Checks that no tracked file carries private data (bench/garde-publication.sh), builds the BIOS
+# image in Docker, checks its SHA-256 against build/expected-sha256.txt, and runs the generators'
+# tests. MAME is not run here: the scenes need ROM sets, which this repository never
 # provides (see docs/BENCH.md).
 name: build
 
@@ -19,6 +20,9 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+
+      - name: No private data in tracked files
+        run: bench/garde-publication.sh
 
       - name: Contract generator tests
         run: python3 -I bench/test_generer_contrats.py
