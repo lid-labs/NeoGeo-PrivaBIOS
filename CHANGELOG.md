@@ -6,6 +6,13 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- Boot screen layout: less margin at the top (title on line 4 instead of 6), the status block two
+  lines higher, and two blank lines between it and PRESS A BUTTON TO SKIP. The version reads
+  `v0.1 BETA`, centred under the URL (`src/c0/ecran.s`). Screenshots `boot.png`, `boot.gif` and
+  `social-preview.png` retaken.
+
 ### Added
 
 - README: badges, an animated boot screen and a gallery of screenshots (`docs/screenshots/`),

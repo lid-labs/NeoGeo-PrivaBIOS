@@ -69,7 +69,7 @@
 #   et 2026-10-25-debug-dips.tsv. 7 scènes nouvelles, bo-ecran étendue (cinq lignes), 12 mutations nouvelles ; tests-grille et
 #   bf-tests rejoignent CROSSHATCH par « haut » trois fois au lieu de deux, mêmes mesures. 147 lignes au tableau (recomptées).
 fonction	fichier	scene	critere_joueur	mutation
-écran de boot : SPRIXE BIOS, sprixe.dev/bios, SYSTEM, REGION, CARD, GAME NGH	ecran.s	boot-ecran	empreinte de l'écran à la trame 100 (CLOCK masquée), lignes du plan fixe	boot-texte
+écran de boot : SPRIXE BIOS, sprixe.dev/bios, v0.1 BETA, SYSTEM, REGION, CARD, GAME NGH	ecran.s	boot-ecran	empreinte de l'écran à la trame 100 (CLOCK masquée), lignes du plan fixe	boot-texte
 écran de boot : le saut par un bouton	ecran.s	boot-saut	la pause finit avant la trame 80 avec A, après 170 sans	boot-sans-saut
 écran de boot : CLOCK (READ_CALENDAR)	ecran.s, cal.s	calendrier	la date de l'hôte et le jour	calendrier-sans-jour
 écran de boot : CARD INSERTED	ecran.s, card.s	carte	seule la ligne CARD change	carte-jamais
