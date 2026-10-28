@@ -25,6 +25,9 @@ before writing code.
 
 Never commit a ROM, a dump, a capture of a commercial game or a value read from a third-party ROM.
 
+`bench/garde-publication.sh`, run by the CI, fails on machine paths, personal e-mail addresses,
+Google Drive links, private ticket numbers in `src/`, `bench/` and `build/`, and tracked ROM files.
+
 ## Every function has a scene and a mutation
 
 A change the player can see comes with:
