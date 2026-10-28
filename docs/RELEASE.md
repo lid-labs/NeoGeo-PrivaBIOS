@@ -51,11 +51,11 @@ python3 -I build/release.py X.Y.Z sprixe-bios.sp1 dist
 `dist/` is ignored by git. Entries must use inline links, `[text](url)`: link definitions are
 stripped from the notes, since the ones at the bottom of the file would otherwise end up there.
 
-## The first release, 0.1.0
+## The first pre-release, 0.1.0-beta.1
 
-`CHANGELOG.md` already holds a `## [0.1.0] - Unreleased` section summarising the whole BIOS. For
-0.1.0, move the entries of `## [Unreleased]` into it, merged under the same `###` headings (one
-`### Added`, one `### Fixed`…), date its heading, and leave an empty `## [Unreleased]` above.
+`CHANGELOG.md` held a `## [0.1.0] - Unreleased` section summarising the whole BIOS. The first
+pre-release, `0.1.0-beta.1`, took it in, merged with the `## [Unreleased]` entries under the same
+`###` headings. Later versions, `0.1.0` included, list what changed since the previous one.
 
 ## If the workflow fails
 
