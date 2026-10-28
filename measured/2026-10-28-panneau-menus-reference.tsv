@@ -1,0 +1,52 @@
+# Les menus des BIOS de référence au panneau de mahjong (#1455) : quelle touche y fait quoi, et quand le commutateur 3
+# est lu. Relevé en boîte noire le 2026-10-28, avant toute décision. MAME 0.286, machine janshin (neogeo_mj, un panneau
+# en P1, aucun joystick), -bios japan (« Japan MVS (Ver. 3) », écran « Ver. 6.00 ») et -bios unibios40, -video none,
+# -nothrottle, un -cfg_directory par run ; romset non-merged de $ROMS tel quel (aucune image de Sprixe BIOS).
+# Entrées par bench/son.lua (J_TEST=1 J_GESTE=600 J_TENIR=40 ouvre le menu de test ; J_APPUIS=<trame>:mj<touche>:6 ;
+# J_DSW=1:04 commutateur 3 à ON, 1:00 à OFF), images bgra à des trames fixes. Aucun code lu ni tracé : des écrans, la
+# position de la flèche rouge du menu (pixels rouges, x 40-72), et un relevé des écritures à REG_POUTPUT ($380001) par
+# un tap d'écriture lua (valeurs par trame). Une passe par touche, comparée au même run sans appui ; dans le calendrier,
+# qui suit l'horloge de l'hôte, chaque run est comparé à sa propre image d'avant l'appui, horloge courante exclue.
+# Scripts et captures non versionnés.
+#
+# Les deux BIOS se comportent à l'identique sur tout ce qui suit, sauf la ligne « lecture du commutateur 3 ».
+#
+# ecran	bios	commutateur3	touche_du_panneau	effet
+menu	japan, unibios40	ON	A	valide : ouvre l'entrée sous la flèche (HARDWARE TEST depuis la 1re ligne)
+menu	japan, unibios40	ON	E	monte d'une ligne ; sans effet sur la 1re ligne (pas de bouclage)
+menu	japan, unibios40	ON	F	descend d'une ligne
+menu	japan, unibios40	ON	B C D G H I J K L M N PON CHI KAN RON REACH START	sans effet visible
+menu	japan, unibios40	OFF	E, L	valide
+menu	japan, unibios40	OFF	A, H	monte d'une ligne ; sans effet sur la 1re ligne
+menu	japan, unibios40	OFF	B, I	descend d'une ligne
+menu	japan, unibios40	OFF	C D F G J K M N PON CHI KAN RON REACH START	sans effet visible
+hardware-test	japan, unibios40	ON, OFF	START	passe à l'écran suivant (la mire CROSS HATCH ouvre le test)
+hardware-test	unibios40	ON	B ; D	B : SOFT RESET ; D : MEM VIEWER (consignes de l'écran : « <B> = SOFT RESET », « <D> = MEM VIEWER »)
+hardware-test	unibios40	OFF	F, M	SOFT RESET (le bouton B) ; aucune touche n'ouvre MEM VIEWER (le bouton D)
+calendrier	japan, unibios40	ON	A ; B	change la valeur du champ en rouge (japan : A +1, B -1 sur l'année)
+calendrier	japan, unibios40	ON	G ; H	G : champ précédent (de l'année aux minutes, en bouclant) ; H : champ suivant
+calendrier	japan, unibios40	ON	C	retour au menu (consigne japan : « PUSH 1P-C BUTTON TO MENU »)
+calendrier	japan, unibios40	ON	D	change la ligne de l'heure à régler (lignes 24-25 du plan fixe) ; le sens n'a pas été identifié (consigne japan : « Dボタン=セット »)
+calendrier	japan, unibios40	ON	E F I J K L M N PON CHI KAN RON REACH START	sans effet visible
+calendrier	japan, unibios40	OFF	C, J ; D, K	champ précédent ; champ suivant
+calendrier	japan, unibios40	OFF	E, L ; F, M	change la valeur (comme A et B à ON)
+calendrier	japan, unibios40	OFF	G, N	retour au menu
+calendrier	japan, unibios40	OFF	A B H I PON CHI KAN RON REACH START	sans effet visible
+#
+# Lecture brute, pour situer : l'octet de P1CNT ($300000) que MAME rend par touche selon la valeur posée dans REG_POUTPUT
+# (lu par lua dans une passe jetable, qui écrit elle-même REG_POUTPUT). $09 : A-G sur les bits 0-6 ; $12 : H-N sur les
+# bits 0-6 ; $1B : les deux rangées confondues ; $24 : PON, CHI, KAN, RON, REACH sur les bits 0-4 ; $00 : rien. START
+# n'est sur aucune de ces lectures. À OFF, l'effet des touches dans les menus est exactement cette lecture sous $1B prise
+# comme une manette (bit 0 haut, 1 bas, 2 gauche, 3 droite, 4 A, 5 B, 6 C, 7 D) : le bouton D n'y a pas de touche. À ON,
+# les deux BIOS traduisent : A-D → boutons A-D, E haut, F bas, G gauche, H droite.
+#
+# lecture	bios	bascule	effet
+commutateur3	japan	OFF au boot, ON à la trame 500, menu ouvert à 600	A valide : le commutateur est pris à l'ouverture du menu
+commutateur3	japan	ON au boot, OFF à 500, menu ouvert à 600	A sans effet : idem
+commutateur3	unibios40	OFF au boot, ON à 500, menu ouvert à 600	A sans effet : la valeur du boot reste
+commutateur3	unibios40	ON au boot, OFF à 500, menu ouvert à 600	A valide : idem
+commutateur3	japan, unibios40	bascule à la trame 700, menu ouvert	sans effet : la traduction reste celle de l'ouverture (japan) ou du boot (unibios40)
+#
+# poutput	bios	commutateur3	écritures par trame, en attente comme dans le menu de test
+poutput	japan, unibios40	ON	$12, $1B, $24, $09, $00
+poutput	japan, unibios40	OFF	$12, $1B, $00

@@ -1079,7 +1079,8 @@ _autotests:
 | LES BOUTONS DE P1, comme `dip.s`. %d5 : l'état d'avant, mis à jour ; %d0 : les fronts.
 | Bits : 0 haut, 1 bas, 2 gauche, 3 droite, 4 A, 5 START. Clobbers %d1, %d2.
 .Lentrees:
-        move.b  P1CNT, %d2
+        jsr     _panneau_p1             | %d0 : P1, manette ou panneau traduit (`panneau.s`)
+        move.b  %d0, %d2
         not.b   %d2
         andi.b  #0x1F, %d2
         move.b  STATUS_B, %d1

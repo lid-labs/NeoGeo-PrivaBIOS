@@ -36,9 +36,9 @@ MUTATIONS = {
     ),
     "boot-sans-saut": (
         "boot-saut", "ecran.s",
-        [("        bsr.s   .Lsync\n        move.b  P1CNT, %d0\n",
+        [("        bsr.s   .Lsync\n        jsr     _panneau_p1             | %d0 : P1, manette ou panneau traduit (`panneau.s`)\n",
           "        bsr.s   .Lsync\n        rts                     | MUTATION : aucun bouton lu\n"
-          "        move.b  P1CNT, %d0\n")],
+          "        jsr     _panneau_p1             | %d0 : P1, manette ou panneau traduit (`panneau.s`)\n")],
         "l'écran de boot ne lit plus les boutons : A ne le saute plus",
     ),
     "calendrier-sans-jour": (
@@ -1208,6 +1208,36 @@ MUTATIONS = {
         [("4:      btst    #7, %d0                 | C : copier la sauvegarde de la ligne\n        bne     .Lcopier\n",
           "4:      btst    #7, %d0                 | C : copier la sauvegarde de la ligne\n        nop                             | MUTATION\n        nop\n")],
         "C ne copie pas",
+    ),
+    # Les menus au panneau de mahjong (DECISIONS §30).
+    "pn-sans-traduction": (
+        "pn-menu-on pn-valeur pn-verrou pn-jeu", "panneau.s",
+        [("        tst.b   PANNEAU\n        bne.s   1f\n",
+          "        tst.b   PANNEAU\n        nop                             | MUTATION : jamais traduit\n")],
+        "commutateur 3 à ON, le panneau lu comme à OFF dans les menus",
+    ),
+    "pn-sans-1b": (
+        "pn-menu-off pn-verrou", "panneau.s",
+        [("        move.b  #0x1B, POUTPUT          | OFF : les rangées A-G et H-N confondues\n",
+          "        nop                             | MUTATION : REG_POUTPUT laissé tel quel à OFF\n        nop\n        nop\n")],
+        "commutateur 3 à OFF, P1 lu sous la sortie qu'un autre a laissée",
+    ),
+    "pn-verrou-relu": (
+        "pn-verrou", "panneau.s",
+        [("_panneau_p1:\n        tst.b   PANNEAU\n",
+          "_panneau_p1:\n        bsr.s   _panneau_verrou         | MUTATION : relu à chaque lecture\n        tst.b   PANNEAU\n")],
+        "le commutateur relu à chaque trame : basculé menu ouvert, la traduction change",
+    ),
+    "pn-e-f-echangees": (
+        "pn-menu-on pn-valeur pn-verrou pn-jeu", "panneau.s",
+        [("        rol.b   #4, %d0                 | A-D aux bits 4-7 (boutons), E, F, G aux bits 0-2\n",
+          "        rol.b   #4, %d0                 | A-D aux bits 4-7 (boutons), E, F, G aux bits 0-2\n"
+          "        move.l  %d1, -(%sp)             | MUTATION : E et F échangés (bits 0 et 1)\n"
+          "        move.b  %d0, %d1\n        andi.b  #0xFC, %d0\n"
+          "        lsr.b   #1, %d1\n        bcc.s   8f\n        bset    #1, %d0\n"
+          "8:      lsr.b   #1, %d1\n        bcc.s   9f\n        bset    #0, %d0\n"
+          "9:      move.l  (%sp)+, %d1\n")],
+        "E descend et F monte",
     ),
     "restauration-avant-editeur": (
         "tests-sauvegarde", "c0.s",

@@ -102,7 +102,6 @@
         .equ    VRAMRW,   0x3C0002
         .equ    LSPCMODE, 0x3C0006
         .equ    WATCHDOG, 0x300001
-        .equ    P1CNT,    0x300000
         .equ    P2CNT,    0x340000
         .equ    STATUS_B, 0x380000
         .equ    PALBANK0, 0x3A000F
@@ -142,6 +141,9 @@ _ecran_boot:
         movem.l %d0-%d7/%a0-%a6, -(%sp)
         movea.l %sp, %a6                | la pile de l'entrée, pour sauter à la sortie
         move.b  %d0, WATCHDOG
+        | LE COMMUTATEUR 3 lu ici, à l'ouverture, et pas après : P1 dans cet écran et ceux qu'il ouvre
+        | (`panneau.s`, DECISIONS §30).
+        jsr     _panneau_verrou
 
         | UN ÉCRAN PROPRE : la VRAM est quelconque à la mise sous tension. LSP_1st masque
         | les sprites, FIX_CLEAR remplit le plan fixe et laisse REG_VRAMMOD à 1 (`video.s`).
@@ -502,7 +504,7 @@ _ecran_boot:
 | pièce n'est donc pas consommée ici.
 .Ltrame:
         bsr.s   .Lsync
-        move.b  P1CNT, %d0
+        jsr     _panneau_p1             | %d0 : P1, manette ou panneau traduit (`panneau.s`)
         andi.b  #0xF0, %d0
         cmpi.b  #0xF0, %d0
         bne.s   .Lsortie

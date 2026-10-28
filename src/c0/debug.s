@@ -59,7 +59,6 @@
         .equ    VRAMMOD,  0x3C0004
         .equ    LSPCMODE, 0x3C0006
         .equ    WATCHDOG, 0x300001
-        .equ    P1CNT,    0x300000
         .equ    STATUS_B, 0x380000
 
         | Dans la zone mesurée libre de `menu.s` ($10F4B4-$10FBFF), au-dessus de la borne ($10FB20) ;
@@ -320,7 +319,8 @@ _dd_remettre:
 | LES BOUTONS DE P1, comme `tests.s`. %d5 : l'état d'avant ; %d0 : les fronts. Bits : 0 haut,
 | 1 bas, 2 gauche, 3 droite, 4 A, 5 START. Clobbers %d1, %d2.
 .Lentrees:
-        move.b  P1CNT, %d2
+        jsr     _panneau_p1             | %d0 : P1, manette ou panneau traduit (`panneau.s`)
+        move.b  %d0, %d2
         not.b   %d2
         andi.b  #0x1F, %d2
         move.b  STATUS_B, %d1

@@ -10,6 +10,12 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 
 - README: badges, an animated boot screen and a gallery of screenshots (`docs/screenshots/`),
   taken under MAME with a homebrew cartridge.
+- The BIOS menus can be driven from a mahjong panel (`src/c0/panneau.s`, `docs/DECISIONS.md` §30).
+  With board switch 3 ON, A-D act as buttons A-D, E/F as up/down and G/H as left/right; with it
+  OFF, the panel reads as a joystick. The switch is read when a menu opens, as the Japanese SNK
+  BIOS and UniBIOS 4.0 were observed to do (`measured/2026-10-28-panneau-menus-reference.tsv`).
+  The in-game menu stays out of reach from the panel, which has no SELECT. Five `pn-*` scenes,
+  four mutations.
 
 ### Fixed
 

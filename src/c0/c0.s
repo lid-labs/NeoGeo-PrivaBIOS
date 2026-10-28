@@ -835,6 +835,7 @@ _slot_present:
 | AUCUNE CARTOUCHE : les autotests, sans fin (voir l'appel, après `_ecran_boot`).
 _sans_cartouche:
         move.b  %d0, 0x3A001D           | REG_SRAMUNLOCK, pour le test de la backup RAM
+        jsr     _panneau_verrou         | le commutateur 3, à l'ouverture (`panneau.s`)
 1:      jsr     _autotests              | registres rendus
         bra.s   1b
 

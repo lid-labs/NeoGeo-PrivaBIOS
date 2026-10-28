@@ -260,6 +260,9 @@ _menu_ouvrir:
         move.l  %sp, MN_SP
         lea     MN_PILE, %sp
         move.b  %d0, WATCHDOG
+        | LE COMMUTATEUR 3 lu ici, à l'ouverture, et pas après : P1 dans le menu et ses sous-écrans
+        | (`panneau.s`, DECISIONS §30).
+        jsr     _panneau_verrou
         move.w  LSPCMODE, %d0           | la ligne : bits 15-7 (`.Lsync`)
         lsr.w   #7, %d0
         move.w  %d0, MN_LIGNE
@@ -354,7 +357,7 @@ _menu_ouvrir:
 | jeu. Puis l'écran rendu, et le jeu à la ligne où il était.
 .Lreprendre:
 1:      bsr     .Lsync
-        move.b  P1CNT, %d0
+        jsr     _panneau_p1             | %d0 : P1, manette ou panneau traduit (`panneau.s`)
         not.b   %d0
         andi.b  #0xF0, %d0              | A, B, C, D
         bne.s   1b
@@ -506,7 +509,8 @@ _mn_ligne:
 _mn_entrees:
 .Lentrees:
         moveq   #0, %d2
-        move.b  P1CNT, %d2
+        jsr     _panneau_p1             | %d0 : P1, manette ou panneau traduit (`panneau.s`)
+        move.b  %d0, %d2
         not.b   %d2
         move.b  STATUS_B, %d1
         not.b   %d1
