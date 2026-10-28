@@ -1289,7 +1289,16 @@ def appliquer(nom, dossier):
 
 
 def eprouver_une(nom, roms, travail):
-    """Une mutation : sa copie, son parcours. Rend (tuée, ligne de verdict)."""
+    """Une mutation : sa copie, son parcours. Rend (tuée, ligne de verdict). Une mutation qui ne
+    s'applique plus (`appliquer` sort par sys.exit) ou toute autre erreur donne une ligne ERREUR, comptée
+    comme survivante : dans un thread du pool, une exception ne s'afficherait qu'à la fin."""
+    try:
+        return _eprouver_une(nom, roms, travail)
+    except BaseException as e:  # SystemExit compris
+        return False, f"ERREUR\t{nom}\t{MUTATIONS[nom][0]}\t{e}"
+
+
+def _eprouver_une(nom, roms, travail):
     scenes = MUTATIONS[nom][0].split()
     d = os.path.join(travail, nom)
     src = os.path.join(d, "src")
@@ -1337,6 +1346,8 @@ if __name__ == "__main__":
         a = a[1:]
         paralleles = max(1, (os.cpu_count() or 4) // 2 - 1)
         if a[0] == "--paralleles":
+            if len(a) < 2 or not a[1].isdigit():
+                sys.exit(__doc__)
             paralleles = int(a[1])
             a = a[2:]
         if paralleles < 1 or len(a) < 2:

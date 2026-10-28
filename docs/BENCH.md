@@ -70,9 +70,14 @@ once (`--paralleles`, default half the cores minus one), each with two runs.
 Reference runs do not depend on the image under test: the `snk` and `unibios40` columns of the
 matrix, and the SNK witness runs of the scenes. With a cache directory (`matrice.sh`: `BIOS_CACHE`;
 `parcours.sh`: `--cache`), they are kept and reused while nothing they depend on has changed: MAME's
-version, the day (the machine takes the host's date), the jigs, the ROM sets (name, size, date) and
-the run's own settings. `non-regression.sh` keeps them in `<work-dir>/cache-temoins`, so a second
-run on the same day in the same work directory reuses them; the mutations share one cache.
+version and effective configuration (`-showconfig`, which your `mame.ini` can change), the bench
+script and its jigs, the software list, the ROM sets (name, size, date), the run's own settings, the
+NVRAM or memory card it receives from another run, and the day (the machine takes the host's date).
+Only a run that exits 0 within one day is kept. `non-regression.sh` keeps them in
+`<work-dir>/cache-temoins`, so a second run on the same day in the same work directory reuses them;
+the mutations share one cache. Nothing purges a cache: delete the directory to start afresh, and if
+something the key does not cover changed (a ROM set replaced with the same size within the same
+second, for instance).
 
 Measured on 28 October 2026, 14 cores, nothing else running, on the image of `main` (27e911c):
 

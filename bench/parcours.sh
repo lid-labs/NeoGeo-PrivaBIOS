@@ -1031,15 +1031,19 @@ CARTE_DE=""
 # LE CACHE DES TÉMOINS (--cache). Un témoin est un run dont le nom porte « snk » (la règle de `sain`)
 # et qui ne lit aucun romset de $R, où est notre image ($R/aes excepté : le set `aes`, recopié de
 # neogeo.zip). Son résultat ne dépend donc pas de notre image : il est repris d'un run précédent
-# quand sa clé est la même. La clé couvre tout ce dont il dépend : MAME (version), les jigs (tous les
-# .lua de bench/, qui se chargent l'un l'autre), la liste logicielle, les romsets du dossier de ROMs
-# (nom, taille, date), le run (nom, jig, BIOS, arguments, variables), la NVRAM et la carte mémoire
-# qu'il reçoit d'un autre run, et LE JOUR : la machine prend la date de l'hôte, que la ligne CLOCK
-# et dates.txt relèvent. Seul un run sorti en 0 est gardé.
+# quand sa clé est la même. La clé couvre tout ce dont il dépend : MAME (version et configuration
+# effective, `-showconfig`, que le mame.ini de l'utilisateur peut changer), ce script entier (la ligne
+# de commande de `lancer`), les jigs (tous les .lua de bench/, qui se chargent l'un l'autre), la liste
+# logicielle, les romsets du dossier de ROMs (nom, taille, date à la seconde, liens suivis), le run
+# (nom, jig, BIOS, arguments, variables), la NVRAM et la carte mémoire qu'il reçoit d'un autre run,
+# et LE JOUR : la machine prend la date de l'hôte, que la ligne CLOCK et dates.txt relèvent. Seul
+# est gardé un run sorti en 0 dont les deux dates de dates.txt sont ce jour-là (minuit passé
+# pendant le run : pas gardé).
+empreinte_fichiers() { stat -L -f '%N %z %m' "$@" 2>/dev/null || stat -L -c '%n %s %Y' "$@"; }
 if [ -n "$CACHE" ]; then
   mkdir -p "$CACHE"; CACHE="$(cd "$CACHE" && pwd)"
-  CLE_BASE="$( { mame -version; date '+%Y-%m-%d'; cat "$ICI"/*.lua; cat "$HASHPATH/neogeo.xml"; \
-    ls -l "$ROMS"/*.zip; } 2>&1 | shasum -a 256 | cut -d' ' -f1)"
+  CLE_BASE="$( { mame -version; mame -showconfig; cat "$ICI/parcours.sh" "$ICI"/*.lua "$HASHPATH/neogeo.xml"; \
+    empreinte_fichiers "$ROMS"/*.zip; } 2>&1 | shasum -a 256 | cut -d' ' -f1)"
 fi
 temoin() { # temoin <nom> <arguments MAME>
   case "-$1-" in *-snk-*) ;; *) return 1 ;; esac
@@ -1062,9 +1066,10 @@ lancer() {
     case "$CARTE_DE" in /*) cp "$CARTE_DE" "$o/carte.neo" ;; *) cp "$WORK/runs/$CARTE_DE/carte.neo" "$o/carte.neo" ;; esac
     CARTE_DE=""
   fi
-  local cle=""
+  local cle="" jour
+  jour="$(date '+%m/%d/%y %a')"
   if [ -n "$CACHE" ] && temoin "$nom" "$args"; then
-    cle="$( { echo "$CLE_BASE"; echo "$nom $lua ${BIOS_RUN:-euro}"; echo "${args//"$WORK"/<W>}"; printf '%s\n' "$@"
+    cle="$( { echo "$CLE_BASE $jour"; echo "$nom $lua ${BIOS_RUN:-euro}"; echo "${args//"$WORK"/<W>}"; printf '%s\n' "$@"
       [ -d "$o/nvram" ] && (cd "$o/nvram" && find . -type f -exec shasum {} + | sort)
       [ -f "$o/carte.neo" ] && shasum < "$o/carte.neo"; } | shasum -a 256 | cut -c1-32)"
     if [ -s "$CACHE/$cle/rc" ]; then
@@ -1080,7 +1085,8 @@ lancer() {
     echo $? > "$o/rc"; date '+%m/%d/%y %a' >> dates.txt
     # Gardé par une copie renommée d'un coup : deux parcours simultanés (les mutations) ne
     # laissent jamais une entrée à moitié écrite ; le second renonce.
-    if [ -n "$cle" ] && [ "$(cat "$o/rc")" = 0 ] && [ ! -e "$CACHE/$cle" ]; then
+    if [ -n "$cle" ] && [ "$(cat "$o/rc")" = 0 ] && [ ! -e "$CACHE/$cle" ] \
+       && [ "$(sort -u dates.txt)" = "$jour" ]; then
       # mkdir est atomique : un seul écrivain par clé. Un mv sur un dossier déjà là s'y rangerait.
       t="$CACHE/.$cle.$$"   # $$ : ce parcours (BASHPID n'existe pas sous le bash 3.2 de macOS)
       mkdir "$CACHE/.$cle.verrou" 2>/dev/null && cp -R "$o" "$t" && mv "$t" "$CACHE/$cle"; rm -rf "$t"

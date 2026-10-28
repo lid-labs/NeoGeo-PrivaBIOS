@@ -25,11 +25,12 @@
 #                  Les variantes restent sous `-bios euro` : c'est le membre sp-s2.sp1 du set
 #                  euro qu'elles remplacent, et leur région est la leur, pas celle-ci.
 #   BIOS_CACHE     dossier où garder les runs des colonnes snk et unibios40, et d'où les reprendre :
-#                  ils ne dépendent d'aucune image à l'essai. La clé couvre la version de MAME, le
-#                  jour (la machine prend la date de l'hôte), bios-probe.lua, verdict.sh, le jeu, son
-#                  romset et neogeo.zip (nom, taille, date), le BIOS et les réglages BIOS_SECONDES,
-#                  BIOS_SHOTS, BIOS_IMAGES. Seul un run sorti en 0 est gardé. La colonne vitesse_pct
-#                  d'un run repris est celle du run d'origine (relevée, jamais jugée)
+#                  ils ne dépendent d'aucune image à l'essai. La clé couvre MAME (version et
+#                  configuration effective, `-showconfig`), ce script, bios-probe.lua, le jour (la
+#                  machine prend la date de l'hôte), le jeu, son romset et neogeo.zip (nom, taille,
+#                  date à la seconde), le BIOS et les réglages BIOS_SECONDES, BIOS_SHOTS, BIOS_IMAGES.
+#                  Seul un run sorti en 0, commencé et fini le même jour, est gardé. La colonne
+#                  vitesse_pct d'un run repris est celle du run d'origine (relevée, jamais jugée)
 #
 # AUCUNE ROM N'EST VERSIONNÉE dans ce dépôt, ni BIOS ni jeu. Le dossier de ROMs est à toi.
 #
@@ -156,8 +157,9 @@ done
 CACHE="${BIOS_CACHE:-}"
 if [ -n "$CACHE" ]; then
   mkdir -p "$CACHE"; CACHE="$(cd "$CACHE" && pwd)"
-  CLE_BASE="$( { mame -version; date '+%Y-%m-%d'; cat "$ICI/bios-probe.lua" "$ICI/verdict.sh"; \
-    ls -l "$ROMS/neogeo.zip"; echo "$SECONDES $SHOTS $IMAGES"; } 2>&1 | shasum -a 256 | cut -d' ' -f1)"
+  empreinte_fichiers() { stat -L -f '%N %z %m' "$@" 2>/dev/null || stat -L -c '%n %s %Y' "$@"; }
+  CLE_BASE="$( { mame -version; mame -showconfig; cat "$ICI/matrice.sh" "$ICI/bios-probe.lua"; \
+    empreinte_fichiers "$ROMS/neogeo.zip"; echo "$SECONDES $SHOTS $IMAGES"; } 2>&1 | shasum -a 256 | cut -d' ' -f1)"
 fi
 
 printf '%s\t%s\t%s\t%s\t%s\t%s\n' jeu bios verdict vifs_max vitesse_pct controle
@@ -171,8 +173,11 @@ for g in $JEUX; do
     O="$WORK/M/$g-$v"; rm -rf "$O"; mkdir -p "$O"
     rc=0
     cle=""
+    jour="$(date '+%Y-%m-%d')"
     case "$v" in snk|unibios40)
-      [ -n "$CACHE" ] && cle="$( { echo "$CLE_BASE $g $v $B"; ls -l "$ROMS/$g.zip"; } | shasum -a 256 | cut -c1-32)" ;;
+      if [ -n "$CACHE" ]; then
+        cle="$( { echo "$CLE_BASE $jour $g $v $B"; empreinte_fichiers "$ROMS/$g.zip"; } | shasum -a 256 | cut -c1-32)"
+      fi ;;
     esac
     if [ -n "$cle" ] && [ -s "$CACHE/$cle/rc" ]; then
       rm -rf "$O"; cp -R "$CACHE/$cle" "$O"; rc=$(cat "$O/rc")
@@ -189,9 +194,10 @@ for g in $JEUX; do
       -skip_gameinfo -bios "$B" -autoboot_script "$ICI/bios-probe.lua" >"$O/mame.log" 2>&1 ) || rc=$?
     echo "$rc" > "$O/rc"
     # Gardé par une copie renommée d'un coup, comme `parcours.sh` : jamais d'entrée à moitié écrite.
-    if [ -n "$cle" ] && [ "$rc" -eq 0 ] && [ ! -e "$CACHE/$cle" ]; then
+    if [ -n "$cle" ] && [ "$rc" -eq 0 ] && [ ! -e "$CACHE/$cle" ] && [ "$(date '+%Y-%m-%d')" = "$jour" ]; then
       t="$CACHE/.$cle.$$"
-      if mkdir "$CACHE/.$cle.verrou" 2>/dev/null && cp -R "$O" "$t"; then mv "$t" "$CACHE/$cle"; fi; rm -rf "$t"
+      # Une écriture de cache qui échoue ne fait pas échouer la matrice (set -e).
+      if mkdir "$CACHE/.$cle.verrou" 2>/dev/null && cp -R "$O" "$t"; then mv "$t" "$CACHE/$cle" || true; fi; rm -rf "$t"
     fi
     fi
 
