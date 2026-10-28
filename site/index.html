@@ -85,14 +85,7 @@
               <span>Download Sprixe BIOS<small>v0.1 beta · 128 KB · MVS</small></span>
             </a>
             <a class="gh-btn" href="https://github.com/lid-labs/sprixe-bios" rel="noopener noreferrer"><svg class="gh" width="20" height="20" viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>View on GitHub</span></a>
-            <span class="draft"><b>Draft</b>The files are not online yet.</span>
-            <p class="alt">For a 27C1024 EPROM, or for MAME. Source, issues and discussions on <a class="gh-link" href="https://github.com/lid-labs/sprixe-bios" rel="noopener noreferrer"><svg class="gh" width="20" height="20" viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>GitHub</a>.</p>
           </div>
-          <ul class="facts">
-            <li><span>161</span> of 164 games play in the MAME catalogue</li>
-            <li><span>157</span> on-screen test scenes</li>
-            <li>Boots on a real <span>MV-2F</span></li>
-          </ul>
         </div>
         <figure class="screen">
           <img src="img/in-game-menu.png" alt="The Sprixe BIOS in-game menu open over Metal Slug: resume, restart game, infinite lives, bombs and time, autofire, game settings, memory editor" width="640" height="448" />
@@ -100,11 +93,11 @@
         </figure>
       </div>
 
-      <section id="status" class="status">
-        <div class="col">
-          <p><strong>Status, 28 October 2026.</strong> Sprixe BIOS is in testing and has no public release yet. Everything below was measured under MAME, except where a line says real hardware: one tester has been burning each image on an MV-2F since 21 October and sending videos back.</p>
-        </div>
-      </section>
+      <ul class="facts facts-wide">
+            <li><span>161</span> of 164 games play in the MAME catalogue</li>
+            <li><span>157</span> on-screen test scenes</li>
+            <li>Boots on a real <span>MV-2F</span></li>
+          </ul>
 
       <section id="compare">
         <div class="col">
@@ -112,9 +105,6 @@
           <h2>Sprixe BIOS and UniBIOS 4.0, line by line</h2>
           <p>UniBIOS is the reference everyone already knows, so this table uses it as the yardstick, including the lines where it does more than Sprixe BIOS. The UniBIOS column comes from its author's release notes (v1.3 to v4.0) and public forum threads. We never opened its binary. The Sprixe BIOS column is measured, each line by its own test scene.</p>
         </div>
-        <!-- Décompte et listes d'écarts calculés depuis le tableau par site.js. -->
-        <div class="tally" id="tally"></div>
-        <div class="diffs" id="diffs"></div>
         <div class="tablebox" id="matrix">
           <table>
             <thead><tr><th>Topic</th><th>UniBIOS 4.0</th><th>Sprixe BIOS</th></tr></thead>
@@ -299,7 +289,6 @@
         <div class="col">
           <div class="eyebrow">Download</div>
           <h2>Get Sprixe BIOS v0.1</h2>
-          <p class="pending"><b>Draft</b><span>The files are not online yet. The download button will point to the first release.</span></p>
           <p>One image, two byte orders. Pick the one your programmer or emulator expects.</p>
         </div>
         <div class="dlbox">
@@ -345,7 +334,7 @@
           <div><b>164</b><span>games in the MAME catalogue, run under Sprixe BIOS, the SNK BIOS and UniBIOS 4.0</span></div>
           <div><b>157</b><span>test scenes, each judged on what the player sees or hears</span></div>
           <div><b>201</b><span>deliberate bugs, every one caught by its scene</span></div>
-          <div><b>14</b><span>test images sent to a tester with a real MV-2F so far</span></div>
+          <div><b>15</b><span>test images sent to a tester with a real MV-2F so far</span></div>
         </div>
         <div class="two">
           <div>

@@ -73,6 +73,8 @@ p { margin-top: 14px; }
 .lede { font-size: 1.08rem; color: var(--text); margin-top: 18px; }
 .facts { list-style: none; display: flex; flex-wrap: wrap; margin-top: 26px; border-top: 1px solid var(--line); }
 .facts li { flex: 1 1 150px; padding: 12px 14px 4px 0; font-size: 0.86rem; color: var(--muted); line-height: 1.35; }
+.facts-wide { margin-top: 0; margin-bottom: 40px; border-bottom: 1px solid var(--line); }
+.facts-wide li { flex: 1 1 200px; padding: 16px 16px 14px 0; font-size: 0.95rem; }
 .facts li span { white-space: nowrap; font-family: var(--f-digits); font-size: 1.9rem; line-height: 1; color: var(--green); margin-right: 2px; }
 
 /* screen frame: the captures are 320 × 224 doubled, scaled with no filter */
@@ -92,13 +94,7 @@ p { margin-top: 14px; }
 .gh-btn:hover { border-color: var(--sky); color: var(--ink); }
 .gh-link { display: inline-flex; align-items: center; gap: 6px; }
 .gh-link .gh { width: 1em; height: 1em; }
-.draft { display: inline-flex; align-items: baseline; gap: 8px; font-size: 0.85rem; color: var(--muted); max-width: 30ch; line-height: 1.4; }
-.draft b, .pending b { flex: none; font-family: var(--f-digits); font-weight: 400; font-size: 1.05rem; line-height: 1.1; letter-spacing: 0.06em; text-transform: uppercase; color: var(--amber); border: 1.5px dashed var(--amber); border-radius: 3px; padding: 0 6px; }
-.cta .alt { flex-basis: 100%; font-size: 0.88rem; color: var(--muted); margin: 0; }
 
-.bios > .status { padding-block: 22px; }
-.status p { margin: 0; color: var(--muted); }
-.status strong { color: var(--ink); }
 
 /* comparison */
 .tablebox { overflow-x: auto; margin-top: 28px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
@@ -118,21 +114,6 @@ td small { display: block; color: var(--muted); font-size: 0.8rem; margin-top: 4
 tr.group td { background: var(--bg); font-family: var(--f-digits); font-size: 1.15rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--sky); padding-block: 6px; }
 .note { font-size: 0.85rem; color: var(--muted); max-width: 80ch; }
 
-.tally { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 16px; margin-top: 26px; }
-.tally > div { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px; }
-.tally h3 { font-size: 1rem; margin-bottom: 10px; }
-.tally ul { list-style: none; display: flex; flex-wrap: wrap; gap: 8px 16px; }
-.tally li { display: flex; align-items: center; gap: 7px; font-size: 0.88rem; color: var(--muted); }
-.tally li b { font-family: var(--f-digits); font-weight: 400; font-size: 2rem; line-height: 1; color: var(--ink); }
-.tally .v { margin: 0; }
-.diffs { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 16px 32px; margin-top: 22px; }
-.diffs h3 { font-size: 0.95rem; color: var(--muted); display: flex; align-items: center; gap: 8px; }
-.diffs h3 .v { margin: 0; }
-.diffs h3 .v i { width: 22px; height: 22px; font-size: 13px; }
-.diffs ul { margin-top: 8px; list-style: none; border-top: 1px solid var(--line); }
-.diffs li { border-bottom: 1px solid var(--line); padding: 7px 0; font-size: 0.9rem; }
-.diffs a { color: var(--ink); text-decoration: none; }
-.diffs a:hover { color: var(--sky); text-decoration: underline; }
 
 /* Phones: each row becomes a card, with the column name above each verdict. Only once the
    script has set those names (class "stacked"); without JS the table scrolls in its box. */
@@ -170,7 +151,6 @@ tr.group td { background: var(--bg); font-family: var(--f-digits); font-size: 1.
 .steps { margin-top: 12px; padding-left: 22px; }
 .steps li { margin: 6px 0; }
 .steps li::marker { font-family: var(--f-digits); font-size: 1.15rem; color: var(--sky); }
-.pending { display: flex; gap: 10px; align-items: baseline; margin-top: 18px; font-size: 0.9rem; border-left: 3px solid var(--amber); padding: 8px 12px; color: var(--ink); background: var(--surface); }
 
 /* method */
 .numbers { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); margin-top: 30px; border-top: 1px solid var(--line-2); }
@@ -225,6 +205,5 @@ details p { margin-top: 10px; color: var(--muted); }
 @media (max-width: 480px) {
   .bios { padding-top: 32px; }
   .dl, .gh-btn { width: 100%; justify-content: center; }
-  .draft { max-width: none; }
-  .bios > section { padding-block: 44px; }
+    .bios > section { padding-block: 44px; }
 }
