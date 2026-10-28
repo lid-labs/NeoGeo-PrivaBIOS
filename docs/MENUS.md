@@ -1,7 +1,7 @@
 # La carte des menus de Sprixe BIOS
 
 Où est chaque écran, et la touche qui y mène. Relevé dans le code le 2026-10-25 (main à `703cf222`),
-AUTOFIRE ajouté le 2026-10-27 (#1454) :
+AUTOFIRE ajouté le 2026-10-27 (#1454), ABOUT le 2026-10-28 :
 les intitulés sont ceux de l'écran, la source de chaque écran est entre parenthèses. Les commandes
 sont celles du joueur 1, sur front (un appui compte une fois).
 
@@ -11,6 +11,7 @@ Mise sous tension
 ├── TEST tenu, ou START + SELECT tenus, ou commutateur 1 à ON ──► SOFT DIP SETTINGS (dip.s)
 │     ├── REGION
 │     ├── les réglages de la cartouche (selon le jeu)
+│     ├── ABOUT ──► mentions légales et crédits (about.s)
 │     ├── CABINET SETTINGS ──► FREE PLAY, NO CONTINUE, DEMO SOUND, CHEATS/DEBUG (reglages.s), DEBUG DIPS (debug.s)
 │     ├── SCORE RESET
 │     ├── MEMORY CARD ──► liste des sauvegardes, FORMAT CARD, EXIT (gestion-carte.s)
@@ -61,6 +62,7 @@ nombre de réglages de la cartouche varie d'un jeu à l'autre. Ces chemins ne d�
 | 5 | MEMORY CARD | GAUCHE, DROITE ou A ouvre le gestionnaire de carte |
 | 6 | SCORE RESET | ON, OFF ; à OFF, les jeux qui effacent leurs records quand la date change les gardent |
 | 7 | CABINET SETTINGS | GAUCHE, DROITE ou A ouvre les réglages de la borne |
+| 8 | ABOUT | GAUCHE, DROITE ou A ouvre les mentions légales et les crédits |
 
 Les réglages de la cartouche commencent à « bas » une fois. REGION, MODE, SCORE RESET et CABINET
 SETTINGS ne sont pas des réglages de la cartouche : RESET TO DEFAULTS ne les touche pas.
@@ -69,6 +71,11 @@ En région JAPAN, quand la cartouche donne ses intitulés en japonais, la liste 
 caractères, comme le BIOS SNK japonais : deux rangées par ligne, dix lignes à l'écran, et la liste
 défile avec la ligne choisie. Les commandes et les chemins « haut » ne changent pas
 (`DECISIONS.md` §19).
+
+### ABOUT
+
+Le nom et la version, le copyright, l'absence de garantie, la licence (GPL version 3 ou
+ultérieure), l'adresse du source et le testeur du matériel. START revient à la liste.
 
 ### CABINET SETTINGS
 

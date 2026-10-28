@@ -15,6 +15,9 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 
 ### Added
 
+- An ABOUT screen in the TEST menu, just above CABINET SETTINGS (`src/c0/about.s`): name and
+  version, copyright, no-warranty notice, the GPL version 3 or later, where to find the source, and
+  the hardware tester. One `ab-ecran` scene, three mutations.
 - README: badges, an animated boot screen and a gallery of screenshots (`docs/screenshots/`),
   taken under MAME with a homebrew cartridge.
 - The website, in `site/`: a static page published by GitHub Pages at bios.sprixe.dev once the

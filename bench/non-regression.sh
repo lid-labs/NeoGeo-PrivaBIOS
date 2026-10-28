@@ -50,7 +50,7 @@
 #         celui d'une vraie MV-2F, 2026-10-24) ; measured/2026-10-24-slot-crtfix.tsv.
 #   En --rapide, l'étage 3 ne garde que 3a (adr), 3b et 3c.
 #   4  En complet seulement : `bench/parcours.sh` sur la même image, --jobs du script — le parcours
-#      du joueur, 157 scènes jugées sur l'image et le son (`-wavwrite`) contre un témoin ou une
+#      du joueur, 158 scènes jugées sur l'image et le son (`-wavwrite`) contre un témoin ou une
 #      empreinte, seuils dans measured/2026-10-23-parcours.tsv, pour les six du mode AES
 #      measured/2026-10-23-parcours-aes.tsv, pour les 34 de la couverture
 #      measured/2026-10-23-parcours-couverture-scenes.tsv, pour les 18 du menu en jeu complet
@@ -64,7 +64,7 @@
 #      porte « bug_connu » à 1 sortirait « CONNU » sans faire échouer l'étage ; aucune ne le porte
 #      depuis la correction de CREDIT_CHECK en mode AES (aes-texte). Son en-tête porte les
 #      critères ; `bench/parcours-mutations.py --eprouver` prouve que chacune sait échouer
-#      (201 mutations). Huit scènes, bf-*, rejouent l'écran TEST sous `bus-flottant.lua` ;
+#      (204 mutations). Huit scènes, bf-*, rejouent l'écran TEST sous `bus-flottant.lua` ;
 #      sans-cartouche joue ng_mv1 sans cartouche sous le même modèle (il faut ng_mv1.zip), et
 #      scores-gel joue wh2 sur la MV-6F (il faut wh2.zip), cheats-vies et crc-banques jouent mslug2 (il faut mslug2.zip),
 #      dd-effet et dd-off kof94 (il faut kof94.zip),
