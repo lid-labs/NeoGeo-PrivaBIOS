@@ -87,4 +87,4 @@ carte-supprimer	sauve_max	200	1 (contre la carte où la sauvegarde est encore)
 carte-nom	octets_max	0	0 sur 2 048 (l'écriture SNK en change 17) ; nom relu égal, réponse $00
 tests-p2	cases_hors_max	0	0 (neuf entrées : B, C, D, haut, bas, gauche, droite de P2, SELECT P1 et P2, MV-6F)
 tests-dip	cases_hors_max	0	0 (huit commutateurs, chacun son chiffre, bit n − 1 sous le chiffre n)
-dip-sans-donnees	lignes_max	8	8 (REGION, CABINET SETTINGS, SCORE RESET, MEMORY CARD, MODE, HARDWARE TESTS, JUKEBOX, RESET TO DEFAULTS) ; témoin 18. Seuil passé de 5 à 7 le 2026-10-24 (SCORE RESET et MEMORY CARD), puis à 8 le 2026-10-25 (CABINET SETTINGS) : changements voulus
+dip-sans-donnees	lignes_max	9	9 (REGION, ABOUT, CABINET SETTINGS, SCORE RESET, MEMORY CARD, MODE, HARDWARE TESTS, JUKEBOX, RESET TO DEFAULTS) ; témoin 18. Seuil passé de 5 à 7 le 2026-10-24 (SCORE RESET et MEMORY CARD), à 8 le 2026-10-25 (CABINET SETTINGS), puis à 9 le 2026-10-28 (ABOUT) : changements voulus
