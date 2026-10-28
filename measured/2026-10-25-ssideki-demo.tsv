@@ -1,0 +1,139 @@
+# Le figement de la démo de Super Sidekicks (ssideki), le 2026-10-25 : ce que le jeu lit dans la ROM du BIOS, ce qui fige la
+# démo, et la grille qui le corrige (src/c0/grille.s, build/bios.ld). Retour de l'essai sur matériel (MV-2F, cartouche originale) : la
+# démo se fige au bout de quelques secondes ; MAME le reproduisait dans toutes les configurations essayées par le diagnostic.
+#
+# OUTIL : MAME 0.286 (Homebrew), -bios euro, -video none, -sound none, -nothrottle, SDL_MAC_BACKGROUND_APP=1, NVRAM et cfg neufs
+# par run ; romsets non-merged de $ROMS, seul sp-s2.sp1 remplacé (dans le zip du jeu et dans neogeo.zip). Jigs lua hors
+# dépôt : un tap d'ÉCRITURE sur $320000 (les commandes son du 68000), un tap de LECTURE sur $C00000-$C1FFFF qui ne retient que
+# les accès d'un octet (masque FF00 ou 00FF : un fetch d'opcode lit un mot entier) — adresse, masque, et la valeur sous NOTRE
+# image seulement ; sous la référence, l'adresse seule. Ce tap ne lit pas le PC (le lire depuis ce tap fait planter MAME sous
+# notre image) ; aucune instruction tracée, désassemblée ni lue. Un remplissage par lua écrit la région du BIOS avant le boot : c'est ainsi
+# qu'une seule chose change à la fois. Mesures de démo : bench/son.lua, la fenêtre de 400 à 2399 trames après la remise (REMISE),
+# images entières différentes et key-on du YM2610, MV-6F (neogeo -cart1). Les octets de la référence ne sont ni relevés ni copiés.
+#
+# IMAGES : avant le lot, e5b4ea94d82df51a… (main f30ba999) ; finale 03a634f350d0a01a… (CRC32 9bcac929).
+
+# 1. LE MARQUEUR. Commande son du jeu, trame du run (MV-2F, ng_mv2f -cart ssideki, sans entrée).
+bios	18_C0	18_C1_FF	note
+SNK euro	1161	1361	+200 trames ; titre, KICK OFF, match de démo, logo NEO-GEO
+e5b4ea94 (main)	554	jamais (4000 trames)	la démo reste sur l'intro du stade ; INSERT COIN clignote
+03a634f3 (finale)	554	754	+200 ; 18 C1 trois fois en 7000 trames, trois cycles de démo
+
+# 2. CE QUE LE JEU LIT. Sous les deux BIOS, aux mêmes trames de la démo et aux mêmes adresses de départ ($C038D8, $C028D8), le
+# jeu lit un octet en $C03000 + d puis, souvent, le même d en $C02000 + d ; d avance par pas de $40 (une ligne) et de ±2 : une
+# grille de 64 lignes de 64 octets en deux plans, « plan haut » $C03000-$C03FFF, « plan bas » $C02000-$C02FFF. Pendant une partie,
+# une douzaine de paires par trame, sur toute la grille. Aucune écriture du jeu dans $C00000-$C1FFFF (tap d'écriture, une partie de
+# 3000 trames). Sous la nôtre, le plan haut était du $FF de remplissage, et le plan bas notre code ($C02000-$C0264E) puis du $FF.
+# Sur $FF, une lecture par trame d'une suite d'adresses qui ne s'arrête pas ; sur $00, la suite ralentit et s'arrête en ~20 trames.
+
+# 3. L'INSTRUMENT ÉPROUVÉ. $C02650-$C03FFF rempli par lua d'une seule valeur, image e5b4ea94, MV-2F, 1500 trames.
+remplissage	18_C1_FF	verdict
+$FF (témoin, = l'image)	jamais	figée
+$00	734	passe — la mutation change le résultat
+
+# 4. LE PLAN HAUT SEUL. $C02650-$C03FFF rempli de v, les 256 valeurs, 1300 trames : la démo passe pour
+plan_haut_passe	$00 $01 $02 $03 $80	(les 251 autres : figée)
+# Plan haut à $00, plan bas ($C02650-$C02FFF) à $04, $7F, $81 ou $FE : passe. Plan haut tiré au hasard sur 0..255 (trois tirages) :
+# figée deux fois sur trois. Les deux plans recopiés de notre propre code : passe une fois, figée une fois (selon l'extrait).
+
+# 5. LES DEUX PLANS. Image intermédiaire (code sous $C02000), $C02000-$C02FFF = b et $C03000-$C03FFF = a, MV-6F, 1500 trames.
+plan_haut_a	plan_bas_b_qui_passent	plan_bas_b_qui_figent
+$00, $80	$00 $01 $04 $80 $FF	—
+$01	$01 $02 $04 $10	$00 $40 $7F $80 $81 $C0 $FE $FF
+$02, $03	$01 $04	$00 $80 $FF
+$04 $FF	—	$00 $01 $04 $80 $FF
+$05 $08 $10 $40 $7F $81 $83 $C0	—	$01
+
+# 6. LA DÉMO ET LA PARTIE, grille par grille. Démo : images/key-on de la fenêtre, MV-6F, contre le témoin SNK (1360/929).
+# Partie : START à 600 (1190 au témoin), jusqu'à cinq scénarios d'entrées ; « figées » = fenêtres de 100 trames du match (de
+# +1200 à +2399 après START, douze fenêtres) à moins de 20 images différentes ; le témoin n'y descend
+# pas sous 33. jp : A toutes les 20 trames, droite tenue 2000 ; jw : droite 950 ; jx : B, droite 2000 ; jn : aucune entrée ;
+# jz : B toutes les 30, gauche, quatre A. Le témoin SNK : 0 fenêtre figée dans les cinq.
+grille	plan_haut	plan_bas	demo_images	demo_keyon	parties_figees
+e5b4ea94 (main)	$FF	code + $FF	391	116	jp=0
+0..3 seul en haut	0..3	code + $FF	1235	887	jp=9
+mélange en haut	½ 0..3, ½ 0..255	code + $FF	722	819	jp=8
+mélange, bas à $00	½ 0..3, ½ 0..255	code + $00	1412	933	jp=7 jw=0 jx=0
+mélange sur 8 Kio	½ 0..3, ½ 0..255	½ 0..3, ½ 0..255	8	116	jp=8 jw=3 jx=0
+bas de 1 à 254	½ 0..3, ½ 0..255	1..254	1416	1022	jp=7 jw=5 jx=2
+finale	0..3	1..63	1441	929	jp=0 jw=0 jx=0 jn=0 jz=0
+# La partie de l'image e5b4ea94 n'a aucune fenêtre figée, mais ses images montrent le match sans l'équipe adverse ; « code » :
+# notre code de $C02000 à $C0264E, à l'image d'avant. Les blocages vus en image (jp de « mélange, bas à $00 », jw de « mélange sur
+# 8 Kio ») : après une touche (THROW IN), la balle sur la ligne, le chronomètre arrêté, le jeu relisant les mêmes cases à chaque
+# trame (tap de lecture : 28 lectures identiques d'une trame à l'autre).
+
+# 7. LES AUTRES JEUX QUI LISENT LA ROM DU BIOS HORS CODE. Tap de lecture sur les zones de l'image e5b4ea94 sans code ni table :
+# A1 $C02660-$C02FFF, A2 $C03000-$C03FFF (le plan haut), B $C04000-$C041FF, H $C08C40-$C1FFFF ; tout masque (aucun fetch
+# possible là où il n'y a pas de code), 3000 trames sans entrée, machine du jeu (MV-6F), les 164 sets des deux moitiés du
+# catalogue. 37 jeux lisent au moins une de ces zones. Ce que chacun lit DANS notre code ($C00000-$C0264E) n'est pas compté : sans
+# PC, le tap ne le distingue pas d'un fetch. irrmaze a son propre BIOS (aucun WRONG CHECKSUMS) : sa ligne ne dit rien du nôtre.
+# Colonnes : lectures / adresses distinctes : plus basse - plus haute @ première trame.
+jeu	A1	A2	B	H
+2020bb	1/1:C02880-C02880@2273	101/45:C03020-C03FC2@2148	39/5:C04002-C041FE@2205	—
+alpham2	3/2:C0266A-C0272E@867	2133/35:C03038-C0372E@867	32897/56:C04000-C041E0@867	—
+3countb	2064/88:C0269A-C02F82@529	2077/101:C03040-C03F82@529	1138/16:C04000-C041E0@196	—
+burningf	10/6:C02680-C026CA@2007	652/178:C03000-C036CA@1485	—	—
+bstars2	184/41:C02800-C02FC0@1269	1565/85:C03032-C03FC2@1114	370/4:C04102-C041FE@1181	—
+fatfursp	—	291/9:C03000-C03010@1137	—	—
+fatfury1	—	144/2:C03000-C03002@911	55/2:C04080-C04180@1146	—
+fatfury2	—	343/7:C03000-C0300C@1872	1157/256:C04000-C041FE@1862	—
+fbfrenzy	7406/848:C02660-C02FFE@666	14921/1433:C03000-C03FFE@666	14062/217:C04000-C041FE@666	—
+kabukikl	—	—	7608/256:C04000-C041FE@544	—
+irrmaze	2464/1232:C02660-C02FFE@251	4096/2048:C03000-C03FFE@251	512/256:C04000-C041FE@252	31210140/47584:C08C40-C1FFFE@0
+kof2000	25/10:C02800-C02F80@464	57/20:C03020-C03F80@464	118/33:C04000-C041FE@464	—
+kof2002	—	—	290/6:C04000-C041B0@634	—
+kof2003	—	—	64/4:C04000-C04180@1556	—
+kof97	—	—	265/8:C04000-C041C0@1726	—
+kof98	—	—	154/8:C04000-C041C0@2540	—
+kof99	—	6/3:C03026-C03030@747	12/8:C04020-C04142@747	—
+kotm	3393/401:C02660-C02FFE@1167	5361/464:C03022-C03FFE@1141	9472/55:C04000-C041FE@1148	—
+kotm2	1/1:C0266E-C0266E@1520	377/27:C03222-C0366E@1460	1892/70:C04000-C041FE@707	—
+lastblad	—	—	9199/256:C04000-C041FE@440	—
+lbowling	750/32:C02800-C02FC0@593	750/32:C03800-C03FC0@593	3002/36:C04000-C041FE@329	—
+lresort	235/158:C02660-C02FF2@1726	734/311:C03020-C03FFC@1726	3972/120:C04000-C041FE@1279	—
+ncommand	1534/21:C02680-C02F24@259	3697/52:C03000-C03F24@204	—	—
+preisle2	—	—	376/18:C04000-C041D0@950	—
+rbff1	—	50/12:C03000-C0301C@2800	—	—
+rbffspec	—	94/18:C03000-C03022@2338	—	—
+roboarmy	62/45:C02676-C028FE@1432	2461/385:C03000-C038FE@935	2862/175:C04000-C041FC@943	—
+savagere	114/91:C02720-C02FC4@870	275/104:C030E0-C03FC4@869	456/44:C04000-C041FE@869	—
+sengoku	1358/94:C02666-C02C3C@2410	1784/191:C03000-C03C3C@2410	3156/74:C04000-C041FC@2222	—
+sengoku2	724/264:C02664-C02FEA@1144	4382/667:C03000-C03FEA@1071	3854/95:C04000-C041FE@1114	—
+socbrawl	23153/472:C02662-C02FF6@950	27971/670:C03028-C03FF6@951	4890/48:C04000-C041FE@953	—
+ssideki2	8190/488:C02660-C02FFC@1824	19178/833:C03000-C03FFC@1824	6876/38:C04000-C041F2@1824	—
+ssideki	1/1:C028D8-C028D8@548	2453/219:C0303A-C03FF8@548	4/4:C0407A-C041FA@394	—
+ssideki4	4/4:C02A1A-C02E06@2850	490/5:C03016-C0303E@2852	2852/62:C04002-C041FA@1006	—
+svc	—	—	14/8:C04000-C041C0@210	—
+tophuntr	45/11:C027B0-C02C7E@2505	1/1:C03022-C03022@2226	—	—
+tpgolf	4/2:C02D40-C02F40@2137	4/2:C03D40-C03F40@2137	2296/4:C0407E-C041FE@2143	—
+
+# 8. LA DÉMO DES AUTRES LECTEURS, image d'avant / finale / témoin SNK (images/key-on de la même fenêtre). Seul socbrawl y montre
+# un défaut visible sous l'image d'avant : son match de démo se vide de ses joueurs, la caméra au bord du terrain ; la grille le
+# porte à 1026 images sans le rendre au témoin (planche : les joueurs gagnent encore
+# les côtés). 3countb reste à 1170 contre 1434.
+jeu	avant	finale	temoin_SNK
+ssideki2	892/254	915/264	917/280
+ssideki4	1035/763	1035/763	1042/763
+socbrawl	458/834	1026/848	1605/914
+fbfrenzy	1422/18	1592/39	1711/36
+sengoku2	1356/888	1471/933	1476/911
+kotm	1306/388	1087/392	1172/450
+ncommand	1447/1047	1445/1071	1425/1042
+roboarmy	1576/818	1575/836	1513/893
+lresort	1257/853	1257/856	1260/875
+3countb	1145/871	1170/873	1434/876
+alpham2	1725/843	1725/859	1725/854
+bstars2	1104/1093	1436/1128	1538/1117
+
+# 9. LES PREUVES SUR L'IMAGE FINALE 03a634f3… : bench/non-regression.sh --jobs 2, PASS, 110 scènes PASS sur 110 (demo-ssideki :
+# 1441 images et 929 key-on contre 1360 et 929) ; parcours-mutations.py --eprouver, 125 tuées sur 125 (grille-haute-ff : 902
+# images et 116 key-on) ; le catalogue en deux moitiés (BIOS_SANS_NULLBIOS=1), 161 jeux sur 164 joués, le même verdict jeu par
+# jeu que 2026-10-24-matrice-catalogue.tsv (mvstemp et vliner FIGE, irrmaze sans substitution) ; test_generer_contrats.py OK.
+# 10. APRÈS LE REBASE SUR #1439 (main 3a6f31ba), image 8f03e1deeff52bf1… (CRC32 b660fa81). Sur une première image du rebase
+# (c5d12981…, `jsr _mess_out` dans int1.s), scores-gel sort FAIL : la trame 3176 des runs sg-b-meme et sg-b-saut (SCORE RESET
+# ON) diffère de celle de main, les 304 autres trames égales ; main et l'image 03a634f3 passent. Le même code avec `bsr.w
+# _mess_out`, 2 cycles de moins par INT1 (ceux de main) : PASS. Sur 8f03e1de… : non-regression.sh --jobs 2 PASS, 120 scènes
+# PASS sur 120 (demo-ssideki : 1441 images et 929 key-on contre 1360 et 929) ; --eprouver, 142 tuées sur 142 (grille-haute-ff :
+# 902 images et 116 key-on) ; le catalogue en deux moitiés, 161 jeux sur 164, le même verdict jeu par jeu que
+# 2026-10-24-matrice-catalogue.tsv ; vifs_max a bougé sur 21 jeux sans changer de verdict (bstars2 71153 → 71462, fbfrenzy
+# 71465 → 71468, socbrawl 67948 → 67933, snk 71680 pour les trois) ; test_generer_contrats.py OK.

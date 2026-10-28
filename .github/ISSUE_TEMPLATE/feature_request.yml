@@ -1,0 +1,24 @@
+name: Feature request
+description: Something Sprixe BIOS should do.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What you would like
+      description: What the player or operator would see or do.
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why
+      description: The situation it solves (cabinet, board, game).
+    validations:
+      required: true
+  - type: textarea
+    id: elsewhere
+    attributes:
+      label: Where it exists today
+      description: |
+        If another BIOS has it, describe what you see on screen. Do not paste or describe its code.

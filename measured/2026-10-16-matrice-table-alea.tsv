@@ -1,0 +1,32 @@
+# La matrice APRES la table d'alea a $C04200 (src/c0/alea.s, ancree par build/bios.ld), le
+# 2026-10-16. Seul changement depuis le formatage backup : la table et sa garde de lien.
+# Declencheur : des jeux tirent leurs aleas dans la ROM du BIOS en $C04200-$C042FF et retirent
+# jusqu'a une valeur differente modulo 9 ; sur notre padding $FF, boucle infinie et reboot
+# (diagnostic : 2026-10-16-kof98-diagnostic-remise.tsv).
+# Resultat : 17/20 (16 avant) — svc JOUE. kof98 change de profil : « joue noir » (vifs 0,
+# ~59 %) devient FIGE — il sort du tirage et meurt plus loin, sur sa temporisation de reset.
+# garou, mslug3 restent FIGE. Temoins du corpus de 17 : 14/17 (13 avant). Aucune regression.
+# Seules les lignes sprixe sont relevees ; controles de substitution tous ok.
+#
+# Image : la branche feat/bios-kof98-vblank, sha256 fb6763bff2a7b813…
+jeu	bios	verdict	vifs_max	vitesse_pct	controle
+aof	sprixe	joue (plus longue pose 0 tr.)	68096	1526.41	ok
+flipshot	sprixe	joue (plus longue pose 0 tr.)	68096	1457.70	ok
+garou	sprixe	FIGE dès 100 (3000 trames)	0	46.96	ok
+joyjoy	sprixe	joue (plus longue pose 0 tr.)	71281	1535.02	ok
+kof2003	sprixe	joue (plus longue pose 0 tr.)	66391	1301.41	ok
+kof94	sprixe	joue (plus longue pose 0 tr.)	68096	1215.80	ok
+kof98	sprixe	FIGE dès 100 (3300 trames)	0	51.42	ok
+lbowling	sprixe	joue (plus longue pose 0 tr.)	57983	1505.93	ok
+magdrop2	sprixe	joue (plus longue pose 0 tr.)	67792	1428.11	ok
+mslug	sprixe	joue (plus longue pose 0 tr.)	67321	1546.73	ok
+mslug3	sprixe	FIGE dès 100 (2500 trames)	0	42.67	ok
+nam1975	sprixe	joue (plus longue pose 0 tr.)	27604	1480.12	ok
+neomrdo	sprixe	joue (plus longue pose 0 tr.)	67534	1289.30	ok
+puzzledp	sprixe	joue (plus longue pose 0 tr.)	68096	1575.57	ok
+ridhero	sprixe	joue (plus longue pose 0 tr.)	71680	1455.89	ok
+samsho2	sprixe	joue (plus longue pose 0 tr.)	67829	1472.03	ok
+ssideki4	sprixe	joue (plus longue pose 0 tr.)	71197	1384.05	ok
+svc	sprixe	joue (plus longue pose 0 tr.)	66189	1211.02	ok
+trally	sprixe	joue (plus longue pose 0 tr.)	70605	1569.47	ok
+wjammers	sprixe	joue (plus longue pose 0 tr.)	68096	1408.05	ok

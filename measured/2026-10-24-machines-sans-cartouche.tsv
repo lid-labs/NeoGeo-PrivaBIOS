@@ -1,0 +1,34 @@
+# Image 70f73d53… (fix/bios-ng-mv1), MAME 0.286, bench/bus-flottant.lua sous le modèle du matériel (flottant) et sans (libre), 2 200 trames. Le jeu a la main : trame du premier PC dans la cartouche.
+machine	cartouches	modele	resets	jeu_a_la_main	trames_jeu	flottantes_bios	flottantes_jeu	substitution
+ng_mv1	aucune	flottant	0	-	0	0	0	ok
+ng_mv1	aucune	libre	0	-	0	0	0	ok
+ng_mv1	-cart1 aof	flottant	0	188,	713	0	0	ok
+ng_mv1	-cart1 aof	libre	0	188,	713	0	0	ok
+ng_mv1f	aucune	flottant	0	-	0	0	0	ok
+ng_mv1f	aucune	libre	0	-	0	0	0	ok
+ng_mv1f	-cart1 aof	flottant	0	188,	713	0	0	ok
+ng_mv1f	-cart1 aof	libre	0	188,	713	0	0	ok
+ng_mv2f	aucune	flottant	0	-	0	0	0	ok
+ng_mv2f	aucune	libre	0	-	0	0	0	ok
+ng_mv2f	-cart1 aof	flottant	0	188,	713	0	0	ok
+ng_mv2f	-cart1 aof	libre	0	188,	713	0	0	ok
+ng_mv2f	-cart1 aof -cart2 puzzledp	flottant	0	191,	710	0	0	ok
+ng_mv2f	-cart1 aof -cart2 puzzledp	libre	0	191,	710	0	0	ok
+ng_mv2f	-cart2 aof	flottant	0	188,	713	0	0	ok
+ng_mv2f	-cart2 aof	libre	0	188,	713	0	0	ok
+ng_mv4f	aucune	flottant	0	-	0	0	0	ok
+ng_mv4f	aucune	libre	0	-	0	0	0	ok
+ng_mv4f	-cart1 aof	flottant	0	188,	713	0	0	ok
+ng_mv4f	-cart1 aof	libre	0	188,	713	0	0	ok
+ng_mv4f	-cart1 aof -cart2 puzzledp	flottant	0	191,	710	0	0	ok
+ng_mv4f	-cart1 aof -cart2 puzzledp	libre	0	191,	710	0	0	ok
+ng_mv4f	-cart2 aof	flottant	0	188,	713	0	0	ok
+ng_mv4f	-cart2 aof	libre	0	188,	713	0	0	ok
+neogeo	aucune	flottant	0	-	0	0	0	ok
+neogeo	aucune	libre	0	-	0	0	0	ok
+neogeo	-cart1 aof	flottant	0	188,	713	0	0	ok
+neogeo	-cart1 aof	libre	0	188,	713	0	0	ok
+neogeo	-cart1 aof -cart2 puzzledp	flottant	0	191,	710	0	0	ok
+neogeo	-cart1 aof -cart2 puzzledp	libre	0	191,	710	0	0	ok
+neogeo	-cart2 aof	flottant	0	188,	713	0	0	ok
+neogeo	-cart2 aof	libre	0	188,	713	0	0	ok

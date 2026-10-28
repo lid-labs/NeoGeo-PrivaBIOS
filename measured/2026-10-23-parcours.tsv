@@ -1,0 +1,68 @@
+# Le parcours du joueur (bench/parcours.sh), le 2026-10-23 : les seuils qui jugent chaque scène, et
+# ce que l'image de main mesure en face. MAME 0.286, -bios euro, -video none, -sound none (le son
+# mixé est enregistré par -wavwrite quand même), -nothrottle, NVRAM neuve par run. Hôte : Apple M4
+# Pro, deux autres MAME tournant à côté. Image : main d95122a2 (src/c0 de #1414), sha256
+# 528b7e9c7120bdabf29747eaa7993efdb2398df5a177062e1fb7314d1a60716a. Romsets non-merged de
+# $ROMS, seul sp-s2.sp1 remplacé ; le témoin de demo-son tourne sur le romset d'origine.
+# Jeux : aof, puzzledp, et b2b + puzzledp sur la MV-6F de MAME (liste logicielle neogeo).
+#
+# Seule la colonne « seuil » juge ; « mesure » est la valeur de l'image de main, identique sur deux
+# passes complètes (runs déterministes, `docs/BENCH.md`). Le critère de chaque scène est écrit dans
+# l'en-tête de bench/parcours.sh. Un changement voulu du comportement demande un nouveau relevé, pas
+# un seuil relâché. Unités : case = 8 × 8 pixels (1 120 à l'écran), trames à 59,185 Hz, RMS en
+# échantillons 16 bits du WAV stéréo.
+#
+# La seule référence absolue est l'empreinte de l'écran de boot, celle de NOTRE écran (ligne CLOCK
+# masquée) ; aucune image n'est versionnée : ses glyphes viennent du SFIX de la carte, octets d'une
+# ROM SNK (docs/tasks.md, couche 3). Les autres scènes se jugent contre un témoin du même parcours
+# (sans le geste, ou avec l'autre valeur) : ce que le joueur voit et entend dans les deux cas.
+#
+# CE QUE LE PARCOURS A MONTRÉ, au-delà des seuils :
+#   - aucun défaut du BIOS : 23 scènes PASS sur l'image de main ;
+#   - cheats, aof : INFINITE TIME fige le chronomètre affiché à 59, pas à 60 — il perd sa première
+#     seconde (+181 trames après la reprise) avant de s'arrêter, la cellule forcée lue à $60.
+#     Sans conséquence pour le joueur ; noté, pas corrigé ;
+#   - restart : après RESTART GAME, les 188 premières trames sont celles d'une mise sous tension
+#     (l'écran de boot), puis le jeu repart en demande 2 et non en premier boot (demande 0) : la
+#     table des slots le connaît. D'où 208 trames égales et non 380 ;
+#   - jukebox.lua : J_APRES_RAZ sans J_PREFIXE plantait le jig (une variable locale masquait
+#     l'espace programme) ; corrigé dans le jig.
+#
+# REMESURÉ LE 2026-10-28, boot-ecran seul : le BIOS s'appelle Sprixe BIOS (DECISIONS §29), et
+# l'écran porte « Sprixe BIOS » et « sprixe.dev/bios ». Image c09acb36144641530e2e6a1e8cde9eaa20f9465a9928bc2d3caa6423e727550e,
+# mêmes conditions ; l'empreinte de « ReBIOS » était 2313384139 (4 451 pixels allumés).
+# REMESURÉ LE 2026-10-28, boot-ecran seul : le titre s'affiche « SPRIXE BIOS », en majuscules.
+# Image 18da0b0a51535b4428461122387fc6399300fae1c3209b5d21cc2292f2f16bb0, mêmes conditions ;
+# l'empreinte de « Sprixe BIOS » était 2082042587 (4 536 pixels allumés).
+#
+# LES MUTATIONS (bench/parcours-mutations.py --eprouver, une à la fois sur une copie de src/c0) :
+# 21 éprouvées, 21 tuées, chacune par la scène visée — la liste et le motif de chaque échec sont
+# dans l'en-tête de bench/parcours.sh. Une 22e, REG_VRAMMOD non rendu à RESUME, a survécu : aof
+# repose le sien, rien de visible ne change ; remplacée par « le plan fixe non rendu ».
+scene	grandeur	seuil	mesure
+boot-ecran	empreinte	1171988174	1171988174 (4 634 pixels allumés, ligne CLOCK y 152-167 masquée)
+boot-saut	fin_max	80	68 (A à la trame 60)
+boot-saut	fin_min	170	188 (sans A)
+boot-saut	reste_max	0.10	0.000
+carte	cases_min	4	14 (0 hors de la ligne CARD)
+demo-son	rms_ratio_min	0.5	1.21 (RMS 2 955 contre 2 433 sous SNK, trames 600-3600)
+demo-son	keyon_ratio_min	0.5	1.14 (1 026 contre 898)
+partie-credit	titre_min	300	1 064 (seconde pièce : 30 cases, toutes y ≥ 152)
+partie-start	cases_min	300	1 064
+fin-demo	trames_min	1500	1 791 (décalage 6 774 : la démo reprend vers la trame 6 964)
+fin-titre	trames_min	60	128
+scores	cases_min	8	53 (0 hors de la ligne 1ST)
+dip-temps	-	-	4 cases dans le chronomètre, 0 ailleurs (60 → 65)
+dip-langue	cases_min	40	137
+dip-langue	hors_max	2	0
+region	cases_min	40	178
+jukebox	rms_min	300	963 / 2 155 / 1 905 (codes 7F, 21, 25)
+jukebox	gain_min	10	contrôle 0 / 0 / 10
+menu-hud	hors_max	2	1 (la case 37,27 : le curseur du compteur CREDIT, qui clignote)
+menu-hud	cadre_min	0.5	1.0 (280 cases sur 280, pause 2357-2384)
+menu-reprise	egales_min	1400	1 496 sur 1 500
+menu-son	rms_ratio_min	0.7	0.998 (3 866 contre 3 872)
+menu-son	keyon_ratio_min	0.8	0.997 (601 contre 603)
+cheats	ram_min	1100	1 170 sur 1 200
+restart	egales_min	180	208 sur 380
+ms-select	cases_max	4	2 (le décompte TIME du départ forcé)

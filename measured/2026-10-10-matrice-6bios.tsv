@@ -1,0 +1,103 @@
+jeu	bios	verdict	vifs_max	vitesse_pct	controle
+aof	snk	joue (plus longue pose 0 tr.)	71680	1962.36	ok
+aof	unibios40	joue (plus longue pose 0 tr.)	68096	2099.77	ok
+aof	nullbios	FIGE dès 300 (3200 trames)	67795	2894.64	ok
+aof	neopen2015	joue (plus longue pose 0 tr.)	68096	2101.75	ok
+aof	neopen-src	joue (plus longue pose 0 tr.)	68096	2044.87	ok
+aof	neogeo-bios	joue (plus longue pose 0 tr.)	15933	2236.76	ok
+garou	snk	joue (plus longue pose 0 tr.)	71680	1790.92	ok
+garou	unibios40	joue (plus longue pose 0 tr.)	70792	1884.89	ok
+garou	nullbios	FIGE dès 100 (3200 trames)	0	62.87	ok
+garou	neopen2015	joue (plus longue pose 0 tr.)	70073	1923.19	ok
+garou	neopen-src	joue (plus longue pose 0 tr.)	68096		ALERTE:mame-exit-139
+garou	neogeo-bios	joue (plus longue pose 200 tr.)	0		ALERTE:mame-exit-139
+joyjoy	snk	joue (plus longue pose 0 tr.)	71680	2016.39	ok
+joyjoy	unibios40	joue (plus longue pose 0 tr.)	71261	2183.93	ok
+joyjoy	nullbios	joue (plus longue pose 0 tr.)	71261	2096.26	ok
+joyjoy	neopen2015	joue (plus longue pose 0 tr.)	71680	2155.17	ok
+joyjoy	neopen-src	joue (plus longue pose 0 tr.)	71680	2125.56	ok
+joyjoy	neogeo-bios	joue (plus longue pose 0 tr.)	71263	2113.72	ok
+kof2003	snk	joue (plus longue pose 0 tr.)	71680	1753.28	ok
+kof2003	unibios40	joue (plus longue pose 0 tr.)	65253	1874.59	ok
+kof2003	nullbios	joue (plus longue pose 0 tr.)	0	54.02	ok
+kof2003	neopen2015	joue (plus longue pose 0 tr.)	61829	1942.51	ok
+kof2003	neopen-src	joue (plus longue pose 0 tr.)	62504	1898.68	ok
+kof2003	neogeo-bios	joue (plus longue pose 0 tr.)	63093	1797.62	ok
+kof94	snk	joue (plus longue pose 0 tr.)	71680	1715.16	ok
+kof94	unibios40	joue (plus longue pose 0 tr.)	68096	1847.94	ok
+kof94	nullbios	joue (plus longue pose 100 tr.)	17836	2204.88	ok
+kof94	neopen2015	joue (plus longue pose 0 tr.)	67671	1914.98	ok
+kof94	neopen-src	joue (plus longue pose 0 tr.)	66303	1692.00	ok
+kof94	neogeo-bios	joue (plus longue pose 0 tr.)	67737	1646.40	ok
+kof98	snk	joue (plus longue pose 0 tr.)	71680	1654.36	ok
+kof98	unibios40	joue (plus longue pose 0 tr.)	67251	1744.88	ok
+kof98	nullbios	joue (plus longue pose 0 tr.)	0	52.58	ok
+kof98	neopen2015	joue (plus longue pose 0 tr.)	68096	1839.23	ok
+kof98	neopen-src	joue (plus longue pose 0 tr.)	68096	1830.36	ok
+kof98	neogeo-bios	joue (plus longue pose 0 tr.)	67107	1662.52	ok
+lbowling	snk	joue (plus longue pose 0 tr.)	71680	1966.56	ok
+lbowling	unibios40	joue (plus longue pose 0 tr.)	68096	2124.74	ok
+lbowling	nullbios	joue (plus longue pose 0 tr.)	55724	2128.83	ok
+lbowling	neopen2015	joue (plus longue pose 0 tr.)	66722	2062.04	ok
+lbowling	neopen-src	joue (plus longue pose 0 tr.)	66570	2098.25	ok
+lbowling	neogeo-bios	joue (plus longue pose 0 tr.)	55170	2231.33	ok
+mslug	snk	joue (plus longue pose 0 tr.)	71680	1890.40	ok
+mslug	unibios40	joue (plus longue pose 0 tr.)	68096	2080.25	ok
+mslug	nullbios	FIGE dès 600 (2900 trames)	61072	2187.43	ok
+mslug	neopen2015	joue (plus longue pose 0 tr.)	67236	2056.93	ok
+mslug	neopen-src	joue (plus longue pose 0 tr.)	67158	2070.79	ok
+mslug	neogeo-bios	joue (plus longue pose 0 tr.)	67315	1962.34	ok
+mslug3	snk	joue (plus longue pose 0 tr.)	71680	1819.42	ok
+mslug3	unibios40	joue (plus longue pose 0 tr.)	65003	2028.41	ok
+mslug3	nullbios	joue (plus longue pose 0 tr.)	0	52.42	ok
+mslug3	neopen2015	joue (plus longue pose 0 tr.)	68096	2035.30	ok
+mslug3	neopen-src	joue (plus longue pose 0 tr.)	68096		ALERTE:mame-exit-139
+mslug3	neogeo-bios	joue (plus longue pose 100 tr.)	35077	2019.27	ok
+nam1975	snk	joue (plus longue pose 0 tr.)	71680	1718.50	ok
+nam1975	unibios40	joue (plus longue pose 0 tr.)	70292	1832.99	ok
+nam1975	nullbios	joue (plus longue pose 0 tr.)	27611	1876.86	ok
+nam1975	neopen2015	joue (plus longue pose 0 tr.)	68096	2460.77	ok
+nam1975	neopen-src	joue (plus longue pose 0 tr.)	68096	2502.12	ok
+nam1975	neogeo-bios	joue (plus longue pose 0 tr.)	70292	1788.32	ok
+puzzledp	snk	joue (plus longue pose 0 tr.)	71680	2041.03	ok
+puzzledp	unibios40	joue (plus longue pose 0 tr.)	68096	2151.86	ok
+puzzledp	nullbios	joue (plus longue pose 0 tr.)	68096	2122.98	ok
+puzzledp	neopen2015	joue (plus longue pose 0 tr.)	68096	2070.21	ok
+puzzledp	neopen-src	joue (plus longue pose 0 tr.)	68096	2165.07	ok
+puzzledp	neogeo-bios	joue (plus longue pose 0 tr.)	68096	2071.03	ok
+ridhero	snk	joue (plus longue pose 0 tr.)	71680	1863.69	ok
+ridhero	unibios40	joue (plus longue pose 0 tr.)	71680	2015.64	ok
+ridhero	nullbios	joue (plus longue pose 0 tr.)	71680	1932.51	ok
+ridhero	neopen2015	joue (plus longue pose 100 tr.)	59748	1946.90	ok
+ridhero	neopen-src	joue (plus longue pose 0 tr.)	71680	1997.41	ok
+ridhero	neogeo-bios	joue (plus longue pose 0 tr.)	59648	2129.51	ok
+samsho2	snk	joue (plus longue pose 0 tr.)	71680	1866.57	ok
+samsho2	unibios40	joue (plus longue pose 0 tr.)	71680	1988.89	ok
+samsho2	nullbios	joue (plus longue pose 0 tr.)	71680	1870.73	ok
+samsho2	neopen2015	joue (plus longue pose 0 tr.)	71680	1985.61	ok
+samsho2	neopen-src	joue (plus longue pose 0 tr.)	71680	1997.22	ok
+samsho2	neogeo-bios	joue (plus longue pose 0 tr.)	71680	1842.54	ok
+ssideki4	snk	joue (plus longue pose 0 tr.)	71680	1854.57	ok
+ssideki4	unibios40	joue (plus longue pose 0 tr.)	71186	1954.00	ok
+ssideki4	nullbios	FIGE dès 100 (3400 trames)	0	2209.05	ok
+ssideki4	neopen2015	joue (plus longue pose 0 tr.)	71680	1924.75	ok
+ssideki4	neopen-src	joue (plus longue pose 0 tr.)	70991	1878.33	ok
+ssideki4	neogeo-bios	joue (plus longue pose 0 tr.)	71186	1805.17	ok
+svc	snk	joue (plus longue pose 0 tr.)	71680	1754.15	ok
+svc	unibios40	joue (plus longue pose 0 tr.)	67146	1904.91	ok
+svc	nullbios	FIGE dès 100 (3400 trames)	0	2709.22	ok
+svc	neopen2015	joue (plus longue pose 0 tr.)	68096	1867.44	ok
+svc	neopen-src	joue (plus longue pose 0 tr.)	68096		ALERTE:mame-exit-139
+svc	neogeo-bios	joue (plus longue pose 0 tr.)	67922		ALERTE:mame-exit-139
+trally	snk	joue (plus longue pose 0 tr.)	71680	2056.15	ok
+trally	unibios40	joue (plus longue pose 0 tr.)	71490	2200.90	ok
+trally	nullbios	joue (plus longue pose 0 tr.)	70605	2229.32	ok
+trally	neopen2015	joue (plus longue pose 0 tr.)	71680	2301.99	ok
+trally	neopen-src	joue (plus longue pose 0 tr.)	71290	2201.80	ok
+trally	neogeo-bios	joue (plus longue pose 0 tr.)	71490	2109.73	ok
+wjammers	snk	joue (plus longue pose 0 tr.)	71680	1867.83	ok
+wjammers	unibios40	joue (plus longue pose 0 tr.)	68096	1963.22	ok
+wjammers	nullbios	joue (plus longue pose 0 tr.)	68096	1840.33	ok
+wjammers	neopen2015	joue (plus longue pose 0 tr.)	68096	2042.75	ok
+wjammers	neopen-src	joue (plus longue pose 0 tr.)	68096	2011.91	ok
+wjammers	neogeo-bios	joue (plus longue pose 0 tr.)	68096	1886.90	ok

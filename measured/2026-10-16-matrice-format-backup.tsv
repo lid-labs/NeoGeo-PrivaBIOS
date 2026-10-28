@@ -1,0 +1,36 @@
+# La matrice APRES le formatage de la backup RAM au boot (signature absente -> zone systeme
+# formatee, valeurs mesurees ; signature presente -> rien touche), le 2026-10-16.
+# Mesure declencheur : kof98 reboote au watchdog sous notre image apres lecture de la zone
+# systeme vierge ; la reference teste la backup (patterns, trames 38-62 sur puzzledp) puis
+# ecrit la signature « BACKUP RAM OK ! » + $80 a $D00010 (~trame 74), et l'etat stable
+# formate a ete mesure par dumps espaces (kof98, 335 et 495).
+# kof98 reste rouge : sa cause restante est en aval (il attend, IRQ masquees, un drapeau
+# $10008E et des lignes raster $3C0006 pendant sa demande 0 — sous la reference, son init
+# demande 0 dure ~290 trames et appelle SYSTEM_INT1 114 fois, IRQ demasquees ; le point de
+# divergence est en amont de cette attente, non identifie a ce releve).
+# Note d'instrument : le boot de la reference AU BANC cosim ne passe pas par le test/formatage
+# backup (aucune ecriture $D0001x sur 335 trames tracees) — biais consigne, MAME fait foi ici.
+# 16/20 stable, aucune regression ; controles de substitution tous ok.
+#
+# Image : la branche feat/bios-format-backup, sha256 c8fc2b1f8c883f1e…
+jeu	bios	verdict	vifs_max	vitesse_pct	controle
+aof	sprixe	joue (plus longue pose 0 tr.)	68096	2159.57	ok
+garou	sprixe	FIGE dès 100 (3000 trames)	0	65.33	ok
+joyjoy	sprixe	joue (plus longue pose 0 tr.)	71281	2135.05	ok
+kof2003	sprixe	joue (plus longue pose 0 tr.)	60765	1875.53	ok
+kof94	sprixe	joue (plus longue pose 0 tr.)	66598	1769.58	ok
+kof98	sprixe	joue (plus longue pose 0 tr.)	0	58.99	ok
+lbowling	sprixe	joue (plus longue pose 0 tr.)	57983	2107.50	ok
+mslug	sprixe	joue (plus longue pose 0 tr.)	67321	2143.72	ok
+mslug3	sprixe	FIGE dès 100 (2500 trames)	0	59.24	ok
+nam1975	sprixe	joue (plus longue pose 0 tr.)	27604	2041.88	ok
+puzzledp	sprixe	joue (plus longue pose 0 tr.)	68096	2237.40	ok
+ridhero	sprixe	joue (plus longue pose 0 tr.)	71680	2006.30	ok
+samsho2	sprixe	joue (plus longue pose 0 tr.)	67829	2041.85	ok
+ssideki4	sprixe	joue (plus longue pose 0 tr.)	71197	1919.26	ok
+svc	sprixe	FIGE dès 100 (3400 trames)	0	3001.31	ok
+trally	sprixe	joue (plus longue pose 0 tr.)	70605	2212.17	ok
+wjammers	sprixe	joue (plus longue pose 0 tr.)	68096	1979.35	ok
+flipshot	sprixe	joue (plus longue pose 0 tr.)	68096	2033.73	ok
+neomrdo	sprixe	joue (plus longue pose 0 tr.)	67534	1825.50	ok
+magdrop2	sprixe	joue (plus longue pose 0 tr.)	67792	1994.28	ok

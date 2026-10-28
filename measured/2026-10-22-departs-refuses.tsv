@@ -1,0 +1,18 @@
+# Le diagnostic des departs refuses, le 2026-10-22 : sous la reference (-bios euro) et sous notre image
+# main 433d86e9, meme plan d'entrees (bench/bios-probe.lua), sonde lua de RAM, de registres et des
+# appels du BIOS ; PC du JEU seulement (< $C00000), valeurs de RAM et de registres de la reference
+# (DECISIONS.md §8), aucune valeur pointant dans la ROM du BIOS (remplacees par RETENU_S8). Chaque cause
+# est PROUVEE en forcant sous notre image la valeur de la reference au bon moment. Releves bruts hors
+# depot. Les corrections sont dans io.s et c0.s (lot « departs refuses »).
+#
+# Point de methode : notre BIOS rend la main au jeu vers la trame 100, la reference vers la trame 280,
+# puis garde son eye-catcher jusqu'a la trame ~750 ; avec le meme plan d'entrees, une piece ne tombe
+# pas au meme moment du jeu. Chaque cas a ete rejoue sous la reference dans notre timing (decalage)
+# avant de conclure.
+cause	jeux	mesure	preuve_causale	correction
+CREDIT_CHECK compare la demande de P2 a $D00035 ; la reference a $D00034 (credit commun)	cyberlip, ncommand	mode 2 : la reference garde DEC2=$01 des que $D00034>=1 (100/300/98 appels cyberlip, 211/200 ncommand) ; nous le remettons a 0	DEC2 retabli quand $D00034 couvre la demande : cyberlip « PUSH 2P START », ncommand « PUSH START »	io.s _credit_check ; au titre, 1 credit : DEC2 remis a 0 (65/66 trally, 96/96 dragonsh), 2 credits : garde (100/100)
+une piece au titre (mode 1, demande 3) relance la remise USER chez nous ; la reference credite seulement	trally	piece a 601 : reference creditee sans remise, START de 700 accepte ; chez nous l'intro rejouee mange le START	mode lu a $02 au seul test de _io_commun : trally part a 700, 10 credits a 3500 comme la reference	io.s fin de _io_commun : pas de remise si demande = 3
+au START accepte, la reference met BIOS_COMPULSION_TIMER a zero ($10FDDA/$10FDDB)	sbp	sbp 401 : reference 29/1E -> 00/00, nous 29/1F ; au titre, sbp ne part pas tant que $10FDDA ne vaut pas 0	$10FDDA/$10FDDB forces a 0 au depart : sbp part a 402, 10 credits	io.s _io_start, apres PLAYER_START et seulement si le jeu garde le bit (mesure : sbp 400 et trally 700 oui ; un START en jeu, non)
+la remise sur piece ne coupe pas le timer du LSPC ; la reference ecrit REG_LSPCMODE <- $4000 et IRQACK <- 7 avant chaque remise	aodk	aodk ecrit $3C0006 <- $0090 (timer raster) ; l IRQ2 en attente est servie en RAM ($108600), zone que le jeu vient de remettre a zero, et le CPU part dans des zeros	$4000 et 7 ecrits au fetch de $000122 : plus de plantage, partie a 401	c0.s _remettre_a_user (la reference le fait au boot, en fin de demo et a la piece)
+a la remise USER, nos registres de donnees sont des restes ; la reference entre en $000122 avec D2, D3, D6 = 0 et D7 = $FFFF (aux deux remises mesurees), D0 = 0, D1 = $80, D4 = D5 = 0 (au boot)	garou	avec D6 = $0000FFFF a l entree (chez nous), garou reste des dizaines de milliers d iterations en $10FC00 sans servir le watchdog : boucle de reboots, MAME segfault	D6 = 0 seul au fetch de $000122 : garou passe demo, titre et partie	c0.s avant jmp 0x122 ; D0, D1, D4, D5 recopies par fidelite, seul D6 prouve necessaire
+dragonsh entre dans son outil de debug	dragonsh	START au tout debut de la demo puis A ; la reference rejouee au meme timing y entre aussi	—	aucune : pas une cause BIOS

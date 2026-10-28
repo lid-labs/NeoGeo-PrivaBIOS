@@ -1,0 +1,93 @@
+# Matrice du corpus sur l'image du durcissement materiel, le 2026-10-22 : 22 jeux, BIOS_REF euro.
+# Image sha256 1db82fe1f959b3fe... Verdicts et controles egaux a 2026-10-22-matrice-multi-slot-lot1.tsv
+# sur les 88 lignes (garou joue sans planter, vifs 70804). Le boot dure 2 trames de plus (la poignee
+# de main $01 attend une trame avant de lire l'echo, puis une avant REG_CRTFIX).
+jeu	bios	verdict	vifs_max	vitesse_pct	controle
+aof	snk	joue (plus longue pose 0 tr.)	71680	1947.60	ok
+aof	unibios40	joue (plus longue pose 0 tr.)	68096	2054.82	ok
+aof	nullbios	FIGE dès 300 (3200 trames)	67795	2878.50	ok
+aof	sprixe	joue (plus longue pose 0 tr.)	68096	2008.11	ok
+b2b	snk	joue (plus longue pose 0 tr.)	71680	1852.30	ok
+b2b	unibios40	joue (plus longue pose 0 tr.)	68096	1967.75	ok
+b2b	nullbios	FIGE dès 100 (3400 trames)	0	2325.26	ok
+b2b	sprixe	joue (plus longue pose 0 tr.)	67677	1853.31	ok
+flipshot	snk	joue (plus longue pose 0 tr.)	71680	1953.09	ok
+flipshot	unibios40	joue (plus longue pose 0 tr.)	68096	2071.23	ok
+flipshot	nullbios	FIGE dès 100 (3400 trames)	0	2642.13	ok
+flipshot	sprixe	joue (plus longue pose 0 tr.)	68096	1999.42	ok
+garou	snk	joue (plus longue pose 0 tr.)	71680	1588.02	ok
+garou	unibios40	joue (plus longue pose 0 tr.)	70792	1678.29	ok
+garou	nullbios	FIGE dès 500 (2800 trames)	0	62.78	ok
+garou	sprixe	joue (plus longue pose 0 tr.)	70804	1645.20	ok
+joyjoy	snk	joue (plus longue pose 0 tr.)	71680	2009.27	ok
+joyjoy	unibios40	joue (plus longue pose 0 tr.)	71261	2175.10	ok
+joyjoy	nullbios	FIGE dès 2600 (900 trames)	71261	2128.07	ok
+joyjoy	sprixe	joue (plus longue pose 0 tr.)	71680	2096.99	ok
+kof2003	snk	joue (plus longue pose 0 tr.)	71680	1752.73	ok
+kof2003	unibios40	joue (plus longue pose 0 tr.)	65253	1883.20	ok
+kof2003	nullbios	joue (plus longue pose 0 tr.)	0	54.26	ok
+kof2003	sprixe	joue (plus longue pose 0 tr.)	66538	1828.63	ok
+kof94	snk	joue (plus longue pose 0 tr.)	71680	1714.66	ok
+kof94	unibios40	joue (plus longue pose 0 tr.)	68096	1893.18	ok
+kof94	nullbios	joue (plus longue pose 100 tr.)	17543	2228.88	ok
+kof94	sprixe	joue (plus longue pose 0 tr.)	67633	1740.43	ok
+kof98	snk	joue (plus longue pose 0 tr.)	71680	1536.34	ok
+kof98	unibios40	joue (plus longue pose 0 tr.)	67200	1638.45	ok
+kof98	nullbios	joue (plus longue pose 0 tr.)	0	54.34	ok
+kof98	sprixe	joue (plus longue pose 0 tr.)	67251	1607.17	ok
+lbowling	snk	joue (plus longue pose 0 tr.)	71680	2039.18	ok
+lbowling	unibios40	joue (plus longue pose 0 tr.)	68096	2180.30	ok
+lbowling	nullbios	joue (plus longue pose 0 tr.)	55724	2157.04	ok
+lbowling	sprixe	joue (plus longue pose 0 tr.)	66663	2112.66	ok
+magdrop2	snk	joue (plus longue pose 0 tr.)	71680	1921.45	ok
+magdrop2	unibios40	joue (plus longue pose 0 tr.)	68096	2090.81	ok
+magdrop2	nullbios	joue (plus longue pose 0 tr.)	67792	1996.21	ok
+magdrop2	sprixe	joue (plus longue pose 0 tr.)	67702	2026.66	ok
+minasan	snk	joue (plus longue pose 0 tr.)	71680	1860.18	ok
+minasan	unibios40	joue (plus longue pose 0 tr.)	65309	1954.10	ok
+minasan	nullbios	joue (plus longue pose 0 tr.)	56085	1792.34	ok
+minasan	sprixe	joue (plus longue pose 0 tr.)	56085	1863.54	ok
+mslug	snk	joue (plus longue pose 0 tr.)	71680	2029.80	ok
+mslug	unibios40	joue (plus longue pose 0 tr.)	68096	2209.98	ok
+mslug	nullbios	FIGE dès 700 (2800 trames)	66988	2426.19	ok
+mslug	sprixe	joue (plus longue pose 0 tr.)	67315	2152.58	ok
+mslug3	snk	joue (plus longue pose 0 tr.)	71680	1784.29	ok
+mslug3	unibios40	joue (plus longue pose 0 tr.)	65338	1904.46	ok
+mslug3	nullbios	joue (plus longue pose 0 tr.)	0	55.29	ok
+mslug3	sprixe	joue (plus longue pose 0 tr.)	65091	1894.61	ok
+nam1975	snk	joue (plus longue pose 0 tr.)	71680	1829.87	ok
+nam1975	unibios40	joue (plus longue pose 0 tr.)	70292	1964.69	ok
+nam1975	nullbios	joue (plus longue pose 0 tr.)	27611	2111.32	ok
+nam1975	sprixe	joue (plus longue pose 0 tr.)	70381	1867.12	ok
+neomrdo	snk	joue (plus longue pose 0 tr.)	71680	1818.06	ok
+neomrdo	unibios40	joue (plus longue pose 0 tr.)	68096	1947.56	ok
+neomrdo	nullbios	joue (plus longue pose 0 tr.)	67534	1872.57	ok
+neomrdo	sprixe	joue (plus longue pose 0 tr.)	67541	1889.94	ok
+puzzledp	snk	joue (plus longue pose 0 tr.)	71680	2155.10	ok
+puzzledp	unibios40	joue (plus longue pose 0 tr.)	68096	2312.17	ok
+puzzledp	nullbios	joue (plus longue pose 0 tr.)	68096	2273.75	ok
+puzzledp	sprixe	joue (plus longue pose 0 tr.)	68096	2262.79	ok
+ridhero	snk	joue (plus longue pose 0 tr.)	71680	1988.92	ok
+ridhero	unibios40	joue (plus longue pose 0 tr.)	71680	2177.47	ok
+ridhero	nullbios	joue (plus longue pose 0 tr.)	71680	2075.24	ok
+ridhero	sprixe	joue (plus longue pose 0 tr.)	71680	2104.36	ok
+samsho2	snk	joue (plus longue pose 0 tr.)	71680	1973.99	ok
+samsho2	unibios40	joue (plus longue pose 0 tr.)	71680	2161.74	ok
+samsho2	nullbios	joue (plus longue pose 0 tr.)	67829	2078.67	ok
+samsho2	sprixe	joue (plus longue pose 0 tr.)	71680	2100.20	ok
+ssideki4	snk	joue (plus longue pose 0 tr.)	71680	1946.98	ok
+ssideki4	unibios40	joue (plus longue pose 0 tr.)	71186	2054.43	ok
+ssideki4	nullbios	FIGE dès 100 (3400 trames)	0	2276.14	ok
+ssideki4	sprixe	joue (plus longue pose 0 tr.)	71186	1993.60	ok
+svc	snk	joue (plus longue pose 0 tr.)	71680	1776.98	ok
+svc	unibios40	joue (plus longue pose 0 tr.)	64836	1890.47	ok
+svc	nullbios	FIGE dès 100 (3400 trames)	0	2885.63	ok
+svc	sprixe	joue (plus longue pose 0 tr.)	66411	1882.52	ok
+trally	snk	joue (plus longue pose 0 tr.)	71680	2231.02	ok
+trally	unibios40	joue (plus longue pose 0 tr.)	71490	2349.75	ok
+trally	nullbios	joue (plus longue pose 0 tr.)	70605	2222.22	ok
+trally	sprixe	joue (plus longue pose 0 tr.)	44526	2291.58	ok
+wjammers	snk	joue (plus longue pose 0 tr.)	71680	1976.42	ok
+wjammers	unibios40	joue (plus longue pose 0 tr.)	68096	2108.49	ok
+wjammers	nullbios	joue (plus longue pose 0 tr.)	68096	2000.12	ok
+wjammers	sprixe	joue (plus longue pose 0 tr.)	68096	1982.58	ok

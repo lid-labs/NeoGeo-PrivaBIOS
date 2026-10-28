@@ -1,0 +1,117 @@
+# Les autres jeux qui lisent la ROM du BIOS hors de notre code (#1446) : socbrawl, 3countb, bstars2, fbfrenzy, relevés jeu par jeu
+# le 2026-10-27, après la grille de $C02000-$C03FFF (DECISIONS §18, 2026-10-25-ssideki-demo.tsv).
+#
+# OUTIL : MAME 0.286 (Homebrew), -video none, -sound none, -nothrottle, SDL_MAC_BACKGROUND_APP=1, NVRAM et cfg neufs par run,
+# romsets non-merged de $ROMS. Notre image sur la MV-6F (neogeo -cart1 <jeu>, servie par neogeo.zip, seul sp-s2.sp1
+# remplacé, « WRONG CHECKSUMS » dans chaque journal) ; le témoin SNK par le romset d'origine, -bios euro. Image de la branche :
+# 8c8caefa341a6738… (main e36f6078 + le lot 5a, #1444). Jigs hors dépôt : bench/son.lua (versionné) pour l'empreinte de
+# l'image entière, les key-on du YM2610 et la remise (REMISE) ; un tap de LECTURE sur $C00000-$C1FFFF qui compte par adresse
+# les accès d'un octet (masque FF00 ou 00FF) et, à part, ceux d'un mot (masque FFFF ; dans une zone sans code, un mot lu est
+# une donnée) — adresse, compte, première et dernière trame ; ce tap ne lit ni valeur ni PC, sous notre image comme sous la
+# référence. Aucune instruction tracée, désassemblée ni lue (bench/son.lua ne lit le PC que pour attribuer une écriture au BIOS
+# ou au jeu, sans le consigner) ; aucun octet de la référence relevé ni copié.
+#
+# LES VARIANTES : notre image dont une zone est réécrite par un script hors dépôt — une constante, ou le générateur
+# congruentiel de grille.s (x ← $6255·x + $3619) ramené à un intervalle, ou un mélange de deux intervalles (« m<p> » : p % des
+# octets de 0 à 3, le reste de 4 à 15). « graine » : la graine du générateur, seule chose qui change entre deux tirages.
+# DÉMO : sans entrée, de 400 à 2399 trames après la remise, images entières différentes / key-on (comme la scène demo-ssideki).
+# PARTIE : pièce à S−200, START à S (600 chez nous ; au témoin, décalé de l'écart des remises), puis cinq scénarios d'entrées —
+# jp : A toutes les 20 trames, droite tenue 2000 trames ; jw : droite 950 ; jx : B toutes les 20, droite 2000 ; jn : rien ;
+# jz : B toutes les 30, gauche 2000, quatre A. « figées » : fenêtres de 100 trames de S+1200 à S+3599 (24) à moins de 20
+# images différentes. jw et jn n'atteignent de match dans aucun des deux jeux, sous aucun BIOS : seuls jp, jx, jz jugent.
+#
+# 1. CE QUE CHAQUE JEU LIT APRÈS LA REMISE, notre image, démo sans entrée, 3 600 trames. Octets : lectures / adresses distinctes,
+# première trame. Mots : la zone B, $C04000-$C041FF, notre remplissage $FF. Ailleurs, des octets lus seulement
+# dans notre code ($C00400-$C00401 chez ssideki et 3countb, $C06FF0-$C097BA chez ssideki), que le tap ne sépare pas des
+# lectures du BIOS lui-même.
+jeu	grille_bas_octets	grille_haut_octets	B_mots	table_alea_octets
+ssideki	26121/3189 @394	44844/3357 @548	38932/256 @394	3219/256
+socbrawl	5626/967 @950	6222/783 @951	8414/225 @953	—
+3countb	1979/134 @529	1979/134 @529	1164/18 @196	—
+bstars2	222/141 @1558	249/34 @1114	68/58 @1181	2366/256
+fbfrenzy	15347/376 @666	15347/376 @666	3206/175 @666	4847/256
+# Sous le témoin SNK (adresses seules), les quatre lisent aussi des octets en $C02000-$C03FFF et des mots en $C04000-$C04FFF :
+# le jeu y lit des données.
+#
+# 2. LE TÉMOIN NE DÉPEND PAS DU BIOS SNK CHOISI : démo sous euro, euro-s1, asia-mv1c et unibios40 (remise 751, ou 839 sous
+# unibios40) — les mêmes chiffres, à 4 images près pour fbfrenzy.
+jeu	euro	euro-s1	asia-mv1c	unibios40	notre_image
+socbrawl	1605/914	1605/914	1605/914	1605/914	1026/848
+3countb	1434/876	1434/876	1434/876	1434/876	1170/873
+bstars2	1538/1117	1538/1117	1538/1117	1538/1117	1436/1128
+fbfrenzy	1711/36	1711/36	1707/35	1713/35	1583/36
+#
+# 3. LA DÉMO SOUS D'AUTRES GRILLES (plan haut / plan bas ; « 0..3 / 1..63 » est notre image).
+plan_haut	plan_bas	socbrawl	3countb	bstars2	fbfrenzy
+0..3	1..63	1026/848	1170/873	1436/1128	1583/36
+0..3	0..255	734/851	1229/872	1460/1123	1597/38
+0..255	1..63	1494/890	1194/871	1348/1107	1679/47
+0..255	0..255	712/838	1318/876	1285/1114	1681/30
+0..7	1..63	518/846	1170/873	1392/1131	1556/38
+$00	1..63	563/850	1170/873	1392/1123	1549/38
+$80	1..63	989/849	1194/871	1348/1106	1595/39
+# 4. MÊME DISTRIBUTION QUE NOTRE IMAGE, SIX GRAINES : 3countb, bstars2 et fbfrenzy restent dans une bande étroite, sous le témoin.
+jeu	graine_1111	graine_2222	graine_3333	graine_4444	graine_5555	graine_6666
+socbrawl	420/844	514/850	673/850	532/843	489/844	728/860
+3countb	1126/867	1198/873	1134/873	1178/873	1170/873	1173/873
+bstars2	1387/1130	1430/1127	1417/1129	1426/1127	1386/1129	1392/1123
+fbfrenzy	1578/41	1567/40	1554/37	1542/35	1571/50	1573/36
+# 5. LA ZONE B ($C04000-$C041FF) : notre $FF, tirée de 0 à 255, ou à $00. Le $FF est ce que ssideki et bstars2 demandent.
+jeu	FF	0..255	00
+ssideki	1441/929	426/116	8/116
+socbrawl	1026/848	500/842	407/834
+3countb	1170/873	1244/878	1045/865
+bstars2	1436/1128	299/1086	299/1086
+fbfrenzy	1583/36	1567/36	1493/32
+#
+# 6. SOCBRAWL, LE PLAN HAUT SEUL : une constante, plan bas 1..63. Passent (au-dessus de 1400) : $04, $08, $10 ; $00 à $03, ceux
+# qu'exige l'intro de ssideki (§18), figent. Le plan bas seul (constantes $00 $01 $02 $04 $10 $20 $3F $40 $80 $FF, tirages 1..15,
+# 16..63, 32..63), plan haut 0..3 : 193 à 1026, aucun ne passe.
+plan_haut	01	02	03	04	08	10	20	40	7F	81	C0	FF
+socbrawl	412	571	523	1447	1548	1519	1220	1345	949	989	1198	1198
+#
+# 7. CE QUE VOIT LE JOUEUR DE SOCBRAWL (planches côte à côte, non versionnées : elles portent les graphismes du jeu). Sous notre
+# image, la démo s'arrête sur un THROW IN de la remise +1200 à +2300 au moins, aucun joueur n'allant à la touche ; le témoin
+# enchaîne le match. En partie (pièce 400, START 600, A toutes les 20 trames dès 700, droite tenue de 900 à 2900), même
+# blocage : THROW IN de START+2700 à START+3200, le chronomètre qui tourne (02:24 à 02:15), 5 fenêtres du match sous 20 images,
+# aucune au témoin (les mêmes entrées décalées de 563 trames). Pendant le blocage, le jeu relit à chaque trame les mêmes cases
+# (tap, trames 3400-3700) : $C03172 et $C03DBB 301 fois en 301 trames, $C03279 151 fois. Plan haut 0..255 ou à $08 : le match
+# reprend dans la démo et dans la partie.
+#
+# 8. UNE GRILLE POUR LES DEUX JEUX ? Plan bas 1..63 gardé, plan haut en mélange ; démo de socbrawl / démo de ssideki (le témoin
+# SNK : 1605/914 et 1360/929), deux graines par ligne.
+plan_haut	socbrawl_graine_A	socbrawl_graine_B	ssideki_graine_A	ssideki_graine_B
+m90	996/848	644/843	1420/924	1468/945
+m75	859/853	1211/859	1473/1022	1498/1002
+m50	562/840	1113/875	1411/976	1494/1057
+m25	1206/822	1463/887	1438/1094	1442/976
+m10	1513/902	1375/849	1460/951	1449/863
+4..15	1078/847	1144/847	963/116	1001/116
+0..255	1344/857	1473/885	1128/116	1171/116
+½ $80, ½ 4..15	1386/851	1475/900	1006/116	1059/116
+# m10 sur quatre graines : socbrawl 1513, 1375, 1423, 1455 images, sans blocage en partie (jp, jz) ; ssideki joue ses cinq
+# parties sans fenêtre figée sur les quatre, mais sa démo se fige sur la quatrième graine (976/116). Les 51 cases du plan
+# haut que lit l'intro de ssideki (tap, trames 376-800) remises à 0..3 sur ces quatre grilles : l'intro passe sur les quatre,
+# mais une partie de ssideki se fige (jp sur la première graine, 15 fenêtres à 4 images ; jz sur la quatrième, 8 ; une fenêtre
+# à 15 images en jz sur la troisième) et la démo de
+# socbrawl retombe à 947 sur la deuxième. Aucune famille essayée ne tient les deux jeux sur toutes ses graines.
+# L'INSTRUMENT SAIT ÉCHOUER : plan haut ½ 0..3, ½ 0..255 et plan bas à $00 (la ligne « mélange, bas à $00 » de
+# 2026-10-25-ssideki-demo.tsv) : ssideki jp 21 fenêtres figées, jz 15.
+#
+# 9. LES AUTRES LECTEURS, notre image 8c8caefa / témoin SNK, démo.
+jeu	notre_image	temoin_SNK
+ssideki2	921/264	917/280
+ssideki4	1035/763	1042/763
+sengoku2	1471/933	1476/911
+kotm	1087/392	1172/450
+ncommand	1445/1080	1425/1042
+roboarmy	1577/840	1513/893
+lresort	1257/856	1260/875
+alpham2	1725/859	1725/854
+#
+# 10. VERDICTS.
+# socbrawl : défaut visible, la démo et la partie bloquées sur un THROW IN. Causé par le plan haut à 0..3 (sections 6 et 7), que
+#   l'intro de ssideki exige (§18). Non corrigé : aucune grille essayée ne tient les deux jeux (section 8). Question ouverte.
+# 3countb, bstars2, fbfrenzy : aucun défaut vu sur les planches (des matchs, des tutoriels et des lancers différents de ceux du
+#   témoin, joués jusqu'au bout) ; l'écart d'images ne suit pas la grille (sections 3 et 4), et la zone B doit rester à $FF
+#   (section 5). Non corrigés : rien dans les zones mesurées ne les rapproche du témoin sans casser ssideki.

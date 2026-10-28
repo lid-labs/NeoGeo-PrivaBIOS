@@ -1,0 +1,16 @@
+# Sauvegarde du jeu avec une cartouche seule : reference (-bios euro) contre notre image avant (4a0198fd) et apres (41d59489), MAME 0.286, machine neogeo (MV-6F), -cartN, jig bench/multislot.lua MS_PLAGES=1, le 2026-10-22.
+# Jetons : remise (slot, demande, mode) ; sysret code (BIOS_SYSRET_STATUS a l entree de SYSTEM_RETURN) ; S = zone du jeu lue -> bloc ecrit ; R = bloc lu -> zone ecrite ; somme 16 bits des octets ecrits (valeurs du jeu). Comparaison sur le prefixe commun, trames ignorees (nous n avons pas de logo).
+# Colonnes hors_2e_R_ref : la seconde restauration identique que la reference fait apres son logo (meme bloc, meme somme, aucune sauvegarde entre) est retiree de sa suite ; nous n avons pas de logo et ne la faisons pas.
+run	description	jetons_ref	jetons_apres	structure_egale_apres	sommes_egales_apres	jetons_avant	structure_egale_avant	structure_egale_apres_hors_2e_R_ref	sommes_egales_apres_hors_2e_R_ref
+puzzledp-p1	c1 puzzledp, NVRAM neuve, piece 2000, start 2100, 14000 trames	9	9	oui	oui	6	NON	oui	oui
+puzzledp-p1s	c1 puzzledp, NVRAM gardee du run precedent, 3000 trames	2	2	oui	oui	1	NON	oui	oui
+nam1975-p1	c1 nam1975, neuve, piece 2000, start 2100, 14000	21	25	oui	oui	14	NON	oui	oui
+nam1975-p1s	c1 nam1975, gardee, 3000	6	6	oui	oui	3	NON	oui	oui
+aof-p1	c1 aof, neuve, piece 2000, start 2100, 14000	14	13	NON	NON	8	NON	oui	NON
+aof-p1s	c1 aof, gardee, 3000	2	2	oui	NON	1	NON	oui	NON
+mslug-p1	c1 mslug, neuve, piece 2000, start 2100, 14000 (partie non finie)	6	6	oui	oui	4	NON	oui	oui
+mslug-p1s	c1 mslug, gardee, 3000	2	2	oui	oui	1	NON	oui	oui
+aof-cred	c1 aof, neuve, deux pieces 2000/2030, start 2100 : fin de partie avec credit, 12000	10	9	oui	NON	6	NON	oui	NON
+c2-jeu	c2 puzzledp+aof, neuve, piece 2000, start 2100 (partie sur le slot 0), 14000	12	12	oui	oui	11	NON	oui	oui
+c2-neuf	c2 puzzledp+aof, neuve, sans entree, 20000 (lot 3)	26	24	NON	NON	24	NON	oui	oui
+c4-neuf	c4 puzzledp+aof+nam1975+mslug, neuve, sans entree, 20000 (lot 3)	31	34	NON	NON	34	NON	oui	oui

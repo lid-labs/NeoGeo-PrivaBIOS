@@ -1,0 +1,38 @@
+# Les points d entree que chaque fenetre exerce, le 2026-10-14. Remplace le releve du
+# 2026-10-11, que ses deux fenetres limitaient : aucune ne portait le START ni une piece
+# en cours de partie, et les contrats generes d une seule fenetre declaraient stables des
+# ecritures qui ne le sont que dans leur regime.
+#
+# CE RELEVE NE DIT RIEN DES AUTRES TRAMES : quatre fenetres de 13 trames sur 615.
+#
+# $C00444 (SYSTEM_RETURN) NE SE DECLENCHE SUR AUCUNE DES QUATRE FENETRES, ni sur les deux
+# du 2026-10-11 : ni la piece de boot (fenetre 498), ni le START (fenetre 558), ni une piece
+# inseree en cours de partie (fenetre 598, --pad) ne font rendre la main au BIOS sur
+# puzzledp. Son contrat demande un autre declencheur, ou un autre jeu.
+#
+# Regenerer : quatre traces du co-simulateur LSPC/FX68K (non publie ici, voir docs/BENCH.md),
+#   $ROMS/puzzledp.zip sous sp-s2.sp1, 600 000 acces chacune, des les trames 330 (jusqu a 345),
+#   498 (512), 558 (575) et 598 (615, avec une piece injectee aux trames 600-612) ;
+# puis, depuis la racine du depot, ./bench/generer-contrats.py <traces...> <dossier>.
+# Les contrats versionnes dans specs/traces/ sont generes des QUATRE traces a la fois,
+# dans l ordre ci-dessus : le noyau d un contrat se calcule sur l union des regimes.
+#
+# Les evenements de chaque fenetre : la piece de boot tombe aux trames 500-510 et le START
+# aux trames 560-570 (injection de boot du banc cosim) ; la fenetre 598 ajoute une piece par
+# --pad=600-612:coin pendant la partie. La bascule BIOS -> cartouche est a la trame 502,9.
+#
+# Les noms viennent de la page BIOS calls du NeoGeo Development Wiki ; le generateur, lui,
+# ne nomme rien et designe un appel par son offset.
+fenetre_trames	evenement	point_entree	nom_public	appels
+329.97-342.79	BIOS en attente	$C00438	SYSTEM_INT1	12
+497.97-510.86	piece de boot, bascule	$C00438	SYSTEM_INT1	4
+497.97-510.86	piece de boot, bascule	$C0044A	SYSTEM_IO	7
+497.97-510.86	piece de boot, bascule	$C00450	CREDIT_CHECK	1
+497.97-510.86	piece de boot, bascule	$C004C2	FIX_CLEAR	2
+497.97-510.86	piece de boot, bascule	$C004C8	LSP_1st	1
+557.97-571.18	START, debut de partie	$C0044A	SYSTEM_IO	13
+557.97-571.18	START, debut de partie	$C00450	CREDIT_CHECK	9
+557.97-571.18	START, debut de partie	$C004C2	FIX_CLEAR	1
+557.97-571.18	START, debut de partie	$C004C8	LSP_1st	2
+597.97-610.85	piece en cours de partie	$C0044A	SYSTEM_IO	12
+597.97-610.85	piece en cours de partie	$C00450	CREDIT_CHECK	13

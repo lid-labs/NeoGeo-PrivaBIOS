@@ -1,0 +1,24 @@
+# Empreintes des jeux du corpus (src/c0/cheats.s : somme 16 bits des 64 mots $000100-$00017E), lues par lua sous notre image (sha256 68481ced...), MAME 0.286, -bios euro, trame 600, le 2026-10-21. garou : MAME segfault avant la trame 600.
+jeu	ngh	empreinte
+aof	0044	42B6
+b2b	0071	E928
+flipshot	0247	C16D
+garou		
+joyjoy	0021	B9B7
+kof2003	0271	0F9A
+kof94	0055	4489
+kof98	0242	8F29
+lbowling	0019	93E6
+magdrop2	0221	3333
+minasan	0027	D5BB
+mslug	0201	33C2
+mslug3	0256	E095
+nam1975	0001	D38B
+neomrdo	0207	94A1
+puzzledp	0202	CF3A
+ridhero	0006	9D17
+samsho2	0063	B2EF
+ssideki4	0215	4AD3
+svc	0269	D6D2
+trally	0038	5FF9
+wjammers	0065	2657

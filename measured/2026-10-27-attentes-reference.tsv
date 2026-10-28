@@ -1,0 +1,25 @@
+# Les quatre attentes d'ATTENTES §1 qui changeraient ce que voit le joueur (#1448) : ce que font UniBIOS 4.0 et le BIOS SNK,
+# relevé par observation le 2026-10-27, avant toute décision. MAME 0.286, -video none, -nothrottle, bench/son.lua (entrées,
+# plan fixe décodé par J_TEXTE, empreinte d'image par trame), romsets non-merged de $ROMS tels quels (aucune image
+# de ReBIOS). Aucune instruction lue ni tracée (le jig ne lit le PC que pour attribuer une écriture au BIOS ou au jeu, sans le
+# consigner) : des écrans et des empreintes. Captures non versionnées.
+#
+# Colonnes : attente, bios, machine, geste, constat.
+attente	bios	machine	geste	constat
+manettes	unibios40	aof (MV-6F)	TEST tenu 1-900, A (HARDWARE TEST), puis START à chaque page	les pages, dans l'ordre : CROSS HATCH TEST, barres RED/GREEN/BLUE, I/O TEST, SOUND TEST, MEMORY CARD TEST, RESET BACKUP RAM, SETTING UP THE CALENDAR, puis de nouveau la mire ; A et C n'avancent pas, le bouton TEST non plus
+manettes	unibios40	aof (MV-6F)	I/O TEST, commutateurs tous à OFF	deux colonnes P1 P2 : UP, DOWN, LEFT, RIGHT, PUSH A à D, START, SELECT ; TEST, COIN1, COIN2, SERVICE, EL, LED1, LED2 et les huit commutateurs (HARD-DIP)
+manettes	unibios40	janshin	commutateur 3 à ON, I/O TEST (A et START du panneau)	une page « - MAHJONG CONTROLLER - » : <A> à <G>, <H> à <N>, PON, CHI, KAN, RON, REACH, START, SELECT, un compteur par touche ; B tenu met <B> à 1, PON tenu met PON à 1
+manettes	unibios40	janshin	commutateur 3 à OFF	A du panneau n'ouvre pas HARDWARE TEST : le menu reste affiché (le panneau n'est pas lu en mahjong)
+manettes	unibios40	kizuna (MV-2F)	commutateur 2 (« VS Mode ») à ON, I/O TEST	la même page à deux colonnes P1 P2 ; seul HARD-DIP change (01000000)
+manettes	japan	janshin	commutateurs 1 et 3 à ON, A puis START du panneau	une page « I/O CHECK » : A à G, H à N, PON… et les commutateurs (DIP 10100000) ; mêmes pages ensuite (SOUND TEST, MEMORY CARD TEST, BACKUP CLEAR, calendrier)
+manettes	euro	janshin	commutateurs 1 et 3 à ON, A du panneau	le menu TEST s'ouvre, A du panneau n'y entre pas en HARDWARE TEST
+manettes	—	ng_mv2f, neogeo, aes	mame -listslots	aucun adaptateur 4 joueurs émulé : edge « joy » seul, ctrl1/ctrl2 « joy » ou « mahjong ». Une page de test 4 joueurs ne peut pas être relevée ici
+economiseur	unibios40	aof (MV-6F)	menu principal (A+B+C au boot), sans entrée, 110 000 trames (31 min)	aucune image ne change
+economiseur	unibios40	aof (MV-6F)	menu TEST, sans entrée, 110 000 trames	l'horloge seule change, toutes les ~59 trames, jusqu'au bout
+economiseur	unibios40	aof (MV-6F)	menu en jeu (START + pièce en partie), sans entrée, 108 000 trames	aucune image ne change
+economiseur	unibios40	aof (MV-6F)	JUKEBOX PLAYER, code 0x0721 joué (A à 600), sans entrée	l'écran devient entièrement noir à la trame 7 823, ~7 220 trames (~2 min) après la dernière entrée, et le reste jusqu'à 110 000 ; le son continue (1 379 key-on de 700 à 7 800, 1 401 de 7 830 à 15 000) ; HAUT à 9 000 rend l'écran du jukebox (trame 9 100)
+couleurs	unibios40	aof (MV-6F)	menu principal, GENERAL BIOS SETTINGS, REGION SETUP, menu en jeu, menu TEST ; D, droite, gauche, START dans le menu principal et GENERAL BIOS SETTINGS	aucun réglage de couleur trouvé ; GENERAL UNIBIOS SETTINGS a sept lignes (Disable BootUp HW test, Disable In Game Menu, Disable Input Crossing, Enable Cabinet Fixes, Disable Daily HS Clear, Disable Splash Screen, Enable Arcade Protect) ; les autres touches ne changent aucune image
+couleurs	unibios23	aof (MV-6F)	GENERAL SETTINGS	cinq lignes, ni couleur ni économiseur
+copie	unibios40	aes (console) et aof (MV-6F)	A+B+C+D tenus au boot	MEMORY CARD MANAGER : FORMAT MEMCARD, DISPLAY STORED DATA, COPY GAME DATA, DELETE GAME DATA, CREATE A USER NAME, EXIT ; même menu sur les deux machines
+copie	unibios40	aes	COPY GAME DATA, carte fixture du parcours (14 sauvegardes)	« SELECT THE DATA TO COPY. A=COPY C=COPY ALL », une ligne par sauvegarde ; A : « DATA IS COPIED / CHANGE CARD AND PRESS A BUTTON » ; A sur la même carte : « GAME IS ALREADY ON THIS CARD / DO YOU WANT TO DELETE OLD DATA ? » ; A : retour à STORED CARD DATA, la carte réécrite (diffère de la fixture dès l'octet 0)
+copie	euro, japan	aof, janshin	menu TEST	MEMORY CARD TEST seulement (« INSERT MEMORY CARD ») : pas de gestionnaire

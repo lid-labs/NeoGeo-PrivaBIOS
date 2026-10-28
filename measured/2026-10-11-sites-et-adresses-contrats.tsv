@@ -1,0 +1,25 @@
+# Correction d adresse et sites des contrats generes, le 2026-10-11.
+#
+# Trace : co-simulateur LSPC/FX68K (non publie ici, voir docs/BENCH.md), $ROMS/puzzledp.zip,
+#         BIOS SNK sp-s2.sp1, des la trame 505 (jusqu a 515), 300 000 acces, trames 504,97 a 511,53. Sept appels a $C0044A.
+#
+# Une ecriture d octet du 68000 pose la donnee sur LES DEUX moities du bus : le strobe dit
+# laquelle lire, et quelle adresse est touchee. U. = octet pair, .L = octet impair, UL = mot.
+# L ancienne convention portait l adresse de mot, donc elle fondait en une ligne les deux octets
+# d un meme mot ecrits separement.
+#
+# UN SITE N EST PAS UN OCTET : c est une adresse ET une largeur. Une ecriture de mot rend un site
+# et touche deux octets. Les octets touches font 86 la ou ce decoupage rend 58 sites ; la largeur
+# fait partie du comportement a reproduire, donc c est le site qui est compte.
+grandeur	mesure
+ecritures en strobe UL (mot entier)	420
+ecritures en strobe .L (octet impair)	163
+ecritures en strobe U. (octet pair)	70
+sites distincts, convention de mot	50
+sites distincts, apres correction d adresse	58
+mots dont les deux octets sont ecrits separement	8
+controle arithmetique : 50 + 8	58
+octets reellement touches (non comptes par le contrat)	86
+sites stables, convention de mot	34
+sites stables, apres correction d adresse	42
+sites variables, les deux conventions	16

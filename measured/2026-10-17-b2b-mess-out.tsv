@@ -1,0 +1,50 @@
+# b2b dessine a travers MESS_OUT : suite du diagnostic de 2026-10-17-diagnostic-b2b-minasan.tsv
+# (point 4, l'ecran noir). Jigs lua MAME, -bios euro, NVRAM isolee, le 2026-10-17. Sous notre
+# BIOS : l'image jetable "jv" (remise calee sur la ligne $1F0), sans laquelle b2b boucle en
+# exception. Aucun PC ni octet du BIOS de reference ; "BIOS" = un acces fait pendant que le PC
+# est dans la ROM du BIOS.
+#
+# 1. LES APPELS DU JEU dans la table du BIOS, lectures aux adresses d'entree, trames 400 a 1300
+#    sous snk (la partie demarre a 401), 100 a 1000 sous jv (elle demarre a 101) :
+#      entree    snk    jv
+#      $C00438   350    0      SYSTEM_INT1
+#      $C0044A   550    900    SYSTEM_IO
+#      $C00450   91     150    CREDIT_CHECK
+#      $C004C2   4      1      FIX_CLEAR
+#      $C004C8   4      1      LSP_1st
+#      $C004CE   655    1143   MESS_OUT (chez nous : un rts)
+#
+# 2. LES ECRITURES VRAM ($3C0002), par tranche de 100 trames, snk puis jv :
+#      snk  tr800  jeu 2     BIOS 18955 | tr1000 jeu 1862 BIOS 4677 | tr1100 jeu 6 BIOS 1595
+#      jv   tr800  jeu 0     BIOS 0     | tr1000 jeu 79   BIOS 0    | tr1100 jeu 66 BIOS 0
+#    Sous snk, l'essentiel de ce qui s'ecrit en VRAM apres le depart de la partie l'est pendant
+#    que le PC est dans la ROM du BIOS.
+#
+# 3. BIOS_MESS_POINT ($10FDBE, long), lu puis ecrit par le jeu (derniere valeur relevee) :
+#      snk  lu $0010FF00  ecrit $0010FF04
+#      jv   lu $00002F9C  ecrit $00002FA0
+#    Sous snk le pointeur est au debut du tampon ($10FF00) quand le jeu le lit, et le jeu
+#    l'avance de 4 apres avoir depose sa commande. Chez nous, rien ne l'initialise ni ne le
+#    remet : il part de zero et croit, et les depots du jeu tombent dans l'espace de la P-ROM.
+#
+# Conclusion mesuree : b2b depose ses affichages dans le tampon de MESS_OUT a chaque trame, et
+# notre BIOS ne les execute pas. Que l'ecran ENTIER en depende (decor compris) est suppose : le
+# decor serait du plan fixe. SYSTEM_INT1, appele 350 fois sous snk et jamais chez nous, n'est
+# pas explique.
+#
+# 4. LE PROTOCOLE, sous snk (jigs du meme jour ; la pile du BIOS, $10F200-$10F2FF, est exclue des
+#    releves : elle porte des adresses de retour de la reference).
+#    - Initialisation : a la trame 279 du boot (b2b comme puzzledp), avant la premiere remise,
+#      $10FDBE <- $0010FF00 ; $10FDC2 <- 00 a la trame 276. La reference se sert ensuite de
+#      MESS_OUT pour ses propres ecrans ($10FDC0 avance a FF04, FF08, FF16, FF1A pendant le boot),
+#      et remet $10FDBE a $0010FF00 juste avant la remise en demande 2 (trame 749).
+#    - Un appel de b2b a $C004CE (trame 1000) : a l'entree MESS_POINT = $0010FF04, le tampon
+#      porte le long $001005E4 (un pointeur vers une liste en RAM du jeu). Pendant l'appel :
+#      $10FDC2 <- 01 ; la liste est lue mot a mot ; $3C0000 <- $820D (commande 3), $3C0002 <-
+#      $0984 (commande 7), $3C0000 <- $840D (commande 5, +$0200), $3C0002 <- $2E00 (commande 7),
+#      fin sur 0000 ; puis $10FDBE <- $0010FF00 et $10FDC2 <- 00. Liste lue :
+#      0003 820D 0301 0001 0007 0984 0005 0200 0007 2E00 0000.
+#      Ecrit aussi $10FEC6 <- $0010FECA (usage interne, non interprete).
+#    - Volume : 2606 appels de b2b entre les trames 1 et 2500 (plan d'entrees de la sonde), 645
+#      listes d'entree distinctes. Instrument : bench/mess-diff.lua (entree lue -> sortie LSPC et
+#      RAM BIOS, par appel), pour le differentiel avec notre image.

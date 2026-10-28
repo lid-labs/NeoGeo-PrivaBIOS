@@ -1,0 +1,5 @@
+evenement	octet_ecrit	registre_hc259	occurrences	premiere_trame	derniere_trame
+SWPBIOS (BIOS en bas de la carte)	3A0003	0x03	1	501.9	501.9
+SRAM write protect	3A000D	0x0d	486	300.9	672.0
+SWPROM (cartouche en bas de la carte)	3A0013	0x13	1	502.9	502.9
+SRAM write enable	3A001D	0x1d	485	300.9	672.0

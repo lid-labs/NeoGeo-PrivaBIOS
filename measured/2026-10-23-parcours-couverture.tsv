@@ -1,0 +1,218 @@
+# L'inventaire des fonctions visibles de ReBIOS et la scène qui juge chacune, le 2026-10-23. Recensé en lisant src/c0/*.s
+# (main 5af9aede, image sha256 bc6560f50412bbb2…) : chaque écran, chaque ligne de menu, chaque geste qu'un joueur ou un
+# exploitant peut faire ou voir. « scène » : une scène de bench/parcours.sh (« nouvelle » : ajoutée le 2026-10-23, seuils dans
+# 2026-10-23-parcours-couverture-scenes.tsv), ou un étage de bench/non-regression.sh. « mutation » : celle de
+# bench/parcours-mutations.py qui fait échouer la scène, éprouvée une à la fois (`--eprouver`) ; « — » : aucune.
+#
+# LES COMPTES : 73 fonctions (lignes) au premier passage, 76 au second, deux lignes y étant scindées (l'INPUT TEST de P2 et SELECT
+# d'un côté, les commutateurs de l'autre ; rechercher, supprimer, le nom). Avant ce lot, 42 jugées (29 scènes du parcours et les étages 3a-3e), 31 sans scène (dont
+# REGION USA à l'écran de boot, à moitié couverte). Après un premier passage : 70 jugées, dont 1 en défaut connu (aes-texte), 3 sans
+# scène. Après le second, le même jour : 76 jugées sur 76, aucune en défaut connu. 34 scènes nouvelles, 34 mutations nouvelles.
+# LE LOT DU MENU EN JEU COMPLET, le même jour (GAME SETTINGS, MEMORY EDITOR, les gels ; lignes « lot menu ») : 18 fonctions de
+# plus, 94 jugées sur 94 ; 18 scènes nouvelles (seuils dans 2026-10-23-menu-en-jeu-complet.tsv, --ref-menu de bench/parcours.sh),
+# 25 mutations nouvelles, toutes tuées une à une. Hors inventaire, parce qu'aucun geste du joueur ne l'atteint : la borne que le
+# moteur des gels applique lui-même (cheats.s, un décalage de $F300 ou plus éteint sans rien écrire), garde contre une RAM du
+# BIOS que le jeu aurait abîmée ; la borne que le joueur voit est jugée par me-borne. Non livrés : la recherche de cheat (un relevé
+# de la RAM du jeu, 62 Kio, ne tient pas dans les ~1,8 Kio mesurés libres de $10F4B4-$10FBFF) et le visualiseur de VRAM.
+#
+# UN DÉFAUT TROUVÉ, CORRIGÉ : en mode AES, en partie, aof affichait « INSERT COIN » pour le joueur 2 là où le BIOS AES de SNK lui
+# fait afficher « PUSH START » — CREDIT_CHECK refusait la demande de P2, le crédit étant nul en mode AES. Mesure et cause :
+# 2026-10-23-aes-credit.tsv ; scène aes-texte, mutation aes-insert-coin.
+#
+# CE QUE LES TROIS DERNIÈRES SCÈNES NE PROUVENT PAS, et pourquoi :
+#   - NO SOFT DIP DATA (bloc soft-DIP refusé, dip.s) : l'éditeur ouvert sur les 166 sets de $ROMS (MV-6F, -cart1,
+#     relevé du plan fixe à la trame 330, le 2026-10-23) montre SOFT DIP SETTINGS sur tous, aucun NO SOFT DIP DATA. La scène est
+#     donc jouée sur une fixture : une copie du romset d'aof dont seul le pointeur européen de l'en-tête 68k ($11E) est remplacé
+#     par une adresse refusée ($00180000), l'ordre des octets du fichier vérifié sur « NEO-GEO » et la zone de deux vecteurs. Elle
+#     prouve le refus d'un pointeur entre les zones ; un vrai jeu à bloc refusé reste à trouver.
+#   - CARD : rechercher, supprimer, écrire et lire le nom ($01, $04, $06, $07) : la partie d'aof ne les appelle pas (seuls
+#     $02 et $03 et CARD_ERROR, relevé carte-acces du 2026-10-23) ; aucun jeu du dossier n'est connu pour les appeler par son
+#     interface. Les scènes les provoquent (bench/forcer.lua) contre le même appel sous le BIOS SNK, et jugent ce qu'un jeu relit :
+#     l'interface, la carte, le nom relu, aof relancé sur la carte. L'interface posée est celle de carte-diff.sh, pas celle d'un jeu.
+#   - INPUT TEST : SELECT n'existe pas sur le set aof de MAME (aucun champ « Next Game » ni « Previous Game » dans ses ports,
+#     relevé du 2026-10-23 ; à l'écran, les deux éléments SELECT y restent éteints, égaux à ceux de la MV-6F au repos) : c'est le
+#     matériel d'une carte à une cartouche. Testé sur la MV-6F, qui l'expose. Les commutateurs sont posés par les champs :DSW de
+#     MAME ; la correspondance bit n − 1 → commutateur n reste SUPPOSÉE (tests.s), la scène prouve le bit sous le chiffre.
+# LE LOT DU BUS FLOTTANT, le 2026-10-24 (lignes « matériel ») : quatre fonctions de plus, l'écran TEST tel que le matériel le
+#   sert — la P-ROM de la cartouche ne répond que sous REG_CRTFIX (docs/ESSAI-MATERIEL.md, retour du 2026-10-24). Scènes bf-*
+#   de bench/parcours.sh, sans seuil ; relevé avant/après : 2026-10-24-bus-flottant-ecran-test.tsv. 98 jugées sur 98.
+# LE LOT DE LA CARTE MÉMOIRE, le 2026-10-24 (lignes « gestionnaire de carte », et « mode AES : les scores ») : le gestionnaire de
+#   l'écran TEST (src/c0/gestion-carte.s, ligne MEMORY CARD de dip.s, `_carte_releve` de card.s), dix fonctions, et les scores du
+#   mode AES, une fonction du lot du mode AES (D5) qu'aucune scène ne jugeait. Seuils : 2026-10-24-parcours-carte.tsv (--ref-carte) ;
+#   mesures des scores : 2026-10-24-scores-aes.tsv. Puis SCORE RESET (src/c0/cal.s, reglages.s, dip.s), deux fonctions : la date
+#   gelée que READ_CALENDAR rend aux jeux, et la ligne de l'éditeur qui l'enregistre ; mesure : 2026-10-24-scores-date.tsv.
+#   12 scènes nouvelles, 16 mutations nouvelles. 112 jugées sur 112.
+# LE LOT DES RÉGLAGES DE LA BORNE, le 2026-10-25 (lignes « borne », et la dernière « matériel ») : FREE PLAY, NO CONTINUE et
+#   DEMO SOUND, le sous-écran CABINET SETTINGS de l'écran TEST (src/c0/reglages.s, io.s, dip.s, c0.s), neuf fonctions. Seuils :
+#   2026-10-25-parcours-borne.tsv (--ref-borne) ; mesures : 2026-10-25-free-play.tsv. 8 scènes nouvelles, 10 mutations nouvelles,
+#   bf-borne ajoutée aux scènes de bf-intitules-prom et bf-nom-prom. 121 jugées sur 121.
+# LE LOT DU CATALOGUE DES CHEATS ET DE CHEATS/DEBUG, le 2026-10-25 (lignes « cheats : le catalogue » et « CHEATS/DEBUG ») : la
+#   table de cheats.s passe de 3 à 35 jeux, et une quatrième ligne du sous-écran CABINET SETTINGS coupe cheats, éditeur mémoire et
+#   gels (src/c0/cheats.s, menu.s, reglages.s, dip.s), six fonctions. Seuils : 2026-10-25-parcours-cheats.tsv (--ref-cheats) ;
+#   le catalogue entier : bench/cheats-catalogue.sh, 2026-10-25-cheats-catalogue.tsv. 3 scènes nouvelles, bo-ecran, bo-aes et cheats
+#   étendues, 9 mutations nouvelles. 127 jugées sur 127.
+# LE LOT DES COMMUTATEURS DE LA CARTE ET DU GESTE SANS BOUTON TEST, le 2026-10-25 (lignes « commutateur » et « geste ») : le
+#   commutateur 7 « Free Play » honoré et relu à chaud, CABINET SETTINGS qui le dit (FREE PLAY DIP), le commutateur 1 « Setting
+#   Mode » qui ouvre l'écran TEST au boot, START + SELECT de P1 au boot (écran TEST) et en partie (menu en jeu) (src/c0/io.s,
+#   dip.s, menu.s), l'avertissement à la sortie de l'écran TEST quand le commutateur 1 est resté à ON, onze fonctions, chaque
+#   position jugée à ON et à OFF. Seuils : 2026-10-25-parcours-dip-free-play.tsv (--ref-dip) ; mesures de la référence :
+#   2026-10-25-dip-free-play.tsv. 10 scènes nouvelles (sur la MV-2F, sauf dip-fp-reglage), 17 mutations nouvelles, dip-fp-p2
+#   ajoutée aux scènes de bo-p2-seul, dip-fp-reglage à celles de bo-libre-inerte. La ligne « borne : FREE PLAY » reste celle du
+#   réglage de l'écran TEST. 138 jugées sur 138.
+# LA GRILLE, le 2026-10-25 (ligne « grille ») : 8 Kio de données à $C02000-$C03FFF, que ssideki lit comme un terrain
+#   (src/c0/grille.s ; card.s, mess.s et video.s passés en zone haute pour lui laisser la place). Seuils :
+#   2026-10-25-parcours-ssideki.tsv (--ref-ssideki) ; diagnostic : 2026-10-25-ssideki-demo.tsv. 1 scène nouvelle, 1 mutation
+#   nouvelle. 139 jugées sur 139.
+# LE LOT DU CRC32 DE LA CARTOUCHE ET DES DEBUG DIPS, le 2026-10-25 (lignes « CARTRIDGE CRC » et « DEBUG DIPS ») : une ligne de
+#   HARDWARE TESTS, juste avant EXIT (src/c0/crc.s, tests.s), et une cinquième ligne de CABINET SETTINGS (src/c0/debug.s, dip.s,
+#   cheats.s, c0.s), sept fonctions. Seuils : 2026-10-25-parcours-crc-debug.tsv (--ref-crc) ; mesures : 2026-10-25-crc-cartouche.tsv
+#   et 2026-10-25-debug-dips.tsv. 7 scènes nouvelles, bo-ecran étendue (cinq lignes), 12 mutations nouvelles ; tests-grille et
+#   bf-tests rejoignent CROSSHATCH par « haut » trois fois au lieu de deux, mêmes mesures. 147 lignes au tableau (recomptées).
+fonction	fichier	scene	critere_joueur	mutation
+écran de boot : SPRIXE BIOS, sprixe.dev/bios, SYSTEM, REGION, CARD, GAME NGH	ecran.s	boot-ecran	empreinte de l'écran à la trame 100 (CLOCK masquée), lignes du plan fixe	boot-texte
+écran de boot : le saut par un bouton	ecran.s	boot-saut	la pause finit avant la trame 80 avec A, après 170 sans	boot-sans-saut
+écran de boot : CLOCK (READ_CALENDAR)	ecran.s, cal.s	calendrier	la date de l'hôte et le jour	calendrier-sans-jour
+écran de boot : CARD INSERTED	ecran.s, card.s	carte	seule la ligne CARD change	carte-jamais
+écran de boot : SYSTEM AES	ecran.s	aes-bascule	seule la ligne SYSTEM change	mode-ignore
+écran de boot : REGION JAPAN et USA	ecran.s	region ; region-usa (nouvelle)	REGION JAPAN, REGION USA	region-ignoree ; usa-en-japon
+démo sans pièce : le son	c0.s	demo-son	RMS et key-on ≥ 0,5 du BIOS SNK	demo-muette
+démo sans pièce : l'image, Europe	c0.s	region-europe (nouvelle)	≥ 600/1 000 trames de la démo SNK euro, ≤ 100 de la SNK us	europe-perdue
+pièce pendant la démo : crédit, DEMO_END, titre	io.s, c0.s	partie-credit	le titre (≥ 300 cases)	credit-sans-piece
+seconde pièce : CREDITS 02	io.s, mess.s	partie-credit	seul le bas de l'écran change	credit-sans-piece
+le son de la pièce (COIN_SOUND)	io.s	piece-son (nouvelle)	RMS du titre ≥ 0,9 du BIOS SNK	piece-muette
+START P1	io.s	partie-start	≥ 300 cases à la trame 1400	credit-sans-piece
+START P2 au titre, deux joueurs	io.s	partie-p2 (nouvelle)	≥ 1 800/2 500 trames du BIOS SNK au même instant	p2-refuse
+START P2 en partie (P2 se joint, CREDIT_CHECK)	io.s	partie-p2-joint (nouvelle)	≥ 1 000/1 400 trames du BIOS SNK au même instant	p2-joint-refuse
+départ forcé du titre	io.s	depart-force (nouvelle)	départ 1 808 ± 5 trames après le titre, puis le BIOS SNK	depart-jamais
+game over sans crédit : la démo	c0.s	fin-demo	≥ 1 500 trames de la démo	fin-sans-demo
+game over avec crédit : un seul titre (DECISIONS §9)	c0.s	fin-titre	≥ 60 trames du titre	fin-sans-titre
+scores : sauvegarde du jeu et relecture	c0.s	scores	seule la ligne 1ST change	scores-sans-sauvegarde
+soft-DIP appliqués au jeu (GAME_DIP)	c0.s	étage 3b ; dip-temps	GAME_DIP égal à la référence	— (GAME_DIP jamais décodé)
+watchdog servi dans les menus	dip.s, tests.s	étage 3c	les autotests vont au bout	— (.Lsync)
+éditeur : ouverture par TEST au boot	dip.s	dip-temps, dip-langue, … ; étage 3e	SOFT DIP SETTINGS	dip-oublie
+éditeur : réglage « compte » (ROUND TIME)	dip.s	dip-temps	seul le chronomètre change en partie	dip-oublie
+éditeur : réglage « à choix » (LANGUAGE)	dip.s	dip-langue	le texte de l'histoire	dip-oublie
+éditeur : réglage « temps » MM:SS	dip.s	dip-mmss (nouvelle)	le TIME du HUD de ncombat, une seconde de plus	temps-perdu
+éditeur : réglage « nombre de fois », A en boucle	dip.s	dip-fois (nouvelle)	CONTINUE WITHOUT : pas d'écran CONTINUE (650 trames)	a-sans-boucle
+éditeur : gauche, la valeur précédente	dip.s	region-usa (nouvelle) ; aes-retour	REGION USA ; MODE MVS	usa-en-japon ; mode-bloque
+éditeur : RESET TO DEFAULTS	dip.s	dip-defauts (nouvelle)	ROUND TIME 60, la partie du témoin	defauts-inertes
+éditeur : START enregistre et sort	dip.s	dip-temps ; étage 3e	le réglage vaut dans le jeu	dip-oublie
+éditeur : NO SOFT DIP DATA	dip.s	dip-sans-donnees (nouvelle, fixture)	NO SOFT DIP DATA, 5 lignes, pas de ROUND TIME ; START rend la main	soft-dip-sans-garde
+région à chaud : JAPAN	dip.s, reglages.s, c0.s	region ; region-japon (nouvelle)	le texte japonais ; la démo SNK japan	region-ignoree ; japon-en-usa
+région à chaud : USA	dip.s, reglages.s, c0.s	region-usa (nouvelle)	la démo SNK us	usa-en-japon
+mode AES : la bascule et son enregistrement	dip.s, reglages.s, c0.s	aes-bascule	SYSTEM AES, encore après relance	mode-ignore, mode-perdu
+mode AES : la démo	c0.s	aes-demo	la démo SNK AES	mode-ignore
+mode AES : START sans pièce	io.s	aes-start, aes-menu	le menu du jeu, SNK AES au même instant	start-refuse
+mode AES : la pièce ignorée	c0.s	aes-piece	aucune trame ni key-on ne change	piece-comptee
+mode AES : le retour à MVS	dip.s	aes-retour	SYSTEM MVS, démo et titre MVS	mode-bloque
+mode AES : la demande 1 (kof98)	c0.s	aes-logo (nouvelle)	l'animation de kof98, comme sous SNK AES	logo-jamais
+mode AES : le game over	c0.s, io.s	aes-fin (nouvelle)	la démo, celle de SNK AES après le sien	aes-titre-apres-partie
+mode AES : SELECT en démo, multi-slot	io.s	aes-ms-select (nouvelle)	la démo de puzzledp, comme sous SNK AES	select-aes-ignore
+mode AES : SELECT en partie, rendu au jeu	io.s	aes-pause (nouvelle)	la pause du jeu, comme sous SNK AES	pause-aes-retiree
+mode AES : le message de P2 en partie (CREDIT_CHECK)	io.s	aes-texte (nouvelle, défaut corrigé)	PUSH START comme sous SNK AES, aucun état tenu hors du témoin	aes-insert-coin
+autotests : WORK RAM en défaut	tests.s	autotests	WORK RAM FAIL AT 00108000	autotests-aveugles
+autotests : machine saine, backup RAM intacte	tests.s	étage 3c	quatre OK, 0 octet changé	— (.Lsync)
+autotests : PALETTE RAM en défaut	tests.s	autotests-palette (nouvelle)	PALETTE RAM FAIL AT 00400A00	palette-non-testee
+autotests : VRAM en défaut	tests.s	autotests-vram (nouvelle)	VRAM FAIL AT 00007123	vram-non-testee
+autotests : BACKUP RAM en défaut	tests.s	autotests-backup (nouvelle)	BACKUP RAM FAIL AT 00D01234	backup-non-testee
+INPUT TEST : P1, pièce 1, START P2, A de P2, SERVICE, TEST ; sortie START tenu	tests.s	tests-entrees (nouvelle)	chaque entrée allume ses cases, disjointes	entrees-eteintes
+INPUT TEST : P2 hors de A et START, SELECT P1 et P2	tests.s	tests-p2 (nouvelle, MV-6F)	chaque entrée allume son élément, rien d'autre	select-lu-sur-start
+INPUT TEST : les huit commutateurs de la carte	tests.s	tests-dip (nouvelle)	chaque commutateur allume son chiffre, rien d'autre	commutateur-decale
+COLOR BARS : deux pages, A, START	tests.s	tests-barres (nouvelle)	3 barres de 15 pas croissants par page	barres-sans-rouge
+CROSSHATCH, START ; la ligne EXIT	tests.s	tests-grille (nouvelle)	les 1 120 cases à la grille ; l'écran TEST	grille-noire
+menu des tests : haut, bas, A	tests.s	tests-entrees, tests-barres, tests-grille	la ligne choisie	—
+jukebox : A joue	jukebox.s	jukebox	RMS ≥ 300, ≥ 10 fois le contrôle	jukebox-muet
+jukebox : pas de 1 et de 16, $01-$03 sautés ; START sort	jukebox.s	jukebox-pas (nouvelle)	00, 07, 27, 17, 27, 21 ; l'écran TEST puis le jeu	jukebox-pas-de-16
+jukebox : la répétition tenue	jukebox.s	jukebox-repete (nouvelle)	≥ 5 crans en 60 trames	jukebox-sans-repetition
+jukebox : B arrête	jukebox.s	jukebox-stop (nouvelle)	RMS ≤ 0,1 du run sans B	jukebox-b-inerte
+menu en jeu : ouverture, pause, cadre	menu.s	menu-hud	≤ 2 cases hors du cadre	menu-police
+menu en jeu : RESUME, l'image	menu.s	menu-reprise	≥ 1 400/1 500 trames du témoin	menu-cadre-reste
+menu en jeu : RESUME, le son	menu.s	menu-son	RMS ≥ 0,7, key-on ≥ 0,8 du témoin	menu-son
+menu en jeu : VRAM et palettes rendues	menu.s	étage 3d	0 octet différent	—
+menu en jeu : RESTART GAME	menu.s	restart	un RESET, puis la mise sous tension	restart-reprend
+cheats : ON	cheats.s, menu.s	cheats	chronomètre et vie figés	cheats-inertes
+cheats : OFF	menu.s	cheats-off (nouvelle)	le chronomètre repart	cheat-sans-off
+menu en jeu : GAME SETTINGS, un compte pris en partie (aof ROUND TIME 60 → 65)	reglages-jeu.s, dip.s, menu.s	gs-compte (lot menu)	≥ 250 trames du chronomètre à 61-65 au round suivant	gs-droite-inerte
+GAME SETTINGS : RESET TO DEFAULTS	reglages-jeu.s, dip.s	gs-defauts (lot menu)	ROUND TIME 60 à l'écran, 0 trame du chronomètre à 61-65	gs-defauts-inertes
+GAME SETTINGS : un réglage à choix, RESTART GAME, l'enregistrement en backup RAM (aof LANGUAGE → SPANISH)	reglages-jeu.s, menu.s, c0.s	gs-choix (lot menu)	≥ 40 cases du texte de l'histoire changent, ≤ 8 de l'espagnol posé au boot	gs-sans-enregistrement, gs-relance-inerte
+GAME SETTINGS : un temps MM:SS (ncombat PLAY TIME 03:00 → 03:01, MV-6F)	reglages-jeu.s, dip.s	gs-mmss (lot menu)	le TIME du HUD de 03:01 posé au boot, à R + 1300, 2000, 3000	gs-droite-inerte, temps-perdu
+GAME SETTINGS : un nombre de fois, A en boucle (puzzledp CONTINUE INFINITE → WITHOUT)	reglages-jeu.s, dip.s	gs-fois (lot menu)	le titre ≥ 300 trames plus tôt, à ≤ 5 de WITHOUT posé au boot	gs-a-comme-droite
+GAME SETTINGS : NO SOFT DIP DATA (bloc refusé)	reglages-jeu.s	gs-sans-donnees (lot menu, fixture nosd)	NO SOFT DIP DATA, ≤ 3 lignes, RESUME rend la main	gs-sans-ligne-vide
+GAME SETTINGS : un bloc de la zone banquée refusé en partie (écart à l'éditeur du boot)	reglages-jeu.s	gs-banque (lot menu, fixture banque)	NO SOFT DIP DATA, ≤ 3 lignes	gs-banque-acceptee
+MEMORY EDITOR : les octets affichés	memoire.s	me-ecran (lot menu)	deux lignes égales à la RAM relue par lua, adresses de 8 en 8	me-octet-voisin
+MEMORY EDITOR : GOTO (chiffres haut/bas, gauche/droite, A ; B renonce)	memoire.s	me-goto (lot menu)	curseur 108400 puis 109465, B sans effet	me-goto-inerte, goto-gauche-inerte, goto-b-va
+MEMORY EDITOR : un octet (droite, gauche)	memoire.s	me-octet (lot menu)	curseur 108406, puis −1	me-droite-inerte, me-gauche-inerte
+MEMORY EDITOR : une ligne (bas, haut)	memoire.s	me-ligne (lot menu)	curseur +8, puis −8	me-ligne-courte, me-haut-court
+MEMORY EDITOR : une page (B tenu, bas, haut)	memoire.s	me-page (lot menu)	curseur et fenêtre +$40, puis −$40	me-page-courte, me-page-haut-courte
+MEMORY EDITOR : une direction tenue se répète	memoire.s	me-repete (lot menu)	≥ 6 lignes en 60 trames	me-sans-repetition
+MEMORY EDITOR : SET VALUE (±1, ±$10, A écrit, B renonce)	memoire.s	me-poke (lot menu)	$40 écrit, le HUD d'aof affiche 39 au décompte suivant, ≥ 30 trames ; B n'écrit rien	me-ecriture-inerte, valeur-haut-inerte, annuler-inerte
+MEMORY EDITOR : geler deux octets	memoire.s, cheats.s	me-gel (lot menu)	chronomètre et vie de P1 figés, le témoin change	gels-inertes
+MEMORY EDITOR : la liste des gels	memoire.s	me-liste (lot menu)	FROZEN 108406:60 1092CD:60	gels-non-listes
+MEMORY EDITOR : retirer un gel (D, à une autre ouverture)	memoire.s	me-degel (lot menu)	FROZEN NONE, le chronomètre repart	degel-inerte
+MEMORY EDITOR : la zone du BIOS en lecture seule ($10F300+)	memoire.s	me-borne (lot menu)	READ ONLY, ni SET VALUE ni gel, $10FD84 inchangé	borne-retiree
+écran de plantage, START relance	plantage.s	étage 3a	VERIF ok=27 puis 24, ecart=0, RESET	—
+carte : détection, NONE et INSERTED	card.s, ecran.s	carte ; boot-ecran	la ligne CARD	carte-jamais
+carte : CARD_ERROR formate, CARD sauve et charge	card.s	carte-sauve (nouvelle)	MEMORY CARD LOAD puis la partie reprise, comme sous SNK	carte-protegee
+carte : rechercher ($01)	card.s	carte-chercher (nouvelle)	l'interface relue égale au BIOS SNK, NGH présent et absent	recherche-aveugle
+carte : supprimer ($04)	card.s	carte-supprimer (nouvelle)	la carte égale au BIOS SNK ; aof relancé ne recharge plus rien, comme sous SNK	suppression-inerte
+carte : écrire et lire le nom ($06, $07)	card.s	carte-nom (nouvelle)	la carte, puis le nom relu, égaux au BIOS SNK	nom-jamais-ecrit
+multi-slot : la démo tournante	c0.s	ms-demo	la démo de puzzledp	demo-sans-rotation
+multi-slot : SELECT P1 au titre	io.s, c0.s	ms-select	le titre de puzzledp	select-ignore
+multi-slot : SELECT P2 au titre, le précédent	io.s, c0.s	ms-select-p2 (nouvelle)	le titre d'aof (slot 2), 0 case	select-p2-suivant
+multi-slot : la garde de SELECT (DECISIONS §10)	io.s	ms-garde	un seul DEMO_END, même image	garde-retiree
+cartouche seule : SELECT ignoré	io.s	ms-seule (nouvelle)	450/450 trames inchangées	select-seule-pris
+MESS_OUT (le texte des jeux)	mess.s	partie-credit ; implicite dans les scènes contre le BIOS SNK	CREDIT 01, 02 ; trames égales au témoin	—
+SYSTEM_INT1, FIX_CLEAR, la table d'aléa	int1.s, video.s, alea.s	implicite (partie-p2, carte-sauve : trames égales au BIOS SNK)	—	—
+matériel : l'éditeur lit nom et intitulés en RAM, pas sous REG_BRDFIX	dip.s	bf-editeur (nouvelle)	0 lecture flottante, chaque trame égale au témoin libre, ROUND TIME 61 et LANGUAGE SPANISH lisibles	bf-intitules-prom, bf-nom-prom
+matériel : l'éditeur, bloc dans la zone banquée	dip.s	bf-banque (nouvelle, mslug)	0 lecture flottante, chaque trame égale au témoin libre, METAL SLUG et CONTINUE OFF lisibles	bf-intitules-prom, bf-nom-prom
+matériel : retour des autotests à l'éditeur	tests.s, dip.s	bf-tests (nouvelle)	0 lecture flottante, chaque trame égale au témoin libre	bf-intitules-prom
+matériel : retour du jukebox à l'éditeur	jukebox.s, dip.s	bf-jukebox (nouvelle)	0 lecture flottante, chaque trame égale au témoin libre	bf-intitules-prom
+sans cartouche : autotests en boucle, aucun reset	c0.s, tests.s	sans-cartouche (nouvelle, ng_mv1)	0 reset, 0 lecture flottante, chaque trame finie dans le BIOS, HARDWARE TESTS aux trames 400 et 1400	cartouche-absente-servie
+gestionnaire de carte : la liste (NGH, sous-sauvegarde, blocs, nom du jeu) et son défilement	gestion-carte.s, card.s, dip.s	cm-liste (nouvelle)	les quatorze sauvegardes de la fixture, ART OF FIGHTING pour la seule inscrite, la liste qui défile jusqu'à EXIT ; START rend l'écran TEST	cm-liste-vide, cm-nom-absent, cm-blocs-faux, cm-sans-defilement
+gestionnaire de carte : les blocs libres	gestion-carte.s	cm-libres (nouvelle)	FREE BLOCKS 11 (27 blocs de données, 16 pris)	cm-libres-faux
+gestionnaire de carte : effacer une sauvegarde, avec confirmation	gestion-carte.s, card.s	cm-effacer (nouvelle)	DELETE 0044-00? puis DELETED, la ligne disparaît ; la carte égale à celle du BIOS SNK ; aof relancé ne recharge rien	cm-effacer-inerte
+gestionnaire de carte : renoncer (B)	gestion-carte.s	cm-annuler (nouvelle)	CANCELLED, la sauvegarde toujours listée, la carte inchangée	cm-sans-confirmation
+gestionnaire de carte : formater, avec confirmation	gestion-carte.s, card.s	cm-formater (nouvelle) ; cm-non-formatee	FORMAT CARD? puis FORMATTED, FREE BLOCKS 27 ; la carte égale à celle du BIOS SNK après CARD $00	cm-formater-inerte
+gestionnaire de carte : carte non formatée	gestion-carte.s	cm-non-formatee (nouvelle)	CARD NOT FORMATTED, puis le formatage	cm-non-formatee-muette
+gestionnaire de carte : sans carte	gestion-carte.s	cm-sans-carte (nouvelle)	NO CARD, et NO CARD au lieu d'une confirmation sur FORMAT CARD ; EXIT rend l'écran TEST	cm-sans-carte-muette
+gestionnaire de carte : carte protégée en écriture	gestion-carte.s	cm-protegee (nouvelle)	WRITE PROTECTED, ni effacement ni formatage, la carte inchangée	cm-protection-ignoree
+gestionnaire de carte : la carte insérée pendant l'écran	gestion-carte.s	cm-insertion (nouvelle)	NO CARD, puis la liste sans geste ; une confirmation en attente abandonnée au changement de carte, la carte inchangée	cm-insertion-ignoree, cm-confirmation-survit
+matériel : le gestionnaire ne lit pas la cartouche	gestion-carte.s	bf-carte (nouvelle)	0 lecture flottante, chaque trame égale au témoin libre, ART OF FIGHTING lisible	bf-carte-nom-prom
+mode AES : les scores gardés d'une mise sous tension à l'autre (D5)	c0.s	aes-scores (nouvelle)	la ligne 1ST de BEST PLAYERS de puzzledp porte le score posé, après relance, comme en mode MVS	aes-sans-restauration
+scores : SCORE RESET OFF, la date gelée aux jeux (READ_CALENDAR)	cal.s, reglages.s	scores-gel (nouvelle, wh2)	38 jours plus tard, BEST HEROES garde SPX, chaque trame égale au même jour ; la ligne CLOCK dit la vraie date	gel-inerte
+scores : la ligne SCORE RESET de l'éditeur et son enregistrement	dip.s, reglages.s	scores-gel (nouvelle, wh2)	SCORE RESET OFF à l'écran, puis la table gardée au boot suivant	score-reset-oublie
+écran TEST : la ligne CABINET SETTINGS (« haut » sept fois, avant SCORE RESET) et son sous-écran	dip.s, reglages.s	bo-ecran (nouvelle)	la ligne juste avant SCORE RESET, les six suivantes inchangées ; quatre lignes (trois avant le 2026-10-25), leurs valeurs, START rend la liste ; $D0021D enregistré	bo-sous-ecran-inerte, bo-borne-oubliee
+borne : FREE PLAY, START sans pièce en démo	io.s, reglages.s	bo-free-play (nouvelle)	la partie part à l'appui, comme sous le BIOS SNK en free play ; aucun crédit	bo-libre-inerte, bo-borne-oubliee
+borne : FREE PLAY, CREDIT_CHECK ne refuse rien (la démo dit PUSH START)	io.s, reglages.s	bo-free-play (nouvelle)	la démo égale à celle du BIOS SNK en free play (« PUSH 1P OR 2P START BUTTON »), pas à la nôtre sans réglage	bo-credit-refuse
+borne : FREE PLAY, START P2 en démo fait partir les deux joueurs	io.s	bo-fp-p2 (nouvelle)	les trames du BIOS SNK en free play au même instant, pas celles d'un START P1	bo-p2-seul, bo-libre-inerte
+borne : FREE PLAY, P2 se joint en partie sans pièce	io.s	bo-fp-joint (nouvelle)	les trames du BIOS SNK en free play, pas celles de la partie sans P2	bo-libre-inerte
+borne : NO CONTINUE, le continue refusé	io.s	bo-no-continue (nouvelle)	START pendant le décompte de continue : game over et titre, CREDIT 01 gardé	bo-continue-pris
+borne : DEMO SOUND OFF, la démo muette, le son rétabli à la pièce et en partie	reglages.s, c0.s	bo-demo-muette (nouvelle)	démo RMS 0, titre et partie au son du témoin, la démo d'après la partie de nouveau muette	bo-demo-sonore, bo-demo-toujours-muette
+borne : en mode AES, les trois masqués (MVS ONLY) et inertes	reglages.s, dip.s	bo-aes (nouvelle)	MVS ONLY trois fois ; le continue pris et la démo sonore malgré NO CONTINUE et DEMO SOUND OFF	bo-aes-non-masque, bo-aes-affiche
+matériel : le sous-écran CABINET SETTINGS ne lit pas la cartouche	dip.s	bf-borne (nouvelle)	0 lecture flottante, chaque trame égale au témoin libre, CABINET SETTINGS et ART OF FIGHTING lisibles	bf-intitules-prom, bf-nom-prom
+cheats : le catalogue, 35 jeux (mslug2 au parcours, les 32 du 2026-10-25 par bench/cheats-catalogue.sh)	cheats.s	cheats-vies (nouvelle)	INFINITE LIVES par le menu : le compteur de vies du HUD ne bouge plus, aucune fin de partie ; le témoin perd la partie	cat-mslug2-perdu
+écran TEST : CABINET SETTINGS, la ligne CHEATS/DEBUG, ON par défaut	dip.s, reglages.s	bo-ecran	cinq lignes au sous-écran, CHEATS/DEBUG ON	cd-ligne-absente
+CHEATS/DEBUG ON par défaut : les cheats du jeu au menu en jeu	reglages.s, cheats.s	cheats	INFINITE TIME et P1 INFINITE LIFE au menu d'aof, chronomètre et vie figés	cd-defaut-off
+CHEATS/DEBUG OFF : le menu en jeu sans cheats ni MEMORY EDITOR	menu.s, cheats.s, reglages.s	bo-cd-menu (nouvelle)	RESUME, RESTART GAME, GAME SETTINGS seuls ; « haut » depuis RESUME mène à GAME SETTINGS	cd-trouver-ignore, cd-editeur-garde, cd-dernier-choix, cd-bit-perdu
+CHEATS/DEBUG OFF : un gel ou un cheat déjà actif n'écrit plus rien	cheats.s	bo-cd-gel (nouvelle)	le chronomètre d'aof change malgré le gel posé, que le réglage par défaut applique	cd-moteur-ignore, cd-bit-perdu
+CHEATS/DEBUG en mode AES : la ligne vaut dans les deux modes	dip.s, reglages.s	bo-aes	CHEATS/DEBUG ON au sous-écran du mode AES, pas MVS ONLY	cd-aes-masque
+commutateur 7 de la carte (Free Play) à ON : START sans pièce lance la partie, P1 et P2	io.s	dip-free-play (nouvelle) ; dip-fp-p2 (nouvelle) ; dip-fp-refus (nouvelle, le témoin à OFF)	la partie part à l'appui, aucun crédit ; START P2 fait partir les deux joueurs ; à OFF, START refusé	dfp-ignore, dfp-bit-faux ; bo-p2-seul
+commutateur 7 de la carte : CREDIT_CHECK ne refuse rien (la démo dit PUSH START)	io.s	dip-free-play (nouvelle)	la démo à ON diffère de celle à OFF (« PUSH 1P OR 2P START BUTTON ») et est celle du BIOS SNK au même commutateur	dfp-credit-check
+commutateur 7 à OFF et FREE PLAY ON de CABINET SETTINGS : START accepté (l'un ou l'autre)	io.s	dip-fp-reglage (nouvelle)	la partie part sans pièce	bo-libre-inerte
+commutateur 7 de la carte basculé machine allumée, dans les deux sens	io.s	dip-fp-chaud (nouvelle)	la démo suit le commutateur dès la 7e trame ; START accepté après OFF → ON, refusé après ON → OFF	dfp-ignore, dfp-credit-check
+écran TEST : CABINET SETTINGS sous le commutateur 7, FREE PLAY DIP et verrouillé	dip.s	dip-fp-cabinet (nouvelle)	FREE PLAY DIP, droite n'y change rien, $D0021D inchangé	dfp-cabinet-off, dfp-cabinet-libre
+commutateur 1 de la carte (Setting Mode) à ON : l'écran TEST au boot, START en sort ; à OFF, le jeu	dip.s	dip-setting (nouvelle)	SOFT DIP SETTINGS sans toucher à rien, la main au jeu après START ; à OFF, la main au jeu avant 300	setting-ignore, setting-bit-faux, setting-toujours
+commutateur 1 : l'avertissement à la sortie s'il est resté à ON, aucun s'il a été rebasculé	dip.s	dip-setting (nouvelle)	DIP SWITCH 1 IS ON puis le jeu ; rebasculé à OFF : le jeu tout de suite	avertissement-absent, avertissement-toujours
+geste sans bouton TEST : START + SELECT de P1 tenus au boot ouvrent l'écran TEST	dip.s	geste-boot (nouvelle)	SOFT DIP SETTINGS	geste-boot-ignore
+geste sans bouton TEST au boot, partiel (START seul, SELECT seul) : rien	dip.s	geste-boot (nouvelle)	le jeu, pas d'écran TEST	geste-boot-start-seul, geste-boot-select-seul
+geste sans bouton TEST : START + SELECT de P1 tenus en partie ouvrent le menu en jeu	menu.s	geste-jeu (nouvelle)	IN-GAME MENU et la pause	geste-jeu-ignore
+geste sans bouton TEST en partie, partiel (START seul, SELECT seul) : rien	menu.s	geste-jeu (nouvelle)	ni pause ni menu	geste-jeu-start-seul, geste-jeu-select-seul
+geste sans bouton TEST : une partie jouée normalement ne le fait jamais	menu.s	geste-partie (nouvelle)	aof, mslug, samsho4, ssideki, 5 000 trames de partie : le compte du geste reste à 0, aucune pause	geste-toujours
+grille : les données que ssideki lit dans la ROM du BIOS	grille.s, bios.ld	demo-ssideki (nouvelle)	la démo de ssideki passe l'intro du stade : titre, KICK OFF, match de démo ; images et key-on au niveau du témoin SNK	grille-haute-ff
+HARDWARE TESTS : CARTRIDGE CRC, la P-ROM fixe	crc.s, tests.s	crc-fixe (nouvelle)	« haut » deux fois depuis WORK RAM ; READING FIXED pendant le calcul, puis FIXED 1024K et le CRC calculé hors de MAME (aof), BANKS NONE, DONE à la trame 850 au plus tard 880 ; START, START, START : le menu, l'écran TEST, le jeu	crc-ordre-cpu
+CARTRIDGE CRC : les banques	crc.s	crc-banques (nouvelle, mslug2)	FIXED et BANKS 2 X 1024K, les CRC hors de MAME, égaux aux fichiers p1 et sp2 de -listxml ; le jeu repart	crc-ordre-cpu, crc-banques-ignorees, crc-miroir-de-banque
+CARTRIDGE CRC : une P-ROM vue en miroir	crc.s	crc-miroir (nouvelle, crc-miroir.lua)	FIXED 0512K et le CRC du fichier 044-p1.p1	crc-ordre-cpu, crc-miroir-ignore
+matériel : CARTRIDGE CRC lit la P-ROM et ses banques sous REG_CRTFIX	crc.s	bf-crc, bf-crc-banque (nouvelles, aof ; mslug sur la MV-6F)	0 lecture flottante, chaque trame égale au témoin libre, le CRC attendu à l'écran	crc-sans-crtfix, crc-banques-ignorees, crc-miroir-de-banque
+CABINET SETTINGS : DEBUG DIPS, l'écran des seize bits	debug.s, dip.s	dd-effet (nouvelle, kof94), bo-ecran	DEBUG DIPS 0000 en cinquième ligne ; les bits suivent A, bas, droite, A, A ; la ligne dit 0100	dd-ecran-inerte, dd-dip2-perdu, dd-ligne-absente
+DEBUG DIPS : posés dans le jeu à chaque SYSTEM_IO, jamais sauvés	debug.s, cheats.s, c0.s	dd-effet (nouvelle, kof94)	DIP 1 bit 0 : DEBUG OBJE en bas de l'écran, 5 400 trames sur 5 401 différentes du témoin ; le bloc de sauvegarde n'a jamais le bit	dd-jamais-pose, dd-sauve
+CHEATS/DEBUG OFF : DEBUG DIPS dit OFF, ne s'ouvre plus, le masque oublié	dip.s, debug.s	dd-off (nouvelle, kof94)	chaque trame égale au témoin sans le bit, $100000 jamais à 1	dd-ouvert-a-off, dd-off-ignore

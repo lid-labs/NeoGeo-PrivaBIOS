@@ -1,0 +1,42 @@
+# Les jeux du diagnostic des departs refuses, et quatre temoins, rejoues le 2026-10-22 sur l'image des
+# corrections (sha256 9dccf8cb...), sans nullbios, contre measured/2026-10-22-matrice-catalogue.tsv :
+#   aodk     « aucun releve » (erreur d'adresse) -> joue, 66328 ;  garou   exit 139 -> joue, 70804
+#   shocktr2 exit 139 -> joue, 68096 ;  sbp 19464 -> 66139 ;  trally 44526 -> 71490
+#   alpham2, ncommand, popbounc, cyberlip : vifs inchanges a quelques pixels (ncommand et cyberlip
+#   partent pourtant en partie : capture) ; mvstemp et vliner : FIGE comme avant.
+# Reserve : le catalogue etait mesure sur une image plus ancienne ; le durcissement (#1396) faisait
+# deja jouer garou sans planter.
+jeu	bios	verdict	vifs_max	vitesse_pct	controle
+cyberlip	snk	joue (plus longue pose 0 tr.)	71680	1819.93	ok
+cyberlip	unibios40	joue (plus longue pose 0 tr.)	68096	1940.53	ok
+cyberlip	sprixe	joue (plus longue pose 0 tr.)	52524	1888.18	ok
+ncommand	snk	joue (plus longue pose 0 tr.)	71680	1885.75	ok
+ncommand	unibios40	joue (plus longue pose 0 tr.)	68096	2015.62	ok
+ncommand	sprixe	joue (plus longue pose 0 tr.)	55744	1956.99	ok
+trally	snk	joue (plus longue pose 0 tr.)	71680	2092.31	ok
+trally	unibios40	joue (plus longue pose 0 tr.)	71490	2239.08	ok
+trally	sprixe	joue (plus longue pose 0 tr.)	71490	2224.68	ok
+sbp	snk	joue (plus longue pose 0 tr.)	71680	1933.47	ok
+sbp	unibios40	joue (plus longue pose 0 tr.)	66139	2012.86	ok
+sbp	sprixe	joue (plus longue pose 0 tr.)	66139	2008.76	ok
+aodk	snk	joue (plus longue pose 0 tr.)	71680	1664.49	ok
+aodk	unibios40	joue (plus longue pose 0 tr.)	68096	1786.45	ok
+aodk	sprixe	joue (plus longue pose 0 tr.)	66328	1733.67	ok
+garou	snk	joue (plus longue pose 0 tr.)	71680	1549.88	ok
+garou	unibios40	joue (plus longue pose 0 tr.)	70792	1678.20	ok
+garou	sprixe	joue (plus longue pose 0 tr.)	70804	1628.57	ok
+alpham2	snk	joue (plus longue pose 0 tr.)	71680	1779.18	ok
+alpham2	unibios40	joue (plus longue pose 0 tr.)	68096	1897.73	ok
+alpham2	sprixe	joue (plus longue pose 0 tr.)	37998	1838.04	ok
+mvstemp	snk	FIGE dès 300 (3200 trames)	71680	2197.81	ok
+mvstemp	unibios40	FIGE dès 300 (3200 trames)	4339	2370.97	ok
+mvstemp	sprixe	FIGE dès 200 (3300 trames)	4462	2274.89	ok
+vliner	snk	FIGE dès 300 (3200 trames)	71680	2671.06	ok
+vliner	unibios40	FIGE dès 400 (3100 trames)	9179	2810.01	ok
+vliner	sprixe	FIGE dès 100 (3400 trames)	7866	2868.22	ok
+shocktr2	snk	joue (plus longue pose 0 tr.)	71680	1767.43	ok
+shocktr2	unibios40	joue (plus longue pose 0 tr.)	68096	1880.33	ok
+shocktr2	sprixe	joue (plus longue pose 0 tr.)	68096	1824.60	ok
+popbounc	snk	joue (plus longue pose 0 tr.)	71680	2158.24	ok
+popbounc	unibios40	joue (plus longue pose 0 tr.)	68002	2352.07	ok
+popbounc	sprixe	joue (plus longue pose 0 tr.)	68096	2306.74	ok

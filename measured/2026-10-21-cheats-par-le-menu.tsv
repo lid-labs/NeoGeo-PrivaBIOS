@@ -1,0 +1,20 @@
+# Les cheats actives par le menu en jeu, sous notre image finale (sha256 087288bb7d47e554...), le 2026-10-21. MAME 0.286, -bios euro, -video none, NVRAM neuve. Jig bench/cheats.lua mode menu : TEST tenu 40 tr. a T_on, bas x(k+2), A, haut x(k+2), A (RESUME) ; idem a T_off. Lua n'ecrit rien, sauf $10FD88=3 (BIOS_GAME_DIP) sur mslug et, pour aof temps, la vie de P1 (pour que le round dure apres OFF). Tap d'ecriture $100000-$10F2FF, PC >= $C04300, hors pile.
+jeu	cheat	T_on	T_off	trames_ecrites_par_le_moteur	adresses_ecrites	pendant_ON	apres_OFF
+mslug	INFINITE LIVES	1500	8000	1741-8020	100377 (6280)	9 morts, vies a 3 (une baisse a 2 relevee a 2440, rendue a la trame suivante), pas de fin de partie	3 -> 2 -> 1 -> 0 -> FF, fin de partie a 10102
+mslug	INFINITE BOMBS	1500	2600	1741-2620	1004C0 (880)	BOMB 10 (5 grenades lancees)	9 a 2810, puis fin de partie a 3622 (vies non trichees)
+mslug	INFINITE TIME	1500	5000	1664-5020	106E93 (3357)	60 de 1670 a 5390	-1 toutes les ~256 tr. : 59 a 5390 ... 45 a 8970
+aof	INFINITE TIME	1000	5000	1021-5123*	108406 (3897)	60 de 1130 a 5140	59 a 5140, -1 toutes les 60 tr. jusqu'a 15
+aof	P1 INFINITE LIFE	1000	5000	1144-5020	1092CD (3877)	$60, deux coups rendus (54 une trame)	baisse des 5530, KO a 6450, fin de partie a 9942
+kof94	INFINITE TIME	1200	5000	1324-5020	10882F (3697)	TIME 60 ; rounds au KO, decompte de fin de round normal	59 a 5180, -1 toutes les 50 tr. ; fin de partie a 8917
+kof94	P1 INFINITE LIFE	1200	5000	1344-5020	108221 (3677)	$CF, coups rendus a la trame suivante ; rounds finis au temps	baisse des 5500, fin de partie a 10448
+# * aof temps : le tap compte aussi 206 ecritures de $1092CC, faites par lua (le PC du 68000 se trouvait dans la zone haute au moment de l'ecriture lua) ; le moteur a ecrit $108406 seul.
+# IDENTITE avant/apres RESUME (bench/menu.lua, cheat 0 bascule dans le menu puis RESUME) :
+jeu	cheats_du_jeu	vram_diff(69632)	palettes_diff(8192)	ram_diff	zones_ram	adresse_vram
+mslug	3	0	0	473	336 dans $10F4C0-$10F7FF, 132 dans $10F800-$10FAFF, 5 dans $10FB00-$10FB07, 0 ailleurs	retrouvee
+aof	2	0	0	416	314 / 97 / 5 / 0	retrouvee
+kof94	2	0	0	714	588 / 121 / 5 / 0	retrouvee
+samsho2	0	0	0	321	188 / 133 / 0 / 0	retrouvee
+wjammers	0	0	0	378	216 / 162 / 0 / 0	retrouvee
+# JEU SANS ENTREE : samsho2, wjammers. VRAM et palettes du menu ouvert (trames 1565, 1575, apres deux deplacements du curseur) egales a l'octet a celles de l'image d'avant les cheats (68481ced...), image egale a l'octet. Tap sur 6000 tr., menu ouvert, A bascule tente : 0 ecriture du moteur, aucune trame.
+# EMPREINTE FAUSSEE : image d'essai (empreinte de mslug +1) -> menu de mslug sans ligne de cheat (capture 10).
+# RESTART GAME, vies actives : reset a 2078, CH_ETATS a 0 apres, aucune ecriture du moteur apres 2020.

@@ -1,0 +1,70 @@
+# Les intitulés soft-DIP en région JAPAN (#1449), le 2026-10-27. MAME 0.286, -video none, -sound none, -nothrottle, NVRAM et cfg
+# par run, romsets non-merged de $ROMS. Aucune instruction tracée, aucun octet du SFIX ni du BIOS de référence lu (le jig ne lit le PC que pour attribuer une écriture au BIOS ou au jeu, sans le consigner) ;
+# seulement des numéros de tuile écrits au LSPC (le plan fixe reconstruit par bench/son.lua, J_TUILES, comme bench/fixmap.lua),
+# l'écran, et les octets $10-$1F des blocs soft-DIP de la cartouche (« Software DIPs »), lus comme des données. Aucun texte de jeu
+# n'est versionné au-delà de la liste des octets employés.
+#
+# SECTION 1 — LA RÈGLE DU BIOS SNK JAPONAIS. ssideki, -bios japan, romset d'origine ; TEST tenu des trames 1 à 1000, puis BAS à
+# 1100 et 1115, A à 1130, BAS à 1200, A à 1215 (son menu de test, le réglage des soft-DIP, le slot 1) ; plan fixe à la trame 1400.
+# Une ligne par rangée du plan fixe qui porte du texte : rangée, colonnes de la première et de la dernière case non vides, cases,
+# banques de tuile (quartet $0F00 de l'entrée), palettes.
+rangee	col_de	col_a	cases	banques	palettes	ce_que_c_est
+4	10	25	16	1	0	le nom du jeu, moitié haute : $100 + octet
+5	10	25	16	2	0	le nom du jeu, moitié basse : $200 + octet
+7	3	31	25	1,3	0,1	le curseur ($111, palette 1, comme measured/2026-10-20-sfix-glyphes.tsv) puis le premier réglage
+8	3	31	25	2,4	0,1	sa moitié basse
+10	6	31	24	3	0	un réglage : intitulé (colonnes 6-17) et choix (20-31), moitié haute
+11	6	31	24	4	0	sa moitié basse
+13	6	31	24	3	0	idem, les huit réglages tous les trois rangées, 7 à 29
+16	6	31	24	3	0	idem
+19	6	31	24	3	0	idem
+22	6	31	24	3	0	idem
+25	6	31	24	3	0	idem
+28	6	31	24	3	0	idem
+# Sur toutes les cases des huit réglages, l'entrée du bas vaut celle du haut + $100, sans exception : un octet b de la chaîne
+# s'écrit $300 + b en haut, $400 + b en bas, palette 0, l'ASCII compris (les chiffres et lettres des choix, et les deux lettres
+# latines d'un intitulé). Le nom du jeu reste en $100/$200 + octet. Les octets hors de $20-$7E employés par les intitulés et
+# les choix, 50 en tout :
+#   00 01 02 03 04 05 06 07 08 09 16 17 18 19 7F 80 82 8B 9A A7 B5 B7 BC BD BE BF C1 C2 C7 C9 CA CB CC D2 D3 D4 D5 DB DD
+#   E2 E9 ED EF F4 F6 F7 F8 F9 FC FD
+#
+# SECTION 2 — LES DEUX BANQUES DE LA POLICE DE LA CARTE, POUR L'ASCII. bench/police-cartouche.lua, P_OCTETS = les 95 octets de
+# $20 à $7E, posés en 8×16 sous P_BANQUE=3 ($300/$400 + b) puis P_BANQUE=1 ($100/$200 + b), ssideki, -bios euro, trame 1200 ;
+# bench/police-cartouche.py --octets, le second run en témoin (« banques ») : le trait (index 1) du SFIX comparé au pixel, case
+# pour case.
+octets	identiques	autres	autres_lesquels
+95	90	5	$5F $60 $7C $7D $7E
+# L'espace n'a de trait dans aucune des deux banques. Un premier essai sur 67 octets (0-9, A-Z, a-z, espace, « : - / . »)
+# donnait 67 sur 67 : il ne couvrait pas $7C-$7E, que les intitulés de ssideki emploient (la section 1 les écrit en $37C-$37E,
+# les morceaux d'un kanji), et que la banque ASCII dessine autrement. Les octets $20-$5E et $61-$7B peuvent donc garder
+# $100/$200 + b ; tout autre a besoin de la banque $300/$400 (src/c0/dip.s, `.Lecrire16`).
+#
+# SECTION 3 — CES GLYPHES NE SONT PAS DANS LA S ROM DES CARTOUCHES. Même outil, P_OCTETS = les 50 octets de la section 1, en
+# 8×16 à $300/$400 + b (P_BANQUE par défaut), -bios euro, trame 1200, rendus depuis la S ROM puis depuis le SFIX (seule la source
+# du plan fixe basculée). Classes de bench/police-cartouche.py --octets, au pixel sur le trait : identique, vide (aucun trait dans
+# la S ROM), autre (un trait, pas celui du SFIX). Aucun des cinq runs n'a changé de banque de palettes ; tous à REG_CRTFIX à 1200.
+jeu	identique	vide	autre
+ssideki	0	21	29
+kof98	0	13	37
+mslug	0	11	39
+aof	0	14	36
+samsho4	0	13	37
+# La planche de ssideki montre des chiffres et du décor du jeu à ces tuiles (non versionnée). Contrôle, l'outil sans P_OCTETS
+# (le comportement d'origine, inchangé) sur ssideki : 8×8, 41 identiques sur 41 ; 8×16, 2 identiques, 37 lisibles, 2 autres —
+# la S ROM a bien l'ASCII aux places du SFIX. GAME SETTINGS, sous la police de la cartouche (REG_BRDFIX couperait la M1 du jeu,
+# src/c0/menu.s), ne peut donc pas employer la règle de la section 1.
+#
+# SECTION 4 — LA STRUCTURE DES BLOCS JAPON ET USA DU CATALOGUE. Les octets $10-$1F des blocs pointés par $116 (Japon) et $11A
+# (USA), lus par lua à la trame 30 (-bios euro), sur les 161 jeux de $ROMS que MAME lance (rayspk-byo-2026-10-09 et
+# rayspkV2 refusés par MAME). « defauts » : seuls les quartets hauts de $16-$1F diffèrent (les défauts des réglages à choix) ;
+# « structure » : un temps, un compte, un nombre de fois ou un nombre de choix diffère ; « refuse » : un des deux pointeurs hors
+# de la P-ROM fixe, que GAME SETTINGS refuse.
+classe	jeux	lesquels
+egaux	115	—
+defauts	25	alpham2 fatfury1 ironclad kizuna kof2002 kof2003 lastbld2 lbowling legendos mslug3 mslug4 mslug5 neocup98 pbobblen pgoal preisle2 s1945p samsho2 shocktr2 shocktro ssideki3 ssideki4 svc wakuwak7 whp
+structure	19	2020bb aof3 bstars bstars2 doubledr kabukikl mslug2 mslugx ncommand ninjamas ragnagrd samsh5sp samsho3 samsho4 samsho5 savagere strhoop tpgolf wjammers
+refuse	2	mslug wh2
+# ssideki est « egaux ». bstars a une autre suite de réglages dans chaque bloc (Japon : un temps puis cinq réglages à choix ;
+# USA : un temps puis trois) : sans le garde de structure, ses intitulés japonais seraient lus au rythme du bloc USA — c'est le
+# jeu de la scène gs-japon-garde. Dans « structure », 2020bb, ncommand, tpgolf et wjammers ne diffèrent que par la valeur d'un
+# temps ou d'un compte présent dans les deux blocs : le garde les écarte aussi, ce que la demande exige (octets $10-$15 égaux).

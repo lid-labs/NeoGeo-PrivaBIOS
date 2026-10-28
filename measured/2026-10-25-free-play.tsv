@@ -1,0 +1,87 @@
+# Les réglages de la borne : ce que font déjà la carte, le BIOS SNK et les jeux, mesuré le 2026-10-25 avant d'écrire FREE PLAY,
+# NO CONTINUE et DEMO SOUND (src/c0/reglages.s, io.s, dip.s ; piste 4 de docs/ATTENTES.md §4). MAME 0.286, -video none,
+# -sound none, -nothrottle, -wavwrite pour le son mixé, NVRAM par run ; romsets non-merged de $ROMS, notre image
+# substituée à sp-s2.sp1 seul (image de main c4cba5b2…, avant ce lot, sauf mention). Jig bench/son.lua : J_DSW pour les
+# commutateurs de la carte, J_SUIVRE pour les valeurs que jeu et BIOS écrivent en RAM, J_BRAM (ajouté par ce lot) pour poser un
+# octet de backup RAM par la mémoire partagée « :saveram » de MAME. Aucune instruction lue ni tracée ; le jig ne lit le PC que pour attribuer une écriture au BIOS ou au jeu, et ne le consigne pas ; ce qu'on lit
+# est l'image, le son, et des cellules de RAM documentées par le NeoGeo Development Wiki (« Backup RAM », « BIOS RAM
+# locations », « Memory mapped registers »).
+#
+# 0. LE COMMUTATEUR « FREE PLAY » DE LA CARTE SOUS MAME. « Memory mapped registers » : REG_DIPSW ($300001), actif bas, bit 6
+#    « Freeplay » (la page aplatit son tableau ; le bit est confirmé ci-dessous). Lu par lua dans le port :DSW d'aof :
+#    « Free Play », masque $40, defvalue $40. Posé à $40 : REG_DIPSW $FF ; posé à $00 : $BF (bit 6 à 0, ON).
+#    RÉFUTÉ : « le free play de la carte est à ON par défaut sous MAME 0.286 ». Le user_value $00 lu à la mise sous tension
+#    venait du cfg partagé de MAME (le cfg/aof.cfg de MAME, `value="0"` sur :DSW), où MAME
+#    enregistre à la sortie les commutateurs qu'un run a posés — ici les témoins J_DSW=1:40 de ce lot. Remesuré le
+#    2026-10-25, aof -bios euro, trame 300 : cfg vide, user_value $40, REG_DIPSW $FF (OFF) ; ce cfg-là, user_value $00,
+#    $BF. Le cfg partagé faisait échouer neuf scènes du parcours aux témoins SNK (region-*, partie-p2, carte-sauve,
+#    depart-force, partie-p2-joint, carte-supprimer, cm-effacer) : bench/parcours.sh donne désormais un cfg à chaque run,
+#    et la ligne a été retirée de ce cfg. bench/son.lua ne pose rien avant la première trame de J_DSW (« 1:00 » met tout
+#    à OFF).
+#
+# 1. FREE PLAY, aof, -bios euro, aucune pièce. « OFF » = J_DSW=1:00, « ON » = J_DSW=1:40.
+section	bios	free_play	entrees	constat
+1	snk	OFF	START 1500 (démo, mode 01/02)	refusé : la démo continue, $10FDB4 reste 0
+1	snk	ON	START 1500	la partie part à l'appui : 02/02 à 1501, $10FDB4 = $01, $D00034 reste 00
+1	snk	ON	START P2 1500 (démo)	les deux partent : 02/02 à 1501, $10FDB4 = $03, BIOS_PLAYER_MOD1-2 = $01 $01
+1	snk	ON	START 1500, START P2 2500	P2 se joint : $10FDB4 = $02 à 2501, PLAYER_MOD2 = $01, aucun crédit
+1	snk	ON	pièce 1500	créditée ($D00034 = 01), le titre (01/03 à 1504) ; le départ forcé à 3312 laisse le crédit à 01
+1	snk	ON	START 600 (son logo, mode 0)	refusé
+1	snk	ON / OFF	démo sans entrée	images différentes dès la trame 773 : « PUSH 1P OR 2P START BUTTON » à ON, « INSERT COIN » à OFF
+1	notre (main)	ON / OFF	START 1500, démo	refusé dans les deux cas ; les 3 000 trames égales à l'octet : le commutateur est ignoré
+1	notre (ce lot)	réglage FREE PLAY ON	START 1000 (démo, après relance)	la partie part à l'appui, $10FDB4 = $01, crédit 00 (scène bo-free-play)
+#
+# 2. LE CONTINUE. « BIOS RAM locations » : BIOS_PLAYER_MOD1 ($10FDB6) « 0:Never played, 1:Playing, 2:Continue option being
+#    displayed, 3:Game over ». Deux pièces (400, 420), START 500, la partie perdue sans entrée, notre image de main, J_DSW=1:00.
+section	jeu	mod1_2_de	mod1_2_a	ensuite
+2	aof	6116	6716	$0303 (game over, mot $10FDB6), titre à 6961, CREDIT 01 ; départ forcé à 8771
+2	puzzledp	7424	8003	$03, titre à 8332
+2	kof94	8940	—	run arrêté à 9000
+2	mslug	—	—	toujours en partie à 9000
+2	aof, START 6300	6116	6301	le continue est pris par le BIOS : $D00034 01 → 00, PLAYER_MOD1 → $01, la partie reprend
+2	puzzledp, START 7600	7424	7601	de même : 01 → 00, $01
+2	aof, mode AES, STORY MODE	7338	7938	$0303, puis la démo à 8184 ; aucun crédit en AES
+#
+# 3. LA DÉMO MUETTE. « Backup RAM » : $D00046 « Demo sound (1=Without) (initialized to 0) », la même page la nommant aussi
+#    SOUND_STOP, « No sound at all if non-zero (except coinage sound effect) ». Posée à $01 aux trames 2 et 280 (J_BRAM), une
+#    pièce à 3000, START à 3300 ; RMS du son mixé et key-on (FM, ADPCM-A, ADPCM-B) par fenêtre, contre le même run sans la pose.
+#    aof sous les deux BIOS, onze jeux de plus sur la MV-6F (-cart1) sous notre image de main.
+section	jeu	bios	demo_600_2990_rms_keyon	titre_3010_3290_rms_keyon	partie_3400_4400_rms_keyon	temoin_demo	temoin_titre	temoin_partie
+3	aof	snk	0 / 0	618 / 0	2217 / 354	2584 / 817	2143 / 89	2205 / 352
+3	aof	notre	0 / 0	618 / 0	2223 / 355	2685 / 793	2157 / 89	2212 / 353
+3	puzzledp	notre	0 / 0	626 / 0	1090 / 842	1252 / 2386	771 / 1	1090 / 842
+3	mslug	notre	0 / 0	964 / 0	2089 / 328	4574 / 140	964 / 0	2089 / 328
+3	kof98	notre	0 / 0	621 / 0	2952 / 414	3230 / 658	3632 / 106	2956 / 414
+3	kof94	notre	0 / 0	845 / 0	1520 / 26	2385 / 454	3170 / 101	1529 / 26
+3	samsho2	notre	0 / 0	625 / 0	1570 / 19	1467 / 473	1765 / 0	1570 / 19
+3	garou	notre	0 / 0	442 / 0	1512 / 868	2874 / 225	451 / 0	1512 / 868
+3	ncombat	notre	0 / 2	0 / 0	1590 / 201	1495 / 611	1776 / 27	1589 / 201
+3	wh2	notre	0 / 2	0 / 0	1391 / 14	2313 / 458	0 / 0	1395 / 14
+3	nam1975	notre	0 / 0	0 / 0	1440 / 353	1306 / 797	1847 / 57	1444 / 353
+3	b2b	notre	0 / 0	675 / 0	1409 / 538	1173 / 207	1996 / 76	1413 / 541
+3	sengoku	notre	0 / 0	0 / 0	564 / 16	1096 / 193	1 / 0	564 / 16
+# Lecture : douze jeux sur douze sont muets en démo avec la cellule à 1, sous notre image comme sous le BIOS SNK (aof) : ce sont
+# les jeux qui la lisent, le BIOS n'a qu'à la poser. Le titre d'après la pièce aussi : il ne garde que le son de la pièce (aof
+# 618, la pièce seule) ou rien. La partie ne la lit pas (RMS égaux à 1 % près). Le BIOS SNK ne la change pas en route
+# ($D00046 = 1 encore à la trame 4000).
+section	essai	constat
+3	aof, notre, la cellule remise à 0 à la trame 3001 (la pièce)	titre 3010-3290 : RMS 2125, 88 key-on, comme sans la pose : le jeu relit la cellule, la musique revient
+3	aof, mode AES (MODE posé par l'éditeur, relancé), la cellule à 1	démo 600-2990 : RMS 2688, 792 key-on, égaux au même run à 0 : aof ne lit pas la cellule en mode AES
+#
+# 4. LA PLACE À L'ÉCRAN TEST. Le nombre de réglages utilisés du bloc soft-DIP européen (pointeur à $11E, « 68k program
+#    header » ; temps à $FFFF, comptes à $FF et choix à 0 choix exclus, comme dip.s), lu par lua dans la P-ROM à la trame 250
+#    des 159 jeux de $ROMS (MV-6F, -cart1, les machines exclues). La liste de l'éditeur tient 21 lignes (7 à 27), et en
+#    compte aujourd'hui 7 de plus que les réglages : 19 au plus, 22 avec trois lignes de plus, 20 avec une.
+section	reglages	jeux
+4	0	1 (jockeygp)
+4	2	1 (minasan)
+4	3	1 (bakatono)
+4	4	5
+4	5	3
+4	6	15
+4	7	21
+4	8	22
+4	9	11
+4	10	54
+4	11	21
+4	12	4 (froman2b, pspikes2, tophuntr, turfmast)

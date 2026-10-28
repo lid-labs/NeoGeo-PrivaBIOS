@@ -1,0 +1,33 @@
+# Les soft-DIP de la cartouche : comment la reference remplit BIOS_GAME_DIP ($10FD84-$10FD93),
+# le 2026-10-16, sous MAME (jigs lua, NVRAM isolee). Valeurs de RAM BIOS et de backup RAM
+# ecrites par la reference, octets du bloc soft-DIP de la CARTOUCHE ; aucun PC ni octet du BIOS
+# de reference n'est consigne : le PC n'est lu que pour attribuer une ecriture au BIOS ou a la
+# cartouche.
+#
+# Publication : les octets des blocs soft-DIP des cartouches, octets de ROM de jeux, sont
+# retires de ce releve (« (retiré) ») ; les valeurs GAME_DIP, ecrites en RAM, restent.
+#
+# LE DECODAGE, mesure sur quatre jeux a la premiere remise (BIOS_GAME_DIP relu, bloc Europe de
+# la cartouche lu par le pointeur long de son en-tete a $11E) :
+#   kof98    bloc @$0A8E60, octets $10-$1F : (retiré)
+#            GAME_DIP                       : FF FF FF FF FF FF 02 01 00 00 03 01 05 01 02 00
+#   puzzledp bloc @$00114C                  : (retiré)
+#            GAME_DIP                       : FF FF FF FF FF 64 03 00 00 00 00 00 00 00 00 00
+#   aof      bloc @$0004EA                  : (retiré)
+#            GAME_DIP                       : FF FF FF FF 3C FF 01 01 00 02 01 00 00 00 00 00
+#   ssideki4 bloc @$000512                  : (retiré)
+#            GAME_DIP                       : FF FF FF FF FF FF 02 02 00 03 00 00 00 01 00 00
+# Regle, sans exception sur les quatre : GAME_DIP[0-5] = bloc[$10-$15] tels quels (deux
+# reglages de temps en mot, deux comptes en octet) ; GAME_DIP[6-15] = quartet HAUT de
+# bloc[$16-$1F] (dix reglages simples). Les octets $00-$0F du bloc sont le nom du jeu.
+#
+# LE BOOT SUIVANT : GAME_DIP vient du BLOC DE SAUVEGARDE du jeu, pas de l'en-tete. kof98 sous la
+# reference : $07 pose a la trame 450 dans $D00226 (bloc 0, octet 6 ; backup deverrouillee,
+# relu) -> a la remise du boot 2 (trame 503), GAME_DIP[6] = $07, le reste inchange.
+#
+# QUI REMPLIT LE BLOC AU PREMIER BOOT : le BIOS. puzzledp, deux runs sur la meme NVRAM : aucun
+# ecrivain cartouche sur $D00220-$D0029F apres la trame 70 ; le bloc 0 porte pourtant les
+# defauts a la trame 900 du run 1, et le run 2 les relit dans GAME_DIP. kof98, lui, recopie
+# aussi GAME_DIP dans son bloc pendant sa demande 0 (cartouche, trame 282) — memes valeurs.
+#
+# Chez nous a ce jour : GAME_DIP n'est jamais ecrit (zeros du vidage du boot).

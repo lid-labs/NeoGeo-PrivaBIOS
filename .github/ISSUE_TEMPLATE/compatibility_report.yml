@@ -1,0 +1,62 @@
+name: Compatibility report
+description: A game works, or does not, under Sprixe BIOS.
+labels: [compatibility]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Reports that a game works are welcome too. Please do not attach ROMs, dumps or links to them.
+  - type: input
+    id: game
+    attributes:
+      label: Game
+      description: Title, and the MAME set name if you know it.
+    validations:
+      required: true
+  - type: dropdown
+    id: result
+    attributes:
+      label: Result
+      options:
+        - Works
+        - Works with issues
+        - Does not boot
+        - Freezes or resets
+    validations:
+      required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where
+      options:
+        - Real hardware
+        - MAME
+    validations:
+      required: true
+  - type: input
+    id: board
+    attributes:
+      label: Board (real hardware) or MAME version
+    validations:
+      required: true
+  - type: input
+    id: crc
+    attributes:
+      label: CRC32 of the Sprixe BIOS image
+    validations:
+      required: true
+  - type: dropdown
+    id: original
+    attributes:
+      label: Same game under the original SNK BIOS or UniBIOS
+      options:
+        - Works there
+        - Same problem there
+        - Not tried
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Details
+      description: What you tried (demo, a full game, settings), and anything that differs from the original BIOS.

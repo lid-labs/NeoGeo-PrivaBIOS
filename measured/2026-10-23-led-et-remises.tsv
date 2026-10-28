@@ -1,0 +1,254 @@
+# Les LED, et les petits écarts des remises (docs/RELECTURE-CONTRATS.md, section du 2026-10-23). Relevé du 2026-10-23.
+# MAME 0.286, machine neogeo (MV-6F), -bios euro pour la référence, -cart1 (-cart2) par la liste logicielle neogeo (-hashpath <dossier hash de MAME>), -video none -sound none
+# -nothrottle, SDL_MAC_BACKGROUND_APP=1, NVRAM neuve et isolée par run. Hôte : Apple M4 Pro, 14 cœurs, macOS 26.6.2. Notre image chargée par un neogeo.zip dont seul le membre
+# sp-s2.sp1 est remplacé (WRONG CHECKSUMS au journal : 1 sur chaque run de notre image, 0 sous la référence).
+# Images : avant = celle de main (a84b44c2, git archive, build/construire.sh src/c0, sha256 890e65f5816ef2a0…c94ee3c5) ; apres = celle de ce lot (sha256 112480d25eb38898…2b78dbd2).
+# Jig : bench/multislot.lua (MS_PLAGES=1, MS_ENTREES), chargé par l'enveloppe non versionnée de 2026-10-23-comptabilite.tsv (mêmes lectures de l'en-tête de la cartouche, des points
+#   d'entrée publics et des vecteurs auto ; mêmes écritures sur $380000-$3800FF, $3A0000-$3A001F, REG_SOUND, $D00020-$D0007F, $10FD80-$10FDDF hors blocs de manette, $10FEE0-$10FEE3,
+#   valeur et côté de l'écrivain « bios » / « jeu » d'après la région du PC, SANS adresse), étendue aux écritures du BIOS sur $10FE00-$10FEFF et, en fin de trame, à $10FE8B et
+#   $10FEE4. Une seconde enveloppe relève en plus les LECTURES de $300000, $340000, $380000 et $320000 (adresse et moment, sans valeur). Fenêtre de trames par run (colonnes « de-a »
+#   des tableaux) ; hors fenêtre, seules restent les lectures de l'en-tête et de $C00444. Sur demande, un octet de backup RAM posé par l'enveloppe en fin de trame (dit à chaque fois).
+#   Les rejeux DEMO_END chargent en plus l'enveloppe de 2026-10-22-piece-demo-end.tsv.
+# Aucun PC consigné (le PC n'est lu que pour attribuer un accès au BIOS ou au jeu), aucun octet de la ROM du BIOS (docs/DECISIONS.md §8) ; aucun code de jeu lu. Valeurs écrites en RAM, en backup RAM et en registres, leurs trames, leur ordre, les appels comptés.
+# Pages lues (NeoGeo Development Wiki) : « Memory mapped registers » — REG_POUTPUT $380001 « Joypad ports outputs » (P1 / P2 outputs), REG_LEDLATCHES $380031 (« Latch LED1 data »,
+#   « Latch LED2 data », « LED data is latched on 1 to 0 transition »), REG_LEDDATA $380041 ; « BIOS RAM locations » — $10FD80 BIOS_SYSTEM_MODE (« 0:BIOS wants vblank (system
+#   mode), $80:Ok to use vblank (game mode) »), $10FEE1 BIOS_FRAME_SKIP, $10FEC5 BIOS_TITLE_MODE, $10FEBF BIOS_BRAM_USED ; $10FEE0 n'y figure pas ; « Backup RAM » — $D00026-$D0002F et
+#   $D00036-$D00039 sans description (« ? »).
+# Runs (plan d'entrées ; fenêtre) : pz puzzledp 1000:piece,1100:start (990-1130) ; st nam1975 2000:piece,2100:start (2098-2106) ; sa aof 2000:piece,2030:piece,2100:start (2098-2106) ;
+#   s2 aof idem + 2400:start2 (2398-2420) ; pp nam1975 2000:piece,2100:start,2300:piece (2298-2304) ; p2 puzzledp 1000:piece,1100:piece, $D0003A ← $02 posé à 500 (998-1104) ;
+#   boot nam1975 sans entrée (1-300) ; k10 puzzledp + aof 1000:piece,1200:suivant,1213:suivant (995-1230) ; d-<jeu> 1000:piece (b2b 3300:piece) (995-1300, b2b 3295-3500) ;
+#   go nam1975 2000:piece,2100:start, game over (ref 6850-6866, avant/apres 5860-5890) ; ac aof deux pièces, START, game over avec un crédit (ref 8840-8870, avant/apres 8540-8580) ;
+#   c2 nam1975, fin de démo par SYSTEM_RETURN code 2 (ref 8748-8760, avant/apres 7760-7780) ; wj wjammers 2000:piece,2100:start jusqu'à 12000. 17 runs par BIOS, plus wj.
+#
+# 1. LES AFFICHEURS ET REG_POUTPUT. MESURÉ, la référence, par appel de SYSTEM_IO ($C0044A) ou de SYSTEM_INT1 ($C00438) : BIOS_FRAME_COUNTER avancé ; $380031 ← $FF ; REG_SRAMUNLOCK ;
+#    le front de pièce, le crédit, le son, l'impulsion, $D0005D ; $380041 ← le crédit complémenté de l'afficheur du tour ; REG_SRAMLOCK ; $380031 ← $EF (LED1) si l'octet $10FE8B est
+#    pair, $DF (LED2) s'il est impair — 2 341 appels sur 2 341 dans les 17 runs ; REG_POUTPUT ← $12, $1B, $00, les manettes et REG_STATUS_B relus sous $12 et sous $1B (seconde
+#    enveloppe, puzzledp 998-1003 et nam1975 6850-6866) ; puis $380031 ← $FF seulement par un SYSTEM_IO qui lit FRAME_SKIP à $00, à la fin de son test de START (après le décompte du
+#    départ forcé, après PLAYER_START et la déduction, avant DEMO_END ou SELECT) : 2 132 appels sur 2 133 (le dernier, le PLAYER_START de puzzledp, ne rend la main que deux trames
+#    plus tard, $FF à son retour), aucun des 130 appels pendant le saut ni des 63 sous INT1 (9 $FF suivent un INT1 plus loin dans la trame, écrits par les trames tenues du code 2 et
+#    de SELECT, que ce lot ne reprend pas). Dans les trames tenues d'après DEMO_END et du code 3, REG_POUTPUT ← $00 vers 0,11 (section 4).
+#    Notre image avant : REG_POUTPUT ← $00 seul, puis les deux afficheurs à chaque appel, avant la backup RAM et le front de pièce (le crédit de la trame d'avant), verrou remonté
+#    chaque fois. Écrit : src/c0/io.s _io_commun (les verrous remontés avant la backup RAM, la donnée, REG_SRAMLOCK, la descente et REG_POUTPUT après $D0005D), _io_verrous_hauts
+#    (nouveau, appelé en fin de _io_start, avant DEMO_END et avant SELECT) ; src/c0/c0.s _attente_tenue (REG_POUTPUT ← $00). Les lectures sous $12 / $1B ne sont PAS reprises (io.s le dit).
+#    Après : 2 462 appels sur 2 462 suivent la parité ; le $FF final sur 2 290 SYSTEM_IO à FRAME_SKIP nul sur 2 291 (le même PLAYER_START de puzzledp), sur aucun pendant le saut ni sous INT1.
+#    Tableau : pz, fenêtre 990-1130, les signatures d'appel — L = $380031, D = $380041, P = $380001, U / K = REG_SRAMUNLOCK / LOCK, C = $D00034 — et leur compte.
+pz-ref : 140 appels
+  49x	E44A L=FF U D=FF K L=DF P=12 P=1B P=00 L=FF
+  44x	E44A L=FF U D=FE K L=EF P=12 P=1B P=00 L=FF
+  14x	E44A L=FF U D=FF K L=EF P=12 P=1B P=00 L=FF U K
+  14x	E44A L=FF U D=FF K L=DF P=12 P=1B P=00 L=FF U K
+  5x	E44A L=FF U D=FF K L=EF P=12 P=1B P=00 L=FF
+  5x	E44A L=FF U D=FF K L=DF P=12 P=1B P=00
+  4x	E44A L=FF U D=FE K L=EF P=12 P=1B P=00
+  1x	E44A L=FF U C D=FE K L=EF P=12 P=1B P=00 L=FF
+  1x	E438 L=FF U D=FF K L=DF P=12 P=1B P=00 P=00
+  1x	E438 L=FF U D=FE K L=EF P=12 P=1B P=00 K
+  1x	E44A L=FF U D=FE K L=EF P=12 P=1B P=00 U C K L=FF U K
+  1x	E44A L=FF U D=FF K L=DF P=12 P=1B P=00 U K
+  parité $10FE8B → verrous : {(0, 'L=EF'): 70, (1, 'L=DF'): 70}
+pz-avant : 140 appels
+  97x	E44A P=00 L=FF D=FE L=EF L=FF D=FF L=DF L=FF U K
+  29x	E44A P=00 L=FF D=FF L=EF L=FF D=FF L=DF L=FF U K U K
+  10x	E44A P=00 L=FF D=FF L=EF L=FF D=FF L=DF L=FF U K
+  2x	E438 P=00 L=FF D=FE L=EF L=FF D=FF L=DF L=FF U K
+  1x	E44A P=00 L=FF D=FF L=EF L=FF D=FF L=DF L=FF U C K
+  1x	E44A P=00 L=FF D=FE L=EF L=FF D=FF L=DF L=FF U K U C K U K
+  parité $10FE8B → verrous : {(0, 'L=EF L=DF'): 70, (1, 'L=EF L=DF'): 70}
+pz-apres : 140 appels
+  49x	E44A L=FF U D=FF K L=DF P=12 P=1B P=00 L=FF
+  44x	E44A L=FF U D=FE K L=EF P=12 P=1B P=00 L=FF
+  14x	E44A L=FF U D=FF K L=EF P=12 P=1B P=00 L=FF U K
+  14x	E44A L=FF U D=FF K L=DF P=12 P=1B P=00 L=FF U K
+  5x	E44A L=FF U D=FF K L=EF P=12 P=1B P=00 L=FF
+  5x	E44A L=FF U D=FF K L=DF P=12 P=1B P=00
+  4x	E44A L=FF U D=FE K L=EF P=12 P=1B P=00
+  1x	E44A L=FF U C D=FE K L=EF P=12 P=1B P=00 L=FF
+  1x	E438 L=FF U D=FF K L=DF P=12 P=1B P=00 P=00
+  1x	E438 L=FF U D=FE K L=EF P=12 P=1B P=00
+  1x	E44A L=FF U D=FE K L=EF P=12 P=1B P=00 U C K L=FF U K
+  1x	E44A L=FF U D=FF K L=DF P=12 P=1B P=00 U K
+  parité $10FE8B → verrous : {(0, 'L=EF'): 70, (1, 'L=DF'): 70}
+#
+# 2. FRAME_SKIP ← $01 APRÈS PLAYER_START. MESURÉ, la référence : un START dont le jeu garde le bit (nam1975, aof au titre) → $10FEE1 ← $01 juste après PLAYER_START, avant $10FDDA,
+#    $10FD81 et la déduction ; décompté à $00 à l'appel suivant. START P2 en partie effacé par le jeu (aof, 2400) : pas d'écriture. Notre image avant : jamais. Écrit : src/c0/io.s
+#    _io_start (sous la condition de $10FDDA). Colonnes : run ; bios ; trame de la lecture de $000128 ; écritures qui la suivent dans la trame ; $10FEE1 écrit à la trame suivante.
+run	bios	P128	apres_PLAYER_START	FEE1_appel_suivant
+st	ref	2100	FEE1=01 FDDA=00 FD81=03 0034=00	00
+st	avant	2100	FDDA=00 FD81=03 0034=00	-
+st	apres	2100	FEE1=01 FDDA=00 FD81=03 0034=00	00
+sa	ref	2100	jeu:FDB4=01 FEE1=01 FDDA=00 FD81=03 0034=01	00
+sa	avant	2100	jeu:FDB4=01 FDDA=00 FD81=03 0034=01	-
+sa	apres	2100	jeu:FDB4=01 FEE1=01 FDDA=00 FD81=03 0034=01	00
+s2	ref	2400	jeu:FDB4=00	-
+s2	avant	2400	jeu:FDB4=00	-
+s2	apres	2400	jeu:FDB4=00	-
+#
+# 3. $10FD80 ET REG_SOUND AVANT LES REMISES. MESURÉ, la référence, sur les 18 remises des fenêtres : $10FD80 ne reçoit avant la remise que la valeur de l'entrée de SYSTEM_RETURN,
+#    réécrite — $00 (code 0 du boot, demande 0 et démo qui suit), $02 (codes 2, 3, 6, SELECT ; 15 remises) —, $01 seulement pendant le logo de b2b (pièce à 3300), puis $80 à la demande 0,
+#    $82 sinon ; le code 2 entre lui-même à $02 (c2, 8753). REG_SOUND ← $03 dans la trame qui précède chaque remise de démo ou de titre (boot 284, game over, fin de démo, pièce, SELECT),
+#    après $10FDAF et les mots $10FDB8-$10FDBA ; celui du passage de slot ($01 puis $03) en plus quand il y en a un (283, 8755, 1201, 1215). Notre image avant : $01 puis $82 à toutes les
+#    remises de _remettre_a_user, $00 au code 2, REG_SOUND ← $03 avant le titre seulement. Écrit : src/c0/c0.s _sysret_etat (code 2 → $02), _remettre_a_user (plus de $01 ; $00 à la
+#    demande 0 ; REG_SOUND ← $03 selon %d3 ; $80 / $82), _sysret_demo, _sysret_piece, _retour_selection (%d3), _retour_piece ($01 gardé : traces 2 et 9 de protocole.md).
+#    L'attente de 3 200 tours après le $03 n'est gardée que sur le titre de _sysret_piece, où elle existait : étendue à la démo, elle repoussait la remise d'une trame et sortait kof94
+#    de la matrice (2026-10-23-led-et-remises-matrice.tsv, en-tête). Nos remises restent plus tôt que celles de la référence (boot : 186 contre 285, sans logo ; code 2 : R+1 contre R+4).
+#    Colonnes : run-bios ; remise (lecture de $000122) ; demande ; depuis (l'entrée du BIOS qui la précède) ; écritures du BIOS dans $10FD80, $10FD81, $10FDAE, $10FEE1 et REG_SOUND
+#    (« 0000 »), trame:cellule=valeur.
+run-bios	remise	demande	depuis	ecritures du BIOS (trame:cellule=valeur ; 0000 = REG_SOUND)
+boot-ref	281	dem=00	depuis=250:E44480	277:FEE1=FF 277:0000=01 277:FEE1=00 277:FDAE=00 277:FD80=00 277:FD81=00 280:FD80=00 280:0000=03 281:FDAE=00 281:FD80=80
+boot-ref	285	dem=02	depuis=281:E44400	281:FEE1=FF 281:FD80=00 283:FD80=00 283:FD81=02 283:0000=01 283:0000=03 284:FD80=00 284:FEE1=0A 284:0000=03 285:FEE1=09 285:FDAE=02 285:FD80=82
+boot-avant	185	dem=00	depuis=1:W	1:FD80=00 1:FD81=00 1:FDAE=00 1:FEE1=00 182:0000=01 184:0000=03 184:FD80=01 184:FDAE=00 184:FD80=82
+boot-avant	186	dem=02	depuis=185:E44400	185:FD80=00 185:FEE1=FF 185:FD81=02 185:FEE1=09 185:FD80=01 185:FDAE=02 185:FD80=82
+boot-apres	185	dem=00	depuis=1:W	1:FD80=00 1:FD81=00 1:FDAE=00 1:FEE1=00 182:0000=01 184:0000=03 184:FD80=00 184:FDAE=00 184:FD80=80
+boot-apres	186	dem=02	depuis=185:E44400	185:FD80=00 185:FEE1=FF 185:FD81=02 185:FEE1=09 185:0000=03 185:FDAE=02 185:FD80=82
+k10-ref	1002	dem=03	depuis=1000:D12E	1000:FEE1=FF 1000:FD80=02 1001:FD81=02 1001:FD80=02 1001:FEE1=0A 1001:0000=03 1002:FEE1=09 1002:FDAE=03 1002:FD80=82
+k10-ref	1203	dem=03	depuis=1200:D12E	1200:FEE1=FF 1200:FD80=02 1201:FD81=02 1201:0000=01 1201:0000=03 1202:FD80=02 1202:FEE1=0A 1202:0000=03 1203:FEE1=09 1203:FDAE=03 1203:FD80=82
+k10-ref	1217	dem=03	depuis=1213:D12E	1214:FEE1=FF 1214:FD80=02 1215:FD81=02 1215:0000=01 1216:0000=03 1216:FD80=02 1216:FEE1=0A 1216:0000=03 1217:FEE1=09 1217:FDAE=03 1217:FD80=82
+k10-avant	1002	dem=03	depuis=1000:D12E	1000:FD80=02 1000:FEE1=FF 1001:FD81=02 1001:FD80=02 1001:FEE1=0A 1001:0000=03 1002:FEE1=09 1002:FDAE=03 1002:FD80=82
+k10-avant	1203	dem=03	depuis=1000:D12E	1000:FD80=02 1000:FEE1=FF 1001:FD81=02 1001:FD80=02 1001:FEE1=0A 1001:0000=03 1002:FEE1=09 1002:FDAE=03 1002:FD80=82 1003:FEE1=08 1004:FEE1=07 1005:FEE1=06 1006:FEE1=05 1007:FEE1=04 1008:FEE1=03 1009:FEE1=02 1010:FEE1=01 1011:FEE1=00 1200:FD81=04 1200:FD80=02 1200:0000=01 1202:0000=03 1202:FD81=02 1202:FEE1=09 1202:FD80=01 1202:FDAE=03 1202:FD80=82
+k10-avant	1216	dem=03	depuis=1000:D12E	1000:FD80=02 1000:FEE1=FF 1001:FD81=02 1001:FD80=02 1001:FEE1=0A 1001:0000=03 1002:FEE1=09 1002:FDAE=03 1002:FD80=82 1003:FEE1=08 1004:FEE1=07 1005:FEE1=06 1006:FEE1=05 1007:FEE1=04 1008:FEE1=03 1009:FEE1=02 1010:FEE1=01 1011:FEE1=00 1200:FD81=04 1200:FD80=02 1200:0000=01 1202:0000=03 1202:FD81=02 1202:FEE1=09 1202:FD80=01 1202:FDAE=03 1202:FD80=82 1204:FEE1=08 1205:FEE1=07 1206:FEE1=06 1207:FEE1=05 1208:FEE1=04 1209:FEE1=03 1210:FEE1=02 1211:FEE1=01 1212:FEE1=00 1213:FD81=04 1213:FD80=02 1213:0000=01 1215:0000=03 1215:FD81=02 1215:FEE1=09 1215:FD80=01 1215:FDAE=03 1215:FD80=82
+k10-apres	1002	dem=03	depuis=1000:D12E	1000:FD80=02 1000:FEE1=FF 1001:FD81=02 1001:FD80=02 1001:FEE1=0A 1001:0000=03 1002:FEE1=09 1002:FDAE=03 1002:FD80=82
+k10-apres	1203	dem=03	depuis=1000:D12E	1000:FD80=02 1000:FEE1=FF 1001:FD81=02 1001:FD80=02 1001:FEE1=0A 1001:0000=03 1002:FEE1=09 1002:FDAE=03 1002:FD80=82 1003:FEE1=08 1004:FEE1=07 1005:FEE1=06 1006:FEE1=05 1007:FEE1=04 1008:FEE1=03 1009:FEE1=02 1010:FEE1=01 1011:FEE1=00 1200:FD81=04 1200:FD80=02 1200:0000=01 1202:0000=03 1202:FD81=02 1202:FEE1=09 1202:0000=03 1202:FDAE=03 1202:FD80=82
+k10-apres	1216	dem=03	depuis=1000:D12E	1000:FD80=02 1000:FEE1=FF 1001:FD81=02 1001:FD80=02 1001:FEE1=0A 1001:0000=03 1002:FEE1=09 1002:FDAE=03 1002:FD80=82 1003:FEE1=08 1004:FEE1=07 1005:FEE1=06 1006:FEE1=05 1007:FEE1=04 1008:FEE1=03 1009:FEE1=02 1010:FEE1=01 1011:FEE1=00 1200:FD81=04 1200:FD80=02 1200:0000=01 1202:0000=03 1202:FD81=02 1202:FEE1=09 1202:0000=03 1202:FDAE=03 1202:FD80=82 1204:FEE1=08 1205:FEE1=07 1206:FEE1=06 1207:FEE1=05 1208:FEE1=04 1209:FEE1=03 1210:FEE1=02 1211:FEE1=01 1212:FEE1=00 1213:FD81=04 1213:FD80=02 1213:0000=01 1215:0000=03 1215:FD81=02 1215:FEE1=09 1215:0000=03 1215:FDAE=03 1215:FD80=82
+go-ref	6861	dem=02	depuis=6858:E44403	6858:FEE1=FF 6858:FD80=02 6859:FD81=02 6860:FD80=02 6860:FEE1=0A 6860:0000=03 6861:FEE1=09 6861:FDAE=02 6861:FD80=82
+go-avant	5877	dem=02	depuis=5876:E44403	5876:FD80=02 5876:FEE1=FF 5876:FD81=02 5876:FEE1=09 5876:FD80=01 5876:FDAE=02 5876:FD80=82
+go-apres	5880	dem=02	depuis=5877:E44403	5877:FD80=02 5877:FEE1=FF 5878:FD81=02 5879:FD80=02 5879:FEE1=0A 5879:0000=03 5880:FEE1=09 5880:FDAE=02 5880:FD80=82
+ac-ref	8851	dem=03	depuis=8849:E44403	8849:FEE1=FF 8849:FD80=02 8850:FD81=02 8850:FD80=02 8850:FEE1=0A 8850:0000=03 8851:FEE1=09 8851:FDAE=03 8851:FD80=82
+ac-ref	8864	dem=03	depuis=8861:D12E	8862:FEE1=FF 8862:FD80=02 8863:FD81=02 8863:FD80=02 8863:FEE1=0A 8863:0000=03 8864:FEE1=09 8864:FDAE=03 8864:FD80=82
+ac-avant	8560	dem=03	depuis=8559:E44403	8559:FD80=02 8559:FEE1=FF 8559:0000=03 8559:FD81=02 8559:FEE1=09 8559:FD80=01 8559:FDAE=03 8559:FD80=82
+ac-apres	8561	dem=03	depuis=8559:E44403	8559:FD80=02 8559:FEE1=FF 8560:FD81=02 8560:FD80=02 8560:FEE1=0A 8560:0000=03 8561:FEE1=09 8561:FDAE=03 8561:FD80=82
+c2-ref	8757	dem=02	depuis=8753:E44402	8753:FEE1=FF 8753:FD80=02 8754:FD81=02 8755:0000=01 8755:0000=03 8756:FD80=02 8756:FEE1=0A 8756:0000=03 8757:FEE1=09 8757:FDAE=02 8757:FD80=82
+c2-avant	7770	dem=02	depuis=7769:E44402	7769:FD80=00 7769:FEE1=FF 7769:FD81=02 7769:FEE1=09 7769:FD80=01 7769:FDAE=02 7769:FD80=82
+c2-apres	7773	dem=02	depuis=7772:E44402	7772:FD80=02 7772:FEE1=FF 7772:FD81=02 7772:FEE1=09 7772:0000=03 7772:FDAE=02 7772:FD80=82
+pz-ref	1002	dem=03	depuis=1000:D12E	1000:FEE1=FF 1000:FD80=02 1001:FD81=02 1001:FD80=02 1001:FEE1=0A 1001:0000=03 1002:FEE1=09 1002:FDAE=03 1002:FD80=82
+pz-avant	1002	dem=03	depuis=1000:D12E	1000:FD80=02 1000:FEE1=FF 1001:FD81=02 1001:FD80=02 1001:FEE1=0A 1001:0000=03 1002:FEE1=09 1002:FDAE=03 1002:FD80=82
+pz-apres	1002	dem=03	depuis=1000:D12E	1000:FD80=02 1000:FEE1=FF 1001:FD81=02 1001:FD80=02 1001:FEE1=0A 1001:0000=03 1002:FEE1=09 1002:FDAE=03 1002:FD80=82
+p2-ref	1102	dem=03	depuis=1100:D12E	1100:FEE1=FF 1100:FD80=02 1101:FD81=02 1101:FD80=02 1101:FEE1=0A 1101:0000=03 1102:FEE1=09 1102:FDAE=03 1102:FD80=82
+p2-avant	1102	dem=03	depuis=1100:D12E	1100:FD80=02 1100:FEE1=FF 1101:FD81=02 1101:FD80=02 1101:FEE1=0A 1101:0000=03 1102:FEE1=09 1102:FDAE=03 1102:FD80=82
+p2-apres	1102	dem=03	depuis=1100:D12E	1100:FD80=02 1100:FEE1=FF 1101:FD81=02 1101:FD80=02 1101:FEE1=0A 1101:0000=03 1102:FEE1=09 1102:FDAE=03 1102:FD80=82
+d-puzzledp-ref	1002	dem=03	depuis=1000:D12E	1000:FEE1=FF 1000:FD80=02 1001:FD81=02 1001:FD80=02 1001:FEE1=0A 1001:0000=03 1002:FEE1=09 1002:FDAE=03 1002:FD80=82
+d-puzzledp-avant	1002	dem=03	depuis=1000:D12E	1000:FD80=02 1000:FEE1=FF 1001:FD81=02 1001:FD80=02 1001:FEE1=0A 1001:0000=03 1002:FEE1=09 1002:FDAE=03 1002:FD80=82
+d-puzzledp-apres	1002	dem=03	depuis=1000:D12E	1000:FD80=02 1000:FEE1=FF 1001:FD81=02 1001:FD80=02 1001:FEE1=0A 1001:0000=03 1002:FEE1=09 1002:FDAE=03 1002:FD80=82
+d-aof-ref	1003	dem=03	depuis=1000:D12E	1001:FEE1=FF 1001:FD80=02 1002:FD81=02 1002:FD80=02 1002:FEE1=0A 1002:0000=03 1003:FEE1=09 1003:FDAE=03 1003:FD80=82
+d-aof-avant	1003	dem=03	depuis=1000:D12E	1001:FD80=02 1001:FEE1=FF 1002:FD81=02 1002:FD80=02 1002:FEE1=0A 1002:0000=03 1003:FEE1=09 1003:FDAE=03 1003:FD80=82
+d-aof-apres	1003	dem=03	depuis=1000:D12E	1001:FD80=02 1001:FEE1=FF 1002:FD81=02 1002:FD80=02 1002:FEE1=0A 1002:0000=03 1003:FEE1=09 1003:FDAE=03 1003:FD80=82
+d-mslug-ref	1007	dem=03	depuis=1000:D12E	1005:FEE1=FF 1005:FD80=02 1006:FD81=02 1006:FD80=02 1006:FEE1=0A 1006:0000=03 1007:FEE1=09 1007:FDAE=03 1007:FD80=82
+d-mslug-avant	1007	dem=03	depuis=1000:D12E	1005:FD80=02 1005:FEE1=FF 1006:FD81=02 1006:FD80=02 1006:FEE1=0A 1006:0000=03 1007:FEE1=09 1007:FDAE=03 1007:FD80=82
+d-mslug-apres	1007	dem=03	depuis=1000:D12E	1005:FD80=02 1005:FEE1=FF 1006:FD81=02 1006:FD80=02 1006:FEE1=0A 1006:0000=03 1007:FEE1=09 1007:FDAE=03 1007:FD80=82
+d-nam1975-ref	1002	dem=03	depuis=1000:D12E	1000:FEE1=FF 1000:FD80=02 1001:FD81=02 1001:FD80=02 1001:FEE1=0A 1001:0000=03 1002:FEE1=09 1002:FDAE=03 1002:FD80=82
+d-nam1975-avant	1002	dem=03	depuis=1000:D12E	1000:FD80=02 1000:FEE1=FF 1001:FD81=02 1001:FD80=02 1001:FEE1=0A 1001:0000=03 1002:FEE1=09 1002:FDAE=03 1002:FD80=82
+d-nam1975-apres	1002	dem=03	depuis=1000:D12E	1000:FD80=02 1000:FEE1=FF 1001:FD81=02 1001:FD80=02 1001:FEE1=0A 1001:0000=03 1002:FEE1=09 1002:FDAE=03 1002:FD80=82
+d-garou-ref	1002	dem=03	depuis=1000:D12E	1000:FEE1=FF 1000:FD80=02 1001:FD81=02 1001:FD80=02 1001:FEE1=0A 1001:0000=03 1002:FEE1=09 1002:FDAE=03 1002:FD80=82
+d-garou-avant	1002	dem=03	depuis=1000:D12E	1000:FD80=02 1000:FEE1=FF 1001:FD81=02 1001:FD80=02 1001:FEE1=0A 1001:0000=03 1002:FEE1=09 1002:FDAE=03 1002:FD80=82
+d-garou-apres	1002	dem=03	depuis=1000:D12E	1000:FD80=02 1000:FEE1=FF 1001:FD81=02 1001:FD80=02 1001:FEE1=0A 1001:0000=03 1002:FEE1=09 1002:FDAE=03 1002:FD80=82
+d-b2b-ref	3302	dem=03	depuis=2860:E44402	3300:FEE1=FF 3300:FD80=01 3301:FD81=02 3301:FD80=01 3301:FEE1=0A 3301:0000=03 3302:FEE1=09 3302:FDAE=03 3302:FD80=82
+d-b2b-ref	3349	dem=03	depuis=3312:D12E	3347:FEE1=FF 3347:FD80=02 3348:FD81=02 3348:FD80=02 3348:FEE1=0A 3348:0000=03 3349:FEE1=09 3349:FDAE=03 3349:FD80=82
+d-b2b-avant	3337	dem=03	depuis=3300:D12E	3335:FD80=02 3335:FEE1=FF 3336:FD81=02 3336:FD80=02 3336:FEE1=0A 3336:0000=03 3337:FEE1=09 3337:FDAE=03 3337:FD80=82
+d-b2b-apres	3337	dem=03	depuis=3300:D12E	3335:FD80=02 3335:FEE1=FF 3336:FD81=02 3336:FD80=02 3336:FEE1=0A 3336:0000=03 3337:FEE1=09 3337:FDAE=03 3337:FD80=82
+#
+# 4. LES TRAMES TENUES DU CODE 3. MESURÉ, la référence : R = la trame de l'entrée de SYSTEM_RETURN (lecture de $C00444, code 3) ; à R+1 l'IRQ de vblank prise par le vecteur de la
+#    cartouche, SYSTEM_INT1, REG_SWPBIOS (0,02), REG_POUTPUT ← $00 (0,11), puis à 0,47 PLAY TIME ← 0, $D0004C ← $3B, $10FD81 ← $02 et la sauvegarde ; sans crédit (nam1975) SYSTEM_INT1
+#    à R+2 et les écritures de remise à 0,38 de R+2 ($10FD80 ← $02, $10FEE1 ← $0A, $10FDAF, $10FDB8-$10FDBA, REG_SOUND ← $03), avec un crédit (aof) à 0,92 de R+1 ; puis SYSTEM_INT1
+#    ($10FEE1 → $09), $10FDAE, $10FD80 ← $82, REG_SWPROM et la main : R+3 sans crédit, R+2 avec. Notre image avant : la main à R+1, IRQ masquées, sans SYSTEM_INT1. Écrit :
+#    src/c0/c0.s _sysret_fin_partie, _attendre_ligne (lignes $14D et $1DB, la correspondance ligne / fraction SUPPOSÉE et vérifiée ci-dessous : 0,383 et 0,921), _remise_tenue et
+#    _int1_tenu (la fin de _retour_demo_end, partagée), _attente_tenue. wjammers, dont un gel dans SYSTEM_RETURN IRQ ouvertes avait fait retirer une passe semblable (c0.s,
+#    _sysret_etat) : game over à 11879, remise à R+3 (11882), le run va à 12000 ; la référence, 11977 → 11980.
+#    Colonnes : run ; bios ; R ; lectures de $C00438 (trame:fraction) ; REG_SWPBIOS ; REG_POUTPUT ← $00 en milieu de trame ; PLAY TIME ← 0 ; $10FD81 ← $02 ; $10FEE1 ← $0A / REG_SOUND ← $03 ;
+#    remise ; demande ; écart à R.
+run	bios	R(E444 03)	INT1 (trame,fraction)	SWPBIOS	POUTPUT=00	PT<-0	FD81<-02	FEE1<-0A et REG_SOUND	remise	demande	R+n
+go	ref	6858	6859:.001 6860:.000 6861:.000	6859:.021	6859:.114	6859:.473	6859:.473	6860:.384 / 6860:.385	6861	02	+3
+go	avant	5876		-	-	5876:.271	5876:.718	-	5877	02	+1
+go	apres	5877	5878:.001 5879:.001 5880:.001	5878:.014	5878:.104	5878:.472	5878:.472	5879:.383 / 5879:.384	5880	02	+3
+ac	ref	8849	8850:.001 8851:.000	8850:.021	8850:.115	8850:.473	8850:.474	8850:.921 / 8850:.922	8851	03	+2
+ac	avant	8559		-	-	8559:.118	8559:.753	- / 8559:.343	8560	03	+1
+ac	apres	8559	8560:.001 8561:.001	8560:.015	8560:.105	8560:.472	8560:.472	8560:.921 / 8560:.922	8561	03	+2
+#
+# 5. $D0002C, $D00039, $10FEE0. Aucune page ne les décrit (en-tête). MESURÉ, la référence, à chaque pièce 1 acceptée dans les fenêtres (démo, partie sous INT1, pièce qui ne fait pas
+#    encore de crédit, pièce pendant le logo de b2b) : $D00024 compté, $D0002C ← $01, puis le crédit, puis après le son (ou à sa place) $D0002C ← $00 et $D00039 ← $00, puis l'impulsion
+#    $D00038 ; $10FEE0 ← $00 juste avant $10FD81 et DEMO_END sur les 13 appels de DEMO_END des fenêtres (11 après une pièce, 2 sur SELECT). Notre image avant : aucun des trois.
+#    Écrit au plus restreint, les valeurs à leurs places, pièce 1 seule, sans rôle : src/c0/io.s _io_crediter, _io_commun ; src/c0/c0.s _retour_demo_end. Les deux lignes qui
+#    diffèrent ici ne viennent pas de ce lot : pp, la référence est sous INT1 en partie et n'appelle pas COIN_SOUND, nous sous SYSTEM_IO (vu en passant, plus bas) ; d-b2b, la référence
+#    est dans son logo à 3300 (écart connu, 2026-10-22-frame-skip-et-mode0.tsv, section 2).
+#    Colonnes : run ; bios ; trame de la pièce ; dans cette trame, les écritures du BIOS de $D00024, $D0002C, $D00034, $D00039, $D00038, $10FEE0, et les lectures C134 / D12E.
+run	bios	piece	suite a la trame de la piece (D24 compte, D2C, D34 credit, C134 COIN_SOUND, D38 impulsion) ; EE0 et DEMO_END
+pz	ref	1000	024=01 02C=01 024=00 034=01 C134 02C=00 039=00 038=1F EE0=00 D12E
+pz	avant	1000	024=01 024=00 034=01 C134 038=1F D12E
+pz	apres	1000	024=01 02C=01 024=00 034=01 C134 02C=00 039=00 038=1F EE0=00 D12E
+p2	ref	1000	024=01 02C=01 C134 02C=00 039=00 038=1F
+p2	avant	1000	024=01 C134 038=1F
+p2	apres	1000	024=01 02C=01 C134 02C=00 039=00 038=1F
+p2	ref	1100	024=02 02C=01 024=00 034=01 C134 02C=00 039=00 038=1F EE0=00 D12E
+p2	avant	1100	024=02 024=00 034=01 C134 038=1F D12E
+p2	apres	1100	024=02 02C=01 024=00 034=01 C134 02C=00 039=00 038=1F EE0=00 D12E
+pp	ref	2300	024=01 02C=01 024=00 034=01 02C=00 039=00 038=1F
+pp	avant	2300	024=01 024=00 034=01 C134 038=1F
+pp	apres	2300	024=01 02C=01 024=00 034=01 C134 02C=00 039=00 038=1F
+d-aof	ref	1000	024=01 02C=01 024=00 034=01 C134 02C=00 039=00 038=1F EE0=00 D12E
+d-aof	avant	1000	024=01 024=00 034=01 C134 038=1F D12E
+d-aof	apres	1000	024=01 02C=01 024=00 034=01 C134 02C=00 039=00 038=1F EE0=00 D12E
+d-mslug	ref	1000	024=01 02C=01 024=00 034=01 C134 02C=00 039=00 038=1F EE0=00 D12E
+d-mslug	avant	1000	024=01 024=00 034=01 C134 038=1F D12E
+d-mslug	apres	1000	024=01 02C=01 024=00 034=01 C134 02C=00 039=00 038=1F EE0=00 D12E
+d-b2b	ref	3300	024=01 02C=01 024=00 034=01 02C=00 039=00 038=1F
+d-b2b	avant	3300	024=01 024=00 034=01 C134 038=1F D12E 038=1E
+d-b2b	apres	3300	024=01 02C=01 024=00 034=01 C134 02C=00 039=00 038=1F EE0=00 D12E 038=1E
+#
+# 6. NON-RÉGRESSION ET REJEUX.
+#    bench/non-regression.sh --jobs 2 $ROMS <travail>, complet, image apres : 4 étages PASS, 0 FAIL, NON-RÉGRESSION : PASS (232 s, un autre MAME tournant à côté). La matrice
+#    change sous les 2 % du harnais, sur 2 jeux sur 22 : 2026-10-23-led-et-remises-matrice.tsv. Une version intermédiaire avait échoué à l'étage 2 (kof94), voir son en-tête.
+#    DEMO_END (2026-10-22-piece-demo-end.tsv, puzzledp, aof, mslug, nam1975, garou, b2b) : apres identique à avant sur toutes les colonnes, égal à la référence sauf b2b (logo, connu) —
+#    tableau ci-dessous. Multi-slot lot 3 et lot 4, sauvegarde du jeu seul : les 21 runs de 2026-10-22-frame-skip-et-mode0.tsv section 5 (mêmes plans, mêmes NVRAM d'entrée, jetons de
+#    l'extracteur des lots précédents ; avant = les runs apres de 2026-10-23-comptabilite.tsv, même image) : rapport à la référence (structure / sommes, préfixe commun) inchangé sur les 21,
+#    ni mieux ni pire ; 15 identiques à avant, trames comprises ; 6 aux mêmes jetons et mêmes sommes, une à deux trames plus tard — aof-p1, aof-cred et nam1975-p1 par la trame tenue du
+#    code 3 (la sauvegarde à R+1, comme la référence), puzzledp-p1 d'une trame, c4-neuf et c4-suite de deux trames dans la rotation de la démo (SUPPOSÉ, non isolé : les cycles
+#    déplacés dans _io_commun et les remises de démo). python3 bench/test_generer_contrats.py : 56 tests, OK.
+jeu	bios	coin_sound	demo_end	sysret06	sysret02	reg_sound03	remise	ecritures_jeu_DEMO_END	10FDDB_fin_piece	ecrans_1100_1200_1300	D38_P+1_P+2	INT1_trame_tenue	D80_01_avant_remise	ordre_piece
+puzzledp	ref	1000	1000	1000	1001	1001	1002 d03	0	-	af372011 3c3ec2f0 e8c55097	1E/1D	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F
+puzzledp	avant	1000	1000	1000	1001	1001	1002 d03	0	-	af372011 3c3ec2f0 e8c55097	1E/1D	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F
+puzzledp	apres	1000	1000	1000	1001	1001	1002 d03	0	-	af372011 3c3ec2f0 e8c55097	1E/1D	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F
+aof	ref	1000	1000	1000	1002	1002	1003 d03	29955	-	3f951897 0198f1b4 741803ca	-/1E	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F
+aof	avant	1000	1000	1000	1002	1002	1003 d03	29955	-	3f951897 0198f1b4 741803ca	-/1E	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F
+aof	apres	1000	1000	1000	1002	1002	1003 d03	29955	-	3f951897 0198f1b4 741803ca	-/1E	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F
+mslug	ref	1000	1000	1000	1006	1006	1007 d03	58384	-	3eba8694 82f8c628 f630814b	-/-	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F
+mslug	avant	1000	1000	1000	1006	1006	1007 d03	58384	-	3eba8694 82f8c628 f630814b	-/-	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F
+mslug	apres	1000	1000	1000	1006	1006	1007 d03	58384	-	3eba8694 82f8c628 f630814b	-/-	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F
+nam1975	ref	1000	1000	1000	1001	1001	1002 d03	0	-	9da12323 9b5da5f2 dfafb41c	1E/1D	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F
+nam1975	avant	1000	1000	1000	1001	1001	1002 d03	0	-	9da12323 9b5da5f2 dfafb41c	1E/1D	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F
+nam1975	apres	1000	1000	1000	1001	1001	1002 d03	0	-	9da12323 9b5da5f2 dfafb41c	1E/1D	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F
+garou	ref	1000	1000	1000	1001	1001	1002 d03	-	-	b80472b0 bcac91a7 837016f2	1E/1D	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F
+garou	avant	1000	1000	1000	1001	1001	1002 d03	-	-	b80472b0 bcac91a7 837016f2	1E/1D	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F
+garou	apres	1000	1000	1000	1001	1001	1002 d03	-	-	b80472b0 bcac91a7 837016f2	1E/1D	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F
+b2b	ref	3312	3312	3312	3301	3301	3302 d03	11275	-	67b28964 a54937f8 981470e6	1E/1D	2	non	D34=01 EE2=01 D38=1F
+b2b	avant	3300	3300	3300	3336	3336	3337 d03	11275	-	03474e61 66fbb943 a4100146	1D/1C	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F D38=1E
+b2b	apres	3300	3300	3300	3336	3336	3337 d03	11275	-	03474e61 66fbb943 a4100146	1D/1C	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F D38=1E
+run	jetons ref/main/lot	main=lot (trames comprises)	ref~main structure / sommes	ref~lot structure / sommes	premier écart lot/main
+c1-neuf	10/10/10	oui	oui / oui	oui / oui	-
+c1-suite	8/8/8	oui	oui / oui	oui / oui	-
+c2-neuf	18/18/18	oui	oui / NON	oui / NON	-
+c2-suite	14/14/14	oui	oui / NON	oui / NON	-
+c4-neuf	34/34/34	NON	oui / NON	oui / NON	19: main (14918, 'S 100000-10007D -> D03320-D0339D somme 1906') | lot (14920, 'S 100000-10007D -> D03320-D0339D somme 1906')
+c4-suite	26/26/26	NON	oui / NON	oui / NON	11: main (14900, 'S 100000-10007D -> D03320-D0339D somme 190C') | lot (14902, 'S 100000-10007D -> D03320-D0339D somme 190C')
+trou	18/21/21	oui	oui / oui	oui / oui	-
+trou-suite	14/17/17	oui	oui / NON	oui / NON	-
+trou-nvref	14/17/17	oui	oui / oui	oui / oui	-
+l4-c2-neuf	21/21/21	oui	oui / NON	oui / NON	-
+l4-c3-trou	40/40/40	oui	oui / NON	oui / NON	-
+l4-c2-gardee	7/7/7	oui	oui / NON	oui / NON	-
+l4-c3-gardee	11/11/11	oui	oui / NON	oui / NON	-
+l4-tenu	13/13/13	oui	oui / NON	oui / NON	-
+l4-k9	13/13/13	oui	oui / NON	oui / NON	-
+l4-k10	17/17/17	oui	oui / NON	oui / NON	-
+l4-titre-sans-credit	11/11/11	oui	oui / NON	oui / NON	-
+puzzledp-p1	9/9/9	NON	oui / oui	oui / oui	7: main (9931, 'S 100000-1000FF -> D00320-D0041F somme 1C7C') | lot (9932, 'S 100000-1000FF -> D00320-D0041F somme 1C7C')
+aof-p1	14/13/13	NON	NON / NON	NON / NON	7: main (8559, 'S 108800-108FFF -> D00320-D00B1F somme 17B1') | lot (8560, 'S 108800-108FFF -> D00320-D00B1F somme 17B1')
+nam1975-p1	21/25/25	NON	oui / oui	oui / oui	6: main (5876, 'sysret code 03') | lot (5877, 'sysret code 03')
+aof-cred	10/9/9	NON	oui / NON	oui / NON	7: main (8559, 'S 108800-108FFF -> D00320-D00B1F somme 17B1') | lot (8560, 'S 108800-108FFF -> D00320-D00B1F somme 17B1')
+#
+# VU EN PASSANT, NON REPRIS (hors de la remise) :
+#    - au code 3, la référence écrit $10FEC5 (BIOS_TITLE_MODE) ← $00 et bascule BIOS_BRAM_USED ($10FEBF) autour de la sauvegarde ; avec un crédit, elle réarme le départ forcé au titre
+#      ($10FDDA ← $30, $10FDDB ← $3B à 0,92) — notre titre d'après game over ne décompte donc pas ; avant DEMO_END, $10FEC5 ← $01 aussi (pz, 1000) ;
+#    - à SELECT, la référence décompte le départ forcé, puis $10FEE0 ← $00, $10FD81 ← $04 et appelle DEMO_END ($00012E lu, k10 1200 et 1213) ; notre SELECT n'appelle pas DEMO_END ;
+#    - nam1975 en partie : la référence y pose $10FD80 à $02 (par le jeu) et le jeu appelle SYSTEM_INT1 ; sous notre image, $82 et SYSTEM_IO — d'où COIN_SOUND appelé chez nous en
+#      partie et pas chez elle (pp, 2300) ;
+#    - $D0005D : la référence écrit $00 puis $3C dans le même appel quand il passe à zéro ; nous $00, puis $3C à l'appel suivant ;
+#    - la référence écrit REG_SRAMLOCK juste après REG_SWPROM, à la remise des trames tenues ; nous non ;
+#    - les trames tenues des codes 0 et 2 et de SELECT (4 trames entre le retour et la remise, avec un $FF sur $380031 en cours de trame), non reprises.

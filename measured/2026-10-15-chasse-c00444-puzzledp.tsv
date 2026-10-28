@@ -1,0 +1,20 @@
+# La chasse au declencheur de SYSTEM_RETURN ($C00444), le 2026-10-15 : puzzledp, 4000 trames
+# sous BIOS SNK sp-s2.sp1, plan d injection du banc (pieces 30-40 et 500-510, START 70-80,
+# 560-570, 700-710, 900-910). Adresses et comptes seulement, pas de donnees de bus.
+#
+# DEUX FAITS :
+#  1. $C00444 est EXECUTE UNE FOIS, a la trame 238,80, par le BIOS LUI-MEME -- la cartouche
+#     n a la main qu a 502,9. Deux lectures en espace donnee a 207,38 l accompagnent.
+#  2. AUCUN acces a $C00444 et aucune ecriture de demande USER ($10FDAE) entre le depart de
+#     la partie (trame 560) et la trame 4000 : puzzledp sans entrees n atteint pas le game
+#     over en 67 s. Le declencheur cote cartouche reste sans fenetre mesuree -- candidat
+#     suivant : un jeu qui meurt sans entrees (nam1975), ~7000 trames.
+#
+# Regenerer : co-simulateur LSPC/FX68K (non publie ici, voir docs/BENCH.md), $ROMS/puzzledp.zip
+# sous sp-s2.sp1, 4000 trames, trace filtree au vol sur les acces a C00444 et les ecritures a
+# 10FDAE (la trace entiere ne se garde pas, seul le filtre tient dans un fichier).
+#
+trame	periode	adresse	sens	strobes	espace
+207.38	168183971	C00444	rd	U.	sd
+207.38	168184139	C00444	rd	.L	sd
+238.80	193665563	C00444	rd	UL	sp

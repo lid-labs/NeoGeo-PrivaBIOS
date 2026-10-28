@@ -1,0 +1,37 @@
+# Verdict de la couche 0 du BIOS, le 2026-10-11.
+#
+# Image : packages/sprixe-bios/src/c0/c0.s, liee par build/bios.ld, 131 072 octets.
+#         sha256 5529e3f49492e2e81a172cee87a00d556e1996530a4b3624f9b0b38db86d3b7f, reproductible
+#         (deux constructions, meme empreinte).
+# Banc  : co-simulateur LSPC/FX68K (non publie ici, voir docs/BENCH.md), puzzledp, 20 trames
+#         demandees, plafond de 900 000 acces.
+#         900 271 lignes, et la trace s'arrete a la trame 18,99 : le plafond compte des ACCES,
+#         non des trames. Tout chiffre tire de la trace porte donc sur 18,99 trames ; seuls les
+#         compteurs du banc vont jusqu'a 20.
+# T     = periode 100847, soit la trame 0,124348.
+#
+# LA FENETRE SE BORNE EN PERIODES, PAS EN TRAMES ARRONDIES. T + 2,07 et T + 8,63 trames valent
+# 1 779 633,56 et 7 099 846,04 periodes, soit les trames 2,19434773 et 8,75434773. Un acces se
+# trouve a moins de 0,0001 trame de la borne haute : passer des bornes a 4 decimales au juge rend
+# 247 696 / 247 714, a 5 decimales et au-dela 247 695 / 247 713. Le couple exact est le second,
+# et l'ecart est un artefact de troncature, non une mesure.
+#
+# Regenerer, depuis la racine du depot :
+#   ./build/construire.sh src/c0 obj/c0.sp1
+#   puis l image, zippee sous le nom sprixe.sp1, passee au co-simulateur LSPC/FX68K (non publie
+#   ici, voir docs/BENCH.md) sur $ROMS/puzzledp.zip, 20 trames, 900 000 acces, trace dans <trace> ;
+#   ./bench/generer-contrats.py <trace> --part-prom --de=2.19434773 --a=8.75434773
+#
+# La condition 3 a ete comptee deux fois - par le juge ci-dessus et par une lecture directe de la
+# trace appliquant la regle a la main. Aux memes bornes, les deux rendent le meme couple.
+condition	grandeur	mesure	seuil	verdict
+1 vecteurs	mots lus en $000000-$000006, espace programme, avant tout autre acces	4	4	remplie
+1 poignee	ecritures HC259, dans l ordre $3A0003 puis $3A000B	2	2	remplie
+2 bascule	ecritures de $3A0013 sur toute la trace	1	1	remplie
+3 part P-ROM	acces espace programme dans $000080-$0FFFFF, fenetre	247695	-	remplie
+3 part P-ROM	acces espace programme, fenetre (denominateur)	247713	-	-
+3 part P-ROM	proportion en pourcent	99.99	50.0	remplie
+cadrage avant	proportion avant la bascule, trames 0 a 0,1243, en pourcent	0.0	-	identique au BIOS d origine
+cadrage total	proportion sur toute la trace, en pourcent	99.6	-	-
+placement	acces dans $C00600-$C00684, ou le code etait pose avant correction	0	0	mine levee
+placement	creneaux de $C0044A a $C006FC portant un rts	116	116	tous servis

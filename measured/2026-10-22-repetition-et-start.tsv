@@ -1,0 +1,56 @@
+# La répétition du joystick, $10FD81 au START et l'ordre de CREDIT_CHECK (docs/RELECTURE-CONTRATS.md, dernière section). Relevé du 2026-10-22. Synthèse ; le détail trame par trame du
+# minuteur est dans 2026-10-22-repetition-et-start-minuteur.tsv.
+# MAME 0.286, machine neogeo, -bios euro pour la référence, -video none -sound none -nothrottle, SDL_MAC_BACKGROUND_APP=1, NVRAM isolée par run. Hôte : Apple M4 Pro, 14 cœurs, macOS 26.6.2.
+# Notre image chargée par le romset du jeu dont seul le membre sp-s2.sp1 est remplacé (WRONG CHECKSUMS au journal : 1 sur chaque run de notre image, 0 sous la référence).
+# Images : avant = celle de main (c29b5860, build/construire.sh src/c0, sha256 8e0ea5b87d49c769…8ad173) ; apres = celle de ce lot (sha256 caf2e6d9dedb45df…2c63204).
+# Deux enveloppes de mesure non versionnées :
+#   - MINUTEUR : plan de bench/bios-probe.lua jusqu'à la trame 1050 (pièce, START, A toutes les 300 trames), puis une séquence de manette de 1100 à 1480 : A tenu 40 trames, puis 2 ;
+#     haut tenu 40 ; haut, puis A ajouté pendant le haut, puis haut lâché sous A ; bas 17 trames puis haut sans trame vide ; haut 1, 16, 18 trames ; haut 41 trames avec B 2 trames au
+#     milieu ; P2 haut 41 trames avec P2 A 3 trames au milieu. Relève, à chaque fin de trame, $10FD94-$10FD9F (blocs P1 et P2) et $10FEE8-$10FEF3, et compte les écritures de
+#     $10FD99, $10FD9F, $10FEED, $10FEF3 ; une seconde passe journalise chaque écriture (adresse, valeur, masque) de ces deux zones, trames 1095-1479 (alpham2).
+#   - START et CREDIT_CHECK : le plan de bench/bios-probe.lua jusqu'à 3500, taps d'écriture sur $D00034/$D00035, $10FDB0-$10FDB4, $10FDB6-$10FDB9, $10FD80/$10FD81, $10FDAE/$10FDAF,
+#     $10FDDA/$10FDDB (origine « bios » ou « jeu » selon la région du PC, SANS adresse) ; appels aux entrées $C0043E-$C0045C et aux vecteurs $000128, $00012E, $000134 de l'en-tête
+#     de la cartouche (lecture suivie d'un empilement, le filtre de bench/appels.lua).
+# Aucun PC consigné (le PC n'est lu que pour attribuer un accès au BIOS ou au jeu), aucun octet de la ROM du BIOS (docs/DECISIONS.md §8) ; aucun code de jeu lu. Valeurs écrites en RAM, leurs trames, l'ordre des écritures, les appels comptés.
+#
+# 1. LE MINUTEUR (alpham2 et aof ; les deux jeux donnent, pour P1, les mêmes octets trame pour trame, sous chacun des trois BIOS). Référence, MESURÉ :
+#    - CURRENT différent de l'ancien (appui, relâchement, bouton ajouté ou lâché pendant un autre, changement de direction) : TIMER ← $10, REPEAT ← CURRENT (1221 : haut tenu, A
+#      ajouté : CHANGE $10, REPEAT $11 ; 1231 : haut lâché sous A : CHANGE $00, REPEAT $10, TIMER $10) ;
+#    - sinon TIMER décompte ; passé sous zéro (deux écritures : $FF puis $08), il recharge $08 et REPEAT ← CURRENT ; au-dessus, REPEAT ← 0. Première répétition 17 trames après le
+#      changement, puis toutes les 9 ; rien de tenu, il tourne de $08 à $00 sans fin, REPEAT à 0 ;
+#    - ordre des écritures, par joueur : TIMER, REPEAT, PREVIOUS, CURRENT, CHANGE ; P1 puis P2 ;
+#    - $10FEE8-$10FEF3 est, à chaque fin de trame des 386 relevées et sur les deux jeux, la copie des douze octets $10FD94-$10FD9F, écrite en six mots après les deux blocs. C'est
+#      ce que le tableau de 2026-10-22-credit-au-depart.tsv appelait « recopié en $10FEED et $10FEF3 », et les « 9 valeurs croissantes » du contrat sur $10FEEC et $10FEF2.
+#    Écrit : src/c0/io.s _io_manette (la loi et l'ordre), _io_commun (les six mots de $10FEE8 recopient les blocs au lieu de $0000).
+#    RESTE, de l'instrument : à vide, le cycle de P2 (aucune entrée P2 avant 1421) est décalé d'une trame entre la référence et notre image. La loi part des deux côtés de TIMER $00,
+#    recharge au premier appel ; la phase n'est que le nombre d'appels de SYSTEM_IO depuis le boot (alpham2 : 815 sous la référence de 281 à 1095, 987 sous notre image de 107 à
+#    1095 ; 8 − (k − 1) mod 9 donne $04 et $03, les valeurs relevées à 1095). Les deux BIOS ne rendent pas la main au jeu à la même trame (280 / 103, 2026-10-22-credit-au-depart.tsv).
+#    Dès le premier appui de P2, identité trame pour trame.
+#
+# 2. $10FD81 ← $03 AU START. Référence, MESURÉ : après le retour de PLAYER_START, seulement si le jeu a laissé un bit de $10FDB4 ; dans l'ordre $10FDDA ← $0000, $10FD81 ← $03,
+#    la déduction de $D00034. Aucun START effacé par le jeu ne l'écrit. Notre image avant : avant PLAYER_START, à tout START accepté (crédit non nul).
+#    Écrit : src/c0/io.s _io_start (l'écriture déplacée sous la garde de $10FDDA, après elle).
+#
+# 3. CREDIT_CHECK. Référence, MESURÉ : le mot $10FDB2 d'abord, puis $10FDB0 s'il est remis à zéro, puis $10FDB1 s'il l'est ; mêmes valeurs que nous. Notre image avant : $10FDB0,
+#    $10FDB1, puis le mot. Écrit : src/c0/io.s _credit_check (le mot en tête). RIEN D'AUTRE NE BOUGE : image de travail portant ce seul changement sur main (sha256 4eaff6bf…),
+#    aof, journal des taps ci-dessus identique à celui d'avant, ordre dans la trame mis à part (0 ligne de différence sur 4 186) ; avec les trois changements, mslug,
+#    alpham2 et garou identiques de même ($10FD81 mis à part), aof décalé d'une trame de 3039 à la fin du run, 3500 (les changements 1 et 2 : image de travail sans le 3, mêmes 256 lignes).
+#
+# Colonnes : écart ; cas ; référence ; avant (main) ; après ; verdict.
+ecart	cas	reference	avant (main)	apres	verdict
+minuteur	P1, 386 trames (1095-1480), alpham2 et aof	la loi ci-dessus	243 trames sur 386 différentes de la référence (première répétition à 16 trames, puis toutes les 8 ; TIMER $00 et REPEAT au seul front au relâchement et à un ajout ; rien de tenu, TIMER $00)	0 trame différente, sur les deux jeux	égalé
+minuteur	P2, de 1421 (premier appui P2) à 1480, alpham2 et aof	P2 haut, P2 A ajouté puis lâché sous le haut	41 trames sur 60 différentes	0 sur 60	égalé
+minuteur	P2 à vide, 1095-1420	cycle $08 → $00	TIMER $00 tenu, 290 trames sur 326 différentes	PREVIOUS, CURRENT, CHANGE, REPEAT égaux ; TIMER décalé d'une trame (326 sur 326)	instrument (phase, voir 1)
+minuteur	ordre des écritures, alpham2, 1095-1479, 6 217 écritures sous la référence	TIMER, REPEAT, PREVIOUS, CURRENT, CHANGE ; recharge en deux écritures	5 645 lignes du journal différentes	1 372, toutes sur le mot $10FD9E (le TIMER de P2, $10FD9F) et son miroir $10FEF2 : le décalage de P2 à vide	égalé
+miroir $10FEE8-$10FEF3	386 trames, alpham2 et aof	copie des blocs P1 et P2 sur 386 / 386	$0000 partout : 280 trames sur 386 différentes des blocs	copie sur 386 / 386	égalé
+$10FD81 ← $03	aof : START de 400 gardé par le jeu, 10 effacés (700 … 3100)	1 écriture (400), après PLAYER_START et $10FDDA, avant $D00034	11 écritures, avant PLAYER_START	1 (400), même place	égalé
+$10FD81 ← $03	mslug : idem	1 (400)	11	1 (400), même place	égalé
+$10FD81 ← $03	alpham2 : START de 400 gardé ; 2800 gardé sous la référence seule	2 (400, 2800)	11	1 (400), même place	égalé ; 2800 : la partie diverge (P1 meurt sous la référence seule, 2026-10-22-credit-au-depart.tsv), pas le BIOS
+$10FD81 ← $03	garou : START gardé à 700 sous la référence, à 400 sous notre image	1 (700)	11	1 (400), même place	égalé ; 700 / 400 : le second boot de garou sous la référence (2026-10-22-credit-au-depart.tsv), l'instrument
+CREDIT_CHECK	aof, 64 appels	56 mot seul ; 2 mot puis $10FDB1	56 mot seul ; 5 $10FDB1 puis mot ; 3 $10FDB0, $10FDB1 puis mot	56 mot seul ; 5 mot puis $10FDB1 ; 3 mot, $10FDB0, $10FDB1	égalé (les comptes suivent la partie, qui n'est pas la même sous les deux BIOS ; ils sont ceux d'avant)
+CREDIT_CHECK	mslug, 1 557 appels	1 300 ; 178 mot puis $10FDB1 ; 33 mot, $10FDB0, $10FDB1	1 450 ; 26 $10FDB1 puis mot ; 81 $10FDB0, $10FDB1 puis mot	1 450 ; 26 mot puis $10FDB1 ; 81 mot, $10FDB0, $10FDB1	égalé
+CREDIT_CHECK	alpham2, 1 503 appels	1 448 ; 55 mot puis $10FDB1	1 448 ; 55 $10FDB1 puis mot	1 448 ; 55 mot puis $10FDB1	égalé
+CREDIT_CHECK	garou	2 587 ; 292 mot puis $10FDB1 ; 95 mot, $10FDB0, $10FDB1	2 880 ; 292 $10FDB1 puis mot ; 92 $10FDB0, $10FDB1 puis mot	2 880 ; 292 mot puis $10FDB1 ; 92 mot, $10FDB0, $10FDB1	égalé
+#
+# ÉCART VU EN PASSANT, non corrigé (hors de la remise) : à la pièce, la référence écrit $D00034 puis $10FDDA ← $30 ; notre image $10FDDA puis $D00034 (src/c0/io.s, _io_crediter ;
+# les quatre jeux, à chaque pièce créditée). Mêmes valeurs.

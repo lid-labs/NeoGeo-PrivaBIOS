@@ -1,0 +1,39 @@
+# La matrice de la couche 1 APRES le relachement des coin lockouts, la garde START sur le
+# credit et la deduction d'un credit par joueur parti, le 2026-10-16.
+# Les 17 temoins restent a 13/17, meme regle ("joue" ET vifs_max non nul) — mais la matrice
+# ne presse jamais Start avec credit avant ce lot : son nombre ne voyait pas le defaut. Ce que
+# le lot change, mesure a la sonde (sonde.sh) et au jig lua : les pieces sont acceptees
+# (credit en backup RAM), un START avec credit lance une partie (BIOS_USER_MODE passe a 2,
+# mesure sur wjammers, identique a la reference aux memes cellules), et la deduction suit la
+# reference (1 credit par joueur parti : 02->01 et 01->00, demande du jeu ignoree).
+# Trois jeux de la famille son ajoutes au releve : magdrop2 se debloque (ecran plein),
+# flipshot vit 2300 trames puis fige, neomrdo fige des 100 — ces deux-la jouent sous SNK,
+# UniBIOS ET nullbios : defauts de notre BIOS, non diagnostiques a ce releve.
+# wjammers : plus longue pose 400 -> 100 trames.
+# RESTENT, hors famille son : garou, mslug3, svc (SMA/PVC), kof98 (joue mais vifs 0, ~59 %).
+# Seules les lignes sprixe sont relevees : les autres BIOS sont inchanges et le banc est
+# deterministe (NVRAM desormais isolee par run, ce lot).
+#
+# Image : la branche feat/bios-famille-son (lockouts + garde + deduction),
+# sha256 5ac02b9336cdf927… (build/construire.sh).
+jeu	bios	verdict	vifs_max	vitesse_pct	controle
+aof	sprixe	joue (plus longue pose 0 tr.)	68096	2136.36	ok
+garou	sprixe	FIGE dès 100 (3000 trames)	0	65.15	ok
+joyjoy	sprixe	joue (plus longue pose 0 tr.)	43264	2102.37	ok
+kof2003	sprixe	joue (plus longue pose 0 tr.)	60765	1879.08	ok
+kof94	sprixe	joue (plus longue pose 0 tr.)	66655	1751.17	ok
+kof98	sprixe	joue (plus longue pose 0 tr.)	0	59.19	ok
+lbowling	sprixe	joue (plus longue pose 0 tr.)	64260	2114.83	ok
+mslug	sprixe	joue (plus longue pose 0 tr.)	66026	2126.04	ok
+mslug3	sprixe	FIGE dès 100 (2500 trames)	0	59.24	ok
+nam1975	sprixe	joue (plus longue pose 0 tr.)	27482	2046.44	ok
+puzzledp	sprixe	joue (plus longue pose 0 tr.)	71680	2154.55	ok
+ridhero	sprixe	joue (plus longue pose 0 tr.)	71680	1996.47	ok
+samsho2	sprixe	joue (plus longue pose 0 tr.)	67829	2029.14	ok
+ssideki4	sprixe	joue (plus longue pose 0 tr.)	71197	1932.17	ok
+svc	sprixe	FIGE dès 100 (3400 trames)	0	2777.00	ok
+trally	sprixe	joue (plus longue pose 0 tr.)	71490	2278.22	ok
+wjammers	sprixe	joue (plus longue pose 100 tr.)	71680	1889.56	ok
+flipshot	sprixe	FIGE dès 2300 (1200 trames)	71528	1992.97	ok
+neomrdo	sprixe	FIGE dès 100 (3400 trames)	0	2086.57	ok
+magdrop2	sprixe	joue (plus longue pose 100 tr.)	71680	1938.60	ok

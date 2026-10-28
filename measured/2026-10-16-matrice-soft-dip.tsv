@@ -1,0 +1,31 @@
+# La matrice APRES les soft-DIP de la cartouche dans BIOS_GAME_DIP (src/c0/c0.s, fin du boot),
+# le 2026-10-16. Mecanisme : 2026-10-16-soft-dip.tsv.
+# Juge principal du lot : un jig (4 jeux, 3 runs sur la meme NVRAM) — GAME_DIP egal aux valeurs
+# de la reference octet pour octet aux runs 1 et 2, et une valeur posee dans le bloc de sauvegarde
+# a la fin du run 2 ressort au run 3 sur les quatre jeux.
+# Matrice : 19 jeux, garou exclu (MAME y plante, lot a part) — les 19 JOUENT, aucune regression.
+# nam1975 a vifs 27604 : la meme valeur qu'aux deux releves precedents, pas un effet de ce lot.
+# Ligne aof relancee seule (premier passage rogne a la lecture), d'ou sa vitesse.
+# Seules les lignes sprixe sont relevees ; controles de substitution tous ok.
+#
+# Image : la branche feat/bios-soft-dip, sha256 a31d58efdd2570fe…
+jeu	bios	verdict	vifs_max	vitesse_pct	controle
+aof	sprixe	joue (plus longue pose 0 tr.)	67795	2020.77	ok
+flipshot	sprixe	joue (plus longue pose 0 tr.)	68096	1316.69	ok
+joyjoy	sprixe	joue (plus longue pose 0 tr.)	71281	1419.18	ok
+kof2003	sprixe	joue (plus longue pose 0 tr.)	66538	1261.01	ok
+kof94	sprixe	joue (plus longue pose 0 tr.)	66874	1210.36	ok
+kof98	sprixe	joue (plus longue pose 0 tr.)	67251	1128.76	ok
+lbowling	sprixe	joue (plus longue pose 0 tr.)	57983	1436.72	ok
+magdrop2	sprixe	joue (plus longue pose 0 tr.)	67792	1369.86	ok
+mslug	sprixe	joue (plus longue pose 0 tr.)	67321	1455.20	ok
+mslug3	sprixe	joue (plus longue pose 0 tr.)	65120	1885.15	ok
+nam1975	sprixe	joue (plus longue pose 0 tr.)	27604	1947.12	ok
+neomrdo	sprixe	joue (plus longue pose 0 tr.)	67534	1855.92	ok
+puzzledp	sprixe	joue (plus longue pose 0 tr.)	68096	2196.00	ok
+ridhero	sprixe	joue (plus longue pose 0 tr.)	71680	2056.32	ok
+samsho2	sprixe	joue (plus longue pose 0 tr.)	71680	1963.63	ok
+ssideki4	sprixe	joue (plus longue pose 0 tr.)	71190	1955.22	ok
+svc	sprixe	joue (plus longue pose 0 tr.)	66526	1898.07	ok
+trally	sprixe	joue (plus longue pose 0 tr.)	70605	2262.87	ok
+wjammers	sprixe	joue (plus longue pose 0 tr.)	68096	1994.05	ok

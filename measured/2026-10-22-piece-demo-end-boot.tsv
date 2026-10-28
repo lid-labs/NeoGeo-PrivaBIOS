@@ -1,0 +1,28 @@
+# PLAY TIME et ses voisines au boot, $D00048-$D00061 (docs/RELECTURE-CONTRATS.md, dernière section, second élément). Relevé du 2026-10-22.
+# MAME 0.286, machine neogeo (MV-6F), -bios euro pour la référence, -cart1 puzzledp par la liste logicielle (-hashpath), -video none -sound none -nothrottle, SDL_MAC_BACKGROUND_APP=1,
+# NVRAM isolée par run. Hôte : Apple M4 Pro, 14 cœurs, macOS 26.6.2. Jig : bench/multislot.lua, MS_SUIVRE sur les 26 octets $D00048-$D00061 (valeurs en fin de trame), plus ses lignes W
+# de backup RAM (écritures une par une, ordre et fraction de trame). Images : avant = main (sha256 738d507fa92fe2d2…74b637) ; apres = ce lot (sha256 8e0ea5b87d49c769…8ad173).
+# NVRAM : « neuve » = aucune ; « gardée » = celle d'un run de 900 trames sans entrée sous la même image ; « posée » = la gardée, puis les 26 octets réécrits dans le fichier saveram
+#   (mots en petit-boutiste) : $D00048-4B 00 00 01 23, $D0004C 10, $D0004D-59 11 à 1D, $D0005A-5D 08 05 06 07, $D0005E-61 12 34 56 78.
+# Aucun PC consigné (le PC n'est lu que pour attribuer un accès au BIOS ou au jeu), aucun octet de la ROM du BIOS (docs/DECISIONS.md §8).
+#
+# MESURÉ, la référence, à chaque boot (trame 277 NVRAM neuve, après son test mémoire ; 238 gardée et posée), quel que soit le contenu : $D0005E-5F ← $FF, $D00060-61 ← $00,
+#   $D00048-4B ← $00, $D0004C ← $3B, dans cet ordre et à la même fraction ; $D0004D-$D00057 ne sont pas écrits (posée : 11 à 1B gardés). $D00058 : $FF puis $00 (le premier slot, déjà repris).
+#   $D0005A-5D : d'abord 21 50 29 D8 (neuve ; 21 50 25 D8 gardée), puis 54 32 1D 3C — l'heure du calendrier en BCD, puis heure × 4, minute et seconde en binaire et $3C. Les runs
+#   tournaient à 21:50 heure de l'hôte, que MAME donne au µPD4990A ; même valeur finale (54 32 19 3C) en gardée et en posée, lancées ensemble : la valeur d'avant n'y entre pas.
+# LU dans « Backup RAM » (wiki neogeodev) : PLAY TIME $D00048-4B « Counter of second played on the game in hex », « Reset to 0 by SYSTEM_RETURN » ; $D0004C « Frame timer, start at
+#   $3C » ; $D0005A-5D « Timer based on frames », FF de $3C à $00, SS et MM de $00 à $3B, « HH: hour counter *4 ($00 to $60 by 4 steps) » ; $D0004D-57 et $D0005E-61 : « ? ».
+# Lecteurs : aucun des 22 jeux du corpus ne lit $D00048-$D00061 (measured/2026-10-22-bram-lue-par-les-jeux.tsv, 4000 trames, partie jouée).
+# DÉCISION : égalés, les écritures constantes ($D00048-4C, $D0005E-61) — src/c0/c0.s, après _bram_valide. NON REPRIS, au plus restreint : $D0005A-5D, posé à l'heure du calendrier ;
+#   le reproduire demande de lire le µPD4990A au boot pour une cellule qu'aucun jeu ne lit, et rendrait la backup RAM dépendante de l'heure de l'hôte.
+# Colonnes : nvram ; bios ; ce qu'il y avait avant le boot ; trame de l'écriture au boot (la dernière de $D0004C) ; valeurs en fin de cette trame, par groupe.
+nvram	bios	posees_avant_boot_48-61	fin_de_trame_ecriture	48-4B	4C	4D-57	5A-5D	5E-61
+neuve	ref	formatage	277	00 00 00 00	3B	00 00 00 00 00 00 00 00 00 00 00	54 32 1D 3C	FF FF 00 00
+neuve	avant	formatage	1	00 00 00 00	3B	00 00 00 00 00 00 00 00 00 00 00	00 00 00 3C	FF FF 00 00
+neuve	apres	formatage	1	00 00 00 00	3B	00 00 00 00 00 00 00 00 00 00 00	00 00 00 3C	FF FF 00 00
+garde	ref	run de 900 trames	238	00 00 00 00	3B	00 00 00 00 00 00 00 00 00 00 00	54 32 19 3C	FF FF 00 00
+garde	avant	run de 900 trames	1	00 00 00 00	3B	00 00 00 00 00 00 00 00 00 00 00	00 00 0B 11	FF FF 00 00
+garde	apres	run de 900 trames	1	00 00 00 00	3B	00 00 00 00 00 00 00 00 00 00 00	00 00 0B 11	FF FF 00 00
+pose	ref	00 00 01 23 | 10 | 11..1B | 08 05 06 07 | 12 34 56 78	238	00 00 00 00	3B	11 12 13 14 15 16 17 18 19 1A 1B	54 32 19 3C	FF FF 00 00
+pose	avant	00 00 01 23 | 10 | 11..1B | 08 05 06 07 | 12 34 56 78	1	00 00 01 23	10	11 12 13 14 15 16 17 18 19 1A 1B	08 05 06 07	12 34 56 78
+pose	apres	00 00 01 23 | 10 | 11..1B | 08 05 06 07 | 12 34 56 78	1	00 00 00 00	3B	11 12 13 14 15 16 17 18 19 1A 1B	08 05 06 07	FF FF 00 00

@@ -1,0 +1,42 @@
+# L'écran CARTRIDGE CRC (src/c0/crc.s, HARDWARE TESTS de l'écran TEST), le 2026-10-25 : le CRC32 qu'il affiche, contre le même
+# calculé hors de MAME. MAME 0.286, -bios euro, -video none, -sound none, -nothrottle, NVRAM et cfg neufs par run, romsets
+# non-merged de $ROMS, seul sp-s2.sp1 remplacé par l'image a6ba92b90caa2237… ; le jig : bench/son.lua, TEST tenu
+# 1-260, « haut » trois fois et A (HARDWARE TESTS), « haut » deux fois et A à la trame 350 (CARTRIDGE CRC), le plan fixe
+# décodé toutes les deux trames.
+#
+# Publication : les mots $10A de l'en-tête P lus dans les romsets, octets de ROM de jeux, sont retirés de ce relevé (« (retiré) »).
+#
+# MÉTHODE. « affiché » : les lignes FIXED et BANKS de l'écran. « hors MAME » : bench/crc-cartouche.py, qui relit
+# le zip du romset, place chaque fichier de la région cslot1:maincpu au décalage que donne `mame -listxml` (ROM_CONTINUE de
+# mslug et kof94 compris, lu dans src/mame/neogeo/neogeo.cpp de MAME 0.286), et applique les règles de l'écran. « vue lua » :
+# pour les deux jeux que le script ne reconstruit pas, la vue du 68000 relevée par lua pendant l'écran TEST de notre image
+# (program space, $000000-$0FFFFF et $200000-$2FFFFF, banques 0-7 écrites en $2FFFF0), mêmes règles — c'est MAME qui la
+# donne, la preuve est plus faible. « fichiers » : les CRC de -listxml, qui sont ceux de hash/neogeo.xml. Aucun code de
+# jeu n'est lu ni tracé ; aucun octet de ROM n'est gardé, des CRC seulement.
+#
+# CE QUI EST SOMMÉ (en-tête de src/c0/crc.s) : FIXED, $000000-$0FFFFF sous REG_CRTFIX et REG_SWPROM (vecteurs du jeu),
+# réduit de moitié tant que la moitié haute est le miroir de la basse ; BANKS, les banques $200000-$2FFFFF choisies par le
+# mot de $2FFFF0, à la suite, jusqu'à la première dont la signature (seize tranches de 4 Kio) égale celle d'une banque
+# d'avant ; aucune si la fenêtre égale la P-ROM fixe. Chaque mot octet bas d'abord : l'ordre des fichiers de MAME.
+# durée : de l'appui de A (trame 350) à la première trame relevée qui dit DONE, à deux trames près ; trames à 59,185 Hz.
+#
+# MESURÉ À CÔTÉ, ET QUI DÉCIDE DE LA RÈGLE DE TAILLE : sous MAME, une P-ROM de 512 Kio est suivie de zéros dans $080000-$0FFFFF
+# (aof, lua, le même jour), pas d'un miroir ; d'où FIXED 1024K et un CRC qui n'est pas celui du fichier. La ligne aof-miroir
+# sert la P-ROM d'aof en miroir par bench/crc-miroir.lua (SUPPOSÉ : ce que fait une carte qui ne décode pas A19) : l'écran
+# trouve alors 512 Kio et le CRC du fichier. Le mot de $10A de l'en-tête, « Total P ROM data size » selon le wiki, n'est pas
+# employé : sur les 119 sets de $ROMS dont un fichier P est au décalage 0 (lu là, octets inversés par mot), il égale la
+# somme des tailles des fichiers P de -listxml pour 75, et en diffère pour 44 (aof (retiré) pour 512 Kio, froman2b (retiré) pour
+# 512 Kio, kof2003 (retiré)). Écrire 0 en $2FFFF0 sur une cartouche d'1 Mio au plus fait pointer la fenêtre hors de la ROM sous MAME
+# (neogeo.cpp, write_banksel ; vu sur aof : huit banques toutes différentes et fausses) : l'écran n'y écrit donc pas.
+jeu	affiche_fixed	affiche_banks	hors_mame	vue_lua	fichiers_listxml	somme	duree_trames	note
+aof	1024K 4394C0A5	NONE	1024K 4394C0A5 / NONE	-	044-p1.p1 CA9F7A6D (512K)	$000000-$0FFFFF ; fenêtre = fixe	504	la P-ROM suivie de 512 Kio de zéros sous MAME : pas le CRC du fichier
+aof-miroir	0512K CA9F7A6D	NONE	-	-	044-p1.p1 CA9F7A6D	$000000-$07FFFF (miroir vu) ; fenêtre = fixe	310	crc-miroir.lua : le CRC du fichier
+puzzledp	1024K E63E059E	NONE	1024K E63E059E / NONE	-	202-p1.p1 2B61415B (512K)	$000000-$0FFFFF ; fenêtre = fixe	504	comme aof
+alpham2	1024K 30D04846	NONE	1024K 30D04846 / NONE	-	007-p1.p1 5B266F47, 007-p2.p2 EB9C1044	$000000-$0FFFFF ; fenêtre = fixe	504	deux puces dans la P-ROM fixe : un seul CRC
+mslug2	1024K 2A53C5DA	2 X 1024K 38883F44	1024K 2A53C5DA / 2 38883F44	1024K 2A53C5DA / 2 38883F44	241-p1.p1 2A53C5DA, 241-p2.sp2 38883F44	fixe ; banques 0-1, la 2 retombe sur la 0	1422	les deux CRC de hash/neogeo.xml
+samsho3	1024K 1A574986	2 X 1024K 9BBE27E0	1024K 1A574986 / 2 9BBE27E0	-	quatre ep 512K, 087-p5.p5 E86CA4AF	fixe ; banques 0-1	1422	puces de 512 Kio : pas de CRC de fichier à l'écran
+kof97	1024K 7DB81AD9	4 X 1024K 158B23F6	1024K 7DB81AD9 / 4 158B23F6	-	232-p1.p1 7DB81AD9, 232-p2.sp2 158B23F6	fixe ; banques 0-3	2366	les deux CRC de hash/neogeo.xml
+mslug	1024K 556AE6A4	1 X 1024K C4D10926	1024K 556AE6A4 / 1 C4D10926	-	201-p1.p1 08D8DAA5 (2048K)	fixe ; banque 0, la 1 retombe sur la 0	948	ROM_CONTINUE : un fichier, deux moitiés croisées ; pas son CRC
+kof94	1024K 8D92EEA9	1 X 1024K D54461A2	1024K 8D92EEA9 / 1 D54461A2	-	055-p1.p1 F10A2042 (2048K)	comme mslug	948	comme mslug
+kof98	1024K BA09784A	4 X 1024K 980ABA4C	1024K F2D9490F / 5 F0154123 (faux)	1024K BA09784A / 4 980ABA4C	242-p1.p1 8893DF89, 242-p2.sp2 980ABA4C	fixe déchiffrée par MAME ; banques 0-3, la 4 égale la 3	2366	p1 chiffré : le script ne sait pas ; BANKS égale pourtant le CRC de 242-p2.sp2
+mslug3	1024K 431EDE4C	7 X 1024K E0F913C8	1024K D9E35708 / 7 48745604 (faux)	1024K 431EDE4C / 7 E0F913C8	SMA, pg1, pg2	ce que $2FFFF0 donne sous MAME	3786	cartouche SMA : ses banques sont ailleurs qu'en $2FFFF0 ; le CRC ne correspond à aucun fichier

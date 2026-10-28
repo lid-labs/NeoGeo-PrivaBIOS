@@ -1,0 +1,37 @@
+# La region a chaud (src/c0/reglages.s, dip.s, c0.s) jugee sous MAME, le 2026-10-20 : notre image
+# (sha256 7a30ae14fbccd334...), -bios euro, -video none. Octets ecrits par NOTRE image ; aucun PC
+# ni octet du BIOS de reference.
+#
+# L'EMPLACEMENT DU REGLAGE : $D00210-$D0021F. Lu dans "Backup RAM" : $D001A8-$D0021F n'y est pas
+# decrit. Mesure (bench/bram-ecrivains.lua, tap d'ecriture sur $D00000-$D0FFFF, ~3 700 trames
+# avec piece, START et A, notre image sans reglage, 21 jeux du corpus ; garou segfault avant le
+# releve) : zero ecriture de $D00080 a $D000FF, de $D00150 a $D0021F et de $D002A0 a $D0031F ;
+# les jeux n'ecrivent qu'a partir de $D00320 (kof98, mslug3) ; notre BIOS n'ecrit rien a $D00210
+# tant que rien n'est change. Non mesure : les jeux hors corpus, garou, le BIOS de reference.
+#
+# LE FORMAT : $D00210-15 "REBIOS", $D00216 la region (0-2), $D00217-1E reserves (zero),
+# $D0021F tel que la somme $D00216-$D0021F vaille $FF. Invalide -> descripteur $C00401.
+#
+# LA RELANCE : par le watchdog (boucle sans coup de pied apres l'enregistrement). Mesure sur aof
+# et kof98 : START a la trame 300, RESET a la 309, l'ecran de boot affiche la nouvelle region, le
+# jeu demarre. Un premier boot dont la region change libere l'entree inscrite a ce boot : sans
+# cela, kof98 sautait sa demande 0 au boot suivant (mesure, puis corrige : demande 0 revenue, son
+# reset volontaire a la trame 501).
+#
+# APRES REVUE (image a8597fd10a1b4da7...) : un changement de region libere l'entree du jeu sur
+# les DEUX chemins, inscrit ou deja present ; le jeu se reinscrit en demande 0 avec les soft-DIP
+# par defaut de la nouvelle region, les soft-DIP choisis sont perdus. Mesure sur aof (une NVRAM,
+# trois runs) : inscrit en Europe ; TEST -> JAPAN -> relance trame 309, entree libre (FF FF) a la
+# trame 320, reinscrit a la 700, GAME_DIP egal octet pour octet a un premier boot sous l'image
+# Japon ; run suivant sans TEST : present, demande 2, Japon. Corpus Europe refait sur cette image :
+# colonne sprixe identique ligne a ligne aux lignes region=euro de 2026-10-20-matrice-par-region.tsv.
+#
+# LES INTITULES SOUS LE JAPON : les intitules soft-DIP japonais d'aof et kof98 ne sont pas en
+# ASCII ; le filtre $20-$7E de dip.s les blanchit (lignes vides, quelques glyphes parasites). Le
+# nom du jeu s'affiche. Les kana du SFIX ne sont pas releves : hors lot.
+jeu	run	appuis	pays_apres	bloc_D00210	jeu_ensuite
+aof	1 (NVRAM neuve, TEST)	A sur REGION (EUROPE -> JAPAN), START	00	52 45 42 49 4F 53 00 .. FF	relance trame 309, joue
+aof	2 (meme NVRAM, sans TEST)	aucun	00 des la trame 50	inchange	joue
+aof	3 (meme NVRAM, TEST)	droite, droite, START (JAPAN -> EUROPE)	02	.. 02 .. FD	relance trame 309, joue
+aof	4 (meme NVRAM, sans TEST)	aucun	02	inchange	joue
+kof98	1-4	memes appuis	00, 00, 02, 02	memes blocs	demande 0 au premier boot apres relance, joue

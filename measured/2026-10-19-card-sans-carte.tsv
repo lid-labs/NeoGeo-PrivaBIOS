@@ -1,0 +1,36 @@
+# CARD ($C00468) sous le BIOS SNK, SANS carte memoire inseree, le 2026-10-19. Jig bench/card.lua,
+# MAME 0.260, -bios euro, NVRAM isolee, plan d'entrees de la matrice (piece, START, bouton A
+# toutes les 300 trames), 3000 trames. Aucun PC ni octet du BIOS de reference ; la pile du BIOS
+# ($10F200-$10F2FF) est exclue du releve.
+#
+# CE QUE FAIT CHAQUE APPEL, les 8 appels identiques (5 jeux, commandes $01 et $02) :
+#   1. $10FD00 (long) <- le SP a l'entree du service (adresse de retour empilee) MOINS 4, aux
+#      8 appels. Le SP d'entree est releve par le jig a la premiere ecriture de l'appel, et il
+#      est le meme sous notre BIOS pour chaque appel. Une premiere lecture, sur 2 jeux, avait
+#      pris le SP pendant l'appel pour le SP d'entree ; le jig passe sous notre image l'a montre.
+#   2. $10FCF4 (octet) <- $FF            role non interprete
+#   3. $10FDC6 (octet, CARD_ANSWER) <- $80, "aucune carte inseree" (page "CARD" du
+#      NeoGeo Development Wiki, consultee le 2026-10-19)
+#   Aucune ecriture dans la zone de la carte ($800000-$8FFFFF). Le reste de $10FDC4-$10FDCF
+#   ne change pas ($10FDD0, BIOS_CARD_SUB, n'est pas releve). Le retour tombe dans la trame de l'appel.
+#
+# Non mesure : les commandes autres que $01 et $02 (aucun jeu releve ne les emploie) ; tout le
+# regime avec carte inseree.
+#
+# JUGEMENT DE NOTRE IMAGE (src/c0/card.s), meme jig, memes 5 jeux, romsets substitues : les 8
+# appels ont les memes ecritures, dans le meme ordre, aux memes valeurs, et la meme interface
+# apres. Seules les trames different : notre boot rend la main plus tot. La premiere image,
+# ecrite d'apres la remise sans le "moins 4", sortait $10FD00 = SP d'entree : c'est ce qui a
+# corrige la lecture du point 1.
+#
+# Une ligne par appel : jeu, trame, numero d'appel, commande ($10FDC4 avant), adresses ecrites
+# dans l'ordre (hors pile du BIOS), $10FDC6 apres.
+jeu	trame	appel	commande	ecritures	reponse
+mslug	500	1	$02	$10FD00.l $10FCF4 $10FDC6	$80
+savagere	405	1	$02	$10FD00.l $10FCF4 $10FDC6	$80
+savagere	405	2	$02	$10FD00.l $10FCF4 $10FDC6	$80
+savagere	405	3	$02	$10FD00.l $10FCF4 $10FDC6	$80
+aof	400	1	$02	$10FD00.l $10FCF4 $10FDC6	$80
+puzzledp	861	1	$01	$10FD00.l $10FCF4 $10FDC6	$80
+neocup98	283	1	$02	$10FD00.l $10FCF4 $10FDC6	$80
+neocup98	441	2	$02	$10FD00.l $10FCF4 $10FDC6	$80

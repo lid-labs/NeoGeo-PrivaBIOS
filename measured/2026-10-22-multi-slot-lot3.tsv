@@ -1,0 +1,13 @@
+# Multi-slot lot 3 (rotation de la démo, sauvegarde/restauration) : notre image 4a0198fd contre la référence, -bios euro, MAME 0.286, MV-6F, jig bench/multislot.lua MS_PLAGES=1, le 2026-10-22.
+# Jeux : puzzledp (sauv $100000+$100), aof ($108800+$800), nam1975 ($100000+$1000), mslug ($100000+$7E). c1 = puzzledp ; c2 = +aof ; c4 = +nam1975 +mslug ; trou = puzzledp slot 0, nam1975 slot 2. -suite : NVRAM du run précédent. trou-nvref : les deux images sur une copie de la NVRAM de la référence après trou-suite.
+# Jetons : remise (slot, demande, mode) ; S = sauvegarde (RAM de travail lue -> backup RAM écrite) ; R = restauration (l'inverse) ; somme 16 bits des octets écrits (valeurs du jeu, aucun octet du BIOS). Préfixe : jetons comparés jusqu'au plus court des deux runs (nous allons plus vite : pas de logo). c1 : écart voulu, la référence sauve/restaure le jeu seul, pas nous.
+run	jetons_ref	jetons_nous	prefixe	structure_egale	sommes_egales	ordre_slots_ref	ordre_slots_nous	remises_ref	remises_nous
+c1-neuf	10	4	4	NON	NON	00 00 00 00	00 00 00 00	d00m00 d02m01 d02m01 d02m01	d00m00 d02m01 d02m01 d02m01
+c1-suite	8	3	3	NON	NON	00 00 00	00 00 00	d02m01 d02m01 d02m01	d02m01 d02m01 d02m01
+c2-neuf	18	18	18	oui	oui	00 01 00 01 00 01 00	00 01 00 01 00 01 00	d00m00 d00m00 d02m01 d02m01 d02m01 d02m01 d02m01	d00m00 d00m00 d02m01 d02m01 d02m01 d02m01 d02m01
+c2-suite	14	14	14	oui	oui	00 01 00 01 00	00 01 00 01 00	d02m01 d02m01 d02m01 d02m01 d02m01	d02m01 d02m01 d02m01 d02m01 d02m01
+c4-neuf	34	34	34	oui	oui	00 01 02 03 00 01 02 03 00 01 02 03 00	00 01 02 03 00 01 02 03 00 01 02 03 00	d00m00 d00m00 d00m00 d00m00 d02m01 d02m01 d02m01 d02m01 d02m01 d02m01 d02m01 d02m01 d02m01	d00m00 d00m00 d00m00 d00m00 d02m01 d02m01 d02m01 d02m01 d02m01 d02m01 d02m01 d02m01 d02m01
+c4-suite	26	26	26	oui	oui	00 01 02 03 00 01 02 03 00	00 01 02 03 00 01 02 03 00	d02m01 d02m01 d02m01 d02m01 d02m01 d02m01 d02m01 d02m01 d02m01	d02m01 d02m01 d02m01 d02m01 d02m01 d02m01 d02m01 d02m01 d02m01
+trou	18	21	18	oui	oui	00 02 00 02 00 02 00	00 02 00 02 00 02 00 02	d00m00 d00m00 d02m01 d02m01 d02m01 d02m01 d02m01	d00m00 d00m00 d02m01 d02m01 d02m01 d02m01 d02m01 d02m01
+trou-suite	14	17	14	oui	NON	00 02 00 02 00	00 02 00 02 00 02	d02m01 d02m01 d02m01 d02m01 d02m01	d02m01 d02m01 d02m01 d02m01 d02m01 d02m01
+trou-nvref	14	17	14	oui	oui	00 02 00 02 00	00 02 00 02 00 02	d02m01 d02m01 d02m01 d02m01 d02m01	d02m01 d02m01 d02m01 d02m01 d02m01 d02m01

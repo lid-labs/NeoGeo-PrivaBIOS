@@ -1,0 +1,12 @@
+# Apres revue, le 2026-10-21 : image sha256 3a1301206c73bbf9d0718357e873d9adcd3bb787c85540177a44b0582a425bfe. Memes conditions que 2026-10-21-cheats-par-le-menu.tsv ; tap resserre (une ecriture dans SP-64..$10F2FF a l'adresse d'un cheat du jeu compte comme ecriture du moteur).
+jeu	cheat	trames_ecrites	adresses	pendant_ON	apres_OFF
+mslug	INFINITE LIVES	1741-8020	100377 (6280)	3 ; une baisse a 2440 rendue a 2450	2 a 8150 ... fin de partie 10102
+mslug	INFINITE BOMBS	1741-2620	1004C0 (880)	10	9 a 2810, fin de partie 3621
+mslug	INFINITE TIME	1664-5020	106E93 (3357)	60 de 1670 a 5390	59 a 5390, puis -1 / ~256 tr.
+aof	INFINITE TIME	1021-5123	108406 (3897) ; 1092CC (206, lua)	60 de 1130 a 5140	59 a 5140, -1 / 60 tr.
+aof	P1 INFINITE LIFE	1144-5020	1092CD (3877)	$60	KO a 6450, fin de partie 9942
+kof94	INFINITE TIME	1324-5020	10882F (3697)	TIME 60, KO et decomptes de fin de round normaux	59 a 5180, -1 / 50 tr. ; fin de partie 7330
+kof94	P1 INFINITE LIFE	1344-5020	108221 (3677)	$CF	baisse des 5710, fin de partie 9889
+# IDENTITE avant/apres RESUME (bench/menu.lua) : mslug (3 cheats, 1 bascule) VRAM 0, palettes 0, RAM 473 (336/132/5/0 ailleurs) ; image jetable a 6 cheats sur mslug (2 bascules, cadre 28x14) VRAM 0, palettes 0, RAM 557 (420/132/5/0 ailleurs) ; samsho2 (sans entree) VRAM 0, palettes 0, RAM 321 (188/133/0/0 ailleurs).
+# SIX CHEATS (image jetable, non versionnee) : les 6 lignes justes, nom et etat, cheats 0 et 5 bascules -> CH_ETATS $0021 (capture 15).
+# GARDES par mutation, chacune fait echouer le build : JEU annonce 2 pour 3 CHEAT ; dernier JEU annonce 3 pour 2 (FIN_TABLE) ; NGH nul ; taille 3 ; taille -1 ; nombre 0 ; seconde ecriture a $10F300.

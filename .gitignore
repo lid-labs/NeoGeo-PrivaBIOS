@@ -1,0 +1,36 @@
+# Build outputs
+obj/
+*.sp1
+*.elf
+*.o
+
+# ROMs and dumps: never committed, whatever their name
+*.rom
+*.bin
+*.zip
+*.7z
+*.neo
+
+# Bench work directories and captures (bench scripts write them outside the repo by default;
+# these catch a work directory created inside it)
+/travail/
+/work/
+/bench-work/
+*.png
+*.wav
+*.avi
+*.mp4
+
+# MAME state
+cfg/
+nvram/
+memcard/
+snap/
+diff/
+
+# Python
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store

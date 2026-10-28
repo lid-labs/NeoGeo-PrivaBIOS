@@ -1,0 +1,67 @@
+name: Bug report
+description: Sprixe BIOS does something wrong on a board or in MAME.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please do not attach ROMs, dumps or links to them.
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where
+      options:
+        - Real hardware
+        - MAME
+    validations:
+      required: true
+  - type: input
+    id: board
+    attributes:
+      label: Board
+      description: For example MV-1C, MV-2F, MV-6F. Say if it is consolized or has no TEST button.
+    validations:
+      required: true
+  - type: dropdown
+    id: region
+    attributes:
+      label: Region set in the BIOS
+      options: [EUROPE, USA, JAPAN, ASIA, Not sure]
+    validations:
+      required: true
+  - type: input
+    id: game
+    attributes:
+      label: Game
+      description: Title, and the MAME set name if you know it.
+    validations:
+      required: true
+  - type: input
+    id: crc
+    attributes:
+      label: CRC32 of the burned image (or of the file loaded in MAME)
+      description: Tells us exactly which build you ran.
+    validations:
+      required: true
+  - type: dropdown
+    id: cart
+    attributes:
+      label: Cartridge
+      options:
+        - Original cartridge
+        - Flash cartridge
+        - Other / not applicable
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happens, and what you expected
+      description: Steps from power-on. Mention adapters (wireless pads, converters) if any.
+    validations:
+      required: true
+  - type: input
+    id: video
+    attributes:
+      label: Video
+      description: A link to a short video of the problem, if you can.

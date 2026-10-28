@@ -1,0 +1,63 @@
+# La disposition du BIOS, en mode MVS, le 2026-10-23 : ce qui change quand le code du mode AES s'insère dans l'image. MAME 0.286, neogeo
+# -bios euro, -video none, SDL_MAC_BACKGROUND_APP=1, -nothrottle, NVRAM neuve par run, un run à la fois ; bench/matrice.sh sans
+# nullbios (BIOS_SANS_NULLBIOS=1), sur les 22 jeux de 2026-10-22-repetition-et-start-matrice.tsv, ~3 720 trames par run, les
+# entrées planifiées de bench/bios-probe.lua (pièce, START, A toutes les 300 trames), une signature d'écran toutes les 100 trames
+# (35 relevés de la trame 100 à 3500) et l'image de la trame 3500. Contrôle : les 132 runs « ok » (WRONG CHECKSUMS présent pour nos
+# images, absent pour snk et unibios40). Ce relevé ne lit aucun PC ni aucun octet de ROM de référence : des signatures d'écran et des valeurs de RAM BIOS.
+#
+# LES IMAGES, toutes construites par build/construire.sh, aucune versionnée :
+#   main     src/c0 de main f9f18e1d                                     sha256 528b7e9c7120bdabf29747eaa7993efdb2398df5a177062e1fb7314d1a60716a
+#   finale   src/c0 de ce lot (le mode AES)                              sha256 bc6560f50412bbb23cece3f5d38a4a818c5c606ca5564b4407c983db4bc8127b
+#   vd       main, plus UN `.word 0x4E71` inséré dans io.s juste après le `jmp _retour_selection` de `_io_select` : jamais exécuté
+#            (il suit un saut inconditionnel), il ne fait que décaler d'un mot tout ce qui suit dans .text
+#                                                                        sha256 543e2779bc0c6d38f38d569d2d0a459f976a171901473e01c5c183a80314bb0d
+#   ve       main, plus le même mot en fin d'image (dernière ligne de jukebox.s, après sa dernière donnée) : aucune adresse ne bouge
+#                                                                        sha256 7f4b72aa7b3bc1208f0881fdae57bc1f6de8061ecfa729378db7cf6346f8bfcf
+# Le banc est déterministe : main contre main, deux matrices, 0 relevé différent sur garou, kof98, samsho2, ssideki4, neomrdo.
+#
+# VERDICT.
+#  1. Contre main, la finale est identique sur 19 jeux sur 22, signatures et image de la trame 3500 comprises. garou, samsho2 et
+#     ssideki4 divergent en partie (BIOS_USER_MODE à 2, aucune remise de la main), à partir des trames 2200, 1800 et 3300.
+#  2. vd diverge sur les trois mêmes jeux et seulement eux — garou et ssideki4 à la même trame que la finale, samsho2 dès la trame
+#     1100 —, alors que le mot n'est jamais exécuté ; ses images ne sont pas celles de la finale (12, 1 et 19 relevés différents :
+#     le décalage n'est pas le même). ve est identique à main sur les 22.
+#     Ces trois jeux dépendent donc de la DISPOSITION du BIOS (les adresses de son code), pas de son comportement : un décalage
+#     d'adresses suffit, sans une instruction ni un cycle de plus.
+#  3. Les instructions MVS exécutées en jeu sont celles de main : vérifié par désassemblage de NOS objets (bios.elf de main et de la
+#     finale, sections .text et .vectors) — SYSTEM_IO, SYSTEM_INT1, CREDIT_CHECK et le crochet du menu ont la même suite
+#     d'instructions ; les ajouts du mode AES n'y sont atteints que par une branche prise en mode AES, ou au refus d'un START sans
+#     crédit (`_io_start_refus`, deux instructions de plus sur ce seul chemin). Les remises et le boot portent des instructions de plus
+#     (lecture du mode, demande 1), hors de toute partie.
+#  4. kof98 : identique avec la finale. Il divergeait à la trame 3100 avec une image intermédiaire de ce lot (sha256 5f6b7725…, non
+#     gardée), dont l'écran de boot et le menu en jeu lisaient REG_STATUS_B par `btst` (20 cycles) au lieu du `tst.b` de main (16) ;
+#     la finale y emploie `tst.b`. Seul relevé de cette image : la matrice du 2026-10-23, non versionnée.
+#  5. SUPPOSÉ, la cause : ces jeux liraient comme des valeurs des restes de pile laissés sous leur pointeur par les appels au BIOS,
+#     où se trouvent des adresses de retour dans le BIOS ; décaler le code change ces restes. Aucune trace ne l'établit.
+#  6. Critère retenu par l'agent coordinateur le 2026-10-23 : la non-régression, comme pour #1414 qui a aussi déplacé les adresses ;
+#     l'identité stricte n'est pas exigée. La matrice de non-régression (vifs à 2 %) passe sur la finale.
+#
+# Colonnes : la première trame relevée qui diffère de main, et le nombre de relevés différents sur 35 ; puis l'image de la trame 3500
+# égale (=) ou non (≠) à celle de main, pour finale / vd / ve.
+jeu	finale_contre_main	vd_contre_main	ve_contre_main	image_3500 (finale/vd/ve)
+aof	identique (35 relevés)	identique (35 relevés)	identique (35 relevés)	=/=/=
+b2b	identique (35 relevés)	identique (35 relevés)	identique (35 relevés)	=/=/=
+flipshot	identique (35 relevés)	identique (35 relevés)	identique (35 relevés)	=/=/=
+garou	diverge à 2200 (14 relevés sur 35)	diverge à 2200 (14 relevés sur 35)	identique (35 relevés)	≠/≠/=
+joyjoy	identique (35 relevés)	identique (35 relevés)	identique (35 relevés)	=/=/=
+kof2003	identique (35 relevés)	identique (35 relevés)	identique (35 relevés)	=/=/=
+kof94	identique (35 relevés)	identique (35 relevés)	identique (35 relevés)	=/=/=
+kof98	identique (35 relevés)	identique (35 relevés)	identique (35 relevés)	=/=/=
+lbowling	identique (35 relevés)	identique (35 relevés)	identique (35 relevés)	=/=/=
+magdrop2	identique (35 relevés)	identique (35 relevés)	identique (35 relevés)	=/=/=
+minasan	identique (35 relevés)	identique (35 relevés)	identique (35 relevés)	=/=/=
+mslug	identique (35 relevés)	identique (35 relevés)	identique (35 relevés)	=/=/=
+mslug3	identique (35 relevés)	identique (35 relevés)	identique (35 relevés)	=/=/=
+nam1975	identique (35 relevés)	identique (35 relevés)	identique (35 relevés)	=/=/=
+neomrdo	identique (35 relevés)	identique (35 relevés)	identique (35 relevés)	=/=/=
+puzzledp	identique (35 relevés)	identique (35 relevés)	identique (35 relevés)	=/=/=
+ridhero	identique (35 relevés)	identique (35 relevés)	identique (35 relevés)	=/=/=
+samsho2	diverge à 1800 (18 relevés sur 35)	diverge à 1100 (19 relevés sur 35)	identique (35 relevés)	≠/≠/=
+ssideki4	diverge à 3300 (1 relevés sur 35)	diverge à 3300 (1 relevés sur 35)	identique (35 relevés)	=/=/=
+svc	identique (35 relevés)	identique (35 relevés)	identique (35 relevés)	=/=/=
+trally	identique (35 relevés)	identique (35 relevés)	identique (35 relevés)	=/=/=
+wjammers	identique (35 relevés)	identique (35 relevés)	identique (35 relevés)	=/=/=

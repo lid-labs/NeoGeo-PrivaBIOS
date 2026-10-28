@@ -1,0 +1,19 @@
+# Le catalogue des cheats et CHEATS/DEBUG (src/c0/cheats.s, menu.s, reglages.s, la quatrième ligne du sous-écran CABINET
+# SETTINGS de dip.s), le 2026-10-25 : les seuils de leurs scènes au parcours du joueur (bench/parcours.sh, --ref-cheats), et ce
+# que l'image mesure en face. MAME 0.286, -video none, -sound none, -nothrottle, NVRAM et cfg par run, romsets non-merged de
+# $ROMS, seul sp-s2.sp1 remplacé. Le critère de chaque scène est dans l'en-tête de bench/parcours.sh ; le catalogue entier
+# est jugé par bench/cheats-catalogue.sh (2026-10-25-cheats-catalogue.tsv), et chaque cheat est décrit dans
+# 2026-10-25-cheats-table.tsv.
+#
+# LES TÉMOINS. cheats-vies : mslug2, les mêmes entrées, le même menu ouvert et fermé par RESUME sans rien changer (cv-temoin).
+# bo-cd-menu : le run cheats, au réglage par défaut, dont le menu montre INFINITE TIME, P1 INFINITE LIFE et MEMORY EDITOR.
+# bo-cd-gel : le même gel posé au réglage par défaut (bo-cd-gel-on, NVRAM neuve), qui fige le chronomètre.
+#
+# bo-cd-menu n'a pas de seuil : du texte exact. Seule la colonne « seuil » juge. Image mesurée : e5b4ea94d82df51a…, l'image finale
+# du lot ; mesures identiques sur l'image d'avant (d67bc6a4…), dont la boucle du menu coûtait plus de cycles (menu.s, MN_DERNIER). Unités : trames à 59,185 Hz, fractions des
+# trames d'une fenêtre.
+scene	grandeur	seuil	mesure
+cheats-vies	hud_on_min	0.85	0,933 des trames 1700-8999 à la même image du compteur « 1UP=2 » sous cheat : il ne bouge qu'aux morts, le temps que le moteur rétablisse la cellule ; aucune fin de partie
+cheats-vies	hud_temoin_max	0.5	0,207 au témoin, qui perd ses vies (1UP=1, 1UP=0) et la partie à la trame 4716
+bo-cd-gel	ram_on_min	1000	1 181 sur 1 200 trames à $60 au réglage par défaut, chronomètre figé
+bo-cd-gel	ram_max	100	0 sur 1 200 à CHEATS/DEBUG OFF, chronomètre qui change ; GL_MASQUE remis à zéro dès l'appel qui suit la pose

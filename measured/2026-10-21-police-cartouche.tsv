@@ -1,0 +1,57 @@
+# Police de la CARTOUCHE aux numeros de tuile du SFIX, le 2026-10-21. MAME 0.286, -bios euro
+# (SNK : MAME lit la S ROM ; aucun octet de ROM n'est lu par le banc), NVRAM neuve, sans entree,
+# trame 1200 (attract). Jig bench/police-cartouche.lua : une mire de 41 glyphes (0-9, A-Z, espace,
+# : - / .) posee dans le plan fixe sous la palette 15, en 8x8 (tuile = ASCII) et en 8x16 (tuiles
+# $100 + ASCII et $200 + ASCII), rendue depuis la S ROM puis depuis le SFIX (seule la source du
+# plan fixe basculee, item m_fixed_layer_source de MAME), index de couleur decodes au pixel par
+# cinq captures par source. Captures et planches non versionnees.
+#
+# A la trame 1200, les 22 jeux avaient laisse la source du plan fixe sur la S ROM (REG_CRTFIX) ;
+# aucun n'a change de banque de palettes pendant la sequence ; aucun pixel incoherent ; la police
+# du SFIX relevee est la meme, au pixel, dans les 22 runs.
+#
+# CLASSES, sur le trait = index 1 (measured/2026-10-20-sfix-glyphes.tsv, point 6) :
+#   identique  meme masque d'index 1 que le SFIX, au pixel
+#   lisible    autre dessin, distance de Hausdorff au trait du SFIX <= 2 px (decalage +-1 px
+#              permis), OU juge lisible a l'oeil sur la planche (colonne oeil)
+#   vide       aucun pixel d'index 1
+#   autre      un trait, ni identique ni lisible
+# Le critere automatique tolere un trait plus fin ou plus gras, pas un trait manquant ou en trop ;
+# il a refuse J et M des polices fines (Hausdorff 2,2 a 3,0 px), que les planches montrent sans
+# ambiguite : reclasses lisibles a l'oeil. Il ne prouve pas que c'est le bon caractere, seulement
+# qu'il a sa forme ; les planches ont ete regardees jeu par jeu.
+#
+# police_8x16 : famille de dessin, par egalite exacte des masques entre jeux (sfix = identique au
+# SFIX sur les 41 ; fine-1 et fine-2 = deux polices a trait fin, chacune commune a plusieurs jeux ;
+# aucune = rien a ces places). En 8x8, 20 jeux ont la police du SFIX au pixel sur les 41 glyphes,
+# trally n'en differe que par le 0 (lisible), kof2003 n'a rien.
+#
+# kof2003 : toutes les cases de la mire sont des tuiles pleines d'index 2 (aucun trait) ; son propre texte
+# « CREDIT » est ecrit avec les tuiles $3E6-$3EA, hors du rangement ASCII. Essai a part, non
+# versionne : forcer $7500-$75FF a $0000, $FFFF ou $AAAA ne change rien a la mire.
+#
+# Non-conformes : tuiles des glyphes qui ne sont pas « identique » (en 8x16, la tuile du haut ;
+# celle du bas est la meme + $100), par classe.
+jeu	crtfix	police_8x16	8x8_identique	8x8_lisible	8x8_vide	8x8_autre	8x16_identique	8x16_lisible	8x16_vide	8x16_autre	8x8_non_conformes	8x16_non_conformes	oeil
+aof	1	fine-1	41	0	0	0	2	39	0	0	-	lisible:$12D,$12F-$13A,$141-$15A	8x16 J ($14A), 8x16 M ($14D)
+b2b	1	fine-1	41	0	0	0	2	39	0	0	-	lisible:$12D,$12F-$13A,$141-$15A	8x16 J ($14A), 8x16 M ($14D)
+flipshot	1	fine-2	41	0	0	0	2	39	0	0	-	lisible:$12D,$12F-$13A,$141-$15A	8x16 J ($14A)
+garou	1	fine-2	41	0	0	0	2	39	0	0	-	lisible:$12D,$12F-$13A,$141-$15A	8x16 J ($14A)
+joyjoy	1	sfix	41	0	0	0	41	0	0	0	-	-	-
+kof2003	1	aucune	1	0	40	0	1	0	40	0	vide:$02D-$03A,$041-$05A	vide:$12D-$13A,$141-$15A	-
+kof94	1	sfix	41	0	0	0	41	0	0	0	-	-	-
+kof98	1	sfix	41	0	0	0	41	0	0	0	-	-	-
+lbowling	1	sfix	41	0	0	0	41	0	0	0	-	-	-
+magdrop2	1	fine-1	41	0	0	0	2	39	0	0	-	lisible:$12D,$12F-$13A,$141-$15A	8x16 J ($14A), 8x16 M ($14D)
+minasan	1	sfix	41	0	0	0	41	0	0	0	-	-	-
+mslug	1	fine-1	41	0	0	0	2	39	0	0	-	lisible:$12D,$12F-$13A,$141-$15A	8x16 J ($14A), 8x16 M ($14D)
+mslug3	1	fine-2	41	0	0	0	2	39	0	0	-	lisible:$12D,$12F-$13A,$141-$15A	8x16 J ($14A)
+nam1975	1	sfix	41	0	0	0	41	0	0	0	-	-	-
+neomrdo	1	sfix	41	0	0	0	41	0	0	0	-	-	-
+puzzledp	1	sfix	41	0	0	0	41	0	0	0	-	-	-
+ridhero	1	sfix	41	0	0	0	41	0	0	0	-	-	-
+samsho2	1	fine-1	41	0	0	0	2	39	0	0	-	lisible:$12D,$12F-$13A,$141-$15A	8x16 J ($14A), 8x16 M ($14D)
+ssideki4	1	fine-1	41	0	0	0	2	39	0	0	-	lisible:$12D,$12F-$13A,$141-$15A	8x16 J ($14A), 8x16 M ($14D)
+svc	1	sfix	41	0	0	0	41	0	0	0	-	-	-
+trally	1	sfix	40	1	0	0	41	0	0	0	lisible:$030	-	-
+wjammers	1	fine-1	41	0	0	0	2	39	0	0	-	lisible:$12D,$12F-$13A,$141-$15A	8x16 J ($14A), 8x16 M ($14D)

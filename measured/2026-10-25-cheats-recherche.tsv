@@ -1,0 +1,82 @@
+# La recherche des cheats du catalogue, le 2026-10-25 : les runs, les filtres, les candidats et leur sort, jeux écartés compris.
+# MAME 0.286, -bios euro, -video none, -nothrottle, notre image (cdaca6b7…, l'image de main : le moteur des cheats n'a pas changé
+# depuis), une NVRAM et un cfg par run, romsets de $ROMS dont seul sp-s2.sp1 est remplacé. Jig bench/cheats.lua : mode
+# releve (RAM $100000-$10F2FF toutes les 10 trames, filtrée hors de MAME), puis mode forcer (la cellule écrite par lua à chaque
+# trame à partir de la trame 600 ou 900), images des deux runs comparées. Aucune base de cheats tierce, aucun code de jeu lu,
+# aucun débogueur ; ces deux modes du jig ne lisent pas le PC. Les cheats retenus, et leur preuve par le menu du BIOS : 2026-10-25-cheats-table.tsv.
+#
+# LES ENTRÉES. Combat (« f ») : pièce à 400, START à 500, A toutes les 60 trames de 600 à 3500 (sélection), droite tenue à partir
+# de 2000 : P1 avance sans frapper, il prend des coups et perd ses rounds. Tir et action (« s ») : pièce, START, A toutes les 60
+# trames, droite tenue à partir de 1000, C toutes les 400 trames à partir de 1500 : P1 meurt.
+#
+# LES FILTRES (un script hors de MAME sur les relevés, non versionné). Chronomètre : un octet qui perd 1, en BCD ou en binaire, à
+# des intervalles de 20 à 200 trames, au moins 6 fois de suite. Vies : un octet qui ne change que par pas de −1 (passage de 0 à $FF
+# compris), 2 à 13 fois, la dernière moins de 1 500 trames avant la fin de partie. Le décompte de trames d'une seconde : l'octet
+# qui suit les secondes, lu sur le relevé.
+#
+# LA PREUVE, pour chaque candidat : forcé par lua, (1) le chronomètre affiché ne descend plus et la partie se finit encore (par KO),
+# ou (2) plus aucune fin de partie en 15 000 à 20 000 trames, le jeu continuant à l'écran ; un candidat dont l'image ne suit pas
+# est une copie, écartée. Les images ont été regardées en planches (crops du chronomètre, du HUD).
+jeu	categorie	candidat	forcage	resultat	retenu
+kof95	temps	$10A836 secondes BCD, $10A837 décompte $32	$10A836=$60 puis $10A837=$32	secondes forcées : le round ne démarre plus (images identiques de 3000 à 6000) ; décompte forcé : chronomètre figé, fin de partie à 5821 (témoin 6019)	$10A837
+kof95	vie	$108221 (la cellule de kof94)	$CF	jauge pleine, P1 gagne ses rounds au temps, aucune fin de partie en 20 000 trames	oui
+kof96	temps	$10A836, $10A837	l'un puis l'autre, 40 000 trames	après le premier round, « WINNER IS CHOI » reste à l'écran de 20 000 à 39 000 : le jeu attend le décompte qu'on bloque	non (bloque le jeu)
+kof97	temps	aucun	—	la sélection n'aboutit pas avec ces entrées (écran de choix d'équipe à 8 000)	non (pas de partie)
+kof98	temps	$10A83A, $10A83B	l'un puis l'autre, 40 000 trames	« YOU LOST… GOOD LUCK! » reste à l'écran : le continue attend le décompte qu'on bloque	non (bloque le jeu)
+kof99	temps	$10A7E6 secondes, $10A7E7 décompte $32	$10A7E6=$60 : « GO » figé au début du round ; $10A7E7=$32 : chronomètre figé, fin de partie 12412 (témoin 9874)	$10A7E7
+kof2000	temps	$10A7E6 secondes BCD	$60	chronomètre figé à 60, fin de partie 13252 (témoin 11724)	oui
+kof2001	temps	$10A7D2 secondes BCD	$60	chronomètre figé à 60 sur la planche, fin de partie 11500 ; mais aucun rectangle du chronomètre ne se juge sous le jig (le cadre change sous cheat comme au témoin)	non (pas de preuve versionnée)
+kof2002	temps	$1013D3 (copie), $10A7D2 secondes, $10A7D3 décompte $32	$1013D3=$60 : le chronomètre descend ; $10A7D3=$32 : figé, fin de partie 16114 (témoin 13499)	$10A7D3
+samsho	temps	$100A08 secondes BCD, 99	$99	chronomètre à 98-99, fin de partie 8027 (témoin 8807)	oui
+samsho2	temps	$100AC6 secondes BCD, 99	$99	chronomètre à 98, fin de partie 10189 (témoin 7242)	oui
+samsho3	temps	$1004C3, $1044C3 (99, BCD)	$99, l'un puis l'autre	le chronomètre affiché descend quand même (41, 08) : des copies	non
+samsho4	temps	$108368 secondes, $108369 décompte $3C	$108369=$3C	chronomètre figé à 60, fin de partie 13573 (témoin 10603)	$108369
+samsho5	temps	$10836A secondes BCD	$60	chronomètre à 59, fin de partie 13321 (témoin 14089)	oui
+samsh5sp	temps	$10836A secondes BCD	$60	chronomètre à 59, fin de partie 6733 (témoin 6733)	oui
+fatfury1	temps	$1042F3 (BCD, 90)	$90	la planche ne montre pas de chiffres lisibles au même endroit (témoin compris)	non (effet non vu)
+fatfury2	temps	$10092A (BCD, 90)	$90	89 à l'écran sous forçage, 89 aussi au témoin à la trame comparée : rien ne tranche	non (effet non vu)
+fatfury3	temps	$105680 secondes BCD	$60	chronomètre à 59, fin de partie 6705 (témoin 6705)	oui
+fatfursp	temps	$10092A secondes BCD	$60	chronomètre à 59, fin de partie 4610 (témoin 4610)	oui
+rbff1	temps	aucun chronomètre trouvé	—	seuls des décomptes de continue	non
+rbff2	temps	aucun	—	pas de fin de partie ni de chronomètre relevé avec ces entrées	non
+rbffspec	temps	$106AB4 secondes BCD	$60	chronomètre figé à 60, fin de partie 6168 ; mais aucun rectangle ne se juge sous le jig	non (pas de preuve versionnée)
+garou	temps	$100DB8 (BCD, 60)	$60	le chronomètre affiché descend (31, 41) : une copie	non
+lastblad	temps	$10E32B secondes BCD	$60	chronomètre à 59, fin de partie 11919 (témoin 12206)	oui
+lastbld2	temps	$1006FD (BCD, 60)	$60	le chronomètre affiché descend (34, 13, 58) : une copie	non
+aof2	temps	$108406 secondes BCD (la cellule d'aof)	$60	chronomètre à 58-60, fin de partie 6806 (témoin 6806)	oui
+aof2	vie	$109EC3 ($3C au round, jusqu'à 0)	$3C	les images restent identiques de 3000 à 12 000 : le round ne démarre plus	non (bloque le jeu)
+wh1	temps	$10B008 secondes BCD, 99	$99	chronomètre à 98, fin de partie 16758 (témoin 8633)	oui
+wh2	temps	$10C109 secondes BCD, 99	$99	chronomètre à 98, fin de partie 5187 (témoin 5187)	oui
+whp	temps	aucun	—	seuls des décomptes de continue	non
+svc	temps	$10AC14 secondes BCD ($101032 en suit la valeur)	$60	chronomètre à 60, fin de partie 13912 (témoin 8953)	oui
+matrim	temps	$10038B (binaire, 60)	$3C	le chronomètre affiché descend (36, 11, 59) : une copie	non
+breakrev	temps	$107C27 secondes, binaire, 99	$63	chronomètre à 98-99, fin de partie 7761 (témoin 9116)	oui
+ninjamas	temps	$10C021 (BCD, 99)	$99, 40 000 trames	les deux personnages figés de 10 000 à 39 000 : effet sur le jeu non tranché	non (doute)
+galaxyfg	temps	$1051B1 (binaire, 60)	$3C	le chronomètre affiché descend : une copie	non
+karnovr	temps	$103A70 secondes, binaire, 99	$63	chronomètre à 99, fin de partie 10155 (témoin 9581)	oui
+doubledr	temps	$102242 secondes BCD, 99	$99	chronomètre à 98, fin de partie 6397 (témoin 6949)	oui
+wakuwak7	temps	$1066D5 (binaire, 60)	$3C	le chronomètre affiché descend : une copie	non
+kabukikl	temps	$100B16 (BCD, 99)	$99	le chronomètre affiché descend : une copie	non
+gowcaizr	temps	$10066F (BCD, 60)	$60	le chronomètre affiché descend : une copie	non
+savagere	temps	$1019C0 (BCD, 60)	$60	le chronomètre affiché descend : une copie	non
+mslug2	vies	$101276 (3, 2 à l'apparition, 1, 0, $FF)	$02	1UP=2 au HUD, aucune fin de partie en 15 000 trames (témoin 4675)	oui
+mslug2	bombes	$10127C (10, 9, 10 à chaque vie)	$0A	BOMB 9 au HUD comme au témoin : sans effet	non
+mslugx	vies	$101288	$02	aucune fin de partie (témoin 4856)	oui
+mslugx	bombes	$10128E	$0A	sans effet au HUD	non
+mslug3	vies	$10083C (3, 2, 1, 0) puis $1002BB (2, 1, 0)	$03 puis $02	$10083C : fin de partie comme le témoin ; $1002BB : aucune (témoin 4406)	$1002BB
+mslug3	bombes	$1002C0 (10 au départ)	$0A	pas de grenade relevée avec ces entrées : rien à juger	non
+mslug4	vies	$100A89 (2, 1, 0)	$02	aucune fin de partie (témoin 5108)	oui
+mslug4	bombes	$100A8E	$0A	sans effet au HUD	non
+mslug5	vies	$100A41 (2, 1, 0)	$02	aucune fin de partie (témoin 5330)	oui
+mslug5	bombes	$100A46	$0A	sans effet au HUD	non
+pulstar	vies	$10132A (2, 1, 0)	$02	aucune fin de partie (témoin 4310)	oui
+blazstar	vies	$10348C (3…0), $101BA1 (2, 1, 0)	$03 ; $02	$10348C : fin de partie comme le témoin ; $101BA1 : aucune (témoin 3542)	$101BA1
+androdun	vies	$100343 (3…0)	$03	aucune fin de partie (témoin 2981)	oui
+gpilots	vies	$103F37 (3…0)	$03	aucune fin de partie (témoin 4982), =2 au HUD	oui
+lresort	vies	$108030 (2, 1, 0, $FF)	$02	aucune fin de partie (témoin 3243)	oui
+maglord	vies	$103B00 (2, 1, 0)	$02	aucune fin de partie (témoin 5041), ×2 au HUD	oui
+s1945p	vies	$10032A (3…0), $1000E9 (2, 1, 0)	$03 ; $02	$10032A : l'écran se brouille puis devient noir (le jeu plante) ; $1000E9 : aucune fin de partie (témoin 2645), 2 au HUD	$1000E9
+zedblade	vies	$100229 (3…0)	$03	aucune fin de partie (témoin 3243)	oui
+mutnat	vies	$102459 (4…1)	$04	fin de partie comme le témoin	non
+nam1975	vies	$103A03 (2, 1, 0)	$02	fin de partie comme le témoin	non
+tophuntr	vies	$103BA1 (4…1)	$04	fin de partie plus tard (6638, témoin 6158), pas empêchée	non

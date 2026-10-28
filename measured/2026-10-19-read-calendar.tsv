@@ -1,0 +1,52 @@
+# READ_CALENDAR ($C0045C) sous le BIOS SNK, le 2026-10-19. Jig bench/cal.lua, MAME 0.260, -bios
+# euro, NVRAM isolee, plan d'entrees de la matrice, 3000 trames, sur blazstar (309 appels) et
+# trally (3 appels). Aucun PC ni octet du BIOS de reference ; la pile du BIOS ($10F200-$10F2FF)
+# est exclue. L'horloge de MAME suit celle de la machine hote : les dates relevees sont l'heure
+# du passage (2026-10-19, lundi, 16 h 49).
+#
+# 1. LES ACCES A L'HORLOGE (uPD4990A), identiques a chaque appel complet : 132 ecritures a
+#    REG_RTCCTRL ($380051, octet bas du mot $380050) et 52 lectures de REG_STATUS_A ($320001).
+#    Bits ecrits, mesures : DATA IN = bit 0, CLK = bit 1, STB = bit 2. Bit lu : bit 7 (page
+#    "Memory mapped registers" : "RTC data bit").
+#    Sequence, en valeurs ecrites (D = DATA IN) :
+#      commande $3 : quatre bits, poids faible d'abord, chacun D, D|CLK, D ; puis STB, 0
+#      commande $1 : idem
+#      52 fois    : lire le bit 7, puis CLK, 0
+#    Soit 2 x (4 x 3 + 2) + 52 x 2 = 132 ecritures. Plus petit ecart entre deux ecritures
+#    pendant un appel : 4,5 us (trally).
+#
+# 2. LES 52 BITS, decodes sur un appel de blazstar et compares aux ecritures en RAM du meme
+#    appel : poids faible d'abord, secondes (8 bits, BCD), minutes (8, BCD), heures (8, BCD),
+#    jour (8, BCD), jour de semaine (4), mois (4, BINAIRE : $A pour octobre), annee (8, BCD),
+#    puis 4 bits ($1, la derniere commande) non ecrits en RAM.
+#
+# 3. LES ECRITURES EN RAM, sept octets, dans cet ordre, a chaque appel complet :
+#      $10FDD8 seconde, $10FDD7 minute, $10FDD6 heure, $10FDD4 jour, $10FDD5 jour de semaine,
+#      $10FDD3 mois, $10FDD2 annee.
+#    Le mois est ecrit en BCD ($10 pour le $A lu) ; les autres champs tels que lus. Noms et
+#    contenus : page "READ CALENDAR" (BIOS_YEAR ... BIOS_SECOND, BCD, dimanche = 00).
+#    Aucune autre ecriture en RAM de travail hors pile du BIOS.
+#
+# 4. HORS APPEL, au boot de la reference (trally, des la trame 130) : les commandes $8 puis $7,
+#    puis $3, $1 et 52 coups d'horloge, une lecture complete. Hors READ_CALENDAR.
+#
+# Limite de l'instrument : une lecture en espace programme au milieu d'un appel - une
+# interruption, SUPPOSE - ferme la fenetre du jig avant la fin de l'appel ; c'est le cas du
+# premier appel de blazstar (40 ecritures, 6 lectures,
+# aucune ecriture en RAM vue). Les appels complets sont seuls a juger.
+#
+# JUGEMENT DE NOTRE IMAGE (src/c0/cal.s), meme jig, memes jeux, romsets substitues, le meme
+# jour : chaque appel complet fait les memes 132 ecritures et 52 lectures, et les memes sept
+# ecritures en RAM dans le meme ordre ; annee, mois, jour, jour de semaine et heure egaux a ceux
+# de la reference (minutes et secondes avancent avec l'heure). Ecart minimal entre deux
+# ecritures a l'horloge : 3,83 us chez nous, 4,5 us chez la reference, 1 us au minimum de la
+# fiche technique du uPD4990A (lue par l'agent, citee dans cal.s).
+# Chez nous, blazstar fait 309 appels complets (aucun tronque) ; trally en fait 11, aux pieces
+# du plan d'entrees, contre 3 sous la reference. Deja 11 aux memes trames sur l'image d'avant
+# ce lot, ou $C0045C etait un rts : le deroule du jeu differe, pas le service. Non diagnostique.
+#
+# Une ligne par jeu (sous la reference) : appels, appels complets, ecritures et lectures par appel complet, RAM
+# ecrite par appel complet.
+jeu	appels	complets	ecritures_horloge	lectures_horloge	ram
+blazstar	309	308	132	52	$10FDD8 $10FDD7 $10FDD6 $10FDD4 $10FDD5 $10FDD3 $10FDD2
+trally	3	3	132	52	$10FDD8 $10FDD7 $10FDD6 $10FDD4 $10FDD5 $10FDD3 $10FDD2

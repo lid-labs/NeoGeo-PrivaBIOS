@@ -1,0 +1,380 @@
+# Les commutateurs 2 à 6 et 8 de la carte : ce que font le BIOS SNK et UniBIOS 4.0, mesuré le 2026-10-27 par observation avant
+# toute décision (#1445), et ce que fait notre image 8c8caefa341a6738… (= la construction de feat/bios-crc-debug-dips-2 67590955).
+#
+# OUTIL : MAME 0.286, -video none, -sound none, -nothrottle, SDL_MAC_BACKGROUND_APP=1, un -cfg_directory et un -nvram_directory
+# neufs par run ; romsets non-merged de $ROMS ; jig bench/son.lua (J_DSW pose les commutateurs par les champs du port
+# :DSW dès la trame donnée ; J_SUIVRE relève des cellules documentées de la RAM ; J_TEXTE le plan fixe décodé), plus un tap
+# d'écriture sur REG_POUTPUT ($380001) qui compte chaque valeur écrite par trame, côté BIOS ou jeu (le PC n'est lu
+# que pour ce côté, et n'est pas consigné ; script non versionné). Machines : `ng_mv2f -cart1 <jeu>` (MV-2F) et `neogeo -cart1 <jeu>` (MV-6F), et la machine `janshin`
+# de MAME (neogeo_mj : un panneau de mahjong en P1, aucun joystick). -bios euro (SNK), unibios40, japan (SNK japonais, sections
+# 5 et 6 seulement). Notre image substituée à sp-s2.sp1 dans ng_mv2f.zip, neogeo.zip et le romset du jeu (WRONG CHECKSUMS
+# présent dans le journal de chacun de ses runs, absent de ceux de SNK et d'UniBIOS).
+# MÉTHODE. L'image (empreinte par trame), le plan fixe des écrans du BIOS, et des cellules lues dans « BIOS RAM
+# locations » du wiki : BIOS_USER_MODE $10FDAF, BIOS_START_FLAG $10FDB4, BIOS_P1STATUS..P1TIMER $10FD94-$10FD99,
+# BIOS_4P_REQUESTED $10FEF8, BIOS_4P_MODE $10FEFA, BIOS_4P_PLUGGED $10FEFB. Aucune instruction tracée, aucun PC consigné, aucun octet de ROM.
+#
+# 0. LES COMMUTATEURS. Source de MAME (src/mame/neogeo/neogeo.cpp, INPUT_PORTS_START(neogeo)) : SW:2 « Cabinet » Normal $02 /
+#    « VS Mode » $00 ; SW:3 « Controller » Joystick $04 / « Mahjong Panel » $00 (à ON par défaut sur neogeo_mj) ; SW:4,5 « COMM
+#    Setting (Cabinet No.) » 1 $18, 2 $10, 3 $08, 4 $00 ; SW:6 « COMM Setting (Link Enable) » ; SW:8 « Freeze ». Lus à $300001,
+#    actifs bas. J_DSW=1:02 met le 2 à ON, 1:04 le 3, 1:08 le 4, 1:10 le 5, 1:18 les deux, 1:20 le 6, 1:80 le 8.
+#
+# 1. CHAQUE COMMUTATEUR À ON DÈS LA TRAME 1, contre le même run tout à OFF. NVRAM neuve ; pièce à 1500, START à 1600, puis A toutes
+#    les 37 trames et quelques directions ; empreinte de chaque trame de 1 à 2600. Cinq jeux : aof, mslug, ssideki, ridhero (le jeu
+#    à liaison de la gamme, d'après MAME), kizuna (que MAME connaît aussi en version 4 joueurs). Colonnes : trames égales au run OFF
+#    par phase, première trame différente, trames de partie où BIOS_P1CURRENT égale celui du run OFF.
+#    Les runs sont reproductibles sauf mslug : relancés, les 30 runs OFF ressortent égaux à la trame près, mslug excepté (2448 et
+#    2452/2600 sous SNK, 2595 et 2596 sous UniBIOS).
+section	bios	machine	jeu	commutateur	boot 1-599	demo 600-1499	partie 1600-2600	premiere	P1CURRENT partie	constat
+1	snk	ng_mv2f	aof	2 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	ng_mv2f	aof	3 ON	599/599	804/900	266/1001	1148	1001/1001	effet : 1769/2600 égales
+1	snk	ng_mv2f	aof	4 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	ng_mv2f	aof	5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	ng_mv2f	aof	4+5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	ng_mv2f	aof	6 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	ng_mv2f	aof	8 ON	286/599	11/900	3/1001	287	784/1001	effet : 303/2600 égales, image figée 1001/1001 trames de partie (OFF 31), mode 0 à 2600 (OFF 2)
+1	snk	ng_mv2f	mslug	2 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	ng_mv2f	mslug	3 ON	599/599	597/900	959/1001	1061	1001/1001	effet : 2254/2600 égales ; mslug n'est pas reproductible d'un run à l'autre (horloge de l'hôte, SUPPOSÉ) : deux runs OFF identiques n'ont que 2448-2596 trames égales entre eux
+1	snk	ng_mv2f	mslug	4 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	ng_mv2f	mslug	5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	ng_mv2f	mslug	4+5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	ng_mv2f	mslug	6 ON	599/599	900/900	997/1001	2066	1001/1001	dans le bruit : 2596/2600 égales, deux runs OFF n'en ont que 2448/2600 entre eux
+1	snk	ng_mv2f	mslug	8 ON	290/599	10/900	0/1001	291	784/1001	effet : 309/2600 égales, image figée 1001/1001 trames de partie (OFF 484), mode 0 à 2600 (OFF 2) ; mslug n'est pas reproductible d'un run à l'autre (horloge de l'hôte, SUPPOSÉ) : deux runs OFF identiques n'ont que 2448-2596 trames égales entre eux
+1	snk	ng_mv2f	ssideki	2 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	ng_mv2f	ssideki	3 ON	597/599	898/900	138/1001	341	1001/1001	effet : 1733/2600 égales
+1	snk	ng_mv2f	ssideki	4 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	ng_mv2f	ssideki	5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	ng_mv2f	ssideki	4+5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	ng_mv2f	ssideki	6 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	ng_mv2f	ssideki	8 ON	502/599	4/900	0/1001	503	784/1001	effet : 512/2600 égales, image figée 1001/1001 trames de partie (OFF 304), mode 0 à 2600 (OFF 2)
+1	snk	ng_mv2f	ridhero	2 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	ng_mv2f	ridhero	3 ON	599/599	898/900	998/1001	758	1001/1001	effet : 2595/2600 égales
+1	snk	ng_mv2f	ridhero	4 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	ng_mv2f	ridhero	5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	ng_mv2f	ridhero	4+5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	ng_mv2f	ridhero	6 ON	599/599	158/900	286/1001	758	1001/1001	effet : 1064/2600 égales
+1	snk	ng_mv2f	ridhero	8 ON	285/599	6/900	16/1001	286	784/1001	effet : 312/2600 égales, image figée 1001/1001 trames de partie (OFF 836), mode 0 à 2600 (OFF 2)
+1	snk	ng_mv2f	kizuna	2 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	ng_mv2f	kizuna	3 ON	596/599	900/900	194/1001	341	1001/1001	effet : 1790/2600 égales
+1	snk	ng_mv2f	kizuna	4 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	ng_mv2f	kizuna	5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	ng_mv2f	kizuna	4+5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	ng_mv2f	kizuna	6 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	ng_mv2f	kizuna	8 ON	532/599	10/900	15/1001	533	784/1001	effet : 566/2600 égales, image figée 1001/1001 trames de partie (OFF 222), mode 0 à 2600 (OFF 2)
+1	snk	neogeo	aof	2 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	neogeo	aof	3 ON	599/599	804/900	266/1001	1148	1001/1001	effet : 1769/2600 égales
+1	snk	neogeo	aof	4 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	neogeo	aof	5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	neogeo	aof	4+5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	neogeo	aof	6 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	neogeo	aof	8 ON	286/599	11/900	3/1001	287	784/1001	effet : 303/2600 égales, image figée 1001/1001 trames de partie (OFF 31), mode 0 à 2600 (OFF 2)
+1	snk	neogeo	mslug	2 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	neogeo	mslug	3 ON	599/599	597/900	959/1001	1061	1001/1001	effet : 2254/2600 égales ; mslug n'est pas reproductible d'un run à l'autre (horloge de l'hôte, SUPPOSÉ) : deux runs OFF identiques n'ont que 2448-2596 trames égales entre eux
+1	snk	neogeo	mslug	4 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	neogeo	mslug	5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	neogeo	mslug	4+5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	neogeo	mslug	6 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	neogeo	mslug	8 ON	290/599	10/900	0/1001	291	784/1001	effet : 309/2600 égales, image figée 1001/1001 trames de partie (OFF 484), mode 0 à 2600 (OFF 2) ; mslug n'est pas reproductible d'un run à l'autre (horloge de l'hôte, SUPPOSÉ) : deux runs OFF identiques n'ont que 2448-2596 trames égales entre eux
+1	snk	neogeo	ssideki	2 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	neogeo	ssideki	3 ON	597/599	898/900	138/1001	341	1001/1001	effet : 1733/2600 égales
+1	snk	neogeo	ssideki	4 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	neogeo	ssideki	5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	neogeo	ssideki	4+5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	neogeo	ssideki	6 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	neogeo	ssideki	8 ON	502/599	4/900	0/1001	503	784/1001	effet : 512/2600 égales, image figée 1001/1001 trames de partie (OFF 304), mode 0 à 2600 (OFF 2)
+1	snk	neogeo	ridhero	2 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	neogeo	ridhero	3 ON	599/599	898/900	998/1001	758	1001/1001	effet : 2595/2600 égales
+1	snk	neogeo	ridhero	4 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	neogeo	ridhero	5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	neogeo	ridhero	4+5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	neogeo	ridhero	6 ON	599/599	158/900	286/1001	758	1001/1001	effet : 1064/2600 égales
+1	snk	neogeo	ridhero	8 ON	285/599	6/900	16/1001	286	784/1001	effet : 312/2600 égales, image figée 1001/1001 trames de partie (OFF 836), mode 0 à 2600 (OFF 2)
+1	snk	neogeo	kizuna	2 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	neogeo	kizuna	3 ON	596/599	900/900	194/1001	341	1001/1001	effet : 1790/2600 égales
+1	snk	neogeo	kizuna	4 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	neogeo	kizuna	5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	neogeo	kizuna	4+5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	neogeo	kizuna	6 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	snk	neogeo	kizuna	8 ON	532/599	10/900	15/1001	533	784/1001	effet : 566/2600 égales, image figée 1001/1001 trames de partie (OFF 222), mode 0 à 2600 (OFF 2)
+1	unibios40	ng_mv2f	aof	2 ON	599/599	874/900	961/1001	1232	1001/1001	effet : 2534/2600 égales
+1	unibios40	ng_mv2f	aof	3 ON	599/599	625/900	196/1001	843	1001/1001	effet : 1520/2600 égales
+1	unibios40	ng_mv2f	aof	4 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	unibios40	ng_mv2f	aof	5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	unibios40	ng_mv2f	aof	4+5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	unibios40	ng_mv2f	aof	6 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	unibios40	ng_mv2f	aof	8 ON	374/599	11/900	3/1001	375	784/1001	effet : 391/2600 égales, image figée 1001/1001 trames de partie (OFF 26), mode 0 à 2600 (OFF 2)
+1	unibios40	ng_mv2f	mslug	2 ON	599/599	898/900	952/1001	882	1001/1001	effet : 2549/2600 égales ; mslug n'est pas reproductible d'un run à l'autre (horloge de l'hôte, SUPPOSÉ) : deux runs OFF identiques n'ont que 2448-2596 trames égales entre eux
+1	unibios40	ng_mv2f	mslug	3 ON	599/599	897/900	949/1001	858	1001/1001	effet : 2545/2600 égales ; mslug n'est pas reproductible d'un run à l'autre (horloge de l'hôte, SUPPOSÉ) : deux runs OFF identiques n'ont que 2448-2596 trames égales entre eux
+1	unibios40	ng_mv2f	mslug	4 ON	599/599	897/900	1001/1001	1147	1001/1001	dans le bruit : 2597/2600 égales, deux runs OFF n'en ont que 2595/2600 entre eux
+1	unibios40	ng_mv2f	mslug	5 ON	599/599	897/900	1001/1001	1147	1001/1001	dans le bruit : 2597/2600 égales, deux runs OFF n'en ont que 2595/2600 entre eux
+1	unibios40	ng_mv2f	mslug	4+5 ON	599/599	897/900	1001/1001	1147	1001/1001	dans le bruit : 2597/2600 égales, deux runs OFF n'en ont que 2595/2600 entre eux
+1	unibios40	ng_mv2f	mslug	6 ON	599/599	895/900	1001/1001	878	1001/1001	dans le bruit : 2595/2600 égales, deux runs OFF n'en ont que 2595/2600 entre eux
+1	unibios40	ng_mv2f	mslug	8 ON	378/599	10/900	0/1001	379	784/1001	effet : 397/2600 égales, image figée 1001/1001 trames de partie (OFF 466), mode 0 à 2600 (OFF 2) ; mslug n'est pas reproductible d'un run à l'autre (horloge de l'hôte, SUPPOSÉ) : deux runs OFF identiques n'ont que 2448-2596 trames égales entre eux
+1	unibios40	ng_mv2f	ssideki	2 ON	599/599	899/900	996/1001	1119	1001/1001	effet : 2594/2600 égales
+1	unibios40	ng_mv2f	ssideki	3 ON	599/599	898/900	138/1001	1119	1001/1001	effet : 1735/2600 égales
+1	unibios40	ng_mv2f	ssideki	4 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	unibios40	ng_mv2f	ssideki	5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	unibios40	ng_mv2f	ssideki	4+5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	unibios40	ng_mv2f	ssideki	6 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	unibios40	ng_mv2f	ssideki	8 ON	401/599	4/900	0/1001	402	784/1001	effet : 411/2600 égales, image figée 1001/1001 trames de partie (OFF 306), mode 0 à 2600 (OFF 2)
+1	unibios40	ng_mv2f	ridhero	2 ON	599/599	900/900	999/1001	1602	1001/1001	effet : 2598/2600 égales
+1	unibios40	ng_mv2f	ridhero	3 ON	599/599	898/900	998/1001	846	1001/1001	effet : 2595/2600 égales
+1	unibios40	ng_mv2f	ridhero	4 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	unibios40	ng_mv2f	ridhero	5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	unibios40	ng_mv2f	ridhero	4+5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	unibios40	ng_mv2f	ridhero	6 ON	599/599	246/900	286/1001	846	1001/1001	effet : 1152/2600 égales
+1	unibios40	ng_mv2f	ridhero	8 ON	373/599	6/900	16/1001	374	784/1001	effet : 400/2600 égales, image figée 1001/1001 trames de partie (OFF 836), mode 0 à 2600 (OFF 2)
+1	unibios40	ng_mv2f	kizuna	2 ON	599/599	310/900	8/1001	874	1001/1001	effet : 926/2600 égales
+1	unibios40	ng_mv2f	kizuna	3 ON	599/599	900/900	167/1001	1602	1001/1001	effet : 1766/2600 égales
+1	unibios40	ng_mv2f	kizuna	4 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	unibios40	ng_mv2f	kizuna	5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	unibios40	ng_mv2f	kizuna	4+5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	unibios40	ng_mv2f	kizuna	6 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	unibios40	ng_mv2f	kizuna	8 ON	400/599	10/900	8/1001	401	784/1001	effet : 427/2600 égales, image figée 1001/1001 trames de partie (OFF 209), mode 0 à 2600 (OFF 2)
+1	unibios40	neogeo	aof	2 ON	599/599	874/900	961/1001	1232	1001/1001	effet : 2534/2600 égales
+1	unibios40	neogeo	aof	3 ON	599/599	625/900	196/1001	843	1001/1001	effet : 1520/2600 égales
+1	unibios40	neogeo	aof	4 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	unibios40	neogeo	aof	5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	unibios40	neogeo	aof	4+5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	unibios40	neogeo	aof	6 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	unibios40	neogeo	aof	8 ON	374/599	11/900	3/1001	375	784/1001	effet : 391/2600 égales, image figée 1001/1001 trames de partie (OFF 26), mode 0 à 2600 (OFF 2)
+1	unibios40	neogeo	mslug	2 ON	599/599	898/900	954/1001	882	1001/1001	effet : 2551/2600 égales ; mslug n'est pas reproductible d'un run à l'autre (horloge de l'hôte, SUPPOSÉ) : deux runs OFF identiques n'ont que 2448-2596 trames égales entre eux
+1	unibios40	neogeo	mslug	3 ON	599/599	897/900	949/1001	858	1001/1001	effet : 2545/2600 égales ; mslug n'est pas reproductible d'un run à l'autre (horloge de l'hôte, SUPPOSÉ) : deux runs OFF identiques n'ont que 2448-2596 trames égales entre eux
+1	unibios40	neogeo	mslug	4 ON	599/599	900/900	991/1001	2490	1001/1001	effet : 2590/2600 égales ; mslug n'est pas reproductible d'un run à l'autre (horloge de l'hôte, SUPPOSÉ) : deux runs OFF identiques n'ont que 2448-2596 trames égales entre eux
+1	unibios40	neogeo	mslug	5 ON	599/599	900/900	991/1001	2490	1001/1001	effet : 2590/2600 égales ; mslug n'est pas reproductible d'un run à l'autre (horloge de l'hôte, SUPPOSÉ) : deux runs OFF identiques n'ont que 2448-2596 trames égales entre eux
+1	unibios40	neogeo	mslug	4+5 ON	599/599	900/900	995/1001	2070	1001/1001	effet : 2594/2600 égales ; mslug n'est pas reproductible d'un run à l'autre (horloge de l'hôte, SUPPOSÉ) : deux runs OFF identiques n'ont que 2448-2596 trames égales entre eux
+1	unibios40	neogeo	mslug	6 ON	599/599	900/900	995/1001	2070	1001/1001	effet : 2594/2600 égales ; mslug n'est pas reproductible d'un run à l'autre (horloge de l'hôte, SUPPOSÉ) : deux runs OFF identiques n'ont que 2448-2596 trames égales entre eux
+1	unibios40	neogeo	mslug	8 ON	378/599	10/900	0/1001	379	784/1001	effet : 397/2600 égales, image figée 1001/1001 trames de partie (OFF 464), mode 0 à 2600 (OFF 2) ; mslug n'est pas reproductible d'un run à l'autre (horloge de l'hôte, SUPPOSÉ) : deux runs OFF identiques n'ont que 2448-2596 trames égales entre eux
+1	unibios40	neogeo	ssideki	2 ON	599/599	899/900	996/1001	1119	1001/1001	effet : 2594/2600 égales
+1	unibios40	neogeo	ssideki	3 ON	599/599	898/900	138/1001	1119	1001/1001	effet : 1735/2600 égales
+1	unibios40	neogeo	ssideki	4 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	unibios40	neogeo	ssideki	5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	unibios40	neogeo	ssideki	4+5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	unibios40	neogeo	ssideki	6 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	unibios40	neogeo	ssideki	8 ON	401/599	4/900	0/1001	402	784/1001	effet : 411/2600 égales, image figée 1001/1001 trames de partie (OFF 306), mode 0 à 2600 (OFF 2)
+1	unibios40	neogeo	ridhero	2 ON	599/599	900/900	999/1001	1602	1001/1001	effet : 2598/2600 égales
+1	unibios40	neogeo	ridhero	3 ON	599/599	898/900	998/1001	846	1001/1001	effet : 2595/2600 égales
+1	unibios40	neogeo	ridhero	4 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	unibios40	neogeo	ridhero	5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	unibios40	neogeo	ridhero	4+5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	unibios40	neogeo	ridhero	6 ON	599/599	246/900	286/1001	846	1001/1001	effet : 1152/2600 égales
+1	unibios40	neogeo	ridhero	8 ON	373/599	6/900	16/1001	374	784/1001	effet : 400/2600 égales, image figée 1001/1001 trames de partie (OFF 836), mode 0 à 2600 (OFF 2)
+1	unibios40	neogeo	kizuna	2 ON	599/599	310/900	8/1001	874	1001/1001	effet : 926/2600 égales
+1	unibios40	neogeo	kizuna	3 ON	599/599	900/900	167/1001	1602	1001/1001	effet : 1766/2600 égales
+1	unibios40	neogeo	kizuna	4 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	unibios40	neogeo	kizuna	5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	unibios40	neogeo	kizuna	4+5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	unibios40	neogeo	kizuna	6 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	unibios40	neogeo	kizuna	8 ON	400/599	10/900	8/1001	401	784/1001	effet : 427/2600 égales, image figée 1001/1001 trames de partie (OFF 209), mode 0 à 2600 (OFF 2)
+1	notre (8c8caefa)	ng_mv2f	aof	2 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	ng_mv2f	aof	3 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	ng_mv2f	aof	4 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	ng_mv2f	aof	5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	ng_mv2f	aof	4+5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	ng_mv2f	aof	6 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	ng_mv2f	aof	8 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	ng_mv2f	mslug	2 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	ng_mv2f	mslug	3 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	ng_mv2f	mslug	4 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	ng_mv2f	mslug	5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	ng_mv2f	mslug	4+5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	ng_mv2f	mslug	6 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	ng_mv2f	mslug	8 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	ng_mv2f	ssideki	2 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	ng_mv2f	ssideki	3 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	ng_mv2f	ssideki	4 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	ng_mv2f	ssideki	5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	ng_mv2f	ssideki	4+5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	ng_mv2f	ssideki	6 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	ng_mv2f	ssideki	8 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	ng_mv2f	ridhero	2 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	ng_mv2f	ridhero	3 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	ng_mv2f	ridhero	4 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	ng_mv2f	ridhero	5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	ng_mv2f	ridhero	4+5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	ng_mv2f	ridhero	6 ON	196/599	24/900	286/1001	197	1001/1001	effet : 530/2600 égales
+1	notre (8c8caefa)	ng_mv2f	ridhero	8 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	ng_mv2f	kizuna	2 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	ng_mv2f	kizuna	3 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	ng_mv2f	kizuna	4 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	ng_mv2f	kizuna	5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	ng_mv2f	kizuna	4+5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	ng_mv2f	kizuna	6 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	ng_mv2f	kizuna	8 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	aof	2 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	aof	3 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	aof	4 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	aof	5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	aof	4+5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	aof	6 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	aof	8 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	mslug	2 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	mslug	3 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	mslug	4 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	mslug	5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	mslug	4+5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	mslug	6 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	mslug	8 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	ssideki	2 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	ssideki	3 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	ssideki	4 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	ssideki	5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	ssideki	4+5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	ssideki	6 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	ssideki	8 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	ridhero	2 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	ridhero	3 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	ridhero	4 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	ridhero	5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	ridhero	4+5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	ridhero	6 ON	196/599	24/900	286/1001	197	1001/1001	effet : 530/2600 égales
+1	notre (8c8caefa)	neogeo	ridhero	8 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	kizuna	2 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	kizuna	3 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	kizuna	4 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	kizuna	5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	kizuna	4+5 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	kizuna	6 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+1	notre (8c8caefa)	neogeo	kizuna	8 ON	599/599	900/900	1001/1001	-	1001/1001	aucun effet : 2600/2600 trames égales
+# Lecture : sous les deux BIOS de référence, 4, 5 et 4+5 n'ont aucun effet ; 6 n'en a que sur ridhero, et sous les trois BIOS, notre
+# image comprise : c'est le jeu qui lit le commutateur (992 trames de partie sur 1001 égales à la précédente, contre 836 à OFF,
+# sous SNK). 8 fige l'image dès le boot (section 3). 3 change la partie sur les cinq jeux, sous les deux BIOS (section 4). 2 n'a
+# d'effet que sous UniBIOS : quelques trames isolées sur aof, ssideki et ridhero, l'écran de kizuna (section 6). Notre image : aucun
+# commutateur n'a d'effet, sauf le 6 sur ridhero, par le jeu.
+#
+# 2. LE 8, « FREEZE », À CHAUD. ng_mv2f, mêmes entrées que la section 1, le commutateur à ON pendant 300 trames, en démo ou en partie.
+section	bios	jeu	bascule	constat
+2	snk	aof	démo, 8 à ON de 1000 à 1300	image égale à la précédente 299/299 (OFF 138) ; YM2610 1098 écritures (OFF 2702) ; P1CURRENT 0 ; après : 96/280 trames égales à OFF au même instant, meilleur décalage 300 trames (129/280)
+2	snk	aof	partie, 8 à ON de 2000 à 2300	image égale à la précédente 297/299 (OFF 0) ; YM2610 3028 écritures (OFF 3458) ; P1CURRENT 0 ; après : 0/280 trames égales à OFF au même instant, meilleur décalage 300 trames (63/280)
+2	snk	ssideki	démo, 8 à ON de 1000 à 1300	image égale à la précédente 298/299 (OFF 47) ; YM2610 4336 écritures (OFF 4374) ; P1CURRENT 0 ; après : 97/280 trames égales à OFF au même instant, meilleur décalage 300 trames (167/280)
+2	snk	ssideki	partie, 8 à ON de 2000 à 2300	image égale à la précédente 298/299 (OFF 152) ; YM2610 5080 écritures (OFF 5792) ; P1CURRENT 0 ; après : 0/280 trames égales à OFF au même instant, meilleur décalage 296 trames (266/280)
+2	unibios40	aof	démo, 8 à ON de 1000 à 1300	image égale à la précédente 299/299 (OFF 167) ; YM2610 1098 écritures (OFF 1830) ; P1CURRENT 0 ; après : 96/280 trames égales à OFF au même instant, meilleur décalage 300 trames (184/280)
+2	unibios40	aof	partie, 8 à ON de 2000 à 2300	image égale à la précédente 297/299 (OFF 0) ; YM2610 2994 écritures (OFF 3402) ; P1CURRENT 0 ; après : 0/280 trames égales à OFF au même instant, meilleur décalage 300 trames (124/280)
+2	unibios40	ssideki	démo, 8 à ON de 1000 à 1300	image égale à la précédente 239/299 (OFF 82) ; YM2610 4514 écritures (OFF 4606) ; P1CURRENT 0 ; après : 97/280 trames égales à OFF au même instant, meilleur décalage 300 trames (181/280)
+2	unibios40	ssideki	partie, 8 à ON de 2000 à 2300	image égale à la précédente 298/299 (OFF 152) ; YM2610 5080 écritures (OFF 5792) ; P1CURRENT 0 ; après : 0/280 trames égales à OFF au même instant, meilleur décalage 296 trames (266/280)
+2	notre (8c8caefa)	aof	démo, 8 à ON de 1000 à 1300	image égale à la précédente 179/299 (OFF 179) ; YM2610 3682 écritures (OFF 3682) ; P1CURRENT 0 ; après : 280/280 trames égales à OFF au même instant, meilleur décalage 0 trames (280/280)
+2	notre (8c8caefa)	aof	partie, 8 à ON de 2000 à 2300	image égale à la précédente 0/299 (OFF 0) ; YM2610 3422 écritures (OFF 3422) ; P1CURRENT 0,1,10,11,20 ; après : 280/280 trames égales à OFF au même instant, meilleur décalage 0 trames (280/280)
+2	notre (8c8caefa)	ssideki	démo, 8 à ON de 1000 à 1300	image égale à la précédente 201/299 (OFF 201) ; YM2610 2386 écritures (OFF 2386) ; P1CURRENT 0 ; après : 280/280 trames égales à OFF au même instant, meilleur décalage 0 trames (280/280)
+2	notre (8c8caefa)	ssideki	partie, 8 à ON de 2000 à 2300	image égale à la précédente 167/299 (OFF 167) ; YM2610 5658 écritures (OFF 5658) ; P1CURRENT 0,1,10,11,20 ; après : 280/280 trames égales à OFF au même instant, meilleur décalage 0 trames (280/280)
+# Lecture : sous les deux BIOS de référence, le 8 à ON fige l'image, en démo comme en partie, dès la trame qui suit, et BIOS_P1CURRENT
+# reste à 0 : le jeu est suspendu, les entrées ne lui parviennent plus. Le Z80 continue d'écrire au YM2610 (de 88 à 99 % des
+# écritures du run OFF ; aof en démo, 41 et 60 %) : le son n'est pas coupé par le BIOS. Remis à OFF, le jeu reprend où il était : la
+# meilleure correspondance avec le run OFF est un décalage de 296 à 300 trames, la durée du gel (partielle, les entrées du run étant
+# posées à des trames fixes). Aucun RESET : le watchdog est servi pendant le gel. Notre image : aucun effet, chaque trame égale au
+# run OFF.
+#
+# 3. LE 8 À ON DÈS LA TRAME 1, puis à OFF à 1000 (aof, ng_mv2f).
+section	bios	constat
+3	snk	section 1 : l'image diffère du run OFF dès la trame 287 et reste noire jusqu'à 2600 ; mode 0, START refusé, aucun RESET. Remis à OFF à 1000 : le boot reprend, la main au jeu (mode 01) à 1467 au lieu de 750
+3	unibios40	diffère dès la trame 375, noir ensuite ; remis à OFF à 1000 : la main au jeu à 1467 au lieu de 839
+3	notre (8c8caefa)	aucun effet (section 1)
+# Lecture : le gel prend aussi pendant le boot, juste après le test mémoire de SNK : la machine attend écran noir.
+#
+# 4. LE 3, « MAHJONG PANEL », AVEC UN JOYSTICK (ng_mv2f, ssideki, droite tenue de 1750 à 1809). BIOS_P1STATUS..P1REPEAT relevés.
+section	bios	commutateur	constat
+4	snk, unibios40	OFF	$10FD94 (STATUS) = 0 ; à 1751 CURRENT = CHANGE = REPEAT = $08, PREVIOUS = 0 ; à 1752 PREVIOUS = $08, CHANGE = REPEAT = 0 ; TIMER décompte de $10 : le front et la répétition du wiki
+4	snk, unibios40	ON dès la trame 1	STATUS = 3 (« Mahjong controller ») ; à 1751 PREVIOUS = CURRENT = CHANGE = $08, et CHANGE reste $08 tant que la touche est tenue ; REPEAT et TIMER restent à 0 ; même relevé sous les deux BIOS
+4	snk, unibios40	ON, écritures de REG_POUTPUT	le BIOS écrit $09 et $24 en plus de $00, $12 et $1B (UniBIOS aussi $19) à chaque trame : quatre valeurs de sélection au lieu de deux (aof, ng_mv2f)
+4	snk	basculé à ON (ou OFF) à 1000	STATUS suit à la trame 1503, la pièce mise à 1500, pas avant
+4	unibios40	de même	STATUS garde la position du boot jusqu'à 2600 au moins
+4	unibios40	ON dès la trame 1, écran TEST (commutateur 1 aussi à ON), bas puis A à 450 et 470	le curseur ne bouge pas : la liste du menu est encore affichée à 700 (SETTING UP THE HARD DIP non ouvert) ; sous SNK, le même run ouvre SETTING UP THE HARD DIP (un run chacun)
+4	notre (8c8caefa)	ON	STATUS reste 0, REG_POUTPUT reçoit les mêmes valeurs qu'à OFF, aucune trame ne change (section 1)
+# Lecture : avec un joystick, le 3 à ON garde la lecture du joystick (CURRENT identique au run OFF sur toute la partie, section 1),
+# mais déclare un panneau de mahjong et change ce que le BIOS rend au jeu : plus de front ni de répétition. Une direction tenue est
+# vue comme un appui à chaque trame ; sur ssideki, la sélection d'équipe s'arrête sur une autre équipe (FDR au lieu d'ITL, image de
+# la trame 1800), et la partie diverge.
+#
+# 5. LE 3 AVEC UN PANNEAU DE MAHJONG (machine janshin de MAME). Pièce à 1500, START du panneau à 1600, puis A, A, H, Chi, C, A du
+#    panneau à 1900, 2000, 2100, 2200, 2300, 2400 (6 trames chacune).
+section	bios	commutateur	constat
+5	japan, euro, unibios40	OFF	STATUS 0 ; H donne CURRENT $01, C donne CURRENT $04, Chi rien : le panneau est lu comme un joystick, une rangée de touches
+5	japan, euro, unibios40	ON	STATUS 3 ; H donne CURRENT $01 et CHANGE 0, Chi donne CHANGE $02, C donne PREVIOUS $04 : les touches arrivent dans trois octets selon leur rangée ; REG_POUTPUT reçoit $09 et $24 en plus ; 2370 à 2458 trames sur 2600 égales au run OFF, la première différence après le START (japan 1604) ou en démo (euro 1277, unibios40 1365)
+5	notre (8c8caefa)	OFF et ON	STATUS 0 et CURRENT 0 sur toute la partie, aucune touche du panneau lue ; 2600/2600 trames égales entre les deux positions ; le START du panneau est pris (mode 2)
+# Lecture : sous les deux BIOS de référence, un panneau de mahjong n'est lu entièrement que commutateur 3 à ON. Notre image ne lit le
+# panneau dans aucune position : un jeu de mahjong n'y reçoit aucune touche hors START. Le bouton A n'a été vu sous aucun BIOS : son
+# appui tombait peut-être hors de la fenêtre de lecture, NON VÉRIFIÉ.
+#
+# 6. LE 2, « VS MODE ». Cellules $10FD80-$10FDFF et $10FEE0-$10FEFF relevées aux trames 800, 1000 et 1650, OFF contre ON (kizuna).
+section	bios	constat
+6	snk (euro)	aucune cellule ne diffère
+6	unibios40	une seule : $10FEF8 (« BIOS_4P_REQUESTED », wiki : « Keeps a local copy of hard dip 2 status on bootup », $2 : dip 2 à ON) vaut $02 ; $10FEFA (4P_MODE) et $10FEFB (4P_PLUGGED) restent 0 : aucune carte 4 joueurs
+6	snk (japan)	$10FEF8 vaut $02 de même, $10FEFA et $10FEFB 0
+6	unibios40	basculé à ON (ou OFF) à 1000 : $10FEF8 suit à la trame 1503, la pièce mise à 1500
+6	unibios40	kizuna, ON : deux compteurs CREDIT en bas de l'écran au lieu d'un, l'écran TAG TEAM SELECT autrement disposé (images 900-2400) ; 926/2600 trames égales au run OFF ; aof, ssideki, ridhero : 66, 6 et 2 trames isolées différentes, non regardées
+6	notre (8c8caefa)	aucun effet (section 1)
+# Lecture : le 2 n'agit sur aucun jeu par lui-même ; les BIOS « compatibles 4P » (wiki) en recopient l'état dans $10FEF8, que kizuna lit.
+# Le BIOS SNK européen ne le fait pas, le japonais si. Sans carte 4 joueurs, 4P_MODE reste 0.
+#
+# 7. L'ÉCRAN TEST : SETTING UP THE HARD DIP (commutateur 1 à ON au boot, bas à 450, A à 470, plan fixe à 700 ; aof, ng_mv2f).
+section	bios	commutateurs	constat
+7	snk	tous OFF	SETTING MODE ON, COMMUNICATION OFF, FREE PLAY OFF, STOP MODE OFF ; aucune ligne pour le 2 ni le 3
+7	snk	2 ON, 3 ON, 4 ON, 5 ON, 4+5 ON, 2+3 ON	écran inchangé
+7	snk	6 ON ; 6+4 ; 6+5 ; 6+4+5	COMMUNICATION ON [No 1] ; [No 2] ; [No 3] ; [No 4]
+7	snk	8 ON	STOP MODE ON
+7	unibios40	tous OFF	TEST MODE ON, COIN TYPE NORMAL, CONTROLLER JOYSTICK, NETWORK ID OFF, FREE PLAY OFF, STOP MODE OFF
+7	unibios40	2 ON	COIN TYPE VS-MODE
+7	unibios40	3 ON	l'écran ne s'ouvre pas (section 4)
+7	unibios40	4 ON, 5 ON, 4+5 ON	écran inchangé
+7	unibios40	6 ON ; 6+4 ; 6+5 ; 6+4+5	NETWORK ID <ID 1> ; <ID 2> ; <ID 3> ; <ID 4>
+7	unibios40	8 ON	STOP MODE ON
+# Lecture : le numéro de borne (4 et 5) n'est affiché que liaison (6) à ON. Les deux BIOS nomment le 8 « STOP MODE ». Notre image :
+# INPUT TEST montre l'état des huit commutateurs (DECISIONS §17 pt 8), sans nom de fonction.
+#
+# 8. LE PANNEAU DE MAHJONG, TOUCHE PAR TOUCHE (mesuré le 2026-10-27 après la décision de l'utilisateur, avant le code ; machine
+#    janshin). Pièce à 1500, START du panneau à 1600 ; chaque touche seule tenue 10 trames, toutes les 40 trames dès 1900, puis
+#    A+H+PON à 2660 et A+B à 2700. Relevé chaque trame : $10FD94-$10FDA5 (BIOS_P1STATUS à P1TIMER, puis les blocs P2 et P3 de
+#    « BIOS RAM locations »). Constat : les octets qui changent, « décalage:valeur » en hexadécimal depuis la trame de l'appui ;
+#    les minuteurs $10FD99 et $10FD9F, qui décomptent sans appui, sont écartés. Lignes données pour -bios japan ; -bios euro et
+#    unibios40 identiques à l'octet, aux deux positions (comparaison des 42 lignes). Le panneau, lu dans mahjong.cpp de MAME :
+#    rangée 0 A-G, rangée 1 H-N, rangée 2 PON, CHI, KAN, RON, REACH, bit 0 d'abord ; REG_POUTPUT ($380001) bits 0-2 choisissent
+#    les rangées de P1 (neogeo.cpp, io_control_w).
+section	bios	commutateur 3	touche	constat (décalage depuis l'appui : valeur)
+8	snk (japan)	ON	A	$95[0:0 1:1 11:0] $A1[0:0 1:1 2:0]
+8	snk (japan)	ON	B	$95[0:0 1:2 11:0] $A1[0:0 1:2 2:0]
+8	snk (japan)	ON	C	$95[0:0 1:4 11:0] $A1[0:0 1:4 2:0]
+8	snk (japan)	ON	D	$95[0:0 1:8 11:0] $A1[0:0 1:8 2:0]
+8	snk (japan)	ON	E	$95[0:0 1:10 11:0] $A1[0:0 1:10 2:0]
+8	snk (japan)	ON	F	$95[0:0 1:20 11:0] $A1[0:0 1:20 2:0]
+8	snk (japan)	ON	G	$95[0:0 1:40 11:0] $A1[0:0 1:40 2:0]
+8	snk (japan)	ON	H	$96[0:0 1:1 11:0] $A2[0:0 1:1 2:0]
+8	snk (japan)	ON	I	$96[0:0 1:2 11:0] $A2[0:0 1:2 2:0]
+8	snk (japan)	ON	J	$96[0:0 1:4 11:0] $A2[0:0 1:4 2:0]
+8	snk (japan)	ON	K	$96[0:0 1:8 11:0] $A2[0:0 1:8 2:0]
+8	snk (japan)	ON	L	$96[0:0 1:10 11:0] $A2[0:0 1:10 2:0]
+8	snk (japan)	ON	M	$96[0:0 1:20 11:0] $A2[0:0 1:20 2:0]
+8	snk (japan)	ON	N	$96[0:0 1:40 11:0] $A2[0:0 1:40 2:0]
+8	snk (japan)	ON	Pon	$97[0:0 1:1 11:0] $A3[0:0 1:1 2:0]
+8	snk (japan)	ON	Chi	$97[0:0 1:2 11:0] $A3[0:0 1:2 2:0]
+8	snk (japan)	ON	Kan	$97[0:0 1:4 11:0] $A3[0:0 1:4 2:0]
+8	snk (japan)	ON	Ron	$97[0:0 1:8 11:0] $A3[0:0 1:8 2:0]
+8	snk (japan)	ON	Reach	$97[0:0 1:10 11:0] $A3[0:0 1:10 2:0]
+8	snk (japan)	ON	A+H+Pon	$95[0:0 1:1 11:0] $96[0:0 1:1 11:0] $97[0:0 1:1 11:0] $A1[0:0 1:1 2:0] $A2[0:0 1:1 2:0] $A3[0:0 1:1 2:0]
+8	snk (japan)	ON	A+B	$95[0:0 1:3 11:0] $A1[0:0 1:3 2:0]
+8	snk (japan)	OFF	A	$95[0:0 2:1 12:0] $96[0:0 1:1 11:0] $97[0:0 1:1 2:0] $98[0:0 1:1 2:0]
+8	snk (japan)	OFF	B	$95[0:0 2:2 12:0] $96[0:0 1:2 11:0] $97[0:0 1:2 2:0] $98[0:0 1:2 2:0]
+8	snk (japan)	OFF	C	$95[0:0 2:4 12:0] $96[0:0 1:4 11:0] $97[0:0 1:4 2:0] $98[0:0 1:4 2:0]
+8	snk (japan)	OFF	D	$95[0:0 2:8 12:0] $96[0:0 1:8 11:0] $97[0:0 1:8 2:0] $98[0:0 1:8 2:0]
+8	snk (japan)	OFF	E	$95[0:0 2:10 12:0] $96[0:0 1:10 11:0] $97[0:0 1:10 2:0] $98[0:0 1:10 2:0]
+8	snk (japan)	OFF	F	$95[0:0 2:20 12:0] $96[0:0 1:20 11:0] $97[0:0 1:20 2:0] $98[0:0 1:20 2:0]
+8	snk (japan)	OFF	G	$95[0:0 2:40 12:0] $96[0:0 1:40 11:0] $97[0:0 1:40 2:0] $98[0:0 1:40 2:0]
+8	snk (japan)	OFF	H	$95[0:0 2:1 12:0] $96[0:0 1:1 11:0] $97[0:0 1:1 2:0] $98[0:0 1:1 2:0]
+8	snk (japan)	OFF	I	$95[0:0 2:2 12:0] $96[0:0 1:2 11:0] $97[0:0 1:2 2:0] $98[0:0 1:2 2:0]
+8	snk (japan)	OFF	J	$95[0:0 2:4 12:0] $96[0:0 1:4 11:0] $97[0:0 1:4 2:0] $98[0:0 1:4 2:0]
+8	snk (japan)	OFF	K	$95[0:0 2:8 12:0] $96[0:0 1:8 11:0] $97[0:0 1:8 2:0] $98[0:0 1:8 2:0]
+8	snk (japan)	OFF	L	$95[0:0 2:10 12:0] $96[0:0 1:10 11:0] $97[0:0 1:10 2:0] $98[0:0 1:10 2:0]
+8	snk (japan)	OFF	M	$95[0:0 2:20 12:0] $96[0:0 1:20 11:0] $97[0:0 1:20 2:0] $98[0:0 1:20 2:0]
+8	snk (japan)	OFF	N	$95[0:0 2:40 12:0] $96[0:0 1:40 11:0] $97[0:0 1:40 2:0] $98[0:0 1:40 2:0]
+8	snk (japan)	OFF	Pon	rien
+8	snk (japan)	OFF	Chi	rien
+8	snk (japan)	OFF	Kan	rien
+8	snk (japan)	OFF	Ron	rien
+8	snk (japan)	OFF	Reach	rien
+8	snk (japan)	OFF	A+H+Pon	$95[0:0 2:1 12:0] $96[0:0 1:1 11:0] $97[0:0 1:1 2:0] $98[0:0 1:1 2:0]
+8	snk (japan)	OFF	A+B	$95[0:0 2:3 12:0] $96[0:0 1:3 11:0] $97[0:0 1:3 2:0] $98[0:0 1:3 2:0]
+# Lecture : à ON, BIOS_P1STATUS à 3 ; la rangée 0 tenue dans $10FD95, la 1 dans $10FD96, la 2 dans $10FD97, la trame qui suit
+# l'appui et tant qu'elle est tenue ; leur front, une trame, dans $10FDA1, $10FDA2, $10FDA3 ; ni répétition ni autre octet. À
+# OFF, BIOS_P1STATUS à 0, et le panneau est un joystick : les rangées 0 et 1 confondues (A et H donnent le même bit) dans les
+# octets P1 ordinaires (CURRENT $10FD96 tenu, PREVIOUS $10FD95 une trame plus tard, CHANGE $10FD97 et REPEAT $10FD98 au front),
+# la rangée 2 jamais lue. La correspondance est complète : 19 touches et deux appuis multiples, sans exception.
+# Notre image avant ce lot : rien du panneau n'était lu, à aucune position (section 5). Après (#1445) : les 42 lignes identiques
+# à celles du BIOS SNK japonais, aux deux positions, sur une construction intermédiaire du lot (4c62bd91…, la même lecture du
+# panneau) ; sur l'image du lot, 66c240b7…, les scènes dip-mahjong et dip-mj-off retrouvent les 21 appuis.

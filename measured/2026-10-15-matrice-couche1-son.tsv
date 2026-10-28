@@ -1,0 +1,31 @@
+# La matrice de la couche 1 APRES le handshake son du boot, le 2026-10-15 au soir.
+# Le nombre passe de 11/17 (measured/2026-10-15-matrice-couche1-rte.tsv) a 13/17, meme regle
+# ("joue" ET vifs_max non nul) : wjammers et trally se debloquent — le boot bascule desormais
+# la M1 de la cartouche (REG_CRTFIX) et fait le handshake son que la reference fait.
+# Seules les lignes sprixe sont relevees : les autres BIOS sont inchanges et le banc est
+# deterministe.
+#
+# RESTENT QUATRE, deux familles : garou, mslug3, svc (figes noirs — les trois jeux a
+# protection SMA/PVC du corpus) ; kof98 (verdict "joue" mais vifs 0, vitesse ~58 %).
+# Causes non diagnostiquees a ce releve.
+#
+# Image : la branche feat/bios-handshake-son au commit ed6ed7bb,
+# sha256 31b66a34473dfc4d… (build/construire.sh).
+jeu	bios	verdict	vifs_max	vitesse_pct	controle
+aof	sprixe	joue (plus longue pose 0 tr.)	71680	2070.59	ok
+garou	sprixe	FIGE dès 100 (3000 trames)	0	63.58	ok
+joyjoy	sprixe	joue (plus longue pose 0 tr.)	15939	1952.84	ok
+kof2003	sprixe	joue (plus longue pose 0 tr.)	54336	2243.15	ok
+kof94	sprixe	joue (plus longue pose 0 tr.)	12452	1860.89	ok
+kof98	sprixe	joue (plus longue pose 0 tr.)	0	58.01	ok
+lbowling	sprixe	joue (plus longue pose 0 tr.)	65642	2152.00	ok
+mslug	sprixe	joue (plus longue pose 0 tr.)	66955	2228.46	ok
+mslug3	sprixe	FIGE dès 100 (2500 trames)	0	58.18	ok
+nam1975	sprixe	joue (plus longue pose 0 tr.)	71680	2312.19	ok
+puzzledp	sprixe	joue (plus longue pose 0 tr.)	71680	2121.97	ok
+ridhero	sprixe	joue (plus longue pose 0 tr.)	71680	2092.45	ok
+samsho2	sprixe	joue (plus longue pose 0 tr.)	71680	2127.80	ok
+ssideki4	sprixe	joue (plus longue pose 0 tr.)	69568	1982.55	ok
+svc	sprixe	FIGE dès 100 (3400 trames)	0	2719.62	ok
+trally	sprixe	joue (plus longue pose 0 tr.)	71486	2122.09	ok
+wjammers	sprixe	joue (plus longue pose 400 tr.)	71680	1923.95	ok

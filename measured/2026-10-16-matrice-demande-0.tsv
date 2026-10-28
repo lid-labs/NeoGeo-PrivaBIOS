@@ -1,0 +1,31 @@
+# La matrice APRES la table des slots (src/c0/c0.s : la demande 0 au premier boot seulement),
+# le 2026-10-16. Diagnostic et mecanisme : 2026-10-16-demande-0-slots.tsv.
+# Resultat : 19/20 (17 avant) — kof98 et mslug3 JOUENT, tous deux FIGE au releve precedent.
+# garou : aucun releve — MAME segfault (sortie 139) juste apres la remise en demande 2 de son
+# second boot ; il etait FIGE avant. Temoins du corpus de 17 : 16/17 (14 avant).
+# Deux passes sur la meme image : les dix jeux sensibles (agent d'implementation), puis les dix autres.
+# Seules les lignes sprixe sont relevees ; controles de substitution tous ok hors garou, dont le
+# journal MAME porte bien WRONG CHECKSUMS (substitution active).
+#
+# Image : la branche feat/bios-demande-0, sha256 2691f6d57de43f57…
+jeu	bios	verdict	vifs_max	vitesse_pct	controle
+kof98	sprixe	joue (plus longue pose 0 tr.)	68096	1249.91	ok
+garou	sprixe	aucun relevé			ALERTE:aucun-releve
+mslug3	sprixe	joue (plus longue pose 0 tr.)	65120	1314.85	ok
+kof94	sprixe	joue (plus longue pose 0 tr.)	68096	1232.39	ok
+flipshot	sprixe	joue (plus longue pose 0 tr.)	68096	1463.14	ok
+neomrdo	sprixe	joue (plus longue pose 0 tr.)	67534	1251.66	ok
+svc	sprixe	joue (plus longue pose 0 tr.)	66189	1155.90	ok
+puzzledp	sprixe	joue (plus longue pose 0 tr.)	68096	1537.01	ok
+joyjoy	sprixe	joue (plus longue pose 0 tr.)	71281	1417.48	ok
+wjammers	sprixe	joue (plus longue pose 0 tr.)	68096	1350.68	ok
+aof	sprixe	joue (plus longue pose 0 tr.)	68096	1469.62	ok
+kof2003	sprixe	joue (plus longue pose 0 tr.)	66391	1306.00	ok
+lbowling	sprixe	joue (plus longue pose 0 tr.)	57983	1481.33	ok
+magdrop2	sprixe	joue (plus longue pose 0 tr.)	67792	1417.67	ok
+mslug	sprixe	joue (plus longue pose 0 tr.)	67321	1538.30	ok
+nam1975	sprixe	joue (plus longue pose 0 tr.)	27604	1409.98	ok
+ridhero	sprixe	joue (plus longue pose 0 tr.)	71680	1383.32	ok
+samsho2	sprixe	joue (plus longue pose 0 tr.)	67829	1390.26	ok
+ssideki4	sprixe	joue (plus longue pose 0 tr.)	71197	1314.94	ok
+trally	sprixe	joue (plus longue pose 0 tr.)	70605	1515.75	ok

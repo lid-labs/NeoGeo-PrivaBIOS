@@ -1,0 +1,158 @@
+# Le titre après game over, DEMO_END à SELECT (docs/RELECTURE-CONTRATS.md, section du 2026-10-23). Relevé du 2026-10-23.
+# MAME 0.286, machine neogeo (MV-6F), -bios euro pour la référence, -cart1 (-cart2) par la liste logicielle neogeo (-hashpath <dossier hash de MAME>), -video none -sound none
+# -nothrottle, SDL_MAC_BACKGROUND_APP=1, NVRAM neuve et isolée par run. Hôte : Apple M4 Pro, 14 cœurs, macOS 26.6.2, un catalogue (2 MAME) tournant à côté. Notre image chargée par un
+# neogeo.zip dont seul le membre sp-s2.sp1 est remplacé (WRONG CHECKSUMS au journal : 1 sur chaque run de notre image, 0 sous la référence).
+# Images : avant = celle de main (bf73581b, git archive, build/construire.sh src/c0, sha256 112480d25eb38898…2b78dbd2) ; apres = celle de ce lot (sha256 e4b2f0c91a0ab389…b17dc9fd).
+# Jig : bench/multislot.lua (MS_PLAGES=1, MS_ENTREES, MS_SUIVRE), chargé par l'enveloppe non versionnée de 2026-10-23-led-et-remises.tsv (mêmes lectures de l'en-tête de la cartouche,
+#   des points d'entrée publics et des vecteurs auto ; mêmes écritures, valeur et côté de l'écrivain « bios » / « jeu » d'après la région du PC, SANS adresse ; $10FE00-$10FEFF du BIOS
+#   compris), et son option CP_POSER444 : à la première lecture de $C00444 après la trame dite, un octet de backup RAM posé (REG_SRAMUNLOCK, l'octet, REG_SRAMLOCK), dit à chaque fois.
+#   Les rejeux DEMO_END chargent en plus l'enveloppe de 2026-10-22-piece-demo-end.tsv. Fractions de trame : le temps émulé depuis la fin de la trame d'avant, sur 1/59,185 s.
+# Aucun PC consigné (le PC n'est lu que pour attribuer un accès au BIOS ou au jeu), aucun octet de la ROM du BIOS (docs/DECISIONS.md §8) ; aucun code de jeu lu. Valeurs écrites en RAM, en backup RAM et en registres, leurs trames, leur ordre, les appels comptés.
+# Pages lues (NeoGeo Development Wiki) : « BIOS RAM locations » — $10FEC5 BIOS_TITLE_MODE, $10FEBF BIOS_BRAM_USED, $10FDDA BIOS_COMPULSION_TIMER ; « USER subroutine » (le double titre).
+# Runs (plan d'entrées ; fenêtre ; ref / avant-apres) :
+#   go nam1975 2000:piece,2100:start, game over sans crédit (6850-6866 / 5860-5890) ; acl aof 2000:piece,2030:piece,2100:start, game over avec un crédit, jusqu'à 10800 / 10500
+#   (8845-8870 / 8550-8580) ; go-35 = go avec $D00035 ← $01 posé à l'entrée du code 3 (6800 / 5800) ; c2-35 nam1975 2000:piece,2100:start, fin de démo par le code 2 avec
+#   $D00035 ← $01 posé à son entrée (8700 / 7700 ; 8748-8770 / 7765-7790) ; k10 puzzledp + aof 1000:piece,1200:suivant,1213:suivant (995-1230) ; boot nam1975 sans entrée (1-300) ;
+#   c2 nam1975 2000:piece,2100:start, fin de démo par le code 2 (8748-8760 / 7760-7790). Les runs ref de boot, c2, go et k10 sont ceux de 2026-10-23-led-et-remises.tsv (mêmes plans,
+#   même enveloppe), et ses runs apres (même image que avant ici) tiennent lieu de avant pour boot, c2, go et les rejeux DEMO_END et multi-slot.
+#
+# 1. LE CODE 3 : BIOS_TITLE_MODE, BIOS_BRAM_USED, LE DÉPART FORCÉ. MESURÉ, la référence, à R+1 (R = l'entrée de SYSTEM_RETURN, code 3) : à 0,47 $10FEC5 ← $00, $10FEBF ← $01,
+#    PLAY TIME ← 0, $10FEBF ← $00, $10FEBF ← $01, $10FD81 ← $02 et la sauvegarde ; $10FEBF ← $00 juste avant les écritures de remise (0,92 de R+1 avec un crédit de P1, 0,38 de R+2
+#    sinon) ; avec un crédit — $D00034, ou $D00035 seul —, le mot $10FDDA ← $303B juste avant $10FD80 ← $02 ; $10FEBF ← $00 encore avant REG_SWPROM. Avec $D00035 seul : le titre
+#    (demande 3), $10FDDA armé, mais au rythme d'une fin de partie sans crédit (0,38 de R+2, remise à R+3). Le départ forcé décompte au titre : PLAYER_START à R+1823 (aof).
+#    Notre image avant : ni $10FEC5, ni $10FEBF, ni $10FDDA ; $D00035 seul traité comme un crédit de P1 (remise à R+2). Écrit : src/c0/c0.s _sysret_fin_partie ; _remise_tenue
+#    (%d3 pour $10FD80, $10FEBF ← $00 avant REG_SWPROM) ; _remettre_a_user ($10FEBF ← $00 après $10FD80 ← $80 / $82). Après : les écritures et leurs instants égaux à la référence sur
+#    les trois runs ; PLAYER_START à R+1811 contre R+1823 — l'écart est le double titre, NON REPRIS (plus bas). Le second tableau compte, dans toutes les fenêtres de ce relevé, les
+#    remises précédées dans leur trame de $10FEBF ← $00 après $10FD80 ← $8x (les fenêtres diffèrent par BIOS, d'où les totaux).
+#    Colonnes : run ; bios ; R ; écritures du BIOS de R à la remise (+trame:fraction cellule=valeur) ; remise ; demande ; DEMO_END lu après la remise ; PLAYER_START lu après R.
+run	bios	R (E444 03)	ecritures du BIOS de R a la remise (+trame:fraction cellule=valeur ; C5 $10FEC5, BF $10FEBF, DA/DB $10FDDA/DB, 81/80 $10FD81/80, PT PLAY TIME)	remise	demande	DEMO_END apres la remise	PLAYER_START apres R
+go	ref	6858	+1:.471 C5=00 +1:.471 BF=01 +1:.473 PT=00 +1:.473 BF=00 +1:.473 BF=01 +1:.473 81=02 +2:.383 BF=00 +3:.020 BF=00 +3:.020 SWPROM=02	R+3	02	-	-
+go	avant	5877	+1:.472 PT=00 +1:.472 81=02 +3:.014 SWPROM=F0	R+3	02	-	-
+go	apres	5877	+1:.472 C5=00 +1:.472 BF=01 +1:.472 PT=00 +1:.472 BF=00 +1:.472 BF=01 +1:.472 81=02 +2:.383 BF=00 +3:.014 BF=00 +3:.014 SWPROM=F0	R+3	02	-	-
+acl	ref	8849	+1:.472 C5=00 +1:.472 BF=01 +1:.473 PT=00 +1:.473 BF=00 +1:.474 BF=01 +1:.474 81=02 +1:.919 BF=00 +1:.920 DA=30 +2:.020 BF=00 +2:.020 SWPROM=03	R+2	03	R+12	R+1823
+acl	avant	8559	+1:.472 PT=00 +1:.472 81=02 +2:.014 SWPROM=F0	R+2	03	-	-
+acl	apres	8559	+1:.472 C5=00 +1:.472 BF=01 +1:.472 PT=00 +1:.472 BF=00 +1:.473 BF=01 +1:.473 81=02 +1:.921 BF=00 +1:.921 DA=30 +2:.014 BF=00 +2:.014 SWPROM=F0	R+2	03	-	R+1811
+go-35	ref	6858	+1:.471 C5=00 +1:.471 BF=01 +1:.473 PT=00 +1:.473 BF=00 +1:.473 BF=01 +1:.473 81=02 +2:.383 BF=00 +2:.384 DA=30 +3:.020 BF=00 +3:.020 SWPROM=03	R+3	03	R+13	-
+go-35	avant	5877	+1:.472 PT=00 +1:.472 81=02 +2:.014 SWPROM=F0	R+2	03	-	-
+go-35	apres	5877	+1:.472 C5=00 +1:.472 BF=01 +1:.472 PT=00 +1:.472 BF=00 +1:.472 BF=01 +1:.472 81=02 +2:.383 BF=00 +2:.383 DA=30 +3:.014 BF=00 +3:.014 SWPROM=F0	R+3	03	-	-
+bios	remises relevees (lecture de $000122 dans la fenetre)	precedees dans leur trame de $10FEBF <- $00 entre $10FD80 <- $8x et REG_SWPROM ou la remise
+ref	18	18
+avant	10	0
+apres	13	13
+#
+# 2. SELECT. MESURÉ, la référence, dans l'appel de SYSTEM_IO du SELECT : $10FDDB décompté, puis $10FEE0 ← $00, $10FD81 ← $04, DEMO_END ($00012E lu) ; au retour, l'entrée de
+#    SYSTEM_RETURN ($10FEE1 ← $FF, $10FD80 ← $02, $10FE8C ← $01), puis $10FEBF ← $01 avant la sauvegarde, ← $00 après la restauration et avant REG_SWPROM ; SYSTEM_INT1 servi à
+#    chaque vblank jusqu'à la remise (S+3, ou S+4 quand DEMO_END d'aof déborde sur la trame suivante). Notre image avant : SELECT testé avant le décompte, sans DEMO_END, remise S+3
+#    aux deux. Écrit : src/c0/io.s _io_compulsion, _io_select (déplacé après le décompte, le code dans %d6, garde %d4) ; src/c0/c0.s _retour_selection, _sysret_etat_mode. Après :
+#    décompte, $10FEE0, $10FD81 et DEMO_END dans l'appel, remises à S+3 et S+4 comme la référence ; SYSTEM_INT1 non servi pendant la tenue (0 contre 3 : la poignée de main du son de
+#    _passer_au_slot tient deux trames IRQ masquées), la sauvegarde dans la trame du SELECT (S+1 à 0,47 chez la référence).
+#    Colonnes : run ; bios ; S ; écritures et lectures de S à la remise ; remise ; demande ; SYSTEM_INT1 servis ($C00438 lu) entre S et la remise.
+run	bios	SELECT (trame S)	dans l appel du SELECT puis jusqu a la remise (DB $10FDDB, E0 $10FEE0, 81, D12E DEMO_END, BF, SLOT REG_SLOT, SWPROM)	remise	demande	SYSTEM_INT1 servis entre S et la remise
+k10	ref	1200	+0:.385 DB=31 +0:.386 E0=00 +0:.386 81=04 +0:.386 D12E +1:.470 81=02 +1:.470 BF=01 +1:.685 SLOT=01 +1:.686 SWPROM=00 +2:.154 BF=00 +3:.021 BF=00 +3:.021 SWPROM=03	S+3	03	3
+k10	ref	1213	+0:.106 DB=30 +0:.108 E0=00 +0:.108 81=04 +0:.108 D12E +2:.470 81=02 +2:.470 BF=01 +3:.075 SLOT=00 +3:.076 SWPROM=00 +3:.136 BF=00 +4:.020 BF=00 +4:.020 SWPROM=03	S+4	03	3
+k10	avant	1200	+0:.377 81=04 +2:.001 SLOT=01 +2:.001 SWPROM=F0 +2:.227 81=02	S+3	03	0
+k10	avant	1213	+0:.101 81=04 +2:.000 SLOT=00 +2:.001 SWPROM=F0 +2:.032 81=02	S+3	03	0
+k10	apres	1200	+0:.376 DB=31 +0:.379 E0=00 +0:.379 81=04 +0:.379 D12E +0:.381 BF=01 +2:.001 SLOT=01 +2:.001 SWPROM=F0 +2:.227 BF=00 +2:.227 81=02 +2:.228 BF=00	S+3	03	0
+k10	apres	1213	+0:.098 DB=30 +0:.102 E0=00 +0:.102 81=04 +0:.102 D12E +1:.177 BF=01 +3:.000 SLOT=00 +3:.001 SWPROM=F0 +3:.032 BF=00 +3:.032 81=02 +3:.034 BF=00	S+4	03	0
+#
+# 3. LE CODE 2 AVEC UN CRÉDIT SUR $D00035 SEUL. MESURÉ, la référence : le titre (demande 3), à R+4 ; notre image avant, la démo à R+1 (l'octet $D00034 testé). Écrit :
+#    src/c0/c0.s _sysret_demo (le mot $D00034), _sysret_meme_slot. Après : le titre, R+4. Ensuite, la référence appelle DEMO_END toutes les 14 trames au titre ($10FD81 ← $04 au
+#    premier) : non repris — un état fabriqué ($D00035 n'est écrit qu'au boot, mesuré : src/c0/io.s, en-tête de _io_start) ; vu en passant.
+#    Colonnes : run ; bios ; R ; remise ; demande ; écritures de $10FD81 jusqu'à la remise ; DEMO_END lus après R dans la fenêtre.
+run	bios	R (E444 02, $D00035 <- $01 pose a la lecture de $C00444)	remise	demande	$10FD81 ensuite	DEMO_END dans la fenetre
+c2-35	ref	8753	R+4	03	+1:.470 81=02	R+14 R+28 R+42
+c2-35	avant	7772	R+1	02	+0:.947 81=02	-
+c2-35	apres	7772	R+4	03	+1:.471 81=02	-
+#
+# 4. LES TRAMES TENUES DES CODES 0 ET 2 (une cartouche, nam1975, sans logo chez la référence). MESURÉ, la référence : R+1 SYSTEM_INT1 par le vecteur du jeu, REG_SWPBIOS, à 0,47
+#    ($10FD81 ← $02 au code 2) $10FEBF ← $01 et la sauvegarde ; R+2 SYSTEM_INT1, ($10FD81 ← $02 au code 0), la salve son et REG_SLOT sur le même slot, la restauration ; R+3
+#    SYSTEM_INT1, $10FEBF ← $00, $10FD80 réécrit, $10FEE1 ← $0A, REG_SOUND ← $03 ; R+4 SYSTEM_INT1, $10FDAE, $10FD80 ← $82, $10FEBF ← $00, REG_SWPROM, la main. Notre image avant :
+#    tout à R, la main à R+1, IRQ masquées. Écrit : src/c0/c0.s _sysret_meme_slot, _int1_du_jeu (nouvelle), _remise_tenue partagée ; avec passage de slot et à la demande 0 suivante,
+#    rien ne change. Après : SYSTEM_INT1 aux quatre vblanks, la main à R+4, comme la référence ; la salve son et REG_SLOT sur le même slot NON reprises ; nos écritures de R+2 et R+3
+#    juste après SYSTEM_INT1 (0,01), la référence plus tard (0,38 à 0,54, la durée de sa sauvegarde et de sa restauration).
+#    Colonnes : run ; bios ; R ; code ; SYSTEM_INT1 servis (+trame) ; écritures du BIOS de R à la remise ; remise ; demande.
+run	bios	R (E444)	code	SYSTEM_INT1 servis (+trame)	ecritures du BIOS de R a la remise (SWPBIOS, BF, 81, 80, E1, SND REG_SOUND, SLOT, SWPROM)	remise	demande
+boot	ref	281	00	+1 +2 +3 +4	+0:.033 E1=FF +0:.033 80=00 +1:.019 SWPBIOS=00 +1:.469 BF=01 +2:.379 BF=00 +2:.380 80=00 +2:.380 BF=01 +2:.383 BF=00 +2:.383 BF=01 +2:.384 81=02 +2:.391 SND=01 +2:.542 SLOT=00 +2:.542 SWPROM=00 +2:.542 SND=03 +3:.454 BF=00 +3:.459 80=00 +3:.460 E1=0A +3:.460 SND=03 +4:.018 E1=09 +4:.020 80=82 +4:.020 BF=00 +4:.020 SWPROM=02	R+4	02
+boot	avant	185	00	-	+0:.015 80=00 +0:.015 E1=FF +0:.911 81=02 +0:.912 E1=09 +0:.912 SND=03 +0:.913 80=82	R+1	02
+boot	apres	185	00	+1 +2 +3 +4	+0:.014 80=00 +0:.015 E1=FF +1:.014 SWPBIOS=00 +1:.471 BF=01 +2:.013 81=02 +3:.013 BF=00 +3:.014 80=00 +3:.014 E1=0A +3:.014 SND=03 +4:.012 E1=09 +4:.013 80=82 +4:.014 BF=00 +4:.014 SWPROM=F0	R+4	02
+c2	ref	8753	02	+1 +2 +3 +4	+0:.059 E1=FF +0:.059 80=02 +1:.020 SWPBIOS=00 +1:.470 81=02 +1:.470 BF=01 +2:.385 SND=01 +2:.537 SLOT=00 +2:.538 SWPROM=00 +2:.538 SND=03 +3:.450 BF=00 +3:.451 80=02 +3:.451 E1=0A +3:.452 SND=03 +4:.018 E1=09 +4:.020 80=82 +4:.020 BF=00 +4:.020 SWPROM=02	R+4	02
+c2	avant	7772	02	-	+0:.051 80=02 +0:.051 E1=FF +0:.947 81=02 +0:.947 E1=09 +0:.948 SND=03 +0:.948 80=82	R+1	02
+c2	apres	7772	02	+1 +2 +3 +4	+0:.051 80=02 +0:.051 E1=FF +1:.014 SWPBIOS=00 +1:.471 81=02 +1:.471 BF=01 +3:.013 BF=00 +3:.014 80=02 +3:.014 E1=0A +3:.014 SND=03 +4:.012 E1=09 +4:.014 80=82 +4:.014 BF=00 +4:.014 SWPROM=F0	R+4	02
+#
+# 5. NON-RÉGRESSION ET REJEUX.
+#    bench/non-regression.sh --jobs 2 $ROMS <travail>, complet, image apres : 4 étages PASS, 0 FAIL, NON-RÉGRESSION : PASS (232 s). La matrice change sous les 2 % du harnais
+#    sur 4 jeux sur 22, verdicts et contrôles identiques, les 4 vers la colonne snk : 2026-10-23-titre-apres-game-over-matrice.tsv.
+#    DEMO_END (2026-10-22-piece-demo-end.tsv, puzzledp, aof, mslug, nam1975, garou, b2b) : apres identique à avant sur toutes les colonnes sauf les écrans de b2b aux trames 1100,
+#    1200 et 1300 (d139ae50 94d13d84 05a981cd contre 03474e61 66fbb943 a4100146), qui précèdent la pièce : sa démo part trois trames plus tard, le boot tenant ses quatre trames
+#    (section 4). Égal à la référence sauf b2b, comme avant (son logo, connu).
+#    Multi-slot lot 3 et lot 4, sauvegarde du jeu seul : les 21 runs de 2026-10-22-frame-skip-et-mode0.tsv section 5 (mêmes plans, mêmes NVRAM d'entrée, jetons de l'extracteur des lots
+#    précédents, limités aux genres de la suite versionnée de la référence ; avant = les runs apres de 2026-10-23-led-et-remises.tsv, même image) : rapport à la référence (structure /
+#    sommes / préfixe exact) IDENTIQUE à avant sur les 21, ni mieux ni pire ; jetons et sommes identiques à avant sur les 21 ; trames identiques sur 10, décalées de 1 à 12 trames sur 11
+#    (les remises tenues des codes 0 et 2 sur une cartouche, la sauvegarde à R+1, la remise de SELECT à S+4 quand DEMO_END déborde ; sur nam1975-p1, les jetons S, R et remise de chaque fin de démo tombent désormais à R+1, R+2,
+#    R+4, ceux de la référence). python3 bench/test_generer_contrats.py : 56 tests, OK.
+jeu	bios	coin_sound	demo_end	sysret06	sysret02	reg_sound03	remise	ecritures_jeu_DEMO_END	10FDDB_fin_piece	ecrans_1100_1200_1300	D38_P+1_P+2	INT1_trame_tenue	D80_01_avant_remise	ordre_piece
+puzzledp	ref	1000	1000	1000	1001	1001	1002 d03	0	-	af372011 3c3ec2f0 e8c55097	1E/1D	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F
+puzzledp	avant	1000	1000	1000	1001	1001	1002 d03	0	-	af372011 3c3ec2f0 e8c55097	1E/1D	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F
+puzzledp	apres	1000	1000	1000	1001	1001	1002 d03	0	-	af372011 3c3ec2f0 e8c55097	1E/1D	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F
+aof	ref	1000	1000	1000	1002	1002	1003 d03	29955	-	3f951897 0198f1b4 741803ca	-/1E	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F
+aof	avant	1000	1000	1000	1002	1002	1003 d03	29955	-	3f951897 0198f1b4 741803ca	-/1E	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F
+aof	apres	1000	1000	1000	1002	1002	1003 d03	29955	-	3f951897 0198f1b4 741803ca	-/1E	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F
+mslug	ref	1000	1000	1000	1006	1006	1007 d03	58384	-	3eba8694 82f8c628 f630814b	-/-	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F
+mslug	avant	1000	1000	1000	1006	1006	1007 d03	58384	-	3eba8694 82f8c628 f630814b	-/-	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F
+mslug	apres	1000	1000	1000	1006	1006	1007 d03	58384	-	3eba8694 82f8c628 f630814b	-/-	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F
+nam1975	ref	1000	1000	1000	1001	1001	1002 d03	0	-	9da12323 9b5da5f2 dfafb41c	1E/1D	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F
+nam1975	avant	1000	1000	1000	1001	1001	1002 d03	0	-	9da12323 9b5da5f2 dfafb41c	1E/1D	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F
+nam1975	apres	1000	1000	1000	1001	1001	1002 d03	0	-	9da12323 9b5da5f2 dfafb41c	1E/1D	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F
+garou	ref	1000	1000	1000	1001	1001	1002 d03	-	-	b80472b0 bcac91a7 837016f2	1E/1D	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F
+garou	avant	1000	1000	1000	1001	1001	1002 d03	-	-	b80472b0 bcac91a7 837016f2	1E/1D	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F
+garou	apres	1000	1000	1000	1001	1001	1002 d03	-	-	b80472b0 bcac91a7 837016f2	1E/1D	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F
+b2b	ref	3312	3312	3312	3301	3301	3302 d03	11275	-	67b28964 a54937f8 981470e6	1E/1D	2	non	D34=01 EE2=01 D38=1F
+b2b	avant	3300	3300	3300	3336	3336	3337 d03	11275	-	03474e61 66fbb943 a4100146	1D/1C	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F D38=1E
+b2b	apres	3300	3300	3300	3336	3336	3337 d03	11275	-	d139ae50 94d13d84 05a981cd	1D/1C	2	non	D34=01 EE2=01 EE2=00 COIN_SOUND D38=1F D38=1E
+run	jetons ref/avant/apres	avant=apres (trames comprises)	ref~avant structure / sommes / prefixe exact	ref~apres structure / sommes / prefixe exact
+c1-neuf	10/10/10	NON	oui / oui / 10	oui / oui / 10
+c1-suite	8/8/8	NON	oui / oui / 8	oui / oui / 8
+c2-neuf	18/18/18	oui	oui / NON / 3	oui / NON / 3
+c2-suite	14/14/14	oui	oui / NON / 3	oui / NON / 3
+c4-neuf	34/34/34	oui	oui / NON / 3	oui / NON / 3
+c4-suite	26/26/26	oui	oui / NON / 3	oui / NON / 3
+trou	18/21/21	oui	oui / oui / 18	oui / oui / 18
+trou-suite	14/17/17	oui	oui / NON / 0	oui / NON / 0
+trou-nvref	14/17/17	oui	oui / oui / 14	oui / oui / 14
+l4-c2-neuf	21/21/21	NON	oui / NON / 5	oui / NON / 5
+l4-c3-trou	40/40/40	NON	oui / NON / 5	oui / NON / 5
+l4-c2-gardee	7/7/7	oui	oui / NON / 5	oui / NON / 5
+l4-c3-gardee	11/11/11	NON	oui / NON / 5	oui / NON / 5
+l4-tenu	13/13/13	oui	oui / NON / 5	oui / NON / 5
+l4-k9	13/13/13	oui	oui / NON / 5	oui / NON / 5
+l4-k10	17/17/17	NON	oui / NON / 5	oui / NON / 5
+l4-titre-sans-credit	11/11/11	NON	oui / NON / 5	oui / NON / 5
+puzzledp-p1	9/9/9	NON	oui / oui / 9	oui / oui / 9
+aof-p1	14/13/13	NON	NON / NON / 2	NON / NON / 2
+nam1975-p1	21/25/25	NON	oui / oui / 21	oui / oui / 21
+aof-cred	10/9/9	NON	oui / NON / 2	oui / NON / 2
+#
+# 6. UN SECOND SELECT PENDANT LE DEMO_END D'UN SELECT (relecture de la PR #1413 : io.s, _io_select, sans garde de réentrée). Run ss2 : b2b (slot 0) + puzzledp (slot 1), NVRAM
+#    neuve, 1000:piece (DEMO_END de la pièce, titre à 1037), 1050:suivant:1, 1052:suivant:1 (un front, une trame relâchée, un second front) ; fenêtre 1040-1150, fin 1200 ; ref et
+#    apres (sha256 e4b2f0c9…b17dc9fd, le commentaire ajouté à _io_select ne change pas l'image).
+#    MESURÉ, la référence : b2b appelle SYSTEM_IO depuis le DEMO_END du SELECT (1050 0,042, 1051, 1052) ; le second front y est PRIS — $10FEE0 ← $00, $10FD81 ← $04, DEMO_END
+#    rappelé à 1052 —, le premier DEMO_END n'est jamais repris ; un seul passage de slot (REG_SLOT ← $01 à 1055), une sauvegarde de b2b (somme $04D1), une restauration de puzzledp,
+#    une remise (1056, slot 1, demande 3). Pas de garde de réentrée chez elle. Notre image : la même suite, une trame plus tard (remise 1057, l'écart d'une trame de SELECT
+#    connu, section 2), mêmes jetons, même somme. AUCUNE GARDE AJOUTÉE à cette date (ajoutée ensuite, décision de l'utilisateur : 2026-10-23-garde-select.tsv) : une garde sur $10FD81 à $04/$05 ignorerait le second SELECT et ne rappellerait pas DEMO_END, ce que la
+#    référence fait ; le commentaire de _io_select le dit (MESURÉ). Le SELECT simple (k10, 1200 et 1213, section 2) : image inchangée, jetons inchangés.
+#    Contrôle, run ss (second front à 1060, après le DEMO_END) : ignoré chez les deux (titre en saut de FRAME_SKIP), une remise (ref 1054, apres 1055).
+#    Vérifié : bench/non-regression.sh --jobs 2 complet, 4 PASS, 0 FAIL, NON-RÉGRESSION : PASS (232 s) ; python3 bench/test_generer_contrats.py OK.
+#    Colonnes : run ; bios ; de 1050 à 1057, écritures du BIOS de $10FEE0, $10FD81, REG_SLOT ($380021), $10FDAE et lectures D12E / U122 (trame:fraction) ; jetons (sauvegarde S,
+#    restauration R, remise).
+run	bios	evenements_1050_1057	jetons
+ss2	ref	1050:.031 10FEE0=00 1050:.031 10FD81=04 1050:.031 D12E 1052:.179 10FEE0=00 1052:.179 10FD81=04 1052:.179 D12E 1055:.470 10FD81=02 1055:.640 380021=01 1056:.020 10FDAE=03 1056:.020 U122	1050 select code 04 ; 1055 S 105E20-105E53 -> D00320-D00353 somme 04D1 ; 1055 R D01320-D0141F -> 100000-1000FF somme 0000 ; 1056 remise s01 d03 m01
+ss2	apres	1050:.024 10FEE0=00 1050:.025 10FD81=04 1050:.025 D12E 1052:.173 10FEE0=00 1052:.173 10FD81=04 1052:.173 D12E 1056:.001 380021=01 1056:.032 10FD81=02 1056:.034 10FDAE=03 1057:.001 U122	1050 select code 04 ; 1054 S 105E20-105E53 -> D00320-D00353 somme 04D1 ; 1056 R D01320-D0141F -> 100000-1000FF somme 0000 ; 1057 remise s01 d03 m01
+#
+# VU EN PASSANT, NON REPRIS (hors de la remise) :
+#    - LE DOUBLE TITRE : au titre d'après game over avec un crédit (acl, go-35), au premier SYSTEM_IO à FRAME_SKIP nul (R+12 / R+13), la référence décompte $10FDDB, écrit
+#      $10FEC5 ← $01, $10FEE0 ← $00, $10FD81 ← $06, appelle DEMO_END et redonne le titre (demande 3) trois trames plus tard — le chemin de la pièce pendant la démo. C'est le quirk
+#      de « USER subroutine » ; notre image n'a qu'un titre (src/c0/c0.s, en-tête du code 3, « UN SEUL TITRE », décision documentée) ; l'écart de PLAYER_START (R+1811 / R+1823) en vient ;
+#    - au code 2 avec $D00035 seul, la référence boucle DEMO_END / titre toutes les 14 trames (section 3) ;
+#    - codes 0 et 2 sur une cartouche : la salve son $01 / $03 et REG_SLOT sur le même slot, à R+2 (section 4) ;
+#    - SELECT : SYSTEM_INT1 servi aux trois vblanks de la tenue, la sauvegarde à S+1 (section 2) ;
+#    - à l'entrée de SYSTEM_RETURN, la référence écrit $10FEE1 ← $FF avant $10FD80 (codes 0, 2, 3, et après DEMO_END) ; nous l'inverse.

@@ -1,0 +1,481 @@
+# Multi-slot, lot 4 : la sélection du jeu par SELECT. Relevé du 2026-10-22.
+# MAME 0.286, machine neogeo (MV-6F, six emplacements), -bios euro pour la référence, -cartN par la liste logicielle neogeo (-hashpath <dossier hash de MAME>),
+# -video none -sound none -nothrottle, NVRAM isolée par run. Jig : bench/multislot.lua, MS_PLAGES=1 (sauvegardes S/R) et MS_SUIVRE (valeurs de RAM en fin de trame, option ajoutée par ce lot).
+# Jeux : puzzledp (NGH $0202, zone $100000+$100), aof ($0044, $108800+$800), nam1975 ($0001, $100000+$1000). Entrées : « suivant » = Next Game de MAME (SELECT P1,
+# bit 1 de REG_STATUS_B), « précédent » = Previous Game (SELECT P2, bit 3), 8 trames d'appui sauf mention. Notre image : build/construire.sh src/c0, sha256 2a07a2a29e1338b8…fe754.
+# Aucun PC consigné (le PC n'est lu que pour attribuer un accès au BIOS ou au jeu), aucun octet de la ROM du BIOS (docs/DECISIONS.md §8) : adresses de registres et de RAM, valeurs écrites, valeurs de RAM lues par le jig hors des taps.
+#
+# CE QUE FAIT LA RÉFÉRENCE (mesuré, runs ci-dessous)
+# 1. Pris : au titre (demande 3, mode 1) avec un crédit, NVRAM neuve comme gardée, 1, 2 et 3 cartouches. SELECT P1 → $10FD81 ← $04 et le slot occupé suivant ;
+#    SELECT P2 → $05 et le précédent. Vides sautés (slots 0, 2, 3 : 0→2→3→0 en avant, 0→3→2→0 en arrière), bouclage dans les deux sens.
+# 2. Ignoré : en démo sans crédit (c2-neuf 900, c1 900, titre-sans-credit 1100) ; en partie sans crédit (c2-neuf 2500) et AVEC un crédit (c2-gardee 1700, 2000) ;
+#    au titre tant que BIOS_FRAME_SKIP ($10FEE1) n'est pas lu à $00 (k9 : 9 trames après la remise, perdu ; k10 : 10 trames, pris, à la trame qui suit FRAME_SKIP = $00).
+#    Au front seulement : tenu 80 trames, un seul changement (tenu). Une pièce qui ne fait pas de crédit (deux pièces par crédit) ne mène pas au titre (titre-sans-credit) ;
+#    au boot NVRAM gardée, $D00034 est remis à $00 (boot-avec-credit, trame 238) : la référence n'est donc jamais vue au titre sans crédit ni en démo avec crédit.
+# 3. La suite, à chaque sélection : trame du SELECT : $10FD81 ← $04/$05 et $10FD80 ← $02 par le BIOS, $10FEE1 = $FF en fin de trame, la main au BIOS ; SYSTEM_RETURN
+#    n'est PAS entré ($C00444 jamais lu). Trame suivante (ou la d'après) : $10FD81 ← $02, S (sauvegarde du jeu sortant dans son bloc), REG_SOUND $01, écho, REG_SLOT,
+#    REG_CRTFIX, REG_SWPROM, REG_SOUND $03, $D00108, R (restauration du jeu entrant), un second REG_SOUND $03 ; remise sur le nouveau slot, demande 3, mode 1.
+#    Une à trois trames du SELECT à la remise. Crédit ($D00034) inchangé. Aucun logo.
+# 4. Cartouche seule (c1) : SELECT N'EST PAS ignoré. Code 4 ou 5, REG_SLOT réécrit sur le même slot, S puis R du même bloc, remise demande 3 : le titre relancé.
+#
+# CE QUE FAIT NOTRE IMAGE (src/c0/io.s _io_select, src/c0/c0.s _retour_selection, _changer_de_slot, _slot_precedent) : 1 à 3 à l'identique des jetons, dans la trame
+# du SELECT (comme la pièce) ; condition : MVS, mode 1, demande 3, $D00034 ≠ 0, FRAME_SKIP à zéro, un autre slot occupé. Écart voulu : 4 (cartouche seule ignorée).
+#
+# Colonnes de la table des runs : run ; description et plan d'entrées ; jetons_ref, jetons_nous (nombre, voir 2026-10-22-multi-slot-lot4-jetons.tsv) ;
+# suite_egale (jetons égaux, sommes comprises, trames ignorées) ; structure_egale (idem sans les sommes) ; note.
+run	description	jetons_ref	jetons_nous	suite_egale	structure_egale	note
+c2-neuf	c2 puzzledp+aof, NVRAM neuve ; suivant 900 (démo, sans crédit), pièce 1000, suivant 1200 et 1500, précédent 1800, start 2100, suivant 2500 (partie, crédit 0) ; 2800 trames	21	21	oui	oui	
+c3-trou	c3 puzzledp slot 0, slot 1 vide, aof slot 2, nam1975 slot 3, NVRAM neuve ; pièce 1000, suivant 1200/1400/1600, précédent 1800/2000/2200, suivant 2600 puis 2612 (9 trames après la remise) ; 3000 trames	40	40	oui	oui	
+c1	c1 puzzledp, NVRAM neuve ; suivant 900 (démo), pièce 1000, suivant 1200, précédent 1500 ; 1900 trames	14	6	NON	NON	écart voulu : une cartouche seule ignore SELECT chez nous (demande du lot) ; la référence fait code 4/5, S puis R du même bloc, titre relancé
+c2-gardee	c2, NVRAM gardée de c2-neuf ; pièces 800 et 830 (2 crédits), suivant 1000, start 1300 (reste 1 crédit), suivant 1700 et précédent 2000 en partie AVEC crédit ; 2300 trames	7	7	oui	oui	
+c3-gardee	c3-trou, NVRAM gardée ; pièce 900, suivant 1100, précédent 1300 ; 1600 trames	11	11	oui	oui	
+tenu	c2, NVRAM neuve ; pièce 1000, suivant tenu 80 trames dès 1200 ; 1500 trames	13	13	oui	oui	
+k9	c2, NVRAM neuve ; pièce 1000, suivant 1200, suivant 1212 (remise 1203 : 9 trames après) ; 1300 trames	13	13	oui	oui	
+k10	c2, NVRAM neuve ; pièce 1000, suivant 1200, suivant 1213 (10 trames après la remise) ; 1300 trames	17	13	NON	NON	non résolu : chez nous FRAME_SKIP atteint $00 deux trames plus tard que chez la référence après une remise (relevé 10FEE1 ci-dessous) ; SELECT pris à 12 trames après la remise, à 10 chez la référence
+titre-sans-credit	c2, NVRAM gardée, $D0003A ← 2 (deux pièces par crédit) posé dans le fichier NVRAM, $D00034 à 0 ; pièce 900 (pas de crédit), suivant 1100, pièce 1300 (1 crédit), suivant 1500, précédent 1700 ; 1900 trames	11	11	NON	oui	écart antérieur au lot : chez nous une pièce qui ne fait pas de crédit mène au titre (remise d03 à 901), pas chez la référence ; SELECT sans crédit ignoré des deux côtés ; la somme de puzzledp diffère parce que le jeu a tourné en titre au lieu de la démo
+#
+# NON-RÉGRESSION DES LOTS 1 À 3 ET DE LA SAUVEGARDE DU JEU SEUL : notre image contre celle de main (41d59489…), mêmes runs sans SELECT, MS_PLAGES=1.
+# Colonnes : run ; jetons (nombre) ; jetons_egaux_main (trames comprises) ; ecritures_bram_systeme ($D00040-$D0005F et $D00100-$D0031F : trame, adresse, valeur, slot) ; egales_main ;
+# egal_releve_versionne (jetons « apres » de 2026-10-22-sauvegarde-jeu-seul-jetons.tsv, trames comprises).
+run_nr	jetons	jetons_egaux_main	ecritures_bram_systeme	egales_main	egal_releve_versionne
+c4-neuf	34	oui	687	oui	oui
+c2-neuf	24	oui	606	oui	oui
+trou	28	oui	607	oui	-
+puzzledp-p1	9	oui	1217	oui	oui
+#
+# EXTRAIT DES ÉVÉNEMENTS DE LA RÉFÉRENCE : entrées (I), écritures de $10FD80/$10FD81 et de REG_SLOT par le BIOS (W), remises ($000122 lu), valeurs en fin de trame (E, MS_SUIVRE :
+# $D00034 crédit, $D00108 slot, $10FDAE demande, $10FDAF mode, $10FD81, et $10FEE1 FRAME_SKIP sur k9 et k10), à partir de la trame 700.
+# Colonnes : run ; trame ; fraction ; genre ; adresse ; valeur ; slot (dernier REG_SLOT) ; note.
+run	trame	fraction	genre	adresse	valeur	slot	note
+c2-neuf	752	0.47	W	10FD81	02	00	BIOS_SYSRET_STATUS par bios
+c2-neuf	752	1.00	E	10FDAF	01	00	valeur en fin de trame (MS_SUIVRE)
+c2-neuf	752	1.00	E	10FD81	02	00	valeur en fin de trame (MS_SUIVRE)
+c2-neuf	753	0.02	W	10FD80	82	00	BIOS_SYSTEM_MODE par bios
+c2-neuf	753	0.02	R	000122	-	00	entree USER lue, demande=02 mode=01
+c2-neuf	753	1.00	E	10FDAE	02	00	valeur en fin de trame (MS_SUIVRE)
+c2-neuf	900	0.00	I	-	suivant	00	presse
+c2-neuf	1000	0.00	I	-	piece	00	presse
+c2-neuf	1000	0.26	W	10FD81	06	00	BIOS_SYSRET_STATUS par bios
+c2-neuf	1000	0.26	W	10FD80	02	00	BIOS_SYSTEM_MODE par bios
+c2-neuf	1000	1.00	E	D00034	01	00	valeur en fin de trame (MS_SUIVRE)
+c2-neuf	1000	1.00	E	10FD81	06	00	valeur en fin de trame (MS_SUIVRE)
+c2-neuf	1001	0.47	W	10FD81	02	00	BIOS_SYSRET_STATUS par bios
+c2-neuf	1001	1.00	E	10FD81	02	00	valeur en fin de trame (MS_SUIVRE)
+c2-neuf	1002	0.02	W	10FD80	82	00	BIOS_SYSTEM_MODE par bios
+c2-neuf	1002	0.02	R	000122	-	00	entree USER lue, demande=03 mode=01
+c2-neuf	1002	1.00	E	10FDAE	03	00	valeur en fin de trame (MS_SUIVRE)
+c2-neuf	1200	0.00	I	-	suivant	00	presse
+c2-neuf	1200	0.39	W	10FD81	04	00	BIOS_SYSRET_STATUS par bios
+c2-neuf	1200	0.39	W	10FD80	02	00	BIOS_SYSTEM_MODE par bios
+c2-neuf	1200	1.00	E	10FD81	04	00	valeur en fin de trame (MS_SUIVRE)
+c2-neuf	1201	0.47	W	10FD81	02	00	BIOS_SYSRET_STATUS par bios
+c2-neuf	1201	0.69	W	380021	01	01	REG_SLOT par bios
+c2-neuf	1201	1.00	E	D00108	01	01	valeur en fin de trame (MS_SUIVRE)
+c2-neuf	1201	1.00	E	10FD81	02	01	valeur en fin de trame (MS_SUIVRE)
+c2-neuf	1203	0.02	W	10FD80	82	01	BIOS_SYSTEM_MODE par bios
+c2-neuf	1203	0.02	R	000122	-	01	entree USER lue, demande=03 mode=01
+c2-neuf	1500	0.00	I	-	suivant	01	presse
+c2-neuf	1500	0.10	W	10FD81	04	01	BIOS_SYSRET_STATUS par bios
+c2-neuf	1500	1.00	E	10FD81	04	01	valeur en fin de trame (MS_SUIVRE)
+c2-neuf	1501	0.17	W	10FD80	02	01	BIOS_SYSTEM_MODE par bios
+c2-neuf	1502	0.47	W	10FD81	02	01	BIOS_SYSRET_STATUS par bios
+c2-neuf	1502	1.00	E	10FD81	02	01	valeur en fin de trame (MS_SUIVRE)
+c2-neuf	1503	0.08	W	380021	00	00	REG_SLOT par bios
+c2-neuf	1503	1.00	E	D00108	00	00	valeur en fin de trame (MS_SUIVRE)
+c2-neuf	1504	0.02	W	10FD80	82	00	BIOS_SYSTEM_MODE par bios
+c2-neuf	1504	0.02	R	000122	-	00	entree USER lue, demande=03 mode=01
+c2-neuf	1800	0.00	I	-	precedent	00	presse
+c2-neuf	1800	0.39	W	10FD81	05	00	BIOS_SYSRET_STATUS par bios
+c2-neuf	1800	0.39	W	10FD80	02	00	BIOS_SYSTEM_MODE par bios
+c2-neuf	1800	1.00	E	10FD81	05	00	valeur en fin de trame (MS_SUIVRE)
+c2-neuf	1801	0.47	W	10FD81	02	00	BIOS_SYSRET_STATUS par bios
+c2-neuf	1801	0.69	W	380021	01	01	REG_SLOT par bios
+c2-neuf	1801	1.00	E	D00108	01	01	valeur en fin de trame (MS_SUIVRE)
+c2-neuf	1801	1.00	E	10FD81	02	01	valeur en fin de trame (MS_SUIVRE)
+c2-neuf	1803	0.02	W	10FD80	82	01	BIOS_SYSTEM_MODE par bios
+c2-neuf	1803	0.02	R	000122	-	01	entree USER lue, demande=03 mode=01
+c2-neuf	2100	0.00	I	-	start	01	presse
+c2-neuf	2100	0.10	W	10FD81	03	01	BIOS_SYSRET_STATUS par bios
+c2-neuf	2100	1.00	E	D00034	00	01	valeur en fin de trame (MS_SUIVRE)
+c2-neuf	2100	1.00	E	10FDAF	02	01	valeur en fin de trame (MS_SUIVRE)
+c2-neuf	2100	1.00	E	10FD81	03	01	valeur en fin de trame (MS_SUIVRE)
+c2-neuf	2500	0.00	I	-	suivant	01	presse
+c3-trou	755	0.47	W	10FD81	02	00	BIOS_SYSRET_STATUS par bios
+c3-trou	755	1.00	E	10FDAF	01	00	valeur en fin de trame (MS_SUIVRE)
+c3-trou	755	1.00	E	10FD81	02	00	valeur en fin de trame (MS_SUIVRE)
+c3-trou	756	0.02	W	10FD80	82	00	BIOS_SYSTEM_MODE par bios
+c3-trou	756	0.02	R	000122	-	00	entree USER lue, demande=02 mode=01
+c3-trou	756	1.00	E	10FDAE	02	00	valeur en fin de trame (MS_SUIVRE)
+c3-trou	1000	0.00	I	-	piece	00	presse
+c3-trou	1000	0.26	W	10FD81	06	00	BIOS_SYSRET_STATUS par bios
+c3-trou	1000	0.26	W	10FD80	02	00	BIOS_SYSTEM_MODE par bios
+c3-trou	1000	1.00	E	D00034	01	00	valeur en fin de trame (MS_SUIVRE)
+c3-trou	1000	1.00	E	10FD81	06	00	valeur en fin de trame (MS_SUIVRE)
+c3-trou	1001	0.47	W	10FD81	02	00	BIOS_SYSRET_STATUS par bios
+c3-trou	1001	1.00	E	10FD81	02	00	valeur en fin de trame (MS_SUIVRE)
+c3-trou	1002	0.02	W	10FD80	82	00	BIOS_SYSTEM_MODE par bios
+c3-trou	1002	0.02	R	000122	-	00	entree USER lue, demande=03 mode=01
+c3-trou	1002	1.00	E	10FDAE	03	00	valeur en fin de trame (MS_SUIVRE)
+c3-trou	1200	0.00	I	-	suivant	00	presse
+c3-trou	1200	0.39	W	10FD81	04	00	BIOS_SYSRET_STATUS par bios
+c3-trou	1200	0.39	W	10FD80	02	00	BIOS_SYSTEM_MODE par bios
+c3-trou	1200	1.00	E	10FD81	04	00	valeur en fin de trame (MS_SUIVRE)
+c3-trou	1201	0.47	W	10FD81	02	00	BIOS_SYSRET_STATUS par bios
+c3-trou	1201	0.69	W	380021	02	02	REG_SLOT par bios
+c3-trou	1201	1.00	E	D00108	02	02	valeur en fin de trame (MS_SUIVRE)
+c3-trou	1201	1.00	E	10FD81	02	02	valeur en fin de trame (MS_SUIVRE)
+c3-trou	1203	0.02	W	10FD80	82	02	BIOS_SYSTEM_MODE par bios
+c3-trou	1203	0.02	R	000122	-	02	entree USER lue, demande=03 mode=01
+c3-trou	1400	0.00	I	-	suivant	02	presse
+c3-trou	1400	0.10	W	10FD81	04	02	BIOS_SYSRET_STATUS par bios
+c3-trou	1400	1.00	E	10FD81	04	02	valeur en fin de trame (MS_SUIVRE)
+c3-trou	1401	0.17	W	10FD80	02	02	BIOS_SYSTEM_MODE par bios
+c3-trou	1402	0.47	W	10FD81	02	02	BIOS_SYSRET_STATUS par bios
+c3-trou	1402	1.00	E	10FD81	02	02	valeur en fin de trame (MS_SUIVRE)
+c3-trou	1403	0.08	W	380021	03	03	REG_SLOT par bios
+c3-trou	1403	1.00	E	D00108	03	03	valeur en fin de trame (MS_SUIVRE)
+c3-trou	1404	0.02	W	10FD80	82	03	BIOS_SYSTEM_MODE par bios
+c3-trou	1404	0.02	R	000122	-	03	entree USER lue, demande=03 mode=01
+c3-trou	1600	0.00	I	-	suivant	03	presse
+c3-trou	1600	0.10	W	10FD81	04	03	BIOS_SYSRET_STATUS par bios
+c3-trou	1600	0.10	W	10FD80	02	03	BIOS_SYSTEM_MODE par bios
+c3-trou	1600	1.00	E	10FD81	04	03	valeur en fin de trame (MS_SUIVRE)
+c3-trou	1601	0.47	W	10FD81	02	03	BIOS_SYSRET_STATUS par bios
+c3-trou	1601	1.00	E	10FD81	02	03	valeur en fin de trame (MS_SUIVRE)
+c3-trou	1602	0.54	W	380021	00	00	REG_SLOT par bios
+c3-trou	1602	1.00	E	D00108	00	00	valeur en fin de trame (MS_SUIVRE)
+c3-trou	1603	0.02	W	10FD80	82	00	BIOS_SYSTEM_MODE par bios
+c3-trou	1603	0.02	R	000122	-	00	entree USER lue, demande=03 mode=01
+c3-trou	1800	0.00	I	-	precedent	00	presse
+c3-trou	1800	0.39	W	10FD81	05	00	BIOS_SYSRET_STATUS par bios
+c3-trou	1800	0.39	W	10FD80	02	00	BIOS_SYSTEM_MODE par bios
+c3-trou	1800	1.00	E	10FD81	05	00	valeur en fin de trame (MS_SUIVRE)
+c3-trou	1801	0.47	W	10FD81	02	00	BIOS_SYSRET_STATUS par bios
+c3-trou	1801	0.69	W	380021	03	03	REG_SLOT par bios
+c3-trou	1801	1.00	E	D00108	03	03	valeur en fin de trame (MS_SUIVRE)
+c3-trou	1801	1.00	E	10FD81	02	03	valeur en fin de trame (MS_SUIVRE)
+c3-trou	1803	0.02	W	10FD80	82	03	BIOS_SYSTEM_MODE par bios
+c3-trou	1803	0.02	R	000122	-	03	entree USER lue, demande=03 mode=01
+c3-trou	2000	0.00	I	-	precedent	03	presse
+c3-trou	2000	0.10	W	10FD81	05	03	BIOS_SYSRET_STATUS par bios
+c3-trou	2000	0.10	W	10FD80	02	03	BIOS_SYSTEM_MODE par bios
+c3-trou	2000	1.00	E	10FD81	05	03	valeur en fin de trame (MS_SUIVRE)
+c3-trou	2001	0.47	W	10FD81	02	03	BIOS_SYSRET_STATUS par bios
+c3-trou	2001	1.00	E	10FD81	02	03	valeur en fin de trame (MS_SUIVRE)
+c3-trou	2002	0.54	W	380021	02	02	REG_SLOT par bios
+c3-trou	2002	1.00	E	D00108	02	02	valeur en fin de trame (MS_SUIVRE)
+c3-trou	2003	0.02	W	10FD80	82	02	BIOS_SYSTEM_MODE par bios
+c3-trou	2003	0.02	R	000122	-	02	entree USER lue, demande=03 mode=01
+c3-trou	2200	0.00	I	-	precedent	02	presse
+c3-trou	2200	0.10	W	10FD81	05	02	BIOS_SYSRET_STATUS par bios
+c3-trou	2200	1.00	E	10FD81	05	02	valeur en fin de trame (MS_SUIVRE)
+c3-trou	2201	0.17	W	10FD80	02	02	BIOS_SYSTEM_MODE par bios
+c3-trou	2202	0.47	W	10FD81	02	02	BIOS_SYSRET_STATUS par bios
+c3-trou	2202	1.00	E	10FD81	02	02	valeur en fin de trame (MS_SUIVRE)
+c3-trou	2203	0.08	W	380021	00	00	REG_SLOT par bios
+c3-trou	2203	1.00	E	D00108	00	00	valeur en fin de trame (MS_SUIVRE)
+c3-trou	2204	0.02	W	10FD80	82	00	BIOS_SYSTEM_MODE par bios
+c3-trou	2204	0.02	R	000122	-	00	entree USER lue, demande=03 mode=01
+c3-trou	2600	0.00	I	-	suivant	00	presse
+c3-trou	2600	0.39	W	10FD81	04	00	BIOS_SYSRET_STATUS par bios
+c3-trou	2600	0.39	W	10FD80	02	00	BIOS_SYSTEM_MODE par bios
+c3-trou	2600	1.00	E	10FD81	04	00	valeur en fin de trame (MS_SUIVRE)
+c3-trou	2601	0.47	W	10FD81	02	00	BIOS_SYSRET_STATUS par bios
+c3-trou	2601	0.69	W	380021	02	02	REG_SLOT par bios
+c3-trou	2601	1.00	E	D00108	02	02	valeur en fin de trame (MS_SUIVRE)
+c3-trou	2601	1.00	E	10FD81	02	02	valeur en fin de trame (MS_SUIVRE)
+c3-trou	2603	0.02	W	10FD80	82	02	BIOS_SYSTEM_MODE par bios
+c3-trou	2603	0.02	R	000122	-	02	entree USER lue, demande=03 mode=01
+c3-trou	2612	0.00	I	-	suivant	02	presse
+c3-trou	2896	0.10	W	10FD81	03	02	BIOS_SYSRET_STATUS par bios
+c3-trou	2896	1.00	E	D00034	00	02	valeur en fin de trame (MS_SUIVRE)
+c3-trou	2896	1.00	E	10FDAF	02	02	valeur en fin de trame (MS_SUIVRE)
+c3-trou	2896	1.00	E	10FD81	03	02	valeur en fin de trame (MS_SUIVRE)
+c1	749	0.47	W	10FD81	02	00	BIOS_SYSRET_STATUS par bios
+c1	749	1.00	E	10FDAF	01	00	valeur en fin de trame (MS_SUIVRE)
+c1	749	1.00	E	10FD81	02	00	valeur en fin de trame (MS_SUIVRE)
+c1	750	0.02	W	10FD80	82	00	BIOS_SYSTEM_MODE par bios
+c1	750	0.02	R	000122	-	00	entree USER lue, demande=02 mode=01
+c1	750	1.00	E	10FDAE	02	00	valeur en fin de trame (MS_SUIVRE)
+c1	900	0.00	I	-	suivant	00	presse
+c1	1000	0.00	I	-	piece	00	presse
+c1	1000	0.26	W	10FD81	06	00	BIOS_SYSRET_STATUS par bios
+c1	1000	0.26	W	10FD80	02	00	BIOS_SYSTEM_MODE par bios
+c1	1000	1.00	E	D00034	01	00	valeur en fin de trame (MS_SUIVRE)
+c1	1000	1.00	E	10FD81	06	00	valeur en fin de trame (MS_SUIVRE)
+c1	1001	0.47	W	10FD81	02	00	BIOS_SYSRET_STATUS par bios
+c1	1001	1.00	E	10FD81	02	00	valeur en fin de trame (MS_SUIVRE)
+c1	1002	0.02	W	10FD80	82	00	BIOS_SYSTEM_MODE par bios
+c1	1002	0.02	R	000122	-	00	entree USER lue, demande=03 mode=01
+c1	1002	1.00	E	10FDAE	03	00	valeur en fin de trame (MS_SUIVRE)
+c1	1200	0.00	I	-	suivant	00	presse
+c1	1200	0.39	W	10FD81	04	00	BIOS_SYSRET_STATUS par bios
+c1	1200	0.39	W	10FD80	02	00	BIOS_SYSTEM_MODE par bios
+c1	1200	1.00	E	10FD81	04	00	valeur en fin de trame (MS_SUIVRE)
+c1	1201	0.47	W	10FD81	02	00	BIOS_SYSRET_STATUS par bios
+c1	1201	0.69	W	380021	00	00	REG_SLOT par bios
+c1	1201	1.00	E	10FD81	02	00	valeur en fin de trame (MS_SUIVRE)
+c1	1202	0.02	W	10FD80	82	00	BIOS_SYSTEM_MODE par bios
+c1	1202	0.02	R	000122	-	00	entree USER lue, demande=03 mode=01
+c1	1500	0.00	I	-	precedent	00	presse
+c1	1500	0.39	W	10FD81	05	00	BIOS_SYSRET_STATUS par bios
+c1	1500	0.39	W	10FD80	02	00	BIOS_SYSTEM_MODE par bios
+c1	1500	1.00	E	10FD81	05	00	valeur en fin de trame (MS_SUIVRE)
+c1	1501	0.47	W	10FD81	02	00	BIOS_SYSRET_STATUS par bios
+c1	1501	0.69	W	380021	00	00	REG_SLOT par bios
+c1	1501	1.00	E	10FD81	02	00	valeur en fin de trame (MS_SUIVRE)
+c1	1502	0.02	W	10FD80	82	00	BIOS_SYSTEM_MODE par bios
+c1	1502	0.02	R	000122	-	00	entree USER lue, demande=03 mode=01
+c2-gardee	708	0.47	W	10FD81	02	00	BIOS_SYSRET_STATUS par bios
+c2-gardee	708	1.00	E	10FDAF	01	00	valeur en fin de trame (MS_SUIVRE)
+c2-gardee	708	1.00	E	10FD81	02	00	valeur en fin de trame (MS_SUIVRE)
+c2-gardee	709	0.02	W	10FD80	82	00	BIOS_SYSTEM_MODE par bios
+c2-gardee	709	0.02	R	000122	-	00	entree USER lue, demande=02 mode=01
+c2-gardee	709	1.00	E	10FDAE	02	00	valeur en fin de trame (MS_SUIVRE)
+c2-gardee	800	0.00	I	-	piece	00	presse
+c2-gardee	800	0.33	W	10FD81	06	00	BIOS_SYSRET_STATUS par bios
+c2-gardee	800	0.33	W	10FD80	02	00	BIOS_SYSTEM_MODE par bios
+c2-gardee	800	1.00	E	D00034	01	00	valeur en fin de trame (MS_SUIVRE)
+c2-gardee	800	1.00	E	10FD81	06	00	valeur en fin de trame (MS_SUIVRE)
+c2-gardee	801	0.47	W	10FD81	02	00	BIOS_SYSRET_STATUS par bios
+c2-gardee	801	1.00	E	10FD81	02	00	valeur en fin de trame (MS_SUIVRE)
+c2-gardee	802	0.02	W	10FD80	82	00	BIOS_SYSTEM_MODE par bios
+c2-gardee	802	0.02	R	000122	-	00	entree USER lue, demande=03 mode=01
+c2-gardee	802	1.00	E	10FDAE	03	00	valeur en fin de trame (MS_SUIVRE)
+c2-gardee	830	0.00	I	-	piece	00	presse
+c2-gardee	830	1.00	E	D00034	02	00	valeur en fin de trame (MS_SUIVRE)
+c2-gardee	1000	0.00	I	-	suivant	00	presse
+c2-gardee	1000	0.39	W	10FD81	04	00	BIOS_SYSRET_STATUS par bios
+c2-gardee	1000	0.39	W	10FD80	02	00	BIOS_SYSTEM_MODE par bios
+c2-gardee	1000	1.00	E	10FD81	04	00	valeur en fin de trame (MS_SUIVRE)
+c2-gardee	1001	0.47	W	10FD81	02	00	BIOS_SYSRET_STATUS par bios
+c2-gardee	1001	0.69	W	380021	01	01	REG_SLOT par bios
+c2-gardee	1001	1.00	E	D00108	01	01	valeur en fin de trame (MS_SUIVRE)
+c2-gardee	1001	1.00	E	10FD81	02	01	valeur en fin de trame (MS_SUIVRE)
+c2-gardee	1003	0.02	W	10FD80	82	01	BIOS_SYSTEM_MODE par bios
+c2-gardee	1003	0.02	R	000122	-	01	entree USER lue, demande=03 mode=01
+c2-gardee	1300	0.00	I	-	start	01	presse
+c2-gardee	1300	0.10	W	10FD81	03	01	BIOS_SYSRET_STATUS par bios
+c2-gardee	1300	1.00	E	D00034	01	01	valeur en fin de trame (MS_SUIVRE)
+c2-gardee	1300	1.00	E	10FDAF	02	01	valeur en fin de trame (MS_SUIVRE)
+c2-gardee	1300	1.00	E	10FD81	03	01	valeur en fin de trame (MS_SUIVRE)
+c2-gardee	1700	0.00	I	-	suivant	01	presse
+c2-gardee	2000	0.00	I	-	precedent	01	presse
+tenu	752	0.47	W	10FD81	02	00	BIOS_SYSRET_STATUS par bios
+tenu	752	1.00	E	10FDAF	01	00	valeur en fin de trame (MS_SUIVRE)
+tenu	752	1.00	E	10FD81	02	00	valeur en fin de trame (MS_SUIVRE)
+tenu	753	0.02	W	10FD80	82	00	BIOS_SYSTEM_MODE par bios
+tenu	753	0.02	R	000122	-	00	entree USER lue, demande=02 mode=01
+tenu	753	1.00	E	10FDAE	02	00	valeur en fin de trame (MS_SUIVRE)
+tenu	1000	0.00	I	-	piece	00	presse
+tenu	1000	0.26	W	10FD81	06	00	BIOS_SYSRET_STATUS par bios
+tenu	1000	0.26	W	10FD80	02	00	BIOS_SYSTEM_MODE par bios
+tenu	1000	1.00	E	D00034	01	00	valeur en fin de trame (MS_SUIVRE)
+tenu	1000	1.00	E	10FD81	06	00	valeur en fin de trame (MS_SUIVRE)
+tenu	1001	0.47	W	10FD81	02	00	BIOS_SYSRET_STATUS par bios
+tenu	1001	1.00	E	10FD81	02	00	valeur en fin de trame (MS_SUIVRE)
+tenu	1002	0.02	W	10FD80	82	00	BIOS_SYSTEM_MODE par bios
+tenu	1002	0.02	R	000122	-	00	entree USER lue, demande=03 mode=01
+tenu	1002	1.00	E	10FDAE	03	00	valeur en fin de trame (MS_SUIVRE)
+tenu	1200	0.00	I	-	suivant	00	presse
+tenu	1200	0.39	W	10FD81	04	00	BIOS_SYSRET_STATUS par bios
+tenu	1200	0.39	W	10FD80	02	00	BIOS_SYSTEM_MODE par bios
+tenu	1200	1.00	E	10FD81	04	00	valeur en fin de trame (MS_SUIVRE)
+tenu	1201	0.47	W	10FD81	02	00	BIOS_SYSRET_STATUS par bios
+tenu	1201	0.69	W	380021	01	01	REG_SLOT par bios
+tenu	1201	1.00	E	D00108	01	01	valeur en fin de trame (MS_SUIVRE)
+tenu	1201	1.00	E	10FD81	02	01	valeur en fin de trame (MS_SUIVRE)
+tenu	1203	0.02	W	10FD80	82	01	BIOS_SYSTEM_MODE par bios
+tenu	1203	0.02	R	000122	-	01	entree USER lue, demande=03 mode=01
+k9	751	1.00	E	10FEE1	FF	00	valeur en fin de trame (MS_SUIVRE)
+k9	752	0.47	W	10FD81	02	00	BIOS_SYSRET_STATUS par bios
+k9	752	1.00	E	10FDAF	01	00	valeur en fin de trame (MS_SUIVRE)
+k9	752	1.00	E	10FD81	02	00	valeur en fin de trame (MS_SUIVRE)
+k9	752	1.00	E	10FEE1	0A	00	valeur en fin de trame (MS_SUIVRE)
+k9	753	0.02	W	10FD80	82	00	BIOS_SYSTEM_MODE par bios
+k9	753	0.02	R	000122	-	00	entree USER lue, demande=02 mode=01
+k9	753	1.00	E	10FDAE	02	00	valeur en fin de trame (MS_SUIVRE)
+k9	753	1.00	E	10FEE1	09	00	valeur en fin de trame (MS_SUIVRE)
+k9	754	1.00	E	10FEE1	08	00	valeur en fin de trame (MS_SUIVRE)
+k9	755	1.00	E	10FEE1	07	00	valeur en fin de trame (MS_SUIVRE)
+k9	756	1.00	E	10FEE1	06	00	valeur en fin de trame (MS_SUIVRE)
+k9	757	1.00	E	10FEE1	05	00	valeur en fin de trame (MS_SUIVRE)
+k9	758	1.00	E	10FEE1	04	00	valeur en fin de trame (MS_SUIVRE)
+k9	759	1.00	E	10FEE1	03	00	valeur en fin de trame (MS_SUIVRE)
+k9	760	1.00	E	10FEE1	02	00	valeur en fin de trame (MS_SUIVRE)
+k9	761	1.00	E	10FEE1	01	00	valeur en fin de trame (MS_SUIVRE)
+k9	762	1.00	E	10FEE1	00	00	valeur en fin de trame (MS_SUIVRE)
+k9	1000	0.00	I	-	piece	00	presse
+k9	1000	0.26	W	10FD81	06	00	BIOS_SYSRET_STATUS par bios
+k9	1000	0.26	W	10FD80	02	00	BIOS_SYSTEM_MODE par bios
+k9	1000	1.00	E	D00034	01	00	valeur en fin de trame (MS_SUIVRE)
+k9	1000	1.00	E	10FD81	06	00	valeur en fin de trame (MS_SUIVRE)
+k9	1000	1.00	E	10FEE1	FF	00	valeur en fin de trame (MS_SUIVRE)
+k9	1001	0.47	W	10FD81	02	00	BIOS_SYSRET_STATUS par bios
+k9	1001	1.00	E	10FD81	02	00	valeur en fin de trame (MS_SUIVRE)
+k9	1001	1.00	E	10FEE1	0A	00	valeur en fin de trame (MS_SUIVRE)
+k9	1002	0.02	W	10FD80	82	00	BIOS_SYSTEM_MODE par bios
+k9	1002	0.02	R	000122	-	00	entree USER lue, demande=03 mode=01
+k9	1002	1.00	E	10FDAE	03	00	valeur en fin de trame (MS_SUIVRE)
+k9	1002	1.00	E	10FEE1	09	00	valeur en fin de trame (MS_SUIVRE)
+k9	1003	1.00	E	10FEE1	08	00	valeur en fin de trame (MS_SUIVRE)
+k9	1004	1.00	E	10FEE1	07	00	valeur en fin de trame (MS_SUIVRE)
+k9	1005	1.00	E	10FEE1	06	00	valeur en fin de trame (MS_SUIVRE)
+k9	1006	1.00	E	10FEE1	05	00	valeur en fin de trame (MS_SUIVRE)
+k9	1007	1.00	E	10FEE1	04	00	valeur en fin de trame (MS_SUIVRE)
+k9	1008	1.00	E	10FEE1	03	00	valeur en fin de trame (MS_SUIVRE)
+k9	1009	1.00	E	10FEE1	02	00	valeur en fin de trame (MS_SUIVRE)
+k9	1010	1.00	E	10FEE1	01	00	valeur en fin de trame (MS_SUIVRE)
+k9	1011	1.00	E	10FEE1	00	00	valeur en fin de trame (MS_SUIVRE)
+k9	1200	0.00	I	-	suivant	00	presse
+k9	1200	0.39	W	10FD81	04	00	BIOS_SYSRET_STATUS par bios
+k9	1200	0.39	W	10FD80	02	00	BIOS_SYSTEM_MODE par bios
+k9	1200	1.00	E	10FD81	04	00	valeur en fin de trame (MS_SUIVRE)
+k9	1200	1.00	E	10FEE1	FF	00	valeur en fin de trame (MS_SUIVRE)
+k9	1201	0.47	W	10FD81	02	00	BIOS_SYSRET_STATUS par bios
+k9	1201	0.69	W	380021	01	01	REG_SLOT par bios
+k9	1201	1.00	E	D00108	01	01	valeur en fin de trame (MS_SUIVRE)
+k9	1201	1.00	E	10FD81	02	01	valeur en fin de trame (MS_SUIVRE)
+k9	1202	1.00	E	10FEE1	0A	01	valeur en fin de trame (MS_SUIVRE)
+k9	1203	0.02	W	10FD80	82	01	BIOS_SYSTEM_MODE par bios
+k9	1203	0.02	R	000122	-	01	entree USER lue, demande=03 mode=01
+k9	1203	1.00	E	10FEE1	09	01	valeur en fin de trame (MS_SUIVRE)
+k9	1204	1.00	E	10FEE1	08	01	valeur en fin de trame (MS_SUIVRE)
+k9	1205	1.00	E	10FEE1	07	01	valeur en fin de trame (MS_SUIVRE)
+k9	1206	1.00	E	10FEE1	06	01	valeur en fin de trame (MS_SUIVRE)
+k9	1207	1.00	E	10FEE1	05	01	valeur en fin de trame (MS_SUIVRE)
+k9	1208	1.00	E	10FEE1	04	01	valeur en fin de trame (MS_SUIVRE)
+k9	1209	1.00	E	10FEE1	03	01	valeur en fin de trame (MS_SUIVRE)
+k9	1210	1.00	E	10FEE1	02	01	valeur en fin de trame (MS_SUIVRE)
+k9	1211	1.00	E	10FEE1	01	01	valeur en fin de trame (MS_SUIVRE)
+k9	1212	0.00	I	-	suivant	01	presse
+k9	1212	1.00	E	10FEE1	00	01	valeur en fin de trame (MS_SUIVRE)
+k10	751	1.00	E	10FEE1	FF	00	valeur en fin de trame (MS_SUIVRE)
+k10	752	0.47	W	10FD81	02	00	BIOS_SYSRET_STATUS par bios
+k10	752	1.00	E	10FDAF	01	00	valeur en fin de trame (MS_SUIVRE)
+k10	752	1.00	E	10FD81	02	00	valeur en fin de trame (MS_SUIVRE)
+k10	752	1.00	E	10FEE1	0A	00	valeur en fin de trame (MS_SUIVRE)
+k10	753	0.02	W	10FD80	82	00	BIOS_SYSTEM_MODE par bios
+k10	753	0.02	R	000122	-	00	entree USER lue, demande=02 mode=01
+k10	753	1.00	E	10FDAE	02	00	valeur en fin de trame (MS_SUIVRE)
+k10	753	1.00	E	10FEE1	09	00	valeur en fin de trame (MS_SUIVRE)
+k10	754	1.00	E	10FEE1	08	00	valeur en fin de trame (MS_SUIVRE)
+k10	755	1.00	E	10FEE1	07	00	valeur en fin de trame (MS_SUIVRE)
+k10	756	1.00	E	10FEE1	06	00	valeur en fin de trame (MS_SUIVRE)
+k10	757	1.00	E	10FEE1	05	00	valeur en fin de trame (MS_SUIVRE)
+k10	758	1.00	E	10FEE1	04	00	valeur en fin de trame (MS_SUIVRE)
+k10	759	1.00	E	10FEE1	03	00	valeur en fin de trame (MS_SUIVRE)
+k10	760	1.00	E	10FEE1	02	00	valeur en fin de trame (MS_SUIVRE)
+k10	761	1.00	E	10FEE1	01	00	valeur en fin de trame (MS_SUIVRE)
+k10	762	1.00	E	10FEE1	00	00	valeur en fin de trame (MS_SUIVRE)
+k10	1000	0.00	I	-	piece	00	presse
+k10	1000	0.26	W	10FD81	06	00	BIOS_SYSRET_STATUS par bios
+k10	1000	0.26	W	10FD80	02	00	BIOS_SYSTEM_MODE par bios
+k10	1000	1.00	E	D00034	01	00	valeur en fin de trame (MS_SUIVRE)
+k10	1000	1.00	E	10FD81	06	00	valeur en fin de trame (MS_SUIVRE)
+k10	1000	1.00	E	10FEE1	FF	00	valeur en fin de trame (MS_SUIVRE)
+k10	1001	0.47	W	10FD81	02	00	BIOS_SYSRET_STATUS par bios
+k10	1001	1.00	E	10FD81	02	00	valeur en fin de trame (MS_SUIVRE)
+k10	1001	1.00	E	10FEE1	0A	00	valeur en fin de trame (MS_SUIVRE)
+k10	1002	0.02	W	10FD80	82	00	BIOS_SYSTEM_MODE par bios
+k10	1002	0.02	R	000122	-	00	entree USER lue, demande=03 mode=01
+k10	1002	1.00	E	10FDAE	03	00	valeur en fin de trame (MS_SUIVRE)
+k10	1002	1.00	E	10FEE1	09	00	valeur en fin de trame (MS_SUIVRE)
+k10	1003	1.00	E	10FEE1	08	00	valeur en fin de trame (MS_SUIVRE)
+k10	1004	1.00	E	10FEE1	07	00	valeur en fin de trame (MS_SUIVRE)
+k10	1005	1.00	E	10FEE1	06	00	valeur en fin de trame (MS_SUIVRE)
+k10	1006	1.00	E	10FEE1	05	00	valeur en fin de trame (MS_SUIVRE)
+k10	1007	1.00	E	10FEE1	04	00	valeur en fin de trame (MS_SUIVRE)
+k10	1008	1.00	E	10FEE1	03	00	valeur en fin de trame (MS_SUIVRE)
+k10	1009	1.00	E	10FEE1	02	00	valeur en fin de trame (MS_SUIVRE)
+k10	1010	1.00	E	10FEE1	01	00	valeur en fin de trame (MS_SUIVRE)
+k10	1011	1.00	E	10FEE1	00	00	valeur en fin de trame (MS_SUIVRE)
+k10	1200	0.00	I	-	suivant	00	presse
+k10	1200	0.39	W	10FD81	04	00	BIOS_SYSRET_STATUS par bios
+k10	1200	0.39	W	10FD80	02	00	BIOS_SYSTEM_MODE par bios
+k10	1200	1.00	E	10FD81	04	00	valeur en fin de trame (MS_SUIVRE)
+k10	1200	1.00	E	10FEE1	FF	00	valeur en fin de trame (MS_SUIVRE)
+k10	1201	0.47	W	10FD81	02	00	BIOS_SYSRET_STATUS par bios
+k10	1201	0.69	W	380021	01	01	REG_SLOT par bios
+k10	1201	1.00	E	D00108	01	01	valeur en fin de trame (MS_SUIVRE)
+k10	1201	1.00	E	10FD81	02	01	valeur en fin de trame (MS_SUIVRE)
+k10	1202	1.00	E	10FEE1	0A	01	valeur en fin de trame (MS_SUIVRE)
+k10	1203	0.02	W	10FD80	82	01	BIOS_SYSTEM_MODE par bios
+k10	1203	0.02	R	000122	-	01	entree USER lue, demande=03 mode=01
+k10	1203	1.00	E	10FEE1	09	01	valeur en fin de trame (MS_SUIVRE)
+k10	1204	1.00	E	10FEE1	08	01	valeur en fin de trame (MS_SUIVRE)
+k10	1205	1.00	E	10FEE1	07	01	valeur en fin de trame (MS_SUIVRE)
+k10	1206	1.00	E	10FEE1	06	01	valeur en fin de trame (MS_SUIVRE)
+k10	1207	1.00	E	10FEE1	05	01	valeur en fin de trame (MS_SUIVRE)
+k10	1208	1.00	E	10FEE1	04	01	valeur en fin de trame (MS_SUIVRE)
+k10	1209	1.00	E	10FEE1	03	01	valeur en fin de trame (MS_SUIVRE)
+k10	1210	1.00	E	10FEE1	02	01	valeur en fin de trame (MS_SUIVRE)
+k10	1211	1.00	E	10FEE1	01	01	valeur en fin de trame (MS_SUIVRE)
+k10	1212	1.00	E	10FEE1	00	01	valeur en fin de trame (MS_SUIVRE)
+k10	1213	0.00	I	-	suivant	01	presse
+k10	1213	0.11	W	10FD81	04	01	BIOS_SYSRET_STATUS par bios
+k10	1213	1.00	E	10FD81	04	01	valeur en fin de trame (MS_SUIVRE)
+k10	1214	0.18	W	10FD80	02	01	BIOS_SYSTEM_MODE par bios
+k10	1214	1.00	E	10FEE1	FF	01	valeur en fin de trame (MS_SUIVRE)
+k10	1215	0.47	W	10FD81	02	01	BIOS_SYSRET_STATUS par bios
+k10	1215	1.00	E	10FD81	02	01	valeur en fin de trame (MS_SUIVRE)
+k10	1216	0.08	W	380021	00	00	REG_SLOT par bios
+k10	1216	1.00	E	D00108	00	00	valeur en fin de trame (MS_SUIVRE)
+k10	1216	1.00	E	10FEE1	0A	00	valeur en fin de trame (MS_SUIVRE)
+k10	1217	0.02	W	10FD80	82	00	BIOS_SYSTEM_MODE par bios
+k10	1217	0.02	R	000122	-	00	entree USER lue, demande=03 mode=01
+k10	1217	1.00	E	10FEE1	09	00	valeur en fin de trame (MS_SUIVRE)
+k10	1218	1.00	E	10FEE1	08	00	valeur en fin de trame (MS_SUIVRE)
+k10	1219	1.00	E	10FEE1	07	00	valeur en fin de trame (MS_SUIVRE)
+k10	1220	1.00	E	10FEE1	06	00	valeur en fin de trame (MS_SUIVRE)
+k10	1221	1.00	E	10FEE1	05	00	valeur en fin de trame (MS_SUIVRE)
+k10	1222	1.00	E	10FEE1	04	00	valeur en fin de trame (MS_SUIVRE)
+k10	1223	1.00	E	10FEE1	03	00	valeur en fin de trame (MS_SUIVRE)
+k10	1224	1.00	E	10FEE1	02	00	valeur en fin de trame (MS_SUIVRE)
+k10	1225	1.00	E	10FEE1	01	00	valeur en fin de trame (MS_SUIVRE)
+k10	1226	1.00	E	10FEE1	00	00	valeur en fin de trame (MS_SUIVRE)
+titre-sans-credit	708	0.47	W	10FD81	02	00	BIOS_SYSRET_STATUS par bios
+titre-sans-credit	708	1.00	E	10FDAF	01	00	valeur en fin de trame (MS_SUIVRE)
+titre-sans-credit	708	1.00	E	10FD81	02	00	valeur en fin de trame (MS_SUIVRE)
+titre-sans-credit	709	0.02	W	10FD80	82	00	BIOS_SYSTEM_MODE par bios
+titre-sans-credit	709	0.02	R	000122	-	00	entree USER lue, demande=02 mode=01
+titre-sans-credit	709	1.00	E	10FDAE	02	00	valeur en fin de trame (MS_SUIVRE)
+titre-sans-credit	900	0.00	I	-	piece	00	presse
+titre-sans-credit	900	1.00	E	D00024	01	00	valeur en fin de trame (MS_SUIVRE)
+titre-sans-credit	1100	0.00	I	-	suivant	00	presse
+titre-sans-credit	1300	0.00	I	-	piece	00	presse
+titre-sans-credit	1300	0.49	W	10FD81	06	00	BIOS_SYSRET_STATUS par bios
+titre-sans-credit	1300	0.49	W	10FD80	02	00	BIOS_SYSTEM_MODE par bios
+titre-sans-credit	1300	1.00	E	D00034	01	00	valeur en fin de trame (MS_SUIVRE)
+titre-sans-credit	1300	1.00	E	D00024	00	00	valeur en fin de trame (MS_SUIVRE)
+titre-sans-credit	1300	1.00	E	10FD81	06	00	valeur en fin de trame (MS_SUIVRE)
+titre-sans-credit	1301	0.47	W	10FD81	02	00	BIOS_SYSRET_STATUS par bios
+titre-sans-credit	1301	1.00	E	10FD81	02	00	valeur en fin de trame (MS_SUIVRE)
+titre-sans-credit	1302	0.02	W	10FD80	82	00	BIOS_SYSTEM_MODE par bios
+titre-sans-credit	1302	0.02	R	000122	-	00	entree USER lue, demande=03 mode=01
+titre-sans-credit	1302	1.00	E	10FDAE	03	00	valeur en fin de trame (MS_SUIVRE)
+titre-sans-credit	1500	0.00	I	-	suivant	00	presse
+titre-sans-credit	1500	0.39	W	10FD81	04	00	BIOS_SYSRET_STATUS par bios
+titre-sans-credit	1500	0.39	W	10FD80	02	00	BIOS_SYSTEM_MODE par bios
+titre-sans-credit	1500	1.00	E	10FD81	04	00	valeur en fin de trame (MS_SUIVRE)
+titre-sans-credit	1501	0.47	W	10FD81	02	00	BIOS_SYSRET_STATUS par bios
+titre-sans-credit	1501	0.69	W	380021	01	01	REG_SLOT par bios
+titre-sans-credit	1501	1.00	E	D00108	01	01	valeur en fin de trame (MS_SUIVRE)
+titre-sans-credit	1501	1.00	E	10FD81	02	01	valeur en fin de trame (MS_SUIVRE)
+titre-sans-credit	1503	0.02	W	10FD80	82	01	BIOS_SYSTEM_MODE par bios
+titre-sans-credit	1503	0.02	R	000122	-	01	entree USER lue, demande=03 mode=01
+titre-sans-credit	1700	0.00	I	-	precedent	01	presse
+titre-sans-credit	1700	0.10	W	10FD81	05	01	BIOS_SYSRET_STATUS par bios
+titre-sans-credit	1700	1.00	E	10FD81	05	01	valeur en fin de trame (MS_SUIVRE)
+titre-sans-credit	1701	0.17	W	10FD80	02	01	BIOS_SYSTEM_MODE par bios
+titre-sans-credit	1702	0.47	W	10FD81	02	01	BIOS_SYSRET_STATUS par bios
+titre-sans-credit	1702	1.00	E	10FD81	02	01	valeur en fin de trame (MS_SUIVRE)
+titre-sans-credit	1703	0.07	W	380021	00	00	REG_SLOT par bios
+titre-sans-credit	1703	1.00	E	D00108	00	00	valeur en fin de trame (MS_SUIVRE)
+titre-sans-credit	1704	0.02	W	10FD80	82	00	BIOS_SYSTEM_MODE par bios
+titre-sans-credit	1704	0.02	R	000122	-	00	entree USER lue, demande=03 mode=01
+boot-avec-credit	1	1.00	E	D00034	01	-	valeur en fin de trame (MS_SUIVRE)
+boot-avec-credit	238	1.00	E	D00034	00	05	valeur en fin de trame (MS_SUIVRE)
+boot-avec-credit	709	0.02	R	000122	-	00	entree USER lue, demande=02 mode=01
+boot-avec-credit	900	0.00	I	-	suivant	00	presse
+boot-avec-credit	1200	0.00	I	-	precedent	00	presse

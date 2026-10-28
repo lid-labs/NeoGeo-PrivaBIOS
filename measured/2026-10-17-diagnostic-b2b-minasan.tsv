@@ -1,0 +1,47 @@
+# Diagnostic de b2b et minasan, les deux jeux qui figent des la trame 100 sous notre BIOS au
+# catalogue du 2026-10-16 (image de #1371) et jouent sous snk. Jigs lua MAME, -bios euro,
+# NVRAM isolee par run, le 2026-10-16 au soir. Adresses de RAM, de registres et de la
+# CARTOUCHE ; aucun PC ni octet du BIOS de reference : le PC n'est lu que pour attribuer une
+# ecriture au BIOS (notee "BIOS") ou a la cartouche, et les PC cites sont ceux du jeu.
+# Les deux jeux n'ont PAS la meme cause.
+#
+# MINASAN — LE DEPART FORCE ("game start compulsion") MANQUE.
+# Sous snk, une seule piece a la trame 300, rien d'autre ; $10FDDA (secondes, BCD) et $10FDDB
+# (trames) a chaque changement :
+#   trame 301   $10FDDA=30 $10FDDB=3B  credit $D00034=01   (la piece arme le minuteur)
+#   326-384     $10FDDB decroit de 1 par trame, de 3B a 00 ; puis $10FDDA=29, $10FDDB=3B
+#   puis        une seconde toutes les 60 trames : 28 a 444, 27 a 504 ... 01 a 2064
+#   trame 2124  $10FDDA=00 $10FDDB=00, BIOS_USER_MODE $10FDAF 01->02, credit 01->00
+#               (le BIOS lance la partie et deduit le credit, sans START)
+#   $D00044 vaut 30 apres le boot de la reference (relu dans c0.s) : la valeur de recharge.
+# Deux pieces (trames 300 et 900), meme jig : la seconde recharge $10FDDA a 30 (trame 901, credit
+# 02) ; le decompte reprend jusqu'a 00 a la trame 2700, ou $000128 (PLAYER_START) est atteint avec
+# BIOS_START_FLAG $10FDB4 = 01, puis mode 02 et credit 02->01 : le chemin d'un START du joueur 1.
+# Sous notre BIOS : $10FDDA/$10FDDB restent a 00 ; le "TIME" de l'ecran de selection reste
+# fige (capture f03500 : "TIME 06" chez nous, "TIME 25" sous snk). io.s ecarte ce mecanisme
+# depuis la couche 1 ("2/32 appels, ecartes").
+#
+# B2B — UNE REMISE QUI TOMBE JUSTE AVANT LE VBLANK, PUIS UN ECRAN NOIR.
+# 1. Le symptome. Le jeu tourne en exception : erreur d'adresse a la trame 3 (vecteur $0C, PC
+#    empile $011098, adresse $544505), pendant son vblank, quand il vide une file de palette
+#    ($103920 pointeur, $103924 liste terminee par 1). Le vecteur d'exception de la
+#    cartouche mene dans la zone d'entree $C00408-$C00437, que notre image remplit de $0000 :
+#    l'execution y glisse jusqu'a SYSTEM_INT1, qui revient par rte sur une instruction
+#    illegale en $C0043A — environ 200 exceptions par trame, ecran noir.
+# 2. La cause. Le jeu initialise la file au debut de la demande 2 (ecritures en $000B8A/$000B94,
+#    sous snk, trame 749). Avant d'y arriver il ouvre les IRQ (SR $2004 en $000324). Phase
+#    dans la trame a ce moment, mesuree par l'horloge de MAME depuis la fin de trame :
+#      snk                 0,022   (trame 749)
+#      notre BIOS #1371    0,898   (trame 0)
+#    Chez nous le vblank suivant (ligne $1F0, mesuree au vecteur $64) arrive avant
+#    l'initialisation de la file.
+# 3. Test causal, image jetable (non livree) : avant le jmp $122 de toute remise, attendre que
+#    REG_LSPCMODE ($3C0006, bits 15-7) vaille $1F0, puis $3C000C <- 7. Resultat : $000324 a la
+#    phase 0,003, plus aucune erreur d'adresse sur 2000 trames, la partie demarre (mode 2,
+#    trame 101 avec le plan d'entrees de la sonde). Un acquittement seul, sans attente, ne
+#    change rien (meme test, 1 erreur d'adresse).
+# 4. Ce qui reste. Avec l'image jetable, l'ecran reste entierement noir (vifs 0 aux trames
+#    200, 500, 1000, 2000) alors que le jeu avance (PC de fin de trame en $000A10, comme
+#    sous snk) et que la palette porte 3418 entrees non nulles (3419 sous snk). Non diagnostique.
+#
+# Matrice du corpus sur l'image jetable : 2026-10-17-matrice-remise-vblank.tsv.

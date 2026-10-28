@@ -1,0 +1,23 @@
+# Le gestionnaire de la carte mémoire (src/c0/gestion-carte.s), le 2026-10-24 : les seuils de ses scènes au parcours du joueur
+# (bench/parcours.sh, --ref-carte), et ce que l'image mesure en face. MAME 0.286, -video none, -sound none, -nothrottle, NVRAM par
+# run, romsets non-merged de $ROMS, seul sp-s2.sp1 remplacé. Le critère de chaque scène est dans l'en-tête de
+# bench/parcours.sh ; ces scènes-là jugent surtout du texte exact (le plan fixe décodé) et des cartes égales à l'octet, sans seuil.
+#
+# LES TÉMOINS. Pour ce qui change la carte : le BIOS SNK (-bios euro, romset d'origine) après la même commande CARD provoquée
+# par bench/forcer.lua sur la même carte de départ (celle que le BIOS SNK a sauvée au run carte-sauve-snk) — CARD $04 au run
+# cop-supp-snk, CARD $00 au run cop-fmt-snk ; puis aof relancé sur la carte du BIOS SNK (cop-supp-relu-snk). Pour
+# l'écran : aucun, l'écran est le nôtre ; le texte attendu se déduit de la carte de départ (la fixture de bench/parcours.sh :
+# quatorze sauvegardes, 16 blocs pris, 11 libres).
+#
+# Et deux scènes des scores : aes-scores, les scores en mode AES (measured/2026-10-24-scores-aes.tsv), au seuil de la scène
+# scores (mode MVS) ; scores-gel, SCORE RESET (measured/2026-10-24-scores-date.tsv), dont le critère est sans seuil (chaque trame).
+#
+# Seule la colonne « seuil » juge. Unités : octets de la carte (2 048), trames à 59,185 Hz.
+scene	grandeur	seuil	mesure
+cm-effacer	octets_max	0	0 sur 2 048 (la suppression SNK en change 5)
+cm-effacer	snk_min	1400	1 636 sur 2 000 (aof relancé sur la carte effacée ; 1 635 pour carte-supprimer, CARD $04 provoqué)
+cm-effacer	sauve_max	200	1 (contre la carte où la sauvegarde est encore)
+cm-formater	octets_max	0	0 sur 2 048 (le formatage SNK en change 72)
+aes-scores	cases_min	8	53 (0 hors de la ligne 1ST), comme la scène scores en mode MVS
+scores-gel	trames_min	150	305 (BEST HEROES de wh2, trames 2862-3176) ; à OFF, 305 égales au même jour, 0 au saut
+cm-insertion	octets_max	0	0 sur 2 048 le 2026-10-25 (A, la carte retirée et remise, A, B) ; 5 sans l'abandon de la confirmation, A effaçant aof

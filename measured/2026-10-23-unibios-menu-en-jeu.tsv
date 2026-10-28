@@ -1,0 +1,30 @@
+# Le menu en jeu d'UniBIOS 4.0 mesure par observation, le 2026-10-23. MAME 0.286, -bios unibios40
+# (set neogeo de $ROMS), mslug, -video none, NVRAM neuve, jig bench/son.lua.
+# Rien n'est lu du BIOS : seulement les ecritures aux registres, a la RAM de palettes, aux ports
+# du VRAM, a REG_SOUND, et l'ecran. Le PC ne sert qu'a classer une ecriture BIOS ($C00000-$C1FFFF)
+# ou jeu ; il n'est pas consigne.
+#
+# GESTE : START + piece P1 tenus 10 trames ensemble (trame 3000) ouvre le menu (image : « In Game
+# MenU », THE CHEAT DATABASE, DEBUG DIP SETTINGS, PATCH MEMORY, SOFT REBOOT SYSTEM). C le ferme
+# (trame 3100 ; B, D et START + piece n'y font rien, essayes un par run). Le jeu est fige pendant
+# le menu (minuterie du HUD arretee a 56).
+mesure	resultat
+REG_SOUND ecrit par le BIOS, trames 500 a 4600	0 ecriture
+REG_BRDFIX / REG_CRTFIX ecrits par le BIOS, trames 500 a 4600	0 ecriture
+ecritures VRAM (REG_VRAMRW) du BIOS	798 a l'ouverture (trame 3004), 448 a la fermeture (trame 3106), 0 entre
+cases du plan fixe changees, ouvert contre avant	448 : un cadre de 28 colonnes (6-33) sur 16 lignes (8-23)
+palettes de ces cases	1, 2, 3, 4
+tuiles de ces cases	ASCII 8x8 et paires $100/$200 + ASCII (8x16), plus quelques tuiles basses ($001-$004)
+autres zones VRAM changees, ouvert contre avant	SCB1 12 mots, SCB2 4, SCB3 13, SCB4 10
+ecritures de palettes du BIOS	10 a l'ouverture, 12 a la fermeture, 0 entre
+entrees de palette changees	9 : entrees 1 et 2 des palettes 1 a 4, et l'entree 5 de la palette 4
+palettes du plan fixe du jeu a ce moment	0, 2, 5, 6, 7, 8, 14 : UniBIOS ecrit l'entree 2 de la palette 2, employee par le HUD du jeu
+palettes rendues a la fermeture	oui, les 9 entrees
+HUD du jeu pendant le menu (image trame 3030)	propre, dessine avec les tuiles de la cartouche (le plan fixe reste sur la S ROM)
+son pendant le menu (trames 3005-3105)	le pilote continue : fm 20, aa 27, ab 6 key-on ; la musique ne s'arrete pas
+son apres fermeture contre temoin unibios40 sans menu (1490 trames)	fm 212/220, aa 594/600, ab 123/130, cmdJ 69/69 : intact
+#
+# LECTURE : UniBIOS ne touche ni au Z80 ni a la source du plan fixe. Il ecrit son texte avec la
+# police de la S ROM du jeu aux places ASCII (ce que mesure deja
+# measured/2026-10-21-police-cartouche.tsv), sauve et rend 448 cases du plan fixe (896 octets) et
+# 9 entrees de palette. C'est le contraire de menu.s sur les deux points qui font defaut.

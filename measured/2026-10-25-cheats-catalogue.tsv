@@ -1,0 +1,40 @@
+# Le catalogue des cheats joué par le BIOS lui-même (bench/cheats-catalogue.sh), le 2026-10-25, image finale du lot
+# e5b4ea94d82df51ac3530ca731b8b432b993eb10053c5a2329d43dd161cb67d5. MAME 0.286, -bios euro, -video none, une NVRAM et un cfg par
+# run, romsets non-merged de $ROMS, seul sp-s2.sp1 remplacé. Pour chaque cheat, deux runs : le cheat mis à ON par le
+# menu en jeu, et un témoin qui ouvre et ferme le même menu. Critères et seuils : l'en-tête du script (TEMPS_ON_MIN 0,6,
+# TEMPS_TEMOIN_MAX 0,35, RAM_MIN 0,9). 32 cheats, un par jeu, tous PASS ; INFINITE TIME de kof95 hors du jig (en-tête du script).
+# Colonnes : jeu, cheat, verdict, NGH et empreinte lus par le jig à la trame 600 (ceux de la table de cheats.s), écritures du
+# moteur relevées par le tap (adresse paire du mot x nombre ; aucune au témoin), et la mesure qui juge.
+jeu	cheat	verdict	ngh	empreinte	ecritures_du_moteur	nombre	mesure
+kof95	P1 INFINITE LIFE	PASS	0084	0A7E	108220x10298	10298	fin de partie : témoin 8410, sous cheat aucune (FIN 12000) ; $108221 à $CF sur 0.98
+kof99	INFINITE TIME	PASS	0251	B157	10A7E6x1220	1220	chronomètre : son image la plus fréquente sur 1.00 des relevés sous cheat (1 images), 0.08 au témoin (23) ; $10A7E7 à $32 sur 1.00
+kof2000	INFINITE TIME	PASS	0257	E65C	10A7E6x1220	1220	chronomètre : son image la plus fréquente sur 1.00 des relevés sous cheat (1 images), 0.08 au témoin (13) ; $10A7E6 à $60 sur 1.00
+kof2002	INFINITE TIME	PASS	0265	C423	10A7D2x1220	1220	chronomètre : son image la plus fréquente sur 1.00 des relevés sous cheat (1 images), 0.07 au témoin (25) ; $10A7D3 à $32 sur 1.00
+samsho	INFINITE TIME	PASS	0045	39BC	100A08x1220	1220	chronomètre : son image la plus fréquente sur 1.00 des relevés sous cheat (1 images), 0.07 au témoin (19) ; $100A08 à $99 sur 1.00
+samsho2	INFINITE TIME	PASS	0063	B2EF	100AC6x1220	1220	chronomètre : son image la plus fréquente sur 0.89 des relevés sous cheat (4 images), 0.07 au témoin (17) ; $100AC6 à $99 sur 1.00
+samsho4	INFINITE TIME	PASS	0222	2643	108368x1220	1220	chronomètre : son image la plus fréquente sur 0.98 des relevés sous cheat (2 images), 0.10 au témoin (17) ; $108369 à $3C sur 1.00
+samsho5	INFINITE TIME	PASS	0270	1B2F	10836Ax1220	1220	chronomètre : son image la plus fréquente sur 0.67 des relevés sous cheat (2 images), 0.07 au témoin (23) ; $10836A à $60 sur 1.00
+samsh5sp	INFINITE TIME	PASS	0272	1851	10836Ax1220	1220	chronomètre : son image la plus fréquente sur 0.97 des relevés sous cheat (3 images), 0.11 au témoin (12) ; $10836A à $60 sur 1.00
+fatfury3	INFINITE TIME	PASS	0069	EF51	105680x1220	1220	chronomètre : son image la plus fréquente sur 0.93 des relevés sous cheat (5 images), 0.23 au témoin (14) ; $105680 à $60 sur 0.98
+fatfursp	INFINITE TIME	PASS	0058	189F	10092Ax1220	1220	chronomètre : son image la plus fréquente sur 0.98 des relevés sous cheat (2 images), 0.31 au témoin (8) ; $10092A à $60 sur 0.98
+lastblad	INFINITE TIME	PASS	0234	B3E9	10E32Ax1220	1220	chronomètre : son image la plus fréquente sur 1.00 des relevés sous cheat (1 images), 0.13 au témoin (9) ; $10E32B à $60 sur 1.00
+aof2	INFINITE TIME	PASS	0056	2DFA	108406x1220	1220	chronomètre : son image la plus fréquente sur 0.80 des relevés sous cheat (2 images), 0.10 au témoin (11) ; $108406 à $60 sur 1.00
+wh1	INFINITE TIME	PASS	0053	783E	10B008x1220	1220	chronomètre : son image la plus fréquente sur 1.00 des relevés sous cheat (1 images), 0.07 au témoin (20) ; $10B008 à $99 sur 1.00
+wh2	INFINITE TIME	PASS	0057	1419	10C108x1220	1220	chronomètre : son image la plus fréquente sur 0.97 des relevés sous cheat (3 images), 0.20 au témoin (17) ; $10C109 à $99 sur 1.00
+svc	INFINITE TIME	PASS	0269	D6D2	10AC14x1220	1220	chronomètre : son image la plus fréquente sur 1.00 des relevés sous cheat (1 images), 0.11 au témoin (12) ; $10AC14 à $60 sur 1.00
+breakrev	INFINITE TIME	PASS	0245	B255	107C26x1219	1219	chronomètre : son image la plus fréquente sur 1.00 des relevés sous cheat (1 images), 0.13 au témoin (10) ; $107C27 à $63 sur 1.00
+karnovr	INFINITE TIME	PASS	0066	6A32	103A70x1220	1220	chronomètre : son image la plus fréquente sur 0.69 des relevés sous cheat (11 images), 0.13 au témoin (23) ; $103A70 à $63 sur 1.00
+doubledr	INFINITE TIME	PASS	0082	1CB9	102242x1220	1220	chronomètre : son image la plus fréquente sur 0.97 des relevés sous cheat (2 images), 0.18 au témoin (15) ; $102242 à $99 sur 1.00
+mslug2	INFINITE LIVES	PASS	0241	BE57	101276x10420	10420	fin de partie : témoin 4690, sous cheat aucune (FIN 12000) ; $101276 à $02 sur 1.00
+mslugx	INFINITE LIVES	PASS	0250	92D4	101288x10420	10420	fin de partie : témoin 4780, sous cheat aucune (FIN 12000) ; $101288 à $02 sur 1.00
+mslug3	INFINITE LIVES	PASS	0256	E095	1002BAx10420	10420	fin de partie : témoin 4440, sous cheat aucune (FIN 12000) ; $1002BB à $02 sur 1.00
+mslug4	INFINITE LIVES	PASS	0263	D875	100A88x10419	10419	fin de partie : témoin 4690, sous cheat aucune (FIN 12000) ; $100A89 à $02 sur 1.00
+mslug5	INFINITE LIVES	PASS	0268	1581	100A40x10419	10419	fin de partie : témoin 5410, sous cheat aucune (FIN 12000) ; $100A41 à $02 sur 1.00
+pulstar	INFINITE LIVES	PASS	0089	A232	10132Ax10408	10408	fin de partie : témoin 4340, sous cheat aucune (FIN 12000) ; $10132A à $02 sur 1.00
+blazstar	INFINITE LIVES	PASS	0239	A454	101BA0x10414	10414	fin de partie : témoin 3640, sous cheat aucune (FIN 12000) ; $101BA1 à $02 sur 1.00
+androdun	INFINITE LIVES	PASS	0049	03FF	100342x10420	10420	fin de partie : témoin 3020, sous cheat aucune (FIN 12000) ; $100343 à $03 sur 1.00
+gpilots	INFINITE LIVES	PASS	0020	A0C5	103F36x10420	10420	fin de partie : témoin 5020, sous cheat aucune (FIN 12000) ; $103F37 à $03 sur 1.00
+lresort	INFINITE LIVES	PASS	0024	03A4	108030x10419	10419	fin de partie : témoin 3280, sous cheat aucune (FIN 12000) ; $108030 à $02 sur 1.00
+maglord	INFINITE LIVES	PASS	0005	9330	103B00x10164	10164	fin de partie : témoin 5080, sous cheat aucune (FIN 12000) ; $103B00 à $02 sur 1.00
+s1945p	INFINITE LIVES	PASS	0254	D5FF	1000E8x10419	10419	fin de partie : témoin 2620, sous cheat aucune (FIN 12000) ; $1000E9 à $02 sur 1.00
+zedblade	INFINITE LIVES	PASS	0076	9553	100228x10419	10419	fin de partie : témoin 3280, sous cheat aucune (FIN 12000) ; $100229 à $03 sur 1.00

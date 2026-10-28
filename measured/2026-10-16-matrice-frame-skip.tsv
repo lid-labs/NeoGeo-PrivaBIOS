@@ -1,0 +1,33 @@
+# La matrice de la couche 1 APRES le mecanisme FRAME_SKIP complet, le 2026-10-16 : armement
+# $FF de $10FEE1 a chaque remise USER, recharge $0A la trame suivante, decompte 1/trame,
+# COIN_SOUND differe (memoire $10FEE2) jusqu'au premier SYSTEM_IO a zero, et remise USER au
+# titre (demande 3) sur toute piece acceptee hors partie (mode < 2) — tout mesure sur la
+# reference (trace 9 de specs/traces/protocole.md, et MAME sur neomrdo : la remise de la
+# reference se decale toujours ~3 trames derriere la piece).
+# Ce que ca change : neomrdo passe de NOIR ABSOLU (vifs 0) a l'ecran titre plein
+# (vifs 71680) — mais il reste fige apres le start (mode 02 atteint, ecran statique) : son
+# diagnostic continue. flipshot repasse a pose 0. Temoins 13/17 et 15/20, stables.
+# Seules les lignes sprixe sont relevees ; controles de substitution tous ok.
+#
+# Image : la branche feat/bios-frame-skip, sha256 6d6d0b10d2e54dc6…
+jeu	bios	verdict	vifs_max	vitesse_pct	controle
+aof	sprixe	joue (plus longue pose 0 tr.)	68096	2133.78	ok
+garou	sprixe	FIGE dès 100 (3000 trames)	0	65.44	ok
+joyjoy	sprixe	joue (plus longue pose 0 tr.)	62222	2125.17	ok
+kof2003	sprixe	joue (plus longue pose 0 tr.)	60765	1869.81	ok
+kof94	sprixe	joue (plus longue pose 0 tr.)	66655	1745.21	ok
+kof98	sprixe	joue (plus longue pose 0 tr.)	0	59.06	ok
+lbowling	sprixe	joue (plus longue pose 0 tr.)	56820	2109.65	ok
+mslug	sprixe	joue (plus longue pose 0 tr.)	66834	2145.95	ok
+mslug3	sprixe	FIGE dès 100 (2500 trames)	0	59.37	ok
+nam1975	sprixe	joue (plus longue pose 0 tr.)	27604	2055.42	ok
+puzzledp	sprixe	joue (plus longue pose 0 tr.)	71680	2197.00	ok
+ridhero	sprixe	joue (plus longue pose 0 tr.)	71680	2013.99	ok
+samsho2	sprixe	joue (plus longue pose 0 tr.)	67829	2031.72	ok
+ssideki4	sprixe	joue (plus longue pose 0 tr.)	71197	1930.83	ok
+svc	sprixe	FIGE dès 100 (3400 trames)	0	2816.50	ok
+trally	sprixe	joue (plus longue pose 0 tr.)	70605	2231.79	ok
+wjammers	sprixe	joue (plus longue pose 100 tr.)	71680	1879.49	ok
+flipshot	sprixe	joue (plus longue pose 0 tr.)	71528	1982.23	ok
+neomrdo	sprixe	FIGE dès 100 (3400 trames)	71680	1847.97	ok
+magdrop2	sprixe	joue (plus longue pose 100 tr.)	71680	1944.21	ok

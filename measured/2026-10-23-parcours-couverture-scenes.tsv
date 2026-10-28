@@ -1,0 +1,90 @@
+# La couverture du parcours du joueur (bench/parcours.sh, 34 scènes : 28, puis 6 d'un second lot le même jour), le 2026-10-23 :
+# les seuils qui jugent chaque scène, et ce que l'image mesure en face. Une extension de 2026-10-23-parcours.tsv et -parcours-aes.tsv, dans un relevé à part pour
+# que ceux-là restent tels quels ; le parcours lit les trois (--ref, --ref-aes, --ref-couv). Mêmes conditions : MAME 0.286,
+# -video none, -sound none (le son mixé enregistré par -wavwrite), -nothrottle, NVRAM par run, romsets non-merged de
+# $ROMS, seul sp-s2.sp1 remplacé. Image : main 5af9aede, sha256 bc6560f50412bbb23cece3f5d38a4a818c5c606ca5564b4407c983db4bc8127b,
+# pour les 27 premières scènes ; aes-texte et les six du second lot : l'image corrigée (CREDIT_CHECK en mode AES, src/c0/io.s), sha256
+# 6fc2d51b7bf2823575e3dc0436f732314aa045de328a16ff52ff9e277d265ec6, sur laquelle les 34 ont été rejouées (bench/non-regression.sh
+# complet) : mêmes mesures, sauf aes-ms-select, dite à sa ligne.
+# Jeux : aof, puzzledp, b2b, et sur la MV-6F (`neogeo -cart1`, liste logicielle) aof, kof98, ncombat, b2b + puzzledp, b2b +
+# puzzledp + aof. L'inventaire des fonctions, avec la scène de chacune : 2026-10-23-parcours-couverture.tsv.
+#
+# LES TÉMOINS. Le BIOS SNK de la même région (-bios euro, japan, us, romset d'origine) ou de la même machine (`aes -bios asia`,
+# aes.zip recopié par le parcours) : runs dont le nom porte « snk », contrôlés sans WRONG CHECKSUMS. Sinon, le même chemin
+# sans le geste (jukebox-b0 sans B, carte-neuve, ms-seule0, temps0…). Le mode AES sur la MV-6F se pose par l'éditeur sur cette
+# machine (sa NVRAM n'est pas celle du set aof), comme aes-set.
+#
+# Seule la colonne « seuil » juge ; « mesure » est la valeur de l'image de main, deux passes aux verdicts identiques (la
+# seconde dans bench/non-regression.sh complet). Le critère de chaque scène est dans l'en-tête de bench/parcours.sh. Un
+# changement voulu du comportement demande un nouveau relevé, pas un seuil relâché. Unités : case = 8 × 8 pixels (1 120 à
+# l'écran), trames à 59,185 Hz, RMS en échantillons 16 bits du WAV stéréo.
+#
+# UN DÉFAUT DU BIOS, MESURÉ, CORRIGÉ LE MÊME JOUR : la scène aes-texte. Elle portait « bug_connu » à 1 (verdict CONNU) ; la ligne
+# est retirée, la scène dit PASS sur l'image corrigée, et la mutation aes-insert-coin, qui réintroduit le défaut, la fait échouer.
+#   Scénario : mode AES (aes-set), aof, START à 1000, bas à 1800 et A à 1830 (STORY MODE), aucune autre entrée. Témoin :
+#   `aes -bios asia -cart aof`, mêmes entrées. Jusqu'à la trame 3844, la zone du message de P2 (x 208-303, y 0-15) montre une
+#   image du témoin sur 2 840 des 2 845 trames. Dès que le combat commence (trame 3845), le haut de l'écran alterne « WAITING
+#   FOR A CHALLENGER » et « INSERT COIN » chez nous, et y montre « PUSH START » chez SNK (captures 4090 et 4200) : 81 des 255
+#   trames 3845-4099 sont une image du témoin. Le joueur 2 se joint pourtant par START dans les deux cas (START P2 à 4100 :
+#   VS MODE SELECT PLAYER aux deux, trame 4300) : seul le texte ment, et il invite à une pièce que le mode AES ignore. Le combat
+#   diverge ensuite (game over à 8184 contre 7525, d'où le décalage de 659 trames d'aes-fin).
+#   La cause, mesurée ensuite (measured/2026-10-23-aes-credit.tsv) : aof ne lit jamais $D00034 en mode AES — la supposition
+#   d'un choix du texte sur ce crédit est RÉFUTÉE — ; il pose DEC2 = $01, appelle CREDIT_CHECK et relit DEC2. La référence n'y
+#   touche pas ; notre CREDIT_CHECK le mettait à $00, le crédit étant nul en mode AES. Corrigé : en mode AES, les deux chemins de
+#   refus de CREDIT_CHECK laissent la demande. Après : 198 trames sur 255, aucun état tenu hors du témoin (4 avant).
+#
+# LE SECOND LOT : CARD $01, $04, $06/$07 provoqués par bench/forcer.lua sur la carte que le BIOS SNK a sauvée, contre le même appel
+# sous le BIOS SNK (carte-chercher, carte-supprimer, carte-nom) ; l'INPUT TEST de P2 et de SELECT sur la MV-6F (tests-p2) et des huit
+# commutateurs posés par les champs :DSW de MAME (tests-dip) ; l'éditeur sur une fixture dont seul le pointeur soft-DIP européen de
+# l'en-tête est refusé (dip-sans-donnees, fabriquée par bench/parcours.sh dans le dossier de travail).
+#
+# LES MUTATIONS (bench/parcours-mutations.py --eprouver, une à la fois sur une copie de src/c0) : 34, une par scène, toutes tuées le
+# 2026-10-23, chacune par la scène visée — la liste est dans l'en-tête de bench/parcours.sh.
+# Le 2026-10-25, le lot du catalogue des cheats et de CHEATS/DEBUG ne change aucun seuil de ce relevé : ses trois scènes
+# (cheats-vies, bo-cd-menu, bo-cd-gel) ont les leurs dans 2026-10-25-parcours-cheats.tsv, et cheats-off garde ram_max.
+# Le même jour, le lot des commutateurs de la carte et du geste sans bouton TEST ne change aucun seuil de ce relevé non plus :
+# ses dix scènes (dip-free-play, dip-fp-p2, dip-fp-refus, dip-fp-chaud, dip-fp-reglage, dip-fp-cabinet, dip-setting,
+# geste-boot, geste-jeu, geste-partie)
+# ont les leurs dans 2026-10-25-parcours-dip-free-play.tsv (--ref-dip) ; tests-dip, qui pose les huit commutateurs, n'a pas bougé.
+scene	grandeur	seuil	mesure
+dip-defauts	cases_max	0	0 (ROUND TIME 65 en change 4 au témoin)
+dip-fois	avance_min	300	650 (titre à 8182 sans continue, 8832 avec)
+region-europe	temoin_min	600	754 sur 1 000 (décalage −562)
+region-europe	autre_max	100	12 (SNK us)
+region-japon	temoin_min	600	854 sur 1 000 (décalage −513)
+region-japon	autre_max	100	12 (SNK us)
+region-usa	temoin_min	600	777 sur 1 000 (décalage −515)
+region-usa	autre_max	100	12 (SNK japan), 12 (SNK euro)
+tests-entrees	cases_max	8	7 (SERVICE ; quatorze entrées, disjointes)
+tests-grille	ecarts_max	0	0 sur 1 120 ; le 2026-10-25, CROSSHATCH à « haut » trois fois (CARTRIDGE CRC s'ajoute avant EXIT), même mesure
+jukebox-stop	rms_min	300	2 286 avant B, 2 983 sans B
+jukebox-stop	ratio_max	0.1	0.003 (RMS 9 après B)
+cheats-off	ram_max	100	0 sur 1 200
+partie-p2	snk_min	1800	2 142 sur 2 500
+partie-p2	p1_max	1000	418
+partie-p2-joint	snk_min	1000	1 153 sur 1 400
+partie-p2-joint	seul_max	700	0
+carte-sauve	snk_min	1800	1 982 sur 2 000
+carte-sauve	neuve_max	200	3
+ms-select-p2	cases_max	4	0 (slot 2 en titre à 1055)
+aes-ms-select	snk_min	300	894 sur 900 (décalage 129) ; 442 sur l'image de main, avant la correction de CREDIT_CHECK (puzzledp relisait DEC à $00 en démo)
+aes-pause	snk_min	900	997 sur 1 000 (décalage −6)
+aes-logo	snk_min	700	881 sur 1 500 (décalage 179)
+aes-fin	snk_min	350	445 sur 500 (décalage 659)
+aes-fin	mvs_max	100	10
+aes-texte	trames_min	150	198 sur 255 (2 840 sur 2 845 avant le combat) ; 81 avant la correction de CREDIT_CHECK
+aes-texte	etats_hors_max	0	0 sur 8 états tenus ; 4 avant la correction (« INSERT COIN »)
+depart-force	trames	1808	1 808 (titre 404, départ 2212 ; SNK 2224, son titre 12 trames plus tard)
+depart-force	tolerance	5	0
+depart-force	snk_min	700	776 sur 800 (décalage −12)
+piece-son	rms_ratio_min	0.9	0.995 (2 079 contre 2 090) ; sans COIN_SOUND, 1 519
+ms-seule	egales_min	450	450 sur 450
+jukebox-repete	crans_min	5	11 (21 → 2C)
+carte-chercher	octets_max	0	0 sur 14 (NGH $0044 : masque $0001 ; NGH $0066 : $0000), carte inchangée
+carte-supprimer	octets_max	0	0 sur 2 048 (la suppression SNK en change 5)
+carte-supprimer	snk_min	1400	1 635 sur 2 000 (aof relancé sur la carte)
+carte-supprimer	sauve_max	200	1 (contre la carte où la sauvegarde est encore)
+carte-nom	octets_max	0	0 sur 2 048 (l'écriture SNK en change 17) ; nom relu égal, réponse $00
+tests-p2	cases_hors_max	0	0 (neuf entrées : B, C, D, haut, bas, gauche, droite de P2, SELECT P1 et P2, MV-6F)
+tests-dip	cases_hors_max	0	0 (huit commutateurs, chacun son chiffre, bit n − 1 sous le chiffre n)
+dip-sans-donnees	lignes_max	8	8 (REGION, CABINET SETTINGS, SCORE RESET, MEMORY CARD, MODE, HARDWARE TESTS, JUKEBOX, RESET TO DEFAULTS) ; témoin 18. Seuil passé de 5 à 7 le 2026-10-24 (SCORE RESET et MEMORY CARD), puis à 8 le 2026-10-25 (CABINET SETTINGS) : changements voulus

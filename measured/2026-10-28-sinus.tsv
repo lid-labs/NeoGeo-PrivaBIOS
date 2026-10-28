@@ -1,0 +1,39 @@
+# La table de $C04000-$C041FF (#1458, src/c0/sinus.s), le 2026-10-28 : comment elle a été déterminée.
+# MAME 0.286, -video none, -nothrottle, NVRAM et cfg par run, romsets non-merged de $ROMS ; notre image de main
+# (5528c6b5) dont seule la zone change, substituée dans le romset du jeu ; le témoin SNK par le romset d'origine (-bios euro).
+# CE RELEVÉ ne porte aucune valeur de ROM SNK ou UniBIOS, et aucun code de jeu n'y a été lu ni tracé, ni débogueur
+# employé : on pose une table dans NOTRE image et on regarde le jeu à l'écran. Il a été fait par un agent neuf, après un
+# incident (docs/DECISIONS.md §28) : l'agent de la première enquête avait relevé quatre mots de la ROM du BIOS SNK
+# ($C04000, $C04080, $C04100, $C04180), qui ont orienté son choix du codage de 1,0. Ces relevés ne sont pas publiés ; le
+# codage retenu, $0001, est celui que la section 1 ci-dessous établit par la seule mesure du jeu.
+#
+# SECTION 1 — alpham2, le codage de 1,0. La table T[i] = round(65536·|sin(2πi/256)|) partout, sauf T[64] et T[192] (1,0),
+# qui prennent la valeur de la colonne « codage ». Protocole de la scène alpha-trajectoire de bench/parcours.sh : pièce 400,
+# START 500, « haut » 1600-1624, une des huit directions 1640-1659 ; déplacement du vaisseau de la trame 1639 à 1675, lu
+# sur les images (centre du cadre de ses couleurs). « ecart_px » : le plus grand écart au témoin, en x ou en y, sur les huit
+# directions (témoin : ±40 px droits, 28 ou 29 px en diagonale). « - » : vaisseau absent ou figé sur une direction au moins.
+codage	ecart_px	note
+0001	0	égal au témoin dans les huit directions, au pixel ; floor au lieu de round : 0 aussi
+FFFF	1	cinq directions à 1 px
+FFFE	1
+8000	20
+4000	30
+2000	35
+0000	40,5	le vaisseau ne bouge pas ; 0002 à 1000 : 40 ou 40,5 aussi
+C000	-
+zone à FF	-	« haut » donne (+40, -40), la dérive du ticket ; « bas » (-40, +40)
+#
+# SECTION 2 — les autres lecteurs de la zone, la table retenue (codage 0001) contre la zone à FF. Pièce, START, tirs et une
+# suite de directions, ou la démo sans entrée ; 121 images, de la trame 600 à 3600 tous les 25. « egales » : images
+# égales au témoin SNK au même instant ; « gel » : la plus longue suite d'images identiques, en trames.
+jeu	mode	egales_table	egales_ff	gel_table	gel_ff	gel_temoin
+kof98	demo	34	34	50	50	50
+kof98	partie	84	84	25	25	50
+ssideki	demo	0	0	25	25	175
+ssideki	partie	90	57	0	0	0
+bstars2	demo	0	0	25	25	150
+bstars2	partie	49	49	150	150	150
+preisle2	demo	3	3	25	25	25
+preisle2	partie	118	26	0	0	0
+lresort	demo	0	0	225	225	225
+lresort	partie	25	25	0	0	0

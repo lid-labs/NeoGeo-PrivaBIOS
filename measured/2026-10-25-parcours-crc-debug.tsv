@@ -1,0 +1,18 @@
+# Le CRC32 de la cartouche et les debug dips (src/c0/crc.s, ligne CARTRIDGE CRC de HARDWARE TESTS ; src/c0/debug.s, cinquième
+# ligne de CABINET SETTINGS), le 2026-10-25 : les seuils de leurs scènes au parcours du joueur (bench/parcours.sh, --ref-crc), et
+# ce que l'image mesure en face. MAME 0.286, -video none, -sound none, -nothrottle, NVRAM et cfg par run, romsets non-merged de
+# $ROMS, seul sp-s2.sp1 remplacé. Le critère de chaque scène est dans l'en-tête de bench/parcours.sh.
+#
+# LES TÉMOINS. crc-fixe, crc-banques, crc-miroir, bf-crc, bf-crc-banque : les CRC calculés HORS DE MAME depuis le zip par
+# bench/crc-cartouche.py (measured/2026-10-25-crc-cartouche.tsv), et pour crc-banques et crc-miroir les CRC des fichiers de
+# -listxml ; bf-* : le même run sans le modèle du bus flottant. dd-effet : dd-0, le même chemin jusqu'à l'écran DEBUG DIPS, sans
+# A. dd-off : dd-0off, le même chemin que dd-off sans le bit posé.
+#
+# Les scènes bf-crc, bf-crc-banque, crc-miroir et dd-off n'ont pas de seuil : du texte et des empreintes exacts. Seule la colonne
+# « seuil » juge. Image mesurée : a6ba92b90caa2237…, l'image finale du lot. Unités : trames à 59,185 Hz (A sur CARTRIDGE CRC à la
+# trame 342) ; nombres de trames de la fenêtre 600-6000 (5 401 trames relevées).
+scene	grandeur	seuil	mesure
+crc-fixe	fin_max	880	DONE à la trame 850 (relevé toutes les 10 trames de 500 à 940) : 1 Mio sommé, la fenêtre comparée à la P-ROM fixe
+crc-banques	fin_max	1800	DONE à la trame 1770 (toutes les 10 trames de 1500 à 1890) : 1 Mio, deux banques, la signature d'une troisième
+dd-effet	zone_min	5000	5 400 trames sur 5 401 où le bas de l'écran (DEBUG OBJE, CH CODE, ACT CODE) diffère du témoin
+dd-effet	ram_min	5000	5 397 trames où $100000 a son bit 0 ; 0 au témoin ; 0 trame où le bloc de sauvegarde l'a

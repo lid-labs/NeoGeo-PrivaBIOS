@@ -1,0 +1,24 @@
+# TEST ($300081 bit 7, champ MAME :TEST Service Mode) tenu des la trame 1000, sans menu, contre deux temoins sans TEST. Le 2026-10-21, MAME 0.286, -bios euro, notre image avant le menu (sha256 542d8ccb...), 3600 trames, piece/START/A comme bios-probe.lua. Octets de $100000-$10FFFF differents hors calendrier. Lectures de $300080-$300081 (octet impair) par le jeu (PC < $C00000). garou sous le BIOS SNK (notre image le fait sortir de MAME) : sa divergence est la reaction de ce BIOS, garou ne lit pas $300081. Les resets de garou, kof98 et mslug3 tombent a la meme trame avec et sans TEST (reset propre au jeu). ridhero : l'octet different est $100152.
+jeu	lectures_300081_en_partie	lectures_hors_partie	diff_test_1500	diff_test_2500	diff_test_3500	diff_temoin2_3500
+aof	0	0	0	0	0	0
+b2b	0	0	0	0	0	0
+flipshot	0	0	0	0	0	0
+garou	0	0	10931	15247	15650	0
+joyjoy	0	0	0	0	0	0
+kof2003	0	0	0	0	0	0
+kof94	0	0	0	0	0	0
+kof98	0	0	0	0	0	0
+lbowling	0	0	0	0	0	0
+magdrop2	0	0	0	0	0	0
+minasan	0	0	0	0	0	0
+mslug	0	0	0	0	0	0
+mslug3	0	0	0	0	0	0
+nam1975	0	0	0	0	0	0
+neomrdo	0	0	0	0	0	0
+puzzledp	0	0	0	0	0	0
+ridhero	3199	291	1	1	1	0
+samsho2	0	0	0	0	0	0
+ssideki4	0	0	0	0	0	0
+svc	0	0	0	0	0	0
+trally	0	0	0	0	0	0
+wjammers	0	0	0	0	0	0

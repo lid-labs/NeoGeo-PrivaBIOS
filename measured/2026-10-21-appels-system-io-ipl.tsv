@@ -1,0 +1,24 @@
+# SR au moment de l'appel de SYSTEM_IO (fetch de $C0044A), et ecritures REG_VRAMRW du jeu apres le retour sans REG_VRAMADDR repose entre-temps, 3600 trames, memes conditions.
+jeu	comptes
+aof	appel_ipl1_mode1 296 appel_ipl1_mode2 3199 
+b2b	appel_ipl1_mode1 296 appel_ipl1_mode2 3198 
+flipshot	appel_ipl1_mode1 3433 
+garou	appel_ipl1_mode1 195 appel_ipl1_mode2 2899 appel_ipl7_mode174 4 sansadr_apres_appel_ipl1 6 
+joyjoy	appel_ipl1_mode1 288 appel_ipl1_mode2 3199 sansadr_apres_appel_ipl1 2 
+kof2003	appel_ipl1_mode1 289 appel_ipl1_mode2 3199 
+kof94	appel_ipl7_mode1 293 appel_ipl7_mode2 3199 
+kof98	appel_ipl7_mode1 193 appel_ipl7_mode2 3199 sansadr_apres_appel_ipl7 3 
+lbowling	appel_ipl1_mode1 296 appel_ipl1_mode2 3199 sansadr_apres_appel_ipl1 8 
+magdrop2	appel_ipl1_mode1 291 appel_ipl1_mode2 3199 sansadr_apres_appel_ipl1 5 
+minasan	appel_ipl1_mode1 3406 
+mslug	appel_ipl1_mode1 281 appel_ipl1_mode2 3199 
+mslug3	appel_ipl1_mode1 173 appel_ipl1_mode2 3199 
+nam1975	appel_ipl1_mode1 296 appel_ipl1_mode2 3188 
+neomrdo	appel_ipl1_mode1 296 appel_ipl1_mode2 3199 sansadr_apres_appel_ipl1 82 
+puzzledp	appel_ipl1_mode1 296 appel_ipl1_mode2 3198 sansadr_apres_appel_ipl1 2 
+ridhero	appel_ipl1_mode1 291 appel_ipl1_mode2 3199 
+samsho2	appel_ipl7_mode1 290 appel_ipl7_mode2 3199 sansadr_apres_appel_ipl7 1 
+ssideki4	appel_ipl1_mode1 279 appel_ipl1_mode2 3199 
+svc	appel_ipl1_mode1 283 appel_ipl1_mode2 3199 sansadr_apres_appel_ipl1 1 
+trally	appel_ipl0_mode1 2133 appel_ipl1_mode1 110 sansadr_apres_appel_ipl1 93 
+wjammers	appel_ipl1_mode1 292 appel_ipl1_mode2 3199 

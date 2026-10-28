@@ -1,0 +1,190 @@
+# L'autofire de ReBIOS (#1454, DECISIONS §22), jeu par jeu : le jeu voit-il le turbo ? MESURÉ le 2026-10-27 sous MAME 0.286,
+# -bios euro, -video none, -nothrottle, notre image avec un PROTOTYPE du turbo (hors dépôt, le même calcul que src/c0/io.s,
+# octets posés par lua en $10FB40-$10FB43 au lieu du menu), romsets non-merged de $ROMS, seul sp-s2.sp1 remplacé.
+# OBSERVATION : images entières hachées trame par trame (bench/son.lua), comptes de lectures par adresse ; le PC n'est lu que
+# pour attribuer une lecture au jeu ou au BIOS, et n'est pas consigné ; aucun octet de ROM n'est relevé ni écrit.
+#
+# LE PROTOCOLE, par jeu : pièce à 400, START à 500, puis A de P1 seul, de la trame 800 à 2599 ; trames 800-2700 comparées.
+#   R1, R2  A tenu, turbo inactif (deux fois : « reproductible » si identiques)
+#   N       sans A
+#   T2 T4 T6  A tenu, turbo actif, période 2, 4, 6 appels (30, 15, 10 tirs/s)
+#   M2 M4 M6  turbo inactif, A tapé au motif du turbo (appuyé la moitié de la période)
+# Même binaire pour tous les bras. Verdict par cadence :
+#   BIOS       T égal à M sur toute la fenêtre, et différent de R : le jeu voit le turbo comme un joueur qui tape
+#   matériel   T égal à R : le jeu lit le registre lui-même (REG_P1CNT), le turbo ne lui parvient pas
+#   matériel≈  T égal à R sauf sur 20 trames isolées au plus : de même, l'écart vient des cycles du BIOS
+#   mixte      T différent de M et de R : le jeu lit les deux, ou saute ou double des appels de SYSTEM_IO (le motif avance
+#              d'un pas par appel) ; le turbo y est irrégulier
+#   rate la cadence  T, M et R égaux : à cette cadence, le jeu ne distingue pas
+#   partie non démarrée  N égal à R : A n'a pas d'effet visible dans la fenêtre ; non jugé
+#   hors banc  machine sans manette standard, ou sans cartouche ; substitution impossible : MAME ne charge pas notre image
+# div_TM_* : la première trame où T et M diffèrent (- : aucune). Comptes de lectures de la fenêtre par le jeu (PC hors du BIOS) :
+# p1hw_J le registre REG_P1CNT ($300000), p1ram_J les cases du BIOS $10FD94-$10FD99, copie_J $10FEE8-$10FEF3.
+# LIMITES : A de P1 seul, une partie scriptée par jeu ; « BIOS » dit que le jeu voit le turbo, pas qu'il tire plus à l'écran
+# (un jeu peut ignorer les appuis trop rapprochés). B, C, D et P2 ne sont pas mesurés : supposés pareils, même code.
+# La colonne categorie est celle de la liste du joueur (docs/AUTOFIRE.md), d'après le verdict à 15 tirs/s, la cadence par défaut.
+jeu	categorie	reproductible	30Hz	15Hz	10Hz	div_TM_30	div_TM_15	div_TM_10	p1hw_J	p1ram_J	copie_J	remarque
+mslug	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	935	0	
+mslug2	partiel	oui	mixte	mixte	mixte	1000	1139	1000	1886	943	0	lit le registre ET la RAM BIOS
+mslug3	sans effet	oui	rate la cadence	matériel	matériel	-	1260	1013	1874	937	0	
+mslug4	sans effet	oui	matériel≈	matériel≈	matériel≈	1000	1135	1000	1896	948	0	lit le registre ET la RAM BIOS; T diffère du bras tenu sur ≤20 trames isolées (période:trames 2→9 4→7 6→6) : écart de cycles du BIOS, le jeu lit le registre
+mslug5	partiel	oui	mixte	mixte	mixte	1798	1230	1056	1826	913	0	lit le registre ET la RAM BIOS
+mslugx	sans effet	oui	matériel≈	matériel	matériel	1279	1195	1000	1876	938	0	lit le registre ET la RAM BIOS; T diffère du bras tenu sur ≤20 trames isolées (période:trames 2→1) : écart de cycles du BIOS, le jeu lit le registre
+pulstar	partiel	oui	mixte	mixte	mixte	1015	1015	1015	1865	1084	0	lit le registre ET la RAM BIOS
+blazstar	sans effet	oui	matériel	matériel	matériel	1000	1000	1000	1896	0	0	lit le registre matériel
+lresort	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	3768	0	
+sonicwi2	sans effet	oui	matériel≈	matériel≈	matériel≈	1000	1000	1000	1890	0	0	T diffère du bras tenu sur ≤20 trames isolées (période:trames 2→2 4→1 6→1) : écart de cycles du BIOS, le jeu lit le registre
+sonicwi3	sans effet	oui	matériel≈	matériel≈	matériel≈	1000	1000	1000	1887	0	0	T diffère du bras tenu sur ≤20 trames isolées (période:trames 2→5 4→5 6→3) : écart de cycles du BIOS, le jeu lit le registre
+viewpoin	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	1900	0	
+ghostlop	partiel	oui	BIOS	mixte	BIOS	-	1000	-	0	3800	0	lit la RAM BIOS seule ; 0 trames à 0 ou 2-3 appels de SYSTEM_IO (bras M2) : le motif du turbo, compté par appel, glisse
+gpilots	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	11400	0	
+alpham2	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	11400	0	
+ncombat	sans effet	oui	matériel	matériel	matériel	1132	1133	1131	1565	0	0	lit le registre matériel
+zedblade	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	7552	0	
+strhoop	sans effet	oui	matériel	matériel	matériel	1000	1000	1000	1888	5694	0	lit le registre matériel
+shocktro	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	5702	0	
+shocktr2	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	3788	0	
+androdun	sans effet	oui	matériel≈	matériel≈	matériel≈	1006	1007	1007	564040	0	0	T diffère du bras tenu sur ≤20 trames isolées (période:trames 2→3 4→1 6→2) : écart de cycles du BIOS, le jeu lit le registre
+bstars2	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	3800	0	
+ctomaday	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	6625	0	
+ironclad	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	11400	0	
+2020bb	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	3800	0	
+nam1975	sans effet	oui	matériel≈	matériel≈	matériel≈	1000	1000	1000	1894	0	0	T diffère du bras tenu sur ≤20 trames isolées (période:trames 2→4 4→5 6→1) : écart de cycles du BIOS, le jeu lit le registre
+ncommand	partiel	oui	mixte	mixte	mixte	1000	1000	1000	0	9129	0	lit la RAM BIOS seule ; 145 trames à 0 ou 2-3 appels de SYSTEM_IO (bras M2) : le motif du turbo, compté par appel, glisse
+sengoku	sans effet	oui	matériel	matériel	matériel	1000	1000	1000	1900	0	0	lit le registre matériel
+socbrawl	non mesuré	oui	partie non démarrée	partie non démarrée	partie non démarrée	-	-	-	0	9500	0	bras sans A identique au bras A tenu : A sans effet visible dans la fenêtre
+3countb	sans effet	oui	matériel	matériel	matériel	1000	1000	1000	1892	0	0	lit le registre matériel
+aodk	partiel	oui	mixte	mixte	mixte	1004	1004	1008	0	6282	0	lit la RAM BIOS seule ; 4 trames à 0 ou 2-3 appels de SYSTEM_IO (bras M2) : le motif du turbo, compté par appel, glisse
+aof	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	4685	0	
+aof2	partiel	oui	mixte	mixte	mixte	1092	1089	1096	1900	3555	0	lit le registre ET la RAM BIOS
+aof3	partiel	oui	mixte	mixte	mixte	1017	1023	1025	1871	2114	0	lit le registre ET la RAM BIOS
+b2b	partiel	oui	mixte	mixte	mixte	1089	1093	1127	0	1740	0	lit la RAM BIOS seule ; 1 trames à 0 ou 2-3 appels de SYSTEM_IO (bras M2) : le motif du turbo, compté par appel, glisse
+bakatono	non mesuré	-	hors banc	hors banc	hors banc	-	-	-	-	-	-	machine sans manette standard (champ introuvable : START)
+bangbead	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	2401	0	
+bjourney	sans effet	oui	matériel≈	matériel	matériel≈	1000	1000	1000	1584	2	0	lit le registre ET la RAM BIOS; T diffère du bras tenu sur ≤20 trames isolées (période:trames 2→1 6→3) : écart de cycles du BIOS, le jeu lit le registre
+breakers	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	1899	0	
+breakrev	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	1898	0	
+bstars	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	3800	0	
+burningf	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	1885	0	
+crswd2bl	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	5304	0	
+crsword	partiel	oui	mixte	mixte	mixte	1003	1000	1000	0	10937	0	lit la RAM BIOS seule ; 36 trames à 0 ou 2-3 appels de SYSTEM_IO (bras M2) : le motif du turbo, compté par appel, glisse
+cyberlip	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	5698	0	
+diggerma	partiel	oui	mixte	mixte	mixte	1008	1008	1008	2225	0	0	
+doubledr	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	5331	0	
+dragonsh	sans effet	oui	matériel	matériel	matériel	1000	1000	1000	1900	0	0	lit le registre matériel
+eightman	non mesuré	oui	partie non démarrée	partie non démarrée	partie non démarrée	-	-	-	0	3801	0	bras sans A identique au bras A tenu : A sans effet visible dans la fenêtre
+fatfursp	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	5946	0	
+fatfury1	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	6975	0	
+fatfury2	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	5472	0	
+fatfury3	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	7600	0	
+fbfrenzy	partiel	oui	mixte	mixte	mixte	2086	2088	2086	1900	3800	0	lit le registre ET la RAM BIOS
+fightfev	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	5309	0	
+flipshot	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	6070	0	
+froman2b	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	1900	0	
+galaxyfg	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	3983	0	
+ganryu	sans effet	oui	matériel≈	matériel≈	matériel≈	1000	1000	1000	1890	0	0	T diffère du bras tenu sur ≤20 trames isolées (période:trames 2→1 4→2 6→1) : écart de cycles du BIOS, le jeu lit le registre
+garou	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	9313	0	
+goalx3	partiel	oui	BIOS	mixte	BIOS	-	1630	-	0	7528	0	lit la RAM BIOS seule ; 8 trames à 0 ou 2-3 appels de SYSTEM_IO (bras M2) : le motif du turbo, compté par appel, glisse
+gowcaizr	sans effet	oui	matériel	matériel	matériel	1000	1000	1000	1898	0	0	lit le registre matériel
+gururin	sans effet	oui	matériel≈	matériel≈	matériel≈	1006	1006	1015	1849	0	0	T diffère du bras tenu sur ≤20 trames isolées (période:trames 2→5 4→7 6→7) : écart de cycles du BIOS, le jeu lit le registre
+irrmaze	non mesuré	-	substitution impossible	substitution impossible	substitution impossible	-	-	-	-	-	-	MAME ne charge pas notre image (BIOS propre au jeu)
+janshin	non mesuré	-	hors banc	hors banc	hors banc	-	-	-	-	-	-	machine sans manette standard (champ introuvable : START)
+jockeygp	sans effet	oui	matériel	matériel	matériel	1000	1000	1000	11401	5700	0	lit le registre matériel
+joyjoy	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	3800	0	
+kabukikl	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	3010	0	
+karnovr	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	9500	0	
+kizuna	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	11400	0	
+kof2000	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	5086	0	
+kof2001	partiel	oui	mixte	mixte	mixte	1000	1000	1000	1885	3302	0	lit le registre ET la RAM BIOS
+kof2002	partiel	oui	mixte	mixte	mixte	1000	1992	1000	1885	3346	0	lit le registre ET la RAM BIOS
+kof2003	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	1899	0	
+kof94	sans effet	oui	matériel≈	matériel≈	matériel≈	1000	1000	1000	1897	0	0	T diffère du bras tenu sur ≤20 trames isolées (période:trames 2→10 4→13 6→17) : écart de cycles du BIOS, le jeu lit le registre
+kof95	sans effet	oui	matériel	matériel	matériel	1000	1000	1000	1897	0	0	lit le registre matériel
+kof96	sans effet	oui	matériel≈	matériel≈	matériel≈	1000	1000	1000	1895	0	0	T diffère du bras tenu sur ≤20 trames isolées (période:trames 2→7 4→5 6→5) : écart de cycles du BIOS, le jeu lit le registre
+kof97	sans effet	oui	matériel	matériel	matériel	1000	1000	1000	1895	0	0	lit le registre matériel
+kof98	partiel	oui	mixte	mixte	mixte	1000	1000	1000	1892	1762	0	lit le registre ET la RAM BIOS
+kof99	partiel	oui	mixte	mixte	mixte	1000	1000	1000	1882	1459	0	lit le registre ET la RAM BIOS
+kotm	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	3800	0	
+kotm2	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	7600	0	
+lastblad	sans effet	oui	matériel	matériel	matériel	1000	1000	1000	1900	1900	0	lit le registre matériel
+lastbld2	sans effet	oui	matériel≈	matériel≈	matériel≈	1000	1000	1000	1899	1899	0	lit le registre ET la RAM BIOS; T diffère du bras tenu sur ≤20 trames isolées (période:trames 2→1 4→1 6→1) : écart de cycles du BIOS, le jeu lit le registre
+lasthope	sans effet	oui	matériel	matériel	matériel	1000	1000	1000	1530	0	0	lit le registre matériel
+lbowling	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	3800	0	
+legendos	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	5700	0	
+magdrop2	sans effet	oui	matériel	matériel	matériel	1000	1000	1000	1900	0	0	lit le registre matériel
+magdrop3	sans effet	oui	matériel	matériel	matériel	1000	1000	1000	1900	0	0	lit le registre matériel
+maglord	sans effet	oui	matériel≈	matériel≈	matériel≈	1025	1027	1025	1521	2	0	lit le registre ET la RAM BIOS; T diffère du bras tenu sur ≤20 trames isolées (période:trames 2→2 4→1 6→1) : écart de cycles du BIOS, le jeu lit le registre
+mahretsu	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	3800	0	
+marukodq	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	2299	0	
+matrim	sans effet	oui	matériel	matériel	matériel	1039	1039	1043	1894	5676	0	lit le registre matériel
+miexchng	sans effet	oui	matériel	matériel	matériel	1000	1000	1000	1900	0	0	lit le registre matériel
+minasan	non mesuré	-	hors banc	hors banc	hors banc	-	-	-	-	-	-	machine sans manette standard (champ introuvable : START)
+moshougi	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	1640	0	
+mutnat	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	1890	0	
+mvstemp	non mesuré	oui	partie non démarrée	partie non démarrée	partie non démarrée	-	-	-	0	0	0	bras sans A identique au bras A tenu : A sans effet visible dans la fenêtre
+neobombe	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	3690	0	
+neocup98	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	5700	0	
+neodrift	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	18831	0	
+neomrdo	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	1715	0	
+ng_mv1	non mesuré	-	hors banc	hors banc	hors banc	-	-	-	0	0	0	machine sans cartouche : le test RAM du BIOS écrase les octets du turbo, mesure invalide
+ng_mv2f	non mesuré	-	hors banc	hors banc	hors banc	-	-	-	0	0	0	machine sans cartouche : le test RAM du BIOS écrase les octets du turbo, mesure invalide
+ng_mv4f	non mesuré	-	hors banc	hors banc	hors banc	-	-	-	0	0	0	machine sans cartouche : le test RAM du BIOS écrase les octets du turbo, mesure invalide
+ninjamas	partiel	oui	BIOS	mixte	mixte	-	854	1228	0	7398	0	lit la RAM BIOS seule ; 4 trames à 0 ou 2-3 appels de SYSTEM_IO (bras M2) : le motif du turbo, compté par appel, glisse
+nitd	partiel	oui	mixte	mixte	mixte	1000	1000	1000	1896	7047	0	lit le registre ET la RAM BIOS
+overtop	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	3658	0	
+panicbom	partiel	oui	mixte	mixte	matériel≈	1134	1134	1138	1896	2	0	lit le registre ET la RAM BIOS; T diffère du bras tenu sur ≤20 trames isolées (période:trames 6→20) : écart de cycles du BIOS, le jeu lit le registre
+pbobbl2n	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	1888	0	
+pbobblen	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	1900	0	
+pgoal	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	3949	0	
+pnyaa	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	3224	0	
+popbounc	non mesuré	-	hors banc	hors banc	hors banc	-	-	-	-	-	-	machine sans manette standard (champ introuvable : START)
+preisle2	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	3800	0	
+pspikes2	marche	oui	mixte	BIOS	BIOS	1176	-	-	0	1872	0	lit la RAM BIOS seule ; 2 trames à 0 ou 2-3 appels de SYSTEM_IO (bras M2) : le motif du turbo, compté par appel, glisse
+puzzldpr	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	5158	0	
+puzzledp	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	5158	0	
+quizdai2	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	3793	0	
+quizdais	marche	oui	BIOS	BIOS	mixte	-	-	1012	0	9495	0	lit la RAM BIOS seule ; 0 trames à 0 ou 2-3 appels de SYSTEM_IO (bras M2) : le motif du turbo, compté par appel, glisse
+quizkof	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	11987	0	
+ragnagrd	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	1893	0	
+rbff1	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	7508	0	
+rbff2	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	7596	0	
+rbffspec	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	7304	0	
+ridhero	non mesuré	oui	partie non démarrée	partie non démarrée	partie non démarrée	-	1108	1110	1900	0	0	bras sans A identique au bras A tenu : A sans effet visible dans la fenêtre
+roboarmy	non mesuré	oui	partie non démarrée	partie non démarrée	partie non démarrée	-	-	-	1900	3800	0	bras sans A identique au bras A tenu : A sans effet visible dans la fenêtre
+rotd	sans effet	oui	matériel	matériel	matériel	1000	1000	1000	1894	5679	0	lit le registre matériel
+s1945p	sans effet	oui	matériel≈	matériel≈	matériel≈	1000	1000	1000	1861	0	0	T diffère du bras tenu sur ≤20 trames isolées (période:trames 2→4 4→2 6→3) : écart de cycles du BIOS, le jeu lit le registre
+samsh5sp	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	5697	0	
+samsho	partiel	oui	mixte	mixte	BIOS	1274	2254	-	3800	1861	0	lit le registre ET la RAM BIOS
+samsho2	partiel	oui	mixte	mixte	mixte	1037	1061	1015	1900	1878	0	lit le registre ET la RAM BIOS
+samsho3	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	3340	0	
+samsho4	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	5700	0	
+samsho5	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	5697	0	
+savagere	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	1879	0	
+sbp	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	967	0	
+sdodgeb	sans effet	oui	matériel≈	matériel	matériel≈	1000	1000	1000	1901	67	0	lit le registre ET la RAM BIOS; T diffère du bras tenu sur ≤20 trames isolées (période:trames 2→1 6→1) : écart de cycles du BIOS, le jeu lit le registre
+sengoku2	sans effet	oui	matériel	matériel≈	matériel	1561	1563	1563	1900	0	0	lit le registre matériel; T diffère du bras tenu sur ≤20 trames isolées (période:trames 4→1) : écart de cycles du BIOS, le jeu lit le registre
+sengoku3	sans effet	oui	matériel≈	matériel	matériel	1000	1000	1000	1846	5538	0	lit le registre ET la RAM BIOS; T diffère du bras tenu sur ≤20 trames isolées (période:trames 2→1) : écart de cycles du BIOS, le jeu lit le registre
+spinmast	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	5700	0	
+ssideki	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	5598	0	
+ssideki2	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	8919	0	
+ssideki3	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	5700	0	
+ssideki4	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	5700	0	
+stakwin	partiel	oui	mixte	mixte	mixte	1001	1000	1000	1896	5675	0	lit le registre ET la RAM BIOS
+stakwin2	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	1899	0	
+superspy	marche	oui	BIOS	BIOS	BIOS	-	-	-	2853	3736	0	
+svc	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	3796	0	
+tophuntr	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	5810	0	
+tpgolf	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	3800	0	
+trally	non mesuré	oui	partie non démarrée	partie non démarrée	partie non démarrée	2331	2318	2350	1515	372	0	bras sans A identique au bras A tenu : A sans effet visible dans la fenêtre
+turfmast	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	3771	0	
+twinspri	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	2400	0	
+twsoc96	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	1900	0	
+vliner	non mesuré	-	hors banc	hors banc	hors banc	-	-	-	-	-	-	machine sans manette standard (champ introuvable : piece)
+wakuwak7	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	7710	0	
+wh1	partiel	oui	mixte	mixte	BIOS	825	827	-	0	1844	0	lit la RAM BIOS seule ; 16 trames à 0 ou 2-3 appels de SYSTEM_IO (bras M2) : le motif du turbo, compté par appel, glisse
+wh2	partiel	oui	mixte	mixte	mixte	1037	1041	1041	0	9406	0	lit la RAM BIOS seule ; 21 trames à 0 ou 2-3 appels de SYSTEM_IO (bras M2) : le motif du turbo, compté par appel, glisse
+wh2j	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	3757	0	
+whp	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	5789	0	
+wjammers	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	2587	0	
+zintrckb	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	1488	0	
+zupapa	marche	oui	BIOS	BIOS	BIOS	-	-	-	0	7594	0	

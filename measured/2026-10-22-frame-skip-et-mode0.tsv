@@ -1,0 +1,153 @@
+# FRAME_SKIP hors SYSTEM_IO, la pièce créditée en mode 0 ou sous INT1, l'ordre $D00034 / $10FDDA (docs/RELECTURE-CONTRATS.md, dernière section). Relevé du 2026-10-22.
+# MAME 0.286, machine neogeo (MV-6F), -bios euro pour la référence, -cart1 par la liste logicielle neogeo (-hashpath <dossier hash de MAME>), -video none -sound none -nothrottle,
+# SDL_MAC_BACKGROUND_APP=1, NVRAM neuve et isolée par run (sauf mention). Hôte : Apple M4 Pro, 14 cœurs, macOS 26.6.2. Notre image chargée par un neogeo.zip dont seul le membre
+# sp-s2.sp1 est remplacé (WRONG CHECKSUMS au journal : 1 sur chaque run de notre image, 0 sous la référence).
+# Images : avant = celle de main (bd8c4b46, git archive, build/construire.sh src/c0, sha256 caf2e6d9dedb45df…2c63204) ; apres = celle de ce lot (sha256 dcb3a7c2bc6473eb…216d56a5).
+# Jig : bench/multislot.lua (MS_ENTREES), chargé par une enveloppe de mesure non versionnée qui relève, avec la fraction de trame : les lectures des vecteurs auto 1 et 2 ($000064,
+#   $000068 : une IRQ prise), du premier mot des entrées SYSTEM_INT1 ($C00438) et SYSTEM_IO ($C0044A), des vecteurs USER, DEMO_END et COIN_SOUND de l'en-tête de la cartouche
+#   ($000122, $00012E, $000134) ; chaque écriture de $10FEE1, $10FEE2, $10FD80, $10FD81, $10FDAE, $10FDAF, $10FDDA, $10FDDB, $D00024, $D00025, $D00034, $D00038, avec sa valeur et le
+#   côté de l'écrivain (« bios » ou « jeu » selon la région du PC, SANS adresse). « Sous INT1 » / « sous SYSTEM_IO » : la dernière de ces deux entrées lue avant l'écriture.
+# Aucun PC consigné (le PC n'est lu que pour attribuer un accès au BIOS ou au jeu), aucun octet de la ROM du BIOS (docs/DECISIONS.md §8) ; aucun code de jeu lu. Valeurs écrites en RAM et en backup RAM, leurs trames, l'ordre des écritures, les appels comptés.
+#
+# 1. FRAME_SKIP ($10FEE1) HORS SYSTEM_IO. Pièce à la trame 1000, pendant la démo, 1 pièce = 1 crédit. MESURÉ, la référence : mslug écrit $10FD80 ← $02 en reprenant la main
+#    (« BIOS wants vblank ») et appelle SYSTEM_INT1 depuis son vblank pendant 5 trames (1008-1012) avant de repasser $10FD80 à $82 et d'appeler SYSTEM_IO (1013) ; la référence
+#    décompte FRAME_SKIP de 1 à CHACUN de ces appels d'INT1, jusqu'à $00 à remise + 9. Sous INT1, $FF n'est jamais touché (mslug 287, 754 ; puzzledp 282 : $FF y reste, la recharge à
+#    $0A vient plus tard, hors d'INT1) et $00 non plus. Aucun des six jeux n'appelle INT1 et SYSTEM_IO dans la même trame (0 trame sur tous les runs). Même chose après la remise de la
+#    démo au boot : mslug, $00 à remise + 9 chez la référence (755 → 764), + 14 sous main (191 → 205), + 9 sous ce lot (191 → 200). garou fait un appel d'INT1 après la remise.
+#    Notre image avant : décompte sous SYSTEM_IO seulement. Écrit : src/c0/int1.s _systeme_int1 (après _io_commun, le décompte de 1..$FE).
+#    Colonnes : jeu ; bios ; trame de la remise (lecture de $000122) ; trame où FRAME_SKIP passe à $00 ; écart ; décomptes sous INT1 ; décomptes sous SYSTEM_IO.
+jeu	bios	remise	fs_00	ecart	sous_int1	sous_system_io
+mslug	ref	1007	1016	9	5	4
+mslug	avant	1007	1021	14	0	9
+mslug	apres	1007	1016	9	5	4
+garou	ref	1002	1011	9	1	8
+garou	avant	1002	1012	10	0	9
+garou	apres	1002	1011	9	1	8
+puzzledp	ref	1002	1011	9	0	9
+puzzledp	avant	1002	1011	9	0	9
+puzzledp	apres	1002	1011	9	0	9
+aof	ref	1003	1012	9	0	9
+aof	avant	1003	1012	9	0	9
+aof	apres	1003	1012	9	0	9
+nam1975	ref	1002	1011	9	0	9
+nam1975	avant	1002	1011	9	0	9
+nam1975	apres	1002	1011	9	0	9
+b2b	ref	1037	1046	9	0	9
+b2b	avant	1037	1046	9	0	9
+b2b	apres	1037	1046	9	0	9
+#    puzzledp, aof, nam1975, b2b : les jeux témoins, déjà égaux (aucun appel d'INT1 entre la remise et SYSTEM_IO), inchangés. b2b : pièce à 1035, à la fin de sa démo.
+#
+# 2. LA PIÈCE QUI FAIT LE CRÉDIT EN MODE 0 OU SOUS INT1. R = trame de la remise qui précède la pièce (lecture de $000122). MESURÉ, la référence, mslug :
+#    - SOUS INT1 PENDANT LA DÉMO (pièce à R + 2, FRAME_SKIP à $08) : crédit et $10FEE2 ← $01 seulement, la démo continue ; au premier SYSTEM_IO qui lit FRAME_SKIP à $00 (R + 10),
+#      COIN_SOUND, $10FD81 ← $06, DEMO_END ; puis $FF à R + 15, $10FD81 ← $02 et $0A à R + 16 + 0,47, le titre (demande 3) à R + 17. Le chemin de `_io_fin_demo`.
+#    - SOUS INT1 PENDANT LA DEMANDE 0 (pièce à R + 2, mode 0, demande 0, le jeu a la main) : crédit et $10FEE2 ← $01 seulement ; le jeu finit sa demande 0 (SYSTEM_RETURN à R + 5) ;
+#      la référence entre dans son logo ($10FD81 ← $01, mode 0, R + 6), y voit le crédit ($FF à R + 8), et donne le titre à R + 10 ; COIN_SOUND au premier FRAME_SKIP nul (R + 20).
+#      Ni $10FD81 ← $06 ni DEMO_END.
+#    - LE MODE 0 DE b2b (trame 3312 de 2026-10-22-piece-demo-end.tsv) N'EST PAS UN MODE 0 DE JEU : de 2861 à 3302 la référence a la main (aucun appel de SYSTEM_IO de 2872 à 3300, $10FD80 à $01,
+#      $10FDAF ← $00 écrit par le BIOS, demande 2 laissée en RAM) — son logo entre deux démos. La pièce de 3300 y mène au titre (3302), puis au premier FRAME_SKIP nul (3312),
+#      COIN_SOUND, $10FD81 ← $06, DEMO_END, et le second titre (3349). Même geste pendant le logo d'après le boot de mslug (pièce à 600, demande 0 en RAM) : titre à 602, COIN_SOUND
+#      à 612, SANS DEMO_END. Ce qui sépare les deux cas que ce relevé voit : la demande 2 en RAM à la pièce. Notre image n'a pas de logo : cet état ne s'y produit pas, b2b est
+#      dans sa démo à 3300 et y suit le chemin de `_io_fin_demo`, inchangé (DEMO_END à 3300, titre à 3337, 11 275 écritures du jeu entre les deux, comme la référence entre 3312 et 3349).
+#    - En mode 0 sous SYSTEM_IO (un jeu qui appelle SYSTEM_IO pendant sa demande 0) : aucun des six jeux dont la demande 0 a été relevée ne le fait (puzzledp, aof, mslug,
+#      nam1975, b2b, neomrdo ; garou n'en a pas reçu dans ce plan) ; non mesuré, chemin d'avant gardé.
+#    Notre image avant : sous INT1, en démo comme en demande 0, le titre tout de suite (`_retour_piece`), COIN_SOUND au premier FRAME_SKIP nul, sans DEMO_END.
+#    Écrit : src/c0/io.s _io_commun (sous INT1, plus de remise : le crédit et la marque) ; src/c0/c0.s _sysret_demo (un crédit → le titre, par `_sysret_piece`).
+#    Colonnes : cas ; bios ; R ; pièce ; SYSTEM_RETURN du jeu ($FF) ; FRAME_SKIP à $00 ; COIN_SOUND ; DEMO_END ($10FD81 ← $06) ; remise au titre (demande 3).
+cas	bios	R	piece	sysret_jeu	fs_00	coin_sound	demo_end	titre
+INT1_demo	ref	755	757	-	764	765	765	772
+INT1_demo	avant	191	193	-	208	209	-	194
+INT1_demo	apres	191	193	-	200	201	201	208
+INT1_demande0	ref	281	283	286	300	301	-	291
+INT1_demande0	avant	185	187	-	202	203	-	188
+INT1_demande0	apres	185	187	190	200	201	-	191
+logo_demande2(b2b)	ref	-	3300	-	3311	3312	3312	3302 puis 3349
+logo_demande0(mslug)	ref	-	600	-	611	612	-	602
+b2b_demo	avant	-	3300	-	-	3300	3300	3337
+b2b_demo	apres	-	3300	-	-	3300	3300	3337
+#    RESTE, demande 0 : notre titre tombe à R + 6 contre R + 10 chez la référence, COIN_SOUND à R + 16 contre R + 20 — les 4 trames de son logo, que notre image n'a pas.
+#
+# 3. L'ORDRE À LA PIÈCE. MESURÉ, la référence : $D00024 ← $01 (puis $00 s'il y a crédit, et $D00034), PUIS $10FDDA ← $30 et $10FDDB ← $3B ; à une pièce créditée (mslug 757, sous
+#    INT1 ; puzzledp 1000, sous SYSTEM_IO) comme à une pièce qui ne fait pas de crédit (puzzledp 900, deux pièces par crédit, $D0003A ← $02 posé dans une NVRAM de la référence,
+#    la même pour les deux runs). Notre image avant : $10FDDA et $10FDDB d'abord. Mêmes valeurs. Écrit : src/c0/io.s _io_crediter (l'armement déplacé en fin de routine).
+#    Colonnes : cas ; bios ; écritures de la pièce dans l'ordre.
+cas	bios	ordre
+credit_INT1	ref	D24=01 D24=00 D34=01 DDA=30 DDB=3B EE2=01 D38=1F
+credit_INT1	avant	DDA=30 DDB=3B D24=01 D24=00 D34=01 D38=1F EE2=01
+credit_INT1	apres	D24=01 D24=00 D34=01 DDA=30 DDB=3B D38=1F EE2=01
+sans_credit	ref	D24=01 DDA=30 DDB=3B EE2=01 EE2=00 COIN_SOUND D38=1F
+sans_credit	avant	DDA=30 DDB=3B D24=01 D38=1F EE2=01 COIN_SOUND EE2=00
+sans_credit	apres	D24=01 DDA=30 DDB=3B D38=1F EE2=01 COIN_SOUND EE2=00
+#    RESTE, vu en passant et non corrigé : la référence pose la marque du son (et, sous SYSTEM_IO, appelle COIN_SOUND) AVANT de lancer l'impulsion du compteur ($D00038 ← $1F),
+#    et écrit $10FEE2 ← $00 avant COIN_SOUND ; notre image après eux.
+#
+# 4. LE RELEVÉ DEMO_END REJOUÉ (2026-10-22-piece-demo-end.tsv, mêmes plans, même enveloppe). Section 1, colonnes du relevé : la référence identique au relevé versionné sur les cinq
+#    jeux ; ce lot égal à l'image de main partout, sauf mslug à 1200, désormais égal à la référence (82f8c628 ; main f95d1efe) — le chiffre TIME que la section 1 du relevé
+#    laissait ouvert. aof : 29 952 écritures du jeu dans DEMO_END contre 29 955, comme sous main.
+jeu	bios	coin_sound	demo_end	sysret06	sysret02	reg_sound03	remise	ecritures_jeu_DEMO_END	10FDDB_fin_piece	ecrans_1100_1200_1300
+puzzledp	ref	1000	1000	1000	1001	1001	1002 d03	0	3A	af372011 3c3ec2f0 e8c55097
+puzzledp	avant	1000	1000	1000	1001	1001	1002 d03	0	3A	af372011 3c3ec2f0 e8c55097
+puzzledp	apres	1000	1000	1000	1001	1001	1002 d03	0	3A	af372011 3c3ec2f0 e8c55097
+aof	ref	1000	1000	1000	1002	1002	1003 d03	29955	3A	3f951897 0198f1b4 741803ca
+aof	avant	1000	1000	1000	1002	1002	1003 d03	29952	3A	3f951897 0198f1b4 741803ca
+aof	apres	1000	1000	1000	1002	1002	1003 d03	29952	3A	3f951897 0198f1b4 741803ca
+mslug	ref	1000	1000	1000	1006	1006	1007 d03	58384	3A	3eba8694 82f8c628 f630814b
+mslug	avant	1000	1000	1000	1006	1006	1007 d03	58384	3A	3eba8694 f95d1efe f630814b
+mslug	apres	1000	1000	1000	1006	1006	1007 d03	58384	3A	3eba8694 82f8c628 f630814b
+nam1975	ref	1000	1000	1000	1001	1001	1002 d03	0	3A	9da12323 9b5da5f2 dfafb41c
+nam1975	avant	1000	1000	1000	1001	1001	1002 d03	0	3A	9da12323 9b5da5f2 dfafb41c
+nam1975	apres	1000	1000	1000	1001	1001	1002 d03	0	3A	9da12323 9b5da5f2 dfafb41c
+garou	ref	1000	1000	1000	1001	1001	1002 d03	-	3A	b80472b0 bcac91a7 837016f2
+garou	avant	1000	1000	1000	1001	1001	1002 d03	-	3A	b80472b0 bcac91a7 837016f2
+garou	apres	1000	1000	1000	1001	1001	1002 d03	-	3A	b80472b0 bcac91a7 837016f2
+#    Section 2 (puzzledp, pièce à remise + 3 et + 7 de la démo), colonnes du relevé : identique pour la référence et inchangée par ce lot (FRAME_SKIP à $00, COIN_SOUND, DEMO_END
+#    et la remise aux mêmes trames relatives : $00 à remise + 9, titre à remise + 12). Section 4 (b2b) : la référence identique (DEMO_END 3312, remise 3349, 11 275 écritures sur
+#    2 226 adresses) ; ce lot comme main (3300, 3337, 11 275, 2 226).
+#
+# 5. MULTI-SLOT ET SAUVEGARDE DU JEU REJOUÉS (_sysret_demo touche la rotation et la sauvegarde ; la non-régression ne les couvre pas). bench/multislot.lua, MS_PLAGES=1, MS_SUIVRE,
+#    plans des en-têtes de 2026-10-22-multi-slot-lot3.tsv, -lot4.tsv et -sauvegarde-jeu-seul.tsv ; -suite / -gardee : NVRAM du run précédent de la même image ; trou-nvref : NVRAM de
+#    la référence après trou-suite, rejouée ici ; titre-sans-credit : NVRAM de l4-c2-neuf, $D0003A ← $02 et $D00034 ← $00 posés dans le fichier. Jetons de l'extracteur des lots
+#    précédents (remise, sysret, select, S, R, somme), limités aux genres que porte la suite versionnée de la référence. La référence : les suites versionnées.
+#    RÉSULTAT : les 21 suites de ce lot sont IDENTIQUES à celles de main, trames comprises. Rien n'a bougé, ni mieux ni pire. Les écarts à la référence (sommes de
+#    certains blocs, la seconde restauration après son logo, aof-p1) préexistent sous main à l'identique — par exemple l4-k9 : le bloc d'aof à $17AE contre $17AC.
+#    Colonnes : run ; jetons (référence / main / ce lot) ; main = ce lot, trames comprises ; référence ~ main, structure / sommes (préfixe commun, trames ignorées) ; référence ~ ce lot.
+run	jetons_ref_main_lot	main_egal_lot	ref_main_structure_sommes	ref_lot_structure_sommes
+c1-neuf	10/10/10	oui	oui / oui	oui / oui
+c1-suite	8/8/8	oui	oui / oui	oui / oui
+c2-neuf	18/18/18	oui	oui / NON	oui / NON
+c2-suite	14/14/14	oui	oui / NON	oui / NON
+c4-neuf	34/34/34	oui	oui / NON	oui / NON
+c4-suite	26/26/26	oui	oui / NON	oui / NON
+trou	18/21/21	oui	oui / oui	oui / oui
+trou-suite	14/17/17	oui	oui / NON	oui / NON
+trou-nvref	14/17/17	oui	oui / oui	oui / oui
+l4-c2-neuf	21/21/21	oui	oui / NON	oui / NON
+l4-c3-trou	40/40/40	oui	oui / NON	oui / NON
+l4-c2-gardee	7/7/7	oui	oui / NON	oui / NON
+l4-c3-gardee	11/11/11	oui	oui / NON	oui / NON
+l4-tenu	13/13/13	oui	oui / NON	oui / NON
+l4-k9	13/13/13	oui	oui / NON	oui / NON
+l4-k10	17/17/17	oui	oui / NON	oui / NON
+l4-titre-sans-credit	11/11/11	oui	oui / NON	oui / NON
+puzzledp-p1	9/9/9	oui	oui / oui	oui / oui
+aof-p1	14/13/13	oui	NON / NON	NON / NON
+nam1975-p1	21/25/25	oui	oui / oui	oui / oui
+aof-cred	10/9/9	oui	oui / NON	oui / NON
+#    UN SYSTEM_RETURN CODE 2 AVEC UN CRÉDIT : aucun dans les suites versionnées de la référence (ses codes 2 suivent une partie finie, crédit consommé), ni dans ces 21 runs.
+#    Fabriqué deux fois :
+#    a) pièce juste avant et juste après la fin de la démo de puzzledp (SYSTEM_RETURN code 2 à la fraction 0,31 de la trame E : référence c1 5834, c2 5837 ; ce lot 5270, 5276),
+#       pièce à E-2, E-1, E, E+1. À E-2..E, sous les deux BIOS, la pièce est prise par SYSTEM_IO dans la démo : COIN_SOUND, DEMO_END, titre à pièce + 2 — aucun code 2.
+#       À E+1, le code 2 est entré SANS crédit, la pièce tombe ensuite : la référence, qui a alors la main, donne le titre (c1 5839, COIN_SOUND 5849, sans DEMO_END ; c2 5840 sur le slot 1,
+#       puis COIN_SOUND et DEMO_END 5850 et un second titre 5853) ; ce lot comme main, la démo du slot suivant (c1 5271, c2 5279), la pièce y est prise, DEMO_END au premier
+#       FRAME_SKIP nul (5281, 5289), titre (5283, 5292). Écart NON RÉSOLU, hors de ce lot : il tient au logo, que notre image n'a pas.
+#    b) crédit FORCÉ par l'enveloppe ($D00034 ← $01, entre REG_SRAMUNLOCK et REG_SRAMLOCK) à la lecture de $C00444, donc présent à l'entrée du code 2 :
+cas	bios	jetons_et_etats
+force_c1	ref	5834 sysret 02 ; S et R du même bloc 5835 ; R 5838 (après son logo) ; remise s00 d03 m01 5839 ; ni DEMO_END ni démo
+force_c1	avant	5270 sysret 02 ; S, R 5270 ; remise s00 d02 m01 5271 (démo) ; DEMO_END 5281 ; remise s00 d03 m01 5283
+force_c1	apres	5270 sysret 02 ; S, R 5270 ; remise s00 d03 m01 5271 ; ni DEMO_END ni démo
+force_c2	ref	5837 sysret 02 ; S du slot 0, R du slot 1 5838 ; remise s01 d03 m01 5840 ; ni DEMO_END ni démo
+force_c2	avant	5276 sysret 02 ; S du slot 0 5276, R du slot 1 5278 ; remise s01 d02 m01 5279 (démo) ; DEMO_END 5289 ; remise s01 d03 m01 5292
+force_c2	apres	5276 sysret 02 ; S du slot 0 5276, R du slot 1 5278 ; remise s01 d03 m01 5279 ; ni DEMO_END ni démo
+#    MESURÉ donc, et la supposition de `_sysret_demo` pour le code 2 tient : la référence fait la rotation (sauvegarde, passage, restauration) puis donne le TITRE sur le slot qui
+#    entre, sans DEMO_END ; ce lot de même, main non. Écrit : le commentaire de src/c0/c0.s _sysret_demo (SUPPOSÉ → MESURÉ pour le code 2), image inchangée (dcb3a7c2…).
+#    Vu en passant, artefact du forçage : 12 trames après le titre, la référence écrit $D00034 ← $00 et $10FD81 ← $03 (un départ), sans START pressé ; le crédit forcé n'a pas
+#    armé le départ forcé ($10FDDA à 00/00), ce qu'aucune pièce réelle ne laisse. Non poursuivi.

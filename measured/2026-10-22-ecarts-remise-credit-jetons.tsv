@@ -1,0 +1,66 @@
+# Trois écarts vus au lot 4 du multi-slot : les runs rejoués sur l'image de ce lot (sha256 738d507fa92fe2d2…74b637), contre la référence (-bios euro) et l'image de main (2a07a2a2…fe754). Relevé du 2026-10-22.
+# MAME 0.286, machine neogeo (MV-6F), -cartN par la liste logicielle (-hashpath), -video none -sound none -nothrottle, SDL_MAC_BACKGROUND_APP=1, NVRAM isolée par run ; hôte Apple M4 Pro, 14 cœurs.
+# Jig bench/multislot.lua, MS_PLAGES=1, MS_SUIVRE. Plans d'entrées : ceux de 2026-10-22-multi-slot-lot4.tsv (k9, k10, titre-sans-credit) et de 2026-10-22-sauvegarde-jeu-seul.tsv (puzzledp-p1, -p1s).
+# titre-sans-credit : la NVRAM gardée vient ici d'un run de 900 trames sans entrée (le lot 4 partait de celle de c2-neuf), $D0003A ← $02 posé dedans.
+# Jetons : remise sSS dDD mMM ; sysret code CC ; select code CC ; S zone lue -> bloc écrit ; R bloc lu -> zone écrite ; somme 16 bits des octets écrits (valeurs du jeu). Le PC n'est lu que pour attribuer l'accès au BIOS ou au jeu, et n'est pas consigné ; aucun octet de la ROM du BIOS.
+# Résumé, colonnes : run ; jetons_ref ; jetons_avant (relevé versionné du lot 4 ou de la sauvegarde) ; egal_avant ; jetons_apres ; egal_apres (jetons égaux, sommes comprises, trames ignorées) ; note.
+run	jetons_ref	jetons_avant	egal_avant	jetons_apres	egal_apres	note
+k10	17	13	NON	17	oui	SELECT à 1213 (10 trames après la remise de 1203) pris, à la même trame que la référence ; avant, pris seulement à 12 trames
+k9	13	13	oui	13	oui	SELECT à 1212 (9 trames) perdu des deux côtés, comme avant
+titre-sans-credit	11	11	NON (sommes)	11	oui	la pièce seule de 900 ne mène plus au titre : la démo tourne, et les sommes de sauvegarde de puzzledp égalent la référence
+puzzledp-p1	9	9	oui	9	oui	égal aussi, trames comprises, aux jetons « apres » de 2026-10-22-sauvegarde-jeu-seul-jetons.tsv (fin de partie à 9931)
+puzzledp-p1s	2	2	oui	2	oui	NVRAM de puzzledp-p1 ; égal, trames comprises, au relevé versionné
+#
+# Suites de jetons de l'image après. Colonnes : run ; trame ; jeton.
+k10	185	remise s00 d00 m00
+k10	185	sysret code 00
+k10	185	S 100000-1000FF -> D00320-D0041F somme 0000
+k10	189	remise s01 d00 m00
+k10	189	sysret code 00
+k10	189	S 108800-108FFF -> D01320-D01B1F somme 17AC
+k10	191	R D00320-D0041F -> 100000-1000FF somme 0000
+k10	192	remise s00 d02 m01
+k10	1001	remise s00 d03 m01
+k10	1200	select code 04
+k10	1200	S 100000-1000FF -> D00320-D0041F somme 055B
+k10	1202	R D01320-D01B1F -> 108800-108FFF somme 17AC
+k10	1203	remise s01 d03 m01
+k10	1213	select code 04
+k10	1213	S 108800-108FFF -> D01320-D01B1F somme 17AC
+k10	1215	R D00320-D0041F -> 100000-1000FF somme 055B
+k10	1216	remise s00 d03 m01
+k9	185	remise s00 d00 m00
+k9	185	sysret code 00
+k9	185	S 100000-1000FF -> D00320-D0041F somme 0000
+k9	189	remise s01 d00 m00
+k9	189	sysret code 00
+k9	189	S 108800-108FFF -> D01320-D01B1F somme 17AC
+k9	191	R D00320-D0041F -> 100000-1000FF somme 0000
+k9	192	remise s00 d02 m01
+k9	1001	remise s00 d03 m01
+k9	1200	select code 04
+k9	1200	S 100000-1000FF -> D00320-D0041F somme 055B
+k9	1202	R D01320-D01B1F -> 108800-108FFF somme 17AC
+k9	1203	remise s01 d03 m01
+titre-sans-credit	184	R D00320-D0041F -> 100000-1000FF somme 0000
+titre-sans-credit	185	remise s00 d02 m01
+titre-sans-credit	1301	remise s00 d03 m01
+titre-sans-credit	1500	select code 04
+titre-sans-credit	1500	S 100000-1000FF -> D00320-D0041F somme 055B
+titre-sans-credit	1502	R D01320-D01B1F -> 108800-108FFF somme 17AC
+titre-sans-credit	1503	remise s01 d03 m01
+titre-sans-credit	1700	select code 05
+titre-sans-credit	1700	S 108800-108FFF -> D01320-D01B1F somme 17AC
+titre-sans-credit	1702	R D00320-D0041F -> 100000-1000FF somme 055B
+titre-sans-credit	1703	remise s00 d03 m01
+puzzledp-p1	185	remise s00 d00 m00
+puzzledp-p1	185	sysret code 00
+puzzledp-p1	185	S 100000-1000FF -> D00320-D0041F somme 0000
+puzzledp-p1	185	R D00320-D0041F -> 100000-1000FF somme 0000
+puzzledp-p1	186	remise s00 d02 m01
+puzzledp-p1	2001	remise s00 d03 m01
+puzzledp-p1	9931	sysret code 03
+puzzledp-p1	9931	S 100000-1000FF -> D00320-D0041F somme 1C7C
+puzzledp-p1	9932	remise s00 d02 m01
+puzzledp-p1s	184	R D00320-D0041F -> 100000-1000FF somme 1C7C
+puzzledp-p1s	185	remise s00 d02 m01

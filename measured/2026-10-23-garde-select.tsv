@@ -1,0 +1,40 @@
+# La garde de réentrée de SELECT (src/c0/io.s, _io_select ; docs/DECISIONS.md §10). Relevé du 2026-10-23.
+# MAME 0.286, machine neogeo (MV-6F), -bios euro pour la référence, -cart1 b2b -cart2 puzzledp par la liste logicielle neogeo (-hashpath <dossier hash de MAME>), -video none
+# -sound none -nothrottle, SDL_MAC_BACKGROUND_APP=1, NVRAM neuve et isolée par run. Hôte : Apple M4 Pro. Notre image chargée par un neogeo.zip dont seul le membre sp-s2.sp1 est
+# remplacé (WRONG CHECKSUMS au journal : 1 sur chaque run de notre image, 0 sous la référence).
+# Images : avant = HEAD de fix/bios-titre-apres-game-over (4621fccc, git archive, build/construire.sh src/c0 ; sha256 e4b2f0c91a0ab389…b17dc9fd, celle de la section 6 de
+#   2026-10-23-titre-apres-game-over.tsv) ; apres = la même plus la garde (sha256 ea0de49eb7fe863e…ee75da5d7).
+# Jig : bench/multislot.lua (MS_PLAGES=1, MS_SUIVRE=D00034,10FDAE,10FDAF,10FD81,D00108), chargé par l'enveloppe non versionnée de 2026-10-23-titre-apres-game-over.tsv (LED_FE=1,
+#   CP_DE=1040, CP_A=fin de fenêtre), la même que pour le run ss2 de sa section 6. Fractions de trame : le temps émulé depuis la fin de la trame d'avant, sur 1/59,185 s.
+# Aucun PC consigné (le PC n'est lu que pour attribuer un accès au BIOS ou au jeu), aucun octet de la ROM du BIOS (docs/DECISIONS.md §8) ; aucun code de jeu lu. Valeurs écrites, leurs trames, les lectures des vecteurs DEMO_END ($00012E) et USER ($000122)
+#   de l'en-tête de la cartouche.
+# Runs (MS_ENTREES ; fenêtre ; fin) : ss2 1000:piece,1050:suivant:1,1052:suivant:1 (le run de la section 6 : un front, une trame relâchée, un second front pendant le DEMO_END
+#   de b2b ; 1040-1150 ; 1200) ; s1 1000:piece,1050:suivant:1 (un seul SELECT, le témoin ; 1040-1150 ; 1200) ; ss2r = ss2 plus 1100:suivant:1, un SELECT une fois le titre du
+#   slot 1 remis et FRAME_SKIP retombé (1040-1250 ; 1300).
+#
+# MESURÉ :
+#   - ss2, la référence et avant : le second front est pris pendant le DEMO_END du premier SELECT (1052 : $10FEE0 ← $00, $10FD81 ← $04, DEMO_END relu), le premier DEMO_END
+#     jamais repris ; reproduit à l'identique de la section 6. Apres : le second front est vu (REG_STATUS_B lu à $FDFF par le BIOS à 1052, dans un SYSTEM_IO appelé par b2b depuis
+#     son DEMO_END) et IGNORÉ — aucune écriture de $10FD81, un seul DEMO_END ; le DEMO_END de b2b revient à 1052, la sauvegarde de b2b suit (même plage, même somme $04D1), un seul
+#     passage de slot (REG_SLOT ← $01 à 1054), une remise sur le slot 1, demande 3, à 1055 — deux trames plus tôt qu'avant (1057), le second DEMO_END en moins. Le journal
+#     d'apres ss2 ne diffère de celui d'apres s1 que par le second front lui-même : $10FEDC/$10FEDD ← $02 au lieu de $00 à 1052, et deux lectures de REG_STATUS_B en plus.
+#   - s1 : apres égal à avant, mêmes évènements dans le même ordre aux deux journaux ; seules diffèrent les fractions (0,001 trame au plus, les quatre instructions de la garde) et
+#     la somme des écritures du BIOS dans sa pile ($10F1E8-$10F223, 1050-1052 : les adresses de retour, l'image ayant bougé). La référence garde son avance d'une trame (section 2
+#     de 2026-10-23-titre-apres-game-over.tsv).
+#   - ss2r : apres, le SELECT de 1100 est pris (10FD81 ← $04, DEMO_END de puzzledp, passage au slot 0, remise à 1103), comme avant : la garde se relâche. $10FD81 vaut $02
+#     après la remise du slot 1 (écrit à 1054 0,032, avant $10FDAE ← $03), par `_retour_selection`.
+#
+# VERDICT : la garde fait ce qu'on lui demande — un seul DEMO_END, un seul passage, une remise sur le slot visé ; SELECT de nouveau pris après la remise ; le SELECT simple inchangé.
+#   Écart voulu à la référence, qui prend le second front (section 6 de 2026-10-23-titre-apres-game-over.tsv). Non mesuré : SELECT P2 (code 5), qui passe par la même garde.
+# Vérifié : bench/non-regression.sh complet sur l'image apres (même sha256), 4 PASS, 0 FAIL, NON-RÉGRESSION : PASS (97 s) ; python3 bench/test_generer_contrats.py OK (56 tests).
+# Colonnes : run ; bios ; DEMO_END lus dans la fenêtre ; évènements ; jetons (S sauvegarde vers la backup RAM et sa somme, R restauration lue, remise slot demande mode).
+run	bios	DEMO_END lus	evenements (trame:fraction ; ecritures du BIOS de $10FEE0, $10FD81, REG_SLOT $380021, $10FDAE ; D12E DEMO_END lu, U122 remise)	jetons
+ss2	ref	2	1050:.031 10FEE0=00 1050:.031 10FD81=04 1050:.031 D12E 1052:.179 10FEE0=00 1052:.179 10FD81=04 1052:.179 D12E 1055:.470 10FD81=02 1055:.640 380021=01 1056:.020 10FDAE=03 1056:.020 U122	1055 R D01320-D0141F ; 1055 S D00320-D00353 somme 04D1 ; 1056 remise s01 d03 m01
+ss2	avant	2	1050:.024 10FEE0=00 1050:.025 10FD81=04 1050:.025 D12E 1052:.173 10FEE0=00 1052:.173 10FD81=04 1052:.173 D12E 1056:.001 380021=01 1056:.032 10FD81=02 1056:.034 10FDAE=03 1057:.001 U122	1054 S D00320-D00353 somme 04D1 ; 1056 R D01320-D0141F ; 1057 remise s01 d03 m01
+ss2	apres	1	1050:.025 10FEE0=00 1050:.025 10FD81=04 1050:.025 D12E 1054:.000 380021=01 1054:.032 10FD81=02 1054:.034 10FDAE=03 1055:.001 U122	1052 S D00320-D00353 somme 04D1 ; 1054 R D01320-D0141F ; 1055 remise s01 d03 m01
+s1	ref	1	1050:.031 10FEE0=00 1050:.031 10FD81=04 1050:.031 D12E 1053:.470 10FD81=02 1053:.640 380021=01 1054:.020 10FDAE=03 1054:.020 U122	1053 R D01320-D0141F ; 1053 S D00320-D00353 somme 04D1 ; 1054 remise s01 d03 m01
+s1	avant	1	1050:.024 10FEE0=00 1050:.025 10FD81=04 1050:.025 D12E 1054:.001 380021=01 1054:.032 10FD81=02 1054:.034 10FDAE=03 1055:.001 U122	1052 S D00320-D00353 somme 04D1 ; 1054 R D01320-D0141F ; 1055 remise s01 d03 m01
+s1	apres	1	1050:.025 10FEE0=00 1050:.025 10FD81=04 1050:.025 D12E 1054:.000 380021=01 1054:.032 10FD81=02 1054:.034 10FDAE=03 1055:.001 U122	1052 S D00320-D00353 somme 04D1 ; 1054 R D01320-D0141F ; 1055 remise s01 d03 m01
+ss2r	ref	3	1050:.031 10FEE0=00 1050:.031 10FD81=04 1050:.031 D12E 1052:.179 10FEE0=00 1052:.179 10FD81=04 1052:.179 D12E 1055:.470 10FD81=02 1055:.640 380021=01 1056:.020 10FDAE=03 1056:.020 U122 1100:.377 10FEE0=00 1100:.377 10FD81=04 1100:.377 D12E 1101:.470 10FD81=02 1101:.685 380021=00 1102:.020 10FDAE=03 1102:.020 U122	1055 R D01320-D0141F ; 1055 S D00320-D00353 somme 04D1 ; 1056 remise s01 d03 m01 ; 1101 R D00320-D00353 ; 1101 S D01320-D0141F somme 055B ; 1102 remise s00 d03 m01
+ss2r	avant	3	1050:.024 10FEE0=00 1050:.025 10FD81=04 1050:.025 D12E 1052:.173 10FEE0=00 1052:.173 10FD81=04 1052:.173 D12E 1056:.001 380021=01 1056:.032 10FD81=02 1056:.034 10FDAE=03 1057:.001 U122 1100:.370 10FEE0=00 1100:.370 10FD81=04 1100:.370 D12E 1102:.001 380021=00 1102:.010 10FD81=02 1102:.012 10FDAE=03 1103:.001 U122	1054 S D00320-D00353 somme 04D1 ; 1056 R D01320-D0141F ; 1057 remise s01 d03 m01 ; 1100 S D01320-D0141F somme 055B ; 1102 R D00320-D00353 ; 1103 remise s00 d03 m01
+ss2r	apres	2	1050:.025 10FEE0=00 1050:.025 10FD81=04 1050:.025 D12E 1054:.000 380021=01 1054:.032 10FD81=02 1054:.034 10FDAE=03 1055:.001 U122 1100:.371 10FEE0=00 1100:.371 10FD81=04 1100:.371 D12E 1102:.001 380021=00 1102:.010 10FD81=02 1102:.012 10FDAE=03 1103:.001 U122	1052 S D00320-D00353 somme 04D1 ; 1054 R D01320-D0141F ; 1055 remise s01 d03 m01 ; 1100 S D01320-D0141F somme 055B ; 1102 R D00320-D00353 ; 1103 remise s00 d03 m01

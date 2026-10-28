@@ -1,0 +1,72 @@
+# La pièce qui fait le crédit pendant la démo : COIN_SOUND, DEMO_END ($00012E), $10FD81 et la remise (docs/RELECTURE-CONTRATS.md, dernière section, premier élément). Relevé du 2026-10-22.
+# MAME 0.286, machine neogeo (MV-6F), -bios euro pour la référence, -cart1 par la liste logicielle neogeo (-hashpath <dossier hash de MAME>), -video none -sound none -nothrottle,
+# SDL_MAC_BACKGROUND_APP=1, NVRAM isolée par run. Hôte : Apple M4 Pro, 14 cœurs, macOS 26.6.2. Notre image chargée par un neogeo.zip dont seul le membre sp-s2.sp1 est remplacé (WRONG CHECKSUMS au journal, 1 sur chaque run).
+# Images : avant = celle de main (build/construire.sh src/c0, sha256 738d507fa92fe2d2…74b637) ; apres = celle de ce lot (sha256 8e0ea5b87d49c769…8ad173).
+# Jig : bench/multislot.lua (MS_PLAGES=1, MS_SUIVRE), chargé par une enveloppe de mesure non versionnée (dofile du jig, plus trois taps) : (1) la lecture de $00012E, vecteur DEMO_END de l'EN-TÊTE
+#   DE LA CARTOUCHE ; (2) les écritures du JEU (PC hors $C00000-$C1FFFF) dans sa RAM $100000-$10F2FF entre cette lecture et la lecture suivante de $000122 : compte, adresses, somme des
+#   valeurs ; (3) les lectures des vecteurs auto 1 et 2 ($000064, $000068), comptées par trame. Taps reposés à chaque fin de trame (un changement de slot les efface).
+# Aucun PC consigné (le PC n'est lu que pour attribuer un accès au BIOS ou au jeu), aucun octet de la ROM du BIOS (docs/DECISIONS.md §8) : adresses de RAM, de backup RAM, de registres et de l'en-tête de cartouche, valeurs écrites.
+#
+# 1. LA PIÈCE PENDANT LA DÉMO, crédit fait (1 pièce = 1 crédit, NVRAM neuve), pièce à la trame 1000, 1300 trames. MESURÉ, la référence, sur les cinq jeux : dans l'appel de SYSTEM_IO
+#    de la pièce, le crédit, COIN_SOUND ($000134 lu), $10FD81 ← $06, DEMO_END ($00012E lu) ; IRQ masquées pendant DEMO_END (mslug : aucun vecteur auto pris de 1001 à 1005, la main
+#    au jeu ; aof : aucun à 1001) ; au retour, $10FD80 ← $02 et $10FEE1 ← $FF ; la trame suivante, à 0,47 : $10FD81 ← $02, $10FEE1 ← $0A, REG_SOUND ← $03 ; la remise au vblank
+#    d'après, demande 3. $10FDDB (minuteur du départ forcé) passe de $3B à $3A dans l'appel de la pièce.
+#    Le jeu travaille dans DEMO_END : aof écrit 29 955 octets de sa RAM, mslug 58 384 (5 trames) ; puzzledp et nam1975 rien. garou : la colonne reste « - », l'enveloppe ayant déjà
+#    vu, à l'entrée de sa démo, une lecture de $00012E sans DEMO_END appelé (référence 712, après 808, avant aucune ; 2 écritures du jeu, somme égale) — non élucidé, hors de ce lot.
+#    Notre image avant : ni DEMO_END ni $10FD81, COIN_SOUND reporté au décompte de FRAME_SKIP, la remise à la trame suivante.
+#    Écrit : src/c0/io.s _systeme_io (%d7 = 1, celui du jeu rendu), _io_commun (plus de remise immédiate sous SYSTEM_IO en démo), _io_compulsion (décompte en démo avec un crédit),
+#    _io_fin_demo (nouveau) ; src/c0/int1.s (%d7 = 0) ; src/c0/c0.s _retour_demo_end (nouveau), _sysret_etat (l'entrée de SYSTEM_RETURN, extraite de _retour_systeme).
+#    Colonnes : jeu ; bios ; trames de la lecture de $000134, de $00012E, des écritures $10FD81 ← $06 et ← $02, de REG_SOUND ← $03 par le BIOS, de la remise (demande) ;
+#    écritures du jeu entre DEMO_END et la remise ; $10FDDB en fin de trame 1000 ; empreintes (sha256, 8 premiers chiffres) de l'écran aux trames 1100, 1200, 1300.
+jeu	bios	coin_sound	demo_end	sysret06	sysret02	reg_sound03	remise	ecritures_jeu_DEMO_END	10FDDB_fin_piece	ecrans_1100_1200_1300
+puzzledp	ref	1000	1000	1000	1001	1001	1002 d03	0	3A	af372011 3c3ec2f0 e8c55097
+puzzledp	avant	1011	-	-	-	1000	1001 d03	-	3B	af372011 3c3ec2f0 e8c55097
+puzzledp	apres	1000	1000	1000	1001	1001	1002 d03	0	3A	af372011 3c3ec2f0 e8c55097
+aof	ref	1000	1000	1000	1002	1002	1003 d03	29955	3A	3f951897 0198f1b4 741803ca
+aof	avant	1011	-	-	-	1000	1001 d03	-	3B	561342ef aa57ce11 741803ca
+aof	apres	1000	1000	1000	1002	1002	1003 d03	29952	3A	3f951897 0198f1b4 741803ca
+mslug	ref	1000	1000	1000	1006	1006	1007 d03	58384	3A	3eba8694 82f8c628 f630814b
+mslug	avant	1016	-	-	-	1000	1001 d03	-	3B	3eba8694 82f8c628 a64ed4b6
+mslug	apres	1000	1000	1000	1006	1006	1007 d03	58384	3A	3eba8694 f95d1efe f630814b
+nam1975	ref	1000	1000	1000	1001	1001	1002 d03	0	3A	9da12323 9b5da5f2 dfafb41c
+nam1975	avant	1011	-	-	-	1000	1001 d03	-	3B	9da12323 9b5da5f2 dfafb41c
+nam1975	apres	1000	1000	1000	1001	1001	1002 d03	0	3A	9da12323 9b5da5f2 dfafb41c
+garou	ref	1000	1000	1000	1001	1001	1002 d03	-	3A	b80472b0 bcac91a7 837016f2
+garou	avant	1012	-	-	-	1000	1001 d03	-	3B	b80472b0 1d19e090 837016f2
+garou	apres	1000	1000	1000	1001	1001	1002 d03	-	3A	b80472b0 bcac91a7 837016f2
+#    Écrans : égaux à la référence sur les trois trames, sauf mslug à 1200 (après) — le chiffre TIME du titre, une seconde d'écart : après la remise de 1007, la référence
+#    décompte FRAME_SKIP de $09 à $00 entre 1008 et 1016, notre image de 1013 à 1021, et $10FDDB repart à 1017 chez elle, à 1022 chez nous. SUPPOSÉ : un décompte de FRAME_SKIP
+#    hors de SYSTEM_IO chez la référence (sous INT1 ?), que notre image ne fait pas. L'image avant (mslug à 1300) porte un écart du même ordre. NON RÉSOLU, hors de ce lot.
+#    aof et garou avant différaient à 1100 ou 1200 (titre arrivé plus tôt).
+#
+# 2. LA PIÈCE PENDANT LE DÉCOMPTE DE FRAME_SKIP (puzzledp, NVRAM neuve), 3 et 7 trames après la remise de la démo. MESURÉ, la référence : crédit seulement à la pièce ; COIN_SOUND,
+#    $10FD81 ← $06, DEMO_END et $10FDDB ← $3A au premier appel qui lit FRAME_SKIP à $00 (remise + 10), la remise demande 3 à remise + 12, dans les deux cas.
+#    Colonnes : cas ; bios ; remise de la démo ; trame de la pièce ; FRAME_SKIP à $00 ; COIN_SOUND ; DEMO_END ; $10FD81 ← $06 ; ← $02 ; REG_SOUND ← $03 ; remise (demande).
+cas	bios	remise_demo	piece	fs_00	coin_sound	demo_end	sysret06	sysret02	reg_sound03	remise
+remise+3	ref	750	753	759	760	760	760	761	761	762 d03
+remise+3	avant	186	189	199	200	-	-	-	189	190 d03
+remise+3	apres	186	189	195	196	196	196	197	197	198 d03
+remise+7	ref	750	757	759	760	760	760	761	761	762 d03
+remise+7	avant	186	193	203	204	-	-	-	193	194 d03
+remise+7	apres	186	193	195	196	196	196	197	197	198 d03
+#
+# 3. DEUX PIÈCES PAR CRÉDIT ($D0003A ← $02 posé dans la NVRAM gardée d'un run de 900 trames), puzzledp, pièces 900 (démo) et 1300, 1500 trames : le plan p1 de
+#    2026-10-22-ecarts-remise-credit.tsv. Colonnes : geste ; ref ; avant ; apres.
+geste	ref	avant	apres
+pièce 900 (sans crédit) : COIN_SOUND, $D00024, $10FDDA/$10FDDB	trame 900, 01, 30/3B	trame 900, 01, 30/3B	trame 900, 01, 30/3B
+pièce 1300 (le crédit) : COIN_SOUND, DEMO_END, $10FD81 ← $06	1300, 1300, 1300	1311, non, non	1300, 1300, 1300
+pièce 1300 : $10FD81 ← $02 et REG_SOUND ← $03	1301	REG_SOUND 1300, $10FD81 non écrit	1301
+pièce 1300 : remise demande 3	1302	1301	1302
+pièce 1300 : $10FDDB en fin de trame 1300, puis $39	3A, 1312	3B, 3A à 1311, 39 à 1312	3A, 1312
+capture 1360 (titre)	f2722649	f2722649	f2722649
+#
+# 4. b2b, UN JEU QUI APPELLE SYSTEM_IO DEPUIS DEMO_END (pièce à 3300, 3500 trames, NVRAM neuve). La référence : à 3300 b2b est en mode 0 ($10FDAF ← $00 écrit par le jeu à 2861) —
+#    la pièce y suit le chemin du mode 0 (titre à 3302, ni COIN_SOUND ni DEMO_END) ; puis, au premier FRAME_SKIP nul (3312), COIN_SOUND, $10FD81 ← $06 et DEMO_END, que b2b tient
+#    35 trames, et un second titre à 3349. Notre image après : à 3300 b2b est dans sa démo (mode 1, demande 2), DEMO_END à 3300, remise à 3337. Sans la garde de _io_fin_demo,
+#    l'appel de SYSTEM_IO fait par b2b dans DEMO_END rappelait DEMO_END sans fin ($00012E relu toutes les 0,016 trame) et la matrice ne relevait plus rien (« aucun relevé »).
+#    Colonnes : bios ; DEMO_END lu ; remise suivante ; trames entre les deux ; écritures du jeu entre les deux ; adresses distinctes.
+bios	demo_end	remise	duree	ecritures_jeu	adresses
+ref	3312	3349	37	11275	2226
+apres	3300	3337	37	11275	2226
+#    NON RÉSOLU, hors de ce lot : la référence appelle aussi DEMO_END après une pièce reçue en mode 0, au titre déjà rendu (b2b, 3312). Notre image garde, en mode 0 et sous INT1,
+#    le chemin d'avant (src/c0/io.s, fin de _io_commun) : le titre sans DEMO_END.

@@ -1,0 +1,215 @@
+# Le parcours des slots au boot, accès par accès : la référence et nous. MAME 0.286, -bios euro,
+# NVRAM neuve, le 2026-10-24, jig bench/acces-boot.lua (AB_APRES=60 pour la référence, 1 pour nos
+# images). Retour du matériel (docs/ESSAI-MATERIEL.md, essai 1) : sur une MV-2F, notre image n°8
+# lisait l'en-tête en bus flottant. Ce relevé montre la différence : la référence écrit REG_CRTFIX
+# ($3A001B) juste avant de lire l'en-tête des slots, et REG_BRDFIX ($3A000B) après ; l'image n°8
+# les lisait sous REG_BRDFIX, l'état du reset. MAME sert la cartouche sous l'un comme sous l'autre.
+# Et après son parcours, la référence passe au slot servi (REG_SLOT, REG_CRTFIX, REG_SWPROM, $03)
+# sans renvoyer $01 : le Z80 est resté garé.
+#
+# Fenêtre : du premier REG_SOUND $01 (ou de la première écriture de REG_SLOT) jusqu'au premier $03
+# sur REG_SOUND s'il est dans le relevé, sinon au REG_BRDFIX qui suit le parcours. Gardés : les
+# écritures sur REG_SLOT ($380021), REG_SWPBIOS/REG_SWPROM ($3A0003/$3A0013), REG_BRDFIX/REG_CRTFIX
+# ($3A000B/$3A001B), REG_SOUND ($320000, écritures ; ses lectures comptées en une ligne, « echo » si
+# $01 y a été lu), et les lectures de l'en-tête de la CARTOUCHE ($000100-$000114, données du jeu).
+# Aucun PC consigné (le PC n'est lu que pour attribuer un accès au BIOS ou au jeu), aucun octet de la ROM du BIOS (DECISIONS §8) ; les écritures du watchdog, du calendrier
+# et de la backup RAM, entre deux, sont omises.
+# Colonnes : run, trame, fraction de trame, genre, adresse, largeur (o paire, i impaire, m mot),
+# donnée, répétitions. MAME rend $FF pour un slot vide et garde le slot d'avant pour un numéro
+# sans emplacement (2 à 5 sur ng_mv2f) : neogeo.cpp, mvs_state::io_control_w et set_slot_idx.
+run	trame	fraction	genre	adresse	largeur	donnee	repet
+# ref-mv2f-2c : snk euro, ng_mv2f, mslug slot 0, aof slot 1
+ref-mv2f-2c	276	0.381	W	320000	o	01	1
+ref-mv2f-2c	-	-	R	320000	o	echo	543
+ref-mv2f-2c	276	0.531	W	380021	i	00	1
+ref-mv2f-2c	276	0.531	W	3A001B	i	00	1
+ref-mv2f-2c	276	0.532	W	380021	i	00	1
+ref-mv2f-2c	276	0.532	R	000100	o	4E	1
+ref-mv2f-2c	276	0.532	R	000101	i	45	1
+ref-mv2f-2c	276	0.532	R	000102	o	4F	1
+ref-mv2f-2c	276	0.532	R	000103	i	2D	1
+ref-mv2f-2c	276	0.532	R	000104	o	47	1
+ref-mv2f-2c	276	0.533	R	000105	i	45	1
+ref-mv2f-2c	276	0.533	R	000106	o	4F	1
+ref-mv2f-2c	276	0.544	R	000108	m	0201	1
+ref-mv2f-2c	276	0.544	R	000114	o	00	1
+ref-mv2f-2c	276	0.545	W	380021	i	01	1
+ref-mv2f-2c	276	0.545	R	000100	o	4E	1
+ref-mv2f-2c	276	0.545	R	000101	i	45	1
+ref-mv2f-2c	276	0.545	R	000102	o	4F	1
+ref-mv2f-2c	276	0.545	R	000103	i	2D	1
+ref-mv2f-2c	276	0.546	R	000104	o	47	1
+ref-mv2f-2c	276	0.546	R	000105	i	45	1
+ref-mv2f-2c	276	0.546	R	000106	o	4F	1
+ref-mv2f-2c	276	0.557	R	000108	m	0044	1
+ref-mv2f-2c	276	0.557	R	000114	o	00	1
+ref-mv2f-2c	276	0.558	W	380021	i	02	1
+ref-mv2f-2c	276	0.558	R	000100	o	4E	1
+ref-mv2f-2c	276	0.558	R	000101	i	45	1
+ref-mv2f-2c	276	0.558	R	000102	o	4F	1
+ref-mv2f-2c	276	0.559	R	000103	i	2D	1
+ref-mv2f-2c	276	0.559	R	000104	o	47	1
+ref-mv2f-2c	276	0.559	R	000105	i	45	1
+ref-mv2f-2c	276	0.559	R	000106	o	4F	1
+ref-mv2f-2c	276	0.570	R	000108	m	0044	1
+ref-mv2f-2c	276	0.570	R	000114	o	00	1
+ref-mv2f-2c	276	0.571	W	380021	i	03	1
+ref-mv2f-2c	276	0.571	R	000100	o	4E	1
+ref-mv2f-2c	276	0.571	R	000101	i	45	1
+ref-mv2f-2c	276	0.571	R	000102	o	4F	1
+ref-mv2f-2c	276	0.572	R	000103	i	2D	1
+ref-mv2f-2c	276	0.572	R	000104	o	47	1
+ref-mv2f-2c	276	0.572	R	000105	i	45	1
+ref-mv2f-2c	276	0.572	R	000106	o	4F	1
+ref-mv2f-2c	276	0.583	R	000108	m	0044	1
+ref-mv2f-2c	276	0.584	R	000114	o	00	1
+ref-mv2f-2c	276	0.584	W	3A000B	i	72	1
+ref-mv2f-2c	276	0.602	W	3A000B	i	48	1
+ref-mv2f-2c	276	0.602	W	3A0003	i	48	1
+ref-mv2f-2c	-	-	R	320000	o	echo	1
+ref-mv2f-2c	279	0.620	W	380021	i	00	1
+ref-mv2f-2c	279	0.620	W	3A001B	i	00	1
+ref-mv2f-2c	279	0.620	W	3A0013	i	00	1
+ref-mv2f-2c	279	0.625	W	320000	o	03	1
+# ref-mv2f-s0vide : snk euro, ng_mv2f, slot 0 vide, mslug slot 1
+ref-mv2f-s0vide	276	0.381	W	320000	o	01	1
+ref-mv2f-s0vide	-	-	R	320000	o	echo	543
+ref-mv2f-s0vide	276	0.531	W	380021	i	00	1
+ref-mv2f-s0vide	276	0.531	W	3A001B	i	00	1
+ref-mv2f-s0vide	276	0.532	W	380021	i	00	1
+ref-mv2f-s0vide	276	0.532	R	000100	o	FF	3
+ref-mv2f-s0vide	276	0.533	W	380021	i	01	1
+ref-mv2f-s0vide	276	0.533	R	000100	o	4E	1
+ref-mv2f-s0vide	276	0.533	R	000101	i	45	1
+ref-mv2f-s0vide	276	0.533	R	000102	o	4F	1
+ref-mv2f-s0vide	276	0.533	R	000103	i	2D	1
+ref-mv2f-s0vide	276	0.534	R	000104	o	47	1
+ref-mv2f-s0vide	276	0.534	R	000105	i	45	1
+ref-mv2f-s0vide	276	0.534	R	000106	o	4F	1
+ref-mv2f-s0vide	276	0.545	R	000108	m	0201	1
+ref-mv2f-s0vide	276	0.545	R	000114	o	00	1
+ref-mv2f-s0vide	276	0.546	W	380021	i	02	1
+ref-mv2f-s0vide	276	0.546	R	000100	o	4E	1
+ref-mv2f-s0vide	276	0.546	R	000101	i	45	1
+ref-mv2f-s0vide	276	0.546	R	000102	o	4F	1
+ref-mv2f-s0vide	276	0.547	R	000103	i	2D	1
+ref-mv2f-s0vide	276	0.547	R	000104	o	47	1
+ref-mv2f-s0vide	276	0.547	R	000105	i	45	1
+ref-mv2f-s0vide	276	0.547	R	000106	o	4F	1
+ref-mv2f-s0vide	276	0.558	R	000108	m	0201	1
+ref-mv2f-s0vide	276	0.559	R	000114	o	00	1
+ref-mv2f-s0vide	276	0.559	W	380021	i	03	1
+ref-mv2f-s0vide	276	0.559	R	000100	o	4E	1
+ref-mv2f-s0vide	276	0.559	R	000101	i	45	1
+ref-mv2f-s0vide	276	0.560	R	000102	o	4F	1
+ref-mv2f-s0vide	276	0.560	R	000103	i	2D	1
+ref-mv2f-s0vide	276	0.560	R	000104	o	47	1
+ref-mv2f-s0vide	276	0.560	R	000105	i	45	1
+ref-mv2f-s0vide	276	0.560	R	000106	o	4F	1
+ref-mv2f-s0vide	276	0.572	R	000108	m	0201	1
+ref-mv2f-s0vide	276	0.572	R	000114	o	00	1
+ref-mv2f-s0vide	276	0.572	W	3A000B	i	86	1
+ref-mv2f-s0vide	276	0.588	W	3A000B	i	48	1
+ref-mv2f-s0vide	276	0.589	W	3A0003	i	48	1
+ref-mv2f-s0vide	-	-	R	320000	o	echo	1
+ref-mv2f-s0vide	279	0.606	W	380021	i	01	1
+ref-mv2f-s0vide	279	0.607	W	3A001B	i	00	1
+ref-mv2f-s0vide	279	0.607	W	3A0013	i	00	1
+ref-mv2f-s0vide	279	0.612	W	320000	o	03	1
+# ref-mv6f-2c : snk euro, neogeo (MV-6F), mslug slot 0, aof slot 1
+ref-mv6f-2c	276	0.381	W	320000	o	01	1
+ref-mv6f-2c	-	-	R	320000	o	echo	543
+ref-mv6f-2c	276	0.531	W	380021	i	00	1
+ref-mv6f-2c	276	0.531	W	3A001B	i	00	1
+ref-mv6f-2c	276	0.532	W	380021	i	00	1
+ref-mv6f-2c	276	0.532	R	000100	o	4E	1
+ref-mv6f-2c	276	0.532	R	000101	i	45	1
+ref-mv6f-2c	276	0.532	R	000102	o	4F	1
+ref-mv6f-2c	276	0.532	R	000103	i	2D	1
+ref-mv6f-2c	276	0.532	R	000104	o	47	1
+ref-mv6f-2c	276	0.533	R	000105	i	45	1
+ref-mv6f-2c	276	0.533	R	000106	o	4F	1
+ref-mv6f-2c	276	0.544	R	000108	m	0201	1
+ref-mv6f-2c	276	0.544	R	000114	o	00	1
+ref-mv6f-2c	276	0.545	W	380021	i	01	1
+ref-mv6f-2c	276	0.545	R	000100	o	4E	1
+ref-mv6f-2c	276	0.545	R	000101	i	45	1
+ref-mv6f-2c	276	0.545	R	000102	o	4F	1
+ref-mv6f-2c	276	0.545	R	000103	i	2D	1
+ref-mv6f-2c	276	0.546	R	000104	o	47	1
+ref-mv6f-2c	276	0.546	R	000105	i	45	1
+ref-mv6f-2c	276	0.546	R	000106	o	4F	1
+ref-mv6f-2c	276	0.557	R	000108	m	0044	1
+ref-mv6f-2c	276	0.557	R	000114	o	00	1
+ref-mv6f-2c	276	0.558	W	380021	i	02	1
+ref-mv6f-2c	276	0.558	R	000100	o	FF	3
+ref-mv6f-2c	276	0.559	W	380021	i	03	1
+ref-mv6f-2c	276	0.559	R	000100	o	FF	3
+ref-mv6f-2c	276	0.560	W	380021	i	04	1
+ref-mv6f-2c	276	0.560	R	000100	o	FF	3
+ref-mv6f-2c	276	0.561	W	380021	i	05	1
+ref-mv6f-2c	276	0.561	R	000100	o	FF	3
+ref-mv6f-2c	276	0.562	W	3A000B	i	72	1
+ref-mv6f-2c	276	0.584	W	3A000B	i	48	1
+ref-mv6f-2c	276	0.585	W	3A0003	i	48	1
+ref-mv6f-2c	-	-	R	320000	o	echo	1
+ref-mv6f-2c	279	0.602	W	380021	i	00	1
+ref-mv6f-2c	279	0.602	W	3A001B	i	00	1
+ref-mv6f-2c	279	0.602	W	3A0013	i	00	1
+ref-mv6f-2c	279	0.607	W	320000	o	03	1
+# n8-mv2f-2c : image n°8 6fc2d51b, ng_mv2f, mslug slot 0, aof slot 1
+n8-mv2f-2c	0	0.138	W	380021	i	00	1
+n8-mv2f-2c	0	0.138	R	000100	m	4E45	1
+n8-mv2f-2c	0	0.138	R	000102	m	4F2D	1
+n8-mv2f-2c	0	0.138	R	000104	m	4745	1
+n8-mv2f-2c	0	0.138	R	000106	o	4F	1
+n8-mv2f-2c	0	0.138	R	000108	m	0201	1
+n8-mv2f-2c	0	0.139	W	380021	i	01	1
+n8-mv2f-2c	0	0.139	R	000100	m	4E45	1
+n8-mv2f-2c	0	0.139	R	000102	m	4F2D	1
+n8-mv2f-2c	0	0.139	R	000104	m	4745	1
+n8-mv2f-2c	0	0.139	R	000106	o	4F	1
+n8-mv2f-2c	0	0.139	R	000108	m	0044	1
+n8-mv2f-2c	0	0.140	W	380021	i	02	1
+n8-mv2f-2c	0	0.140	R	000100	m	4E45	1
+n8-mv2f-2c	0	0.140	R	000102	m	4F2D	1
+n8-mv2f-2c	0	0.140	R	000104	m	4745	1
+n8-mv2f-2c	0	0.141	R	000106	o	4F	1
+n8-mv2f-2c	0	0.141	R	000108	m	0044	1
+n8-mv2f-2c	0	0.142	W	380021	i	03	1
+n8-mv2f-2c	0	0.142	R	000100	m	4E45	1
+n8-mv2f-2c	0	0.142	R	000102	m	4F2D	1
+n8-mv2f-2c	0	0.142	R	000104	m	4745	1
+n8-mv2f-2c	0	0.142	R	000106	o	4F	1
+n8-mv2f-2c	0	0.142	R	000108	m	0044	1
+n8-mv2f-2c	0	0.143	W	3A000B	i	FF	1
+# fix-mv2f-2c : src/c0 corrigé (avant le retrait du second garage), ng_mv2f, mslug slot 0, aof slot 1
+fix-mv2f-2c	0	0.138	W	320000	o	01	1
+fix-mv2f-2c	-	-	R	320000	o	echo	1
+fix-mv2f-2c	2	0.001	W	380021	i	00	1
+fix-mv2f-2c	2	0.001	W	3A001B	i	F0	1
+fix-mv2f-2c	2	0.001	W	380021	i	00	1
+fix-mv2f-2c	2	0.001	R	000100	m	4E45	1
+fix-mv2f-2c	2	0.001	R	000102	m	4F2D	1
+fix-mv2f-2c	2	0.001	R	000104	m	4745	1
+fix-mv2f-2c	2	0.001	R	000106	o	4F	1
+fix-mv2f-2c	2	0.001	R	000108	m	0201	1
+fix-mv2f-2c	2	0.002	W	380021	i	01	1
+fix-mv2f-2c	2	0.002	R	000100	m	4E45	1
+fix-mv2f-2c	2	0.002	R	000102	m	4F2D	1
+fix-mv2f-2c	2	0.002	R	000104	m	4745	1
+fix-mv2f-2c	2	0.002	R	000106	o	4F	1
+fix-mv2f-2c	2	0.002	R	000108	m	0044	1
+fix-mv2f-2c	2	0.003	W	380021	i	02	1
+fix-mv2f-2c	2	0.003	R	000100	m	4E45	1
+fix-mv2f-2c	2	0.003	R	000102	m	4F2D	1
+fix-mv2f-2c	2	0.003	R	000104	m	4745	1
+fix-mv2f-2c	2	0.003	R	000106	o	4F	1
+fix-mv2f-2c	2	0.004	R	000108	m	0044	1
+fix-mv2f-2c	2	0.004	W	380021	i	03	1
+fix-mv2f-2c	2	0.005	R	000100	m	4E45	1
+fix-mv2f-2c	2	0.005	R	000102	m	4F2D	1
+fix-mv2f-2c	2	0.005	R	000104	m	4745	1
+fix-mv2f-2c	2	0.005	R	000106	o	4F	1
+fix-mv2f-2c	2	0.005	R	000108	m	0044	1
+fix-mv2f-2c	2	0.006	W	3A000B	i	F0	1

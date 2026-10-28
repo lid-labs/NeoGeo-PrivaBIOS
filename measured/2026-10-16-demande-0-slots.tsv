@@ -1,0 +1,53 @@
+# La demande 0 n'est appelee qu'au PREMIER boot d'un jeu — la table des slots de la backup
+# RAM, le 2026-10-16, sous MAME (jigs lua a taps d'ecriture, NVRAM isolee, kof98).
+#
+# LE SYMPTOME. kof98 (et garou, mslug3, meme profil) reboote sans fin sous notre image. En
+# demande 0, le jeu (PC $009ECC-$009F2A, puis $B3E2) ecrit 16 octets a $D00220 + 16 x index,
+# puis reste ~18 trames IRQ masquees sans servir le watchdog (PC $B434-$B43C) :
+# le reset est voulu. Sous la reference aussi (reset
+# trame 291).
+#
+# CE QUE FAIT LA REFERENCE (adresses et valeurs de backup RAM, ecrivain par tap — main au BIOS
+# sauf mention) :
+#   premier boot, trame 276 : $D00124 <- $0242 (NGH de kof98, en-tete $108), $D00126 <- $FFFF,
+#     $D00104-$D00107 <- 2610 1605, $D00108 parcouru 0..2 puis 0 ; trame 279 : $D00126 <- $0000.
+#     Remise en DEMANDE 0 (trame ~280). Le jeu ecrit seulement $D00220-$D0022F (cart, 282).
+#   boot suivant, trame 497 : $D00124 <- $0242, $D00126 <- $0000 (reecrits a l'identique),
+#     $D00108 parcouru 0..8 puis 0. Remise en DEMANDE 2 (trame ~503) — PAS de demande 0.
+#   Sur 1 500 trames, le PC $B3F0 (init du jeu) n'est atteint qu'UNE fois (trame 282).
+# Lecture : la table des slots est a $D00124, 8 entrees de 4 octets (mot NGH, mot index de
+# bloc ; $FFFF = pas encore initialise). Le BIOS y cherche le NGH du jeu : absent -> inscrit,
+# index attribue, demande 0 ; present -> demande 2. SUPPOSE a ce stade : la regle exacte
+# (role de $D00104-$D00107 et $D00108, choix de l'index, slot libre) — le wiki « Backup RAM »
+# est a lire.
+#
+# TEST CAUSAL sur notre image (tap qui remplace demande/mode de NOS remises par 2/1) :
+#   sans forcage : PC $00B43C/$00B43E, reboot toutes les ~13 trames, sur 600 trames ;
+#   forcage      : AUCUN reboot (3 forcages, un seul boot) ; PC $00A144/$00A148 de 50 a 600 —
+#                  les adresses de la demo de kof98 sous la reference (trames 223-300).
+#
+# Ce releve ne consigne aucun PC du BIOS de reference ni aucun octet de sa ROM : les PC cites
+# sont ceux du jeu ; ailleurs, le PC n'est lu que pour attribuer une ecriture au BIOS ou a la
+# cartouche.
+#
+# LA REMISE DU BOOT SUIVANT, sous la reference (sonde, kof98) : trame 502, $10FDAF <- $01
+# (mode titre/demo) ; trame 503, $10FDAE = $02, main a la cartouche — demande 2, mode 1, la
+# combinaison que le test causal force.
+#
+# LE MEME TEST SUR LES DEUX AUTRES ROUGES (meme image, PC aux trames 100, 300, 600) :
+#   garou  : sans forcage $00D4BE, $00D46E puis reboot (BIOS a 600) ; force, aucun reboot,
+#            PC $00BDE0 aux trois relevés — attente de vblank ou gel : la matrice tranchera ;
+#   mslug3 : sans forcage $002C32 fige aux trois relevés ; force, $005CE4 puis $0A169C — le
+#            jeu avance.
+#
+# L'IMPLEMENTATION (agent d'implementation, c0.s : table cherchee par NGH, inscrite si absente — demande
+# 0 —, sinon demande 2 / mode 1 ; table formatee $0000/$FFFF x8 si elle manque). Juges :
+#   jig kof98, meme NVRAM, 900 trames : run 1 — demande 0, reset volontaire trame 10, boot 2 en
+#     demande 2 / mode 1 trame 11, puis PC $00A144/$00A148 jusqu'a 900 sans reset ; table finale
+#     0242/0000 puis sept 0000/FFFF. Run 2 — demande 2 / mode 1 des le premier boot.
+#   matrice des dix (lignes sprixe) :
+#     kof98 joue (vifs 68096), mslug3 joue (65120) — tous deux FIGE au releve precedent ;
+#     kof94, flipshot, neomrdo, svc, puzzledp, joyjoy, wjammers jouent toujours ;
+#     garou : AUCUN RELEVE — MAME segfault (rc 139) juste apres la remise en demande 2 du
+#     boot 2, avant la trame 11 ; reproductible (3 runs, 2 scripts). L'image precedente ne fait
+#     pas crasher MAME sur garou (elle reboote toutes les ~9 trames).

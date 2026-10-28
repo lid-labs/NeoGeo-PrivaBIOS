@@ -1,0 +1,57 @@
+# Le menu en jeu complet, le 2026-10-23 : GAME SETTINGS (src/c0/reglages-jeu.s) et MEMORY EDITOR (src/c0/memoire.s), les gels
+# (src/c0/cheats.s). Sous MAME 0.286, -video none, -sound none, -nothrottle, NVRAM par run, romsets non-merged de $ROMS,
+# seul sp-s2.sp1 remplacé (ou neogeo.zip, sur la MV-6F). Le PC n'est lu que pour attribuer une lecture au BIOS ou au jeu, et n'est pas consigné ; aucune instruction lue.
+#
+# SECTION 1 — QUAND LES JEUX LISENT LEURS SOFT-DIP. Un tap de lecture sur BIOS_GAME_DIP ($10FD84-$10FD93), compté par trame et
+# par octet quand le PC est dans la cartouche (< $C00000) ; aucun PC écrit. Notre image d'avant ce lot (6fc2d51b…), pièce à 400 et
+# START à 500 (8 trames), aucune autre entrée, 9 000 trames ; NVRAM neuve. Mode/demande ($10FDAF/$10FDAE) : 00/00 la demande 0,
+# 01/02 la démo, 01/03 le titre, 02/03 la partie. Octet k = $10FD84 + k (0-1 et 2-3 les temps, 4-5 les comptes, 6-15 les choix).
+#   jeu       mode   octet  lectures  trames
+#   aof       01/02  6 8 11 2 chacun  189, 6963 (début de démo)
+#   aof       01/02  13     2 249     190-9000 (à chaque trame)
+#   aof       02/03  4      2         1897, 4191 (ROUND TIME, au début de chaque round)
+#   aof       02/03  9      2         1897, 4191
+#   aof       02/03  13     6 459     501-6959 (à chaque trame)
+#   kof98     00/00  0-15   1 à 4     186-187 (les seize, à la demande 0)
+#   kof98     02/03  11     16 790    501-9000 (deux fois par trame)
+#   mslug     02/03  7, 13  4 246, 8 472   502-9000
+#   ncombat   02/03  0, 1   8 chacun  544-4573 (PLAY TIME, quelques fois en partie)
+#   ncombat   02/03  6-9    2 à 8     504-4573
+#   puzzledp  01/02  5      2         190, 8336 (CONTINUE : à la démo seulement)
+#   puzzledp  02/03  6, 8, 9  10 613, 7 815, 7 815   503-8331
+#   samsho2   02/03  7, 14  8 484, 16 966   501-9000
+# Six jeux sur six relisent des soft-DIP en partie ; certains octets ne sont lus qu'à la démo, au titre ou à la demande 0. D'où :
+# un changement de GAME SETTINGS est pris quand le jeu relit l'octet (aof : ROUND TIME au round suivant, scène gs-compte), et
+# RESTART GAME l'impose (scènes gs-choix, gs-mmss, gs-fois). L'écran le dit : « SOME CHANGES NEED RESTART ».
+#
+# SECTION 3 — LE COÛT DU CROCHET EN PARTIE, ET SVC. Le premier état de ce lot faisait échouer l'étage 2 de bench/non-regression.sh :
+# svc vifs 67805 contre 66279 au relevé (+2,30 %, au-delà des 2 %). bench/matrice.sh, BIOS_SANS_NULLBIOS=1, svc garou samsho2
+# ssideki4, quatre images construites ici, aucune versionnée :
+#   main     src/c0 de main 7c7fd144                                            svc 66944 ; garou 70792, samsho2 71680, ssideki4 71186
+#   vtst     main, plus `tst.w $10FB08` et un `beq.s` pris en tête de _cheats_appliquer (le test des gels, deux instructions, 26 cycles
+#            par appel de SYSTEM_IO)                                            svc 67805 ; les trois autres égaux à main
+#   vmot     main, plus un mot jamais exécuté après le `rts` de _cheats_appliquer (toute la zone haute qui suit décalée d'un mot)
+#                                                                               svc 66944 ; les trois autres égaux à main
+#   vtl      main, le `tst.w CH_ETATS` remplacé par `tst.l CH_ETATS` (4 cycles de plus, CH_ETATS et $10FB08 d'un coup)
+#                                                                               svc 66944
+#   finale d'alors (le test des gels séparé)                                    svc 67805 ; les trois autres égaux à main
+# svc dépend ici du TEMPS que le crochet prend à chaque appel, pas de la disposition (vmot) : 26 cycles le font diverger, 4 non. Le
+# jeu tourne dans tous les cas (« joue »). D'où le `tst.l` de src/c0/cheats.s, qui rend au chemin sans cheat ni gel le coût de main
+# à 4 cycles près. main donne 66944 et non les 66279 du relevé de référence (2026-10-22) : +1,0 %, dans la tolérance.
+#
+# SECTION 2 — LES SEUILS DES SCÈNES (bench/parcours.sh --ref-menu). Seule la colonne « seuil » juge ; « mesure » est la valeur de
+# l'image de ce lot. Le critère de chaque scène est dans l'en-tête de bench/parcours.sh. Les scènes sans seuil (me-ecran, me-goto,
+# me-octet, me-ligne, me-page, me-liste, me-degel, me-borne, gs-banque, me-gel) jugent sur le texte exact de l'écran ou sur une
+# égalité. Mesures sur l'image de ce lot (src/c0 de la branche feat/bios-menu-en-jeu-complet), sha256
+# 01180fcb7022632334a0edbb98c7ce8caa541a14e1745e0348f11b53650ae2f7, le 2026-10-23, dans bench/non-regression.sh complet (--jobs 2) ;
+# les mêmes sur l'image d'avant le `tst.l` (2b3a3662…).
+scene	grandeur	seuil	mesure
+gs-compte	trames_min	250	359 (13 images du chronomètre de 65 à 61, au round 2, trames 4285 et suivantes)
+gs-defauts	trames_max	0	0 (359 sans la remise)
+gs-choix	cases_min	40	137 (le texte de l'histoire, y 152-215, 754 trames après la remise qui suit la relance de 2430)
+gs-choix	espagnol_max	8	0 (l'image égale à celle de SPANISH posé à l'éditeur du boot)
+gs-mmss	hors_max	8	2, 3, 0 (R + 1300, 2000, 3000 ; R = 2418) ; le TIME égal à 03:01 du boot aux trois
+gs-fois	ecart_max	5	0 (titre à R + 8182, R = 2418 ; 8182 sans continue posé au boot, 8832 avec)
+gs-sans-donnees	lignes_max	3	3 (NO SOFT DIP DATA, RESET TO DEFAULTS, RESTART GAME), fixtures nosd et banque
+me-repete	crans_min	6	12 (1084AE depuis 10844E, « bas » tenu 60 trames : REP_DEBUT 20, REP_PAS 4)
+me-poke	trames_min	30	59 (le HUD affiche 39 de la trame 2741 à 2799 ; il ne redessine pas 40 à l'écriture : mesuré)

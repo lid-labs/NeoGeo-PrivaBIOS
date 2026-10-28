@@ -1,0 +1,34 @@
+# Le crédit au départ de garou et d'alpham2 (docs/RELECTURE-CONTRATS.md, dernière section), relevé du 2026-10-22. Synthèse ; le détail par événement est dans
+# 2026-10-22-credit-au-depart-evenements.tsv.
+# MAME 0.286, machine neogeo, -bios euro pour la référence, -video none -sound none -nothrottle, SDL_MAC_BACKGROUND_APP=1, NVRAM isolée par run. Hôte : Apple M4 Pro,
+# macOS 26.6.2. Notre image chargée par le romset du jeu dont seul le membre sp-s2.sp1 est remplacé (bench/matrice.sh, WRONG CHECKSUMS au journal de chaque run).
+# Image : celle de main (c29b5860, build/construire.sh src/c0, sha256 8e0ea5b87d49c769d1c763a7edf1685e0f94392132c95e39c97871dfc58ad173). AUCUNE n'est produite par ce relevé :
+# la cause n'est pas le crédit (plus bas), et src/c0 n'est pas modifié.
+# Plan d'entrées : celui de bench/bios-probe.lua (pièce à 300k..300k+7, START à 300k+100, A à 300k+200, k = 0, 1, …), rejoué par une enveloppe de mesure non versionnée, avec
+# des taps : écritures de $D00034/$D00035, $10FDB0-$10FDB4, $10FDB6-$10FDB9, $10FD80/$10FD81, $10FDAE/$10FDAF (origine « bios » ou « jeu » selon la région du PC, SANS
+# adresse) ; appels aux entrées $C0043E-$C0045C (lecture de l'entrée suivie d'un empilement, le filtre de bench/appels.lua) et aux vecteurs $000128, $00012E, $000134 de
+# l'en-tête de la cartouche. Le PC n'est lu que pour attribuer l'écriture au BIOS ou au jeu, et n'est pas consigné ; aucun octet de la ROM du BIOS (docs/DECISIONS.md §8) ; aucun code du jeu lu.
+#
+# L'ÉCART EST REPRODUIT : bench/matrice.sh, BIOS_JEUX="garou alpham2", sonde par défaut, captures à 3500 : CREDITS 09 sous la référence, 10 sous notre image, sur les deux jeux.
+# Témoins aof et mslug : 10 et 10, séries d'écritures de $D00034 identiques, trame pour trame.
+#
+# L'INSTRUMENT. Les entrées tombent aux mêmes trames sous les deux BIOS (le plan est indexé sur la trame), mais pas au même moment de la machine : la référence rend la main
+# au jeu à la trame 280, nous à 103. Sur garou, c'est toute la cause ; sur alpham2, non (plus bas).
+#
+# CREDIT_DOWN : aucun appel, sur les quatre jeux et sous les deux BIOS (entrée $C00456 tapée, 0 appel). Les seuls appels du jeu dans $C0043E-$C0045C sont SYSTEM_IO,
+# CREDIT_CHECK et, pour aof, READ_CALENDAR. La déduction du crédit au départ est celle du BIOS après PLAYER_START, sous les deux BIOS.
+jeu	reference	avant (main)	cause	preuve
+garou	pièces créditées : 600, 900 … 3300 (10) ; une déduction au START de 700 ; CREDITS 09	pièces créditées : 300, 600 … 3300 (11) ; une déduction au START de 400 ; CREDITS 10	INSTRUMENT. garou, NVRAM neuve, fait repartir la machine après la demande 0, sous les deux BIOS (motifs $55/$AA de la RAM réécrits par la référence à 293-318, puis $D00034 ← 00 à 496 ; chez nous, $D00034 ← 00 à 112). Le second boot de la référence va de 293 à 501, et la pièce de 300 y tombe : jamais créditée. Chez nous, la démo tourne déjà (demande 2 à 203) et la pièce de 300 fait un crédit, puis DEMO_END	la pièce de 300 omise sous notre image : écritures de $D00034 égales à la référence trame pour trame (600:01 700:00 900:01 … 3300:09), CREDITS 09 à 3500, en combat comme elle. La même omission sous la référence ne change rien (09) : elle ne voyait pas cette pièce
+alpham2	pièces créditées : 300 … 3300 (11) ; déductions aux START de 400 et 2800 ; CREDITS 09	pièces créditées : 300 … 3300 (11) ; une déduction au START de 400 ; CREDITS 10	LA PARTIE DIVERGE, PAS LE CRÉDIT. Sous la référence, P1 perd sa dernière vie : le jeu écrit $10FDB6 ← 02 à 2569 ; le START de 2800 est gardé par PLAYER_START (le jeu écrit $10FDB6 ← 01, $10FDAF ← 02), puis $10FD81 ← 03 et $D00034 08 → 07. Sous notre image, P1 n'est jamais à 02 avant 3500 : les START en partie sont effacés par le jeu, sans déduction, comme sous la référence tant que P1 vit. Le jeu lit la ROM du BIOS en $C04000-$C041FF comme donnée, dès la trame 608 (1 610 lectures en $C04100-$C041FF et 144 en $C04000-$C040FF de 400 à 1000, comptes égaux sous les deux BIOS) ; nous y servons le remplissage $FF (src/c0/alea.s), la référence ses propres octets. Les écrans sont égaux jusqu'à 610 et divergent dès 611	voir 2026-10-22-credit-au-depart-evenements.tsv : (1) décalages du plan de +3, +17, +50, +600 trames : la référence perd P1 de 2 163 à 2 171 trames après le départ et déduit au START suivant, CREDITS 09 ; nous jamais, CREDITS 10 ; (2) BIOS_FRAME_COUNTER forcé à la valeur de l'autre BIOS à la trame 390, sous chacun : rien ne change ; (3) une image de travail au minuteur de répétition de la référence (mesuré ici, plus bas) : rien ne change ; (4) une image de travail qui sert nos propres octets en $C04000-$C041FF : la partie change (vifs_max 37 998 → 61 787) mais P1 ne meurt toujours pas avant 3500, CREDITS 10. Les octets de la référence en $C04000-$C041FF ne sont ni lus ni repris par ce relevé
+aof (témoin)	pièces 300 … 3300 ; déduction au START de 400 ; CREDITS 10	idem ; CREDITS 10	—	écritures de $D00034 égales trame pour trame
+mslug (témoin)	pièces 300 … 3300 ; déduction au START de 400 ; CREDITS 10	idem ; CREDITS 10	—	écritures de $D00034 égales trame pour trame
+#
+# ÉCARTS VUS EN PASSANT, sans effet sur le crédit, non corrigés (la remise ne couvre que la cause de l'écart de crédit) :
+# - $10FD81 ← $03 au START : la référence l'écrit APRÈS PLAYER_START et seulement si le jeu garde le bit (aof 400, mslug 400, alpham2 400 et 2800, garou 700 : entre le retour de
+#   PLAYER_START et la déduction de $D00034 ; aucun START effacé par le jeu ne l'écrit). Notre image l'écrit AVANT PLAYER_START, sur tout START qui a un crédit, gardé ou non
+#   (src/c0/io.s, `_io_start`). alpham2 ne lit pas $10FD81 de 400 à 2600 (0 lecture du jeu) ; les trois autres n'ont pas été relevés en lecture.
+# - CREDIT_CHECK écrit les mêmes valeurs que la référence, dans un autre ordre : elle écrit le mot $10FDB2 puis $10FDB1, nous $10FDB1 puis le mot $10FDB2 (alpham2, 513-517).
+# - Le minuteur de répétition des manettes ($10FD99, $10FD9F ; recopié par la référence en $10FEED et $10FEF3) : MESURÉ sous la référence (alpham2, A tenu 40 trames, haut tenu
+#   40 trames) : à tout changement de l'état courant, appui OU relâchement, le minuteur repart à $10 ; sinon, à $00 il recharge $08 et REPEAT reçoit l'état courant, et au-dessus
+#   il décompte, REPEAT à 0. Première répétition 17 trames après l'appui, puis toutes les 9 trames ; rien de tenu, il tourne sans fin de $08 à $00. Notre image : $10 à l'appui
+#   seulement, première répétition à 16 trames, puis toutes les 8, et $00 dès que rien n'est tenu (src/c0/io.s, `_io_manette`). alpham2 lit ces deux octets à chaque trame.

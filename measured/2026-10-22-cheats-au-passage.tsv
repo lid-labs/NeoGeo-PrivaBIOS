@@ -1,0 +1,20 @@
+# Les cheats au passage de slot, notre image 4a0198fd, -bios euro, MAME 0.286, neogeo -cart1 aof -cart2 mslug, NVRAM neuve, jig bench/cheats.lua mode menu, le 2026-10-22.
+# Pièce 400, START 500 (aof), menu TEST 1000, INFINITE TIME activé (bas, bas, A, haut, haut, A à 1060-1135) ; pièce 11500, START 11600 (mslug, après la rotation). 10FB00 = CH_ENTREE (mot haut), etats = CH_ETATS, D00108 = slot.
+trame	evenement
+1	user=00
+195	user=01
+501	user=02
+6962	user=01
+11601	user=02
+16000	ecritures du moteur : 5813 108406x5813 ; pile : 115478
+16000	trames ecrites par le moteur : 1149-6961
+1100	108406=0 100377=0 D00108=0 10FB00=C0 etats=0001
+1200	108406=60 100377=0 D00108=0 10FB00=C0 etats=0001
+6900	108406=60 100377=0 D00108=0 10FB00=C0 etats=0001
+7000	108406=0 100377=0 D00108=0 10FB00=C0 etats=0001
+11000	108406=43 100377=0 D00108=0 10FB00=C0 etats=0001
+11100	108406=43 100377=0 D00108=0 10FB00=C0 etats=0001
+11200	108406=0 100377=FF D00108=1 10FB00=0 etats=0000
+11700	108406=0 100377=0 D00108=1 10FB00=0 etats=0000
+13000	108406=0 100377=B D00108=1 10FB00=0 etats=0000
+15000	108406=0 100377=3 D00108=1 10FB00=0 etats=0000

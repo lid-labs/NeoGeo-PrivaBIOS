@@ -1,0 +1,399 @@
+run	qui	trame	jeton
+puzzledp-p1	ref	281	remise s00 d00 m00
+puzzledp-p1	ref	281	sysret code 00
+puzzledp-p1	ref	282	S 100000-1000FF -> D00320-D0041F somme 0000
+puzzledp-p1	ref	749	R D00320-D0041F -> 100000-1000FF somme 0000
+puzzledp-p1	ref	750	remise s00 d02 m01
+puzzledp-p1	ref	2002	remise s00 d03 m01
+puzzledp-p1	ref	9932	sysret code 03
+puzzledp-p1	ref	9933	S 100000-1000FF -> D00320-D0041F somme 1C7C
+puzzledp-p1	ref	9934	remise s00 d02 m01
+puzzledp-p1	apres	185	remise s00 d00 m00
+puzzledp-p1	apres	185	sysret code 00
+puzzledp-p1	apres	185	S 100000-1000FF -> D00320-D0041F somme 0000
+puzzledp-p1	apres	185	R D00320-D0041F -> 100000-1000FF somme 0000
+puzzledp-p1	apres	186	remise s00 d02 m01
+puzzledp-p1	apres	2001	remise s00 d03 m01
+puzzledp-p1	apres	9931	sysret code 03
+puzzledp-p1	apres	9931	S 100000-1000FF -> D00320-D0041F somme 1C7C
+puzzledp-p1	apres	9932	remise s00 d02 m01
+puzzledp-p1	avant	185	remise s00 d00 m00
+puzzledp-p1	avant	185	sysret code 00
+puzzledp-p1	avant	186	remise s00 d02 m01
+puzzledp-p1	avant	2001	remise s00 d03 m01
+puzzledp-p1	avant	9931	sysret code 03
+puzzledp-p1	avant	9932	remise s00 d02 m01
+puzzledp-p1s	ref	708	R D00320-D0041F -> 100000-1000FF somme 1C7C
+puzzledp-p1s	ref	709	remise s00 d02 m01
+puzzledp-p1s	apres	184	R D00320-D0041F -> 100000-1000FF somme 1C7C
+puzzledp-p1s	apres	185	remise s00 d02 m01
+puzzledp-p1s	avant	185	remise s00 d02 m01
+nam1975-p1	ref	281	remise s00 d00 m00
+nam1975-p1	ref	281	sysret code 00
+nam1975-p1	ref	282	S 100000-100FFF -> D00320-D0131F somme 0F2C
+nam1975-p1	ref	283	R D00320-D0131F -> 100000-100FFF somme 0F2C
+nam1975-p1	ref	285	remise s00 d02 m01
+nam1975-p1	ref	2002	remise s00 d03 m01
+nam1975-p1	ref	6858	sysret code 03
+nam1975-p1	ref	6859	S 100000-100FFF -> D00320-D0131F somme 0F2C
+nam1975-p1	ref	6861	remise s00 d02 m01
+nam1975-p1	ref	8753	sysret code 02
+nam1975-p1	ref	8754	S 100000-100FFF -> D00320-D0131F somme 0F2C
+nam1975-p1	ref	8755	R D00320-D0131F -> 100000-100FFF somme 0F2C
+nam1975-p1	ref	8757	remise s00 d02 m01
+nam1975-p1	ref	10649	sysret code 02
+nam1975-p1	ref	10650	S 100000-100FFF -> D00320-D0131F somme 0F2C
+nam1975-p1	ref	10651	R D00320-D0131F -> 100000-100FFF somme 0F2C
+nam1975-p1	ref	10653	remise s00 d02 m01
+nam1975-p1	ref	12545	sysret code 02
+nam1975-p1	ref	12546	S 100000-100FFF -> D00320-D0131F somme 0F2C
+nam1975-p1	ref	12547	R D00320-D0131F -> 100000-100FFF somme 0F2C
+nam1975-p1	ref	12549	remise s00 d02 m01
+nam1975-p1	apres	185	remise s00 d00 m00
+nam1975-p1	apres	185	sysret code 00
+nam1975-p1	apres	185	S 100000-100FFF -> D00320-D0131F somme 0F2C
+nam1975-p1	apres	185	R D00320-D0131F -> 100000-100FFF somme 0F2C
+nam1975-p1	apres	186	remise s00 d02 m01
+nam1975-p1	apres	2001	remise s00 d03 m01
+nam1975-p1	apres	5876	sysret code 03
+nam1975-p1	apres	5876	S 100000-100FFF -> D00320-D0131F somme 0F2C
+nam1975-p1	apres	5877	remise s00 d02 m01
+nam1975-p1	apres	7769	sysret code 02
+nam1975-p1	apres	7769	S 100000-100FFF -> D00320-D0131F somme 0F2C
+nam1975-p1	apres	7769	R D00320-D0131F -> 100000-100FFF somme 0F2C
+nam1975-p1	apres	7770	remise s00 d02 m01
+nam1975-p1	apres	9662	sysret code 02
+nam1975-p1	apres	9662	S 100000-100FFF -> D00320-D0131F somme 0F2C
+nam1975-p1	apres	9662	R D00320-D0131F -> 100000-100FFF somme 0F2C
+nam1975-p1	apres	9663	remise s00 d02 m01
+nam1975-p1	apres	11555	sysret code 02
+nam1975-p1	apres	11555	S 100000-100FFF -> D00320-D0131F somme 0F2C
+nam1975-p1	apres	11555	R D00320-D0131F -> 100000-100FFF somme 0F2C
+nam1975-p1	apres	11556	remise s00 d02 m01
+nam1975-p1	apres	13448	sysret code 02
+nam1975-p1	apres	13448	S 100000-100FFF -> D00320-D0131F somme 0F2C
+nam1975-p1	apres	13448	R D00320-D0131F -> 100000-100FFF somme 0F2C
+nam1975-p1	apres	13449	remise s00 d02 m01
+nam1975-p1	avant	185	remise s00 d00 m00
+nam1975-p1	avant	185	sysret code 00
+nam1975-p1	avant	186	remise s00 d02 m01
+nam1975-p1	avant	2001	remise s00 d03 m01
+nam1975-p1	avant	5876	sysret code 03
+nam1975-p1	avant	5877	remise s00 d02 m01
+nam1975-p1	avant	7769	sysret code 02
+nam1975-p1	avant	7770	remise s00 d02 m01
+nam1975-p1	avant	9662	sysret code 02
+nam1975-p1	avant	9663	remise s00 d02 m01
+nam1975-p1	avant	11555	sysret code 02
+nam1975-p1	avant	11556	remise s00 d02 m01
+nam1975-p1	avant	13448	sysret code 02
+nam1975-p1	avant	13449	remise s00 d02 m01
+nam1975-p1s	ref	241	R D00320-D0131F -> 100000-100FFF somme 0F2C
+nam1975-p1s	ref	243	remise s00 d02 m01
+nam1975-p1s	ref	2135	sysret code 02
+nam1975-p1s	ref	2136	S 100000-100FFF -> D00320-D0131F somme 0F2C
+nam1975-p1s	ref	2137	R D00320-D0131F -> 100000-100FFF somme 0F2C
+nam1975-p1s	ref	2139	remise s00 d02 m01
+nam1975-p1s	apres	184	R D00320-D0131F -> 100000-100FFF somme 0F2C
+nam1975-p1s	apres	185	remise s00 d02 m01
+nam1975-p1s	apres	2077	sysret code 02
+nam1975-p1s	apres	2077	S 100000-100FFF -> D00320-D0131F somme 0F2C
+nam1975-p1s	apres	2077	R D00320-D0131F -> 100000-100FFF somme 0F2C
+nam1975-p1s	apres	2078	remise s00 d02 m01
+nam1975-p1s	avant	185	remise s00 d02 m01
+nam1975-p1s	avant	2077	sysret code 02
+nam1975-p1s	avant	2078	remise s00 d02 m01
+aof-p1	ref	281	remise s00 d00 m00
+aof-p1	ref	281	sysret code 00
+aof-p1	ref	282	S 108800-108FFF -> D00320-D00B1F somme 17AC
+aof-p1	ref	750	R D00320-D00B1F -> 108800-108FFF somme 17AC
+aof-p1	ref	751	remise s00 d02 m01
+aof-p1	ref	2003	remise s00 d03 m01
+aof-p1	ref	8849	sysret code 03
+aof-p1	ref	8850	S 108800-108FFF -> D00320-D00B1F somme 17AE
+aof-p1	ref	8851	remise s00 d02 m01
+aof-p1	ref	12992	sysret code 02
+aof-p1	ref	12993	S 108800-108FFF -> D00320-D00B1F somme 17AF
+aof-p1	ref	12994	R D00320-D00B1F -> 108800-108FFF somme 17AF
+aof-p1	ref	13461	R D00320-D00B1F -> 108800-108FFF somme 17AF
+aof-p1	ref	13462	remise s00 d02 m01
+aof-p1	apres	185	remise s00 d00 m00
+aof-p1	apres	185	sysret code 00
+aof-p1	apres	185	S 108800-108FFF -> D00320-D00B1F somme 17AC
+aof-p1	apres	185	R D00320-D00B1F -> 108800-108FFF somme 17AC
+aof-p1	apres	186	remise s00 d02 m01
+aof-p1	apres	2001	remise s00 d03 m01
+aof-p1	apres	8288	sysret code 03
+aof-p1	apres	8288	S 108800-108FFF -> D00320-D00B1F somme 17AF
+aof-p1	apres	8289	remise s00 d02 m01
+aof-p1	apres	12421	sysret code 02
+aof-p1	apres	12421	S 108800-108FFF -> D00320-D00B1F somme 17B0
+aof-p1	apres	12421	R D00320-D00B1F -> 108800-108FFF somme 17B0
+aof-p1	apres	12422	remise s00 d02 m01
+aof-p1	avant	185	remise s00 d00 m00
+aof-p1	avant	185	sysret code 00
+aof-p1	avant	186	remise s00 d02 m01
+aof-p1	avant	2001	remise s00 d03 m01
+aof-p1	avant	8288	sysret code 03
+aof-p1	avant	8289	remise s00 d02 m01
+aof-p1	avant	12421	sysret code 02
+aof-p1	avant	12422	remise s00 d02 m01
+aof-p1s	ref	708	R D00320-D00B1F -> 108800-108FFF somme 17AF
+aof-p1s	ref	709	remise s00 d02 m01
+aof-p1s	apres	184	R D00320-D00B1F -> 108800-108FFF somme 17B0
+aof-p1s	apres	185	remise s00 d02 m01
+aof-p1s	avant	185	remise s00 d02 m01
+mslug-p1	ref	281	remise s00 d00 m00
+mslug-p1	ref	286	sysret code 00
+mslug-p1	ref	287	S 100000-10007D -> D00320-D0039D somme 1862
+mslug-p1	ref	754	R D00320-D0039D -> 100000-10007D somme 1862
+mslug-p1	ref	755	remise s00 d02 m01
+mslug-p1	ref	2007	remise s00 d03 m01
+mslug-p1	apres	185	remise s00 d00 m00
+mslug-p1	apres	190	sysret code 00
+mslug-p1	apres	190	S 100000-10007D -> D00320-D0039D somme 1862
+mslug-p1	apres	190	R D00320-D0039D -> 100000-10007D somme 1862
+mslug-p1	apres	191	remise s00 d02 m01
+mslug-p1	apres	2001	remise s00 d03 m01
+mslug-p1	avant	185	remise s00 d00 m00
+mslug-p1	avant	190	sysret code 00
+mslug-p1	avant	191	remise s00 d02 m01
+mslug-p1	avant	2001	remise s00 d03 m01
+mslug-p1s	ref	708	R D00320-D0039D -> 100000-10007D somme 1862
+mslug-p1s	ref	709	remise s00 d02 m01
+mslug-p1s	apres	184	R D00320-D0039D -> 100000-10007D somme 1862
+mslug-p1s	apres	185	remise s00 d02 m01
+mslug-p1s	avant	185	remise s00 d02 m01
+aof-cred	ref	281	remise s00 d00 m00
+aof-cred	ref	281	sysret code 00
+aof-cred	ref	282	S 108800-108FFF -> D00320-D00B1F somme 17AC
+aof-cred	ref	750	R D00320-D00B1F -> 108800-108FFF somme 17AC
+aof-cred	ref	751	remise s00 d02 m01
+aof-cred	ref	2003	remise s00 d03 m01
+aof-cred	ref	8849	sysret code 03
+aof-cred	ref	8850	S 108800-108FFF -> D00320-D00B1F somme 17AE
+aof-cred	ref	8851	remise s00 d03 m01
+aof-cred	ref	8864	remise s00 d03 m01
+aof-cred	apres	185	remise s00 d00 m00
+aof-cred	apres	185	sysret code 00
+aof-cred	apres	185	S 108800-108FFF -> D00320-D00B1F somme 17AC
+aof-cred	apres	185	R D00320-D00B1F -> 108800-108FFF somme 17AC
+aof-cred	apres	186	remise s00 d02 m01
+aof-cred	apres	2001	remise s00 d03 m01
+aof-cred	apres	8288	sysret code 03
+aof-cred	apres	8288	S 108800-108FFF -> D00320-D00B1F somme 17AF
+aof-cred	apres	8289	remise s00 d03 m01
+aof-cred	avant	185	remise s00 d00 m00
+aof-cred	avant	185	sysret code 00
+aof-cred	avant	186	remise s00 d02 m01
+aof-cred	avant	2001	remise s00 d03 m01
+aof-cred	avant	8288	sysret code 03
+aof-cred	avant	8289	remise s00 d03 m01
+c2-jeu	ref	281	remise s00 d00 m00
+c2-jeu	ref	281	sysret code 00
+c2-jeu	ref	282	S 100000-1000FF -> D00320-D0041F somme 0000
+c2-jeu	ref	283	remise s01 d00 m00
+c2-jeu	ref	283	sysret code 00
+c2-jeu	ref	284	S 108800-108FFF -> D01320-D01B1F somme 17AC
+c2-jeu	ref	752	R D00320-D0041F -> 100000-1000FF somme 0000
+c2-jeu	ref	753	remise s00 d02 m01
+c2-jeu	ref	2002	remise s00 d03 m01
+c2-jeu	ref	9932	sysret code 03
+c2-jeu	ref	9933	S 100000-1000FF -> D00320-D0041F somme 1C7C
+c2-jeu	ref	9934	remise s00 d02 m01
+c2-jeu	apres	185	remise s00 d00 m00
+c2-jeu	apres	185	sysret code 00
+c2-jeu	apres	185	S 100000-1000FF -> D00320-D0041F somme 0000
+c2-jeu	apres	189	remise s01 d00 m00
+c2-jeu	apres	189	sysret code 00
+c2-jeu	apres	189	S 108800-108FFF -> D01320-D01B1F somme 17AC
+c2-jeu	apres	191	R D00320-D0041F -> 100000-1000FF somme 0000
+c2-jeu	apres	192	remise s00 d02 m01
+c2-jeu	apres	2001	remise s00 d03 m01
+c2-jeu	apres	9931	sysret code 03
+c2-jeu	apres	9931	S 100000-1000FF -> D00320-D0041F somme 1C7C
+c2-jeu	apres	9932	remise s00 d02 m01
+c2-jeu	avant	185	remise s00 d00 m00
+c2-jeu	avant	185	sysret code 00
+c2-jeu	avant	185	S 100000-1000FF -> D00320-D0041F somme 0000
+c2-jeu	avant	189	remise s01 d00 m00
+c2-jeu	avant	189	sysret code 00
+c2-jeu	avant	189	S 108800-108FFF -> D01320-D01B1F somme 17AC
+c2-jeu	avant	191	R D00320-D0041F -> 100000-1000FF somme 0000
+c2-jeu	avant	192	remise s00 d02 m01
+c2-jeu	avant	2001	remise s00 d03 m01
+c2-jeu	avant	9931	sysret code 03
+c2-jeu	avant	9932	remise s00 d02 m01
+c2-neuf	ref	281	remise s00 d00 m00
+c2-neuf	ref	281	sysret code 00
+c2-neuf	ref	282	S 100000-1000FF -> D00320-D0041F somme 0000
+c2-neuf	ref	283	remise s01 d00 m00
+c2-neuf	ref	283	sysret code 00
+c2-neuf	ref	284	S 108800-108FFF -> D01320-D01B1F somme 17AC
+c2-neuf	ref	752	R D00320-D0041F -> 100000-1000FF somme 0000
+c2-neuf	ref	753	remise s00 d02 m01
+c2-neuf	ref	5837	sysret code 02
+c2-neuf	ref	5838	S 100000-1000FF -> D00320-D0041F somme 1FE5
+c2-neuf	ref	5838	R D01320-D01B1F -> 108800-108FFF somme 17AC
+c2-neuf	ref	5840	remise s01 d02 m01
+c2-neuf	ref	9981	sysret code 02
+c2-neuf	ref	9982	S 108800-108FFF -> D01320-D01B1F somme 17AD
+c2-neuf	ref	9983	R D00320-D0041F -> 100000-1000FF somme 1FE5
+c2-neuf	ref	10450	R D00320-D0041F -> 100000-1000FF somme 1FE5
+c2-neuf	ref	10451	remise s00 d02 m01
+c2-neuf	ref	15355	sysret code 02
+c2-neuf	ref	15356	S 100000-1000FF -> D00320-D0041F somme 1FFF
+c2-neuf	ref	15356	R D01320-D01B1F -> 108800-108FFF somme 17AD
+c2-neuf	ref	15358	remise s01 d02 m01
+c2-neuf	ref	19492	sysret code 02
+c2-neuf	ref	19493	S 108800-108FFF -> D01320-D01B1F somme 17AE
+c2-neuf	ref	19494	R D00320-D0041F -> 100000-1000FF somme 1FFF
+c2-neuf	ref	19961	R D00320-D0041F -> 100000-1000FF somme 1FFF
+c2-neuf	ref	19962	remise s00 d02 m01
+c2-neuf	apres	185	remise s00 d00 m00
+c2-neuf	apres	185	sysret code 00
+c2-neuf	apres	185	S 100000-1000FF -> D00320-D0041F somme 0000
+c2-neuf	apres	189	remise s01 d00 m00
+c2-neuf	apres	189	sysret code 00
+c2-neuf	apres	189	S 108800-108FFF -> D01320-D01B1F somme 17AC
+c2-neuf	apres	191	R D00320-D0041F -> 100000-1000FF somme 0000
+c2-neuf	apres	192	remise s00 d02 m01
+c2-neuf	apres	5276	sysret code 02
+c2-neuf	apres	5276	S 100000-1000FF -> D00320-D0041F somme 1FE5
+c2-neuf	apres	5278	R D01320-D01B1F -> 108800-108FFF somme 17AC
+c2-neuf	apres	5279	remise s01 d02 m01
+c2-neuf	apres	9418	sysret code 02
+c2-neuf	apres	9418	S 108800-108FFF -> D01320-D01B1F somme 17AD
+c2-neuf	apres	9420	R D00320-D0041F -> 100000-1000FF somme 1FE5
+c2-neuf	apres	9421	remise s00 d02 m01
+c2-neuf	apres	14325	sysret code 02
+c2-neuf	apres	14325	S 100000-1000FF -> D00320-D0041F somme 1FFF
+c2-neuf	apres	14327	R D01320-D01B1F -> 108800-108FFF somme 17AD
+c2-neuf	apres	14328	remise s01 d02 m01
+c2-neuf	apres	18460	sysret code 02
+c2-neuf	apres	18460	S 108800-108FFF -> D01320-D01B1F somme 17AE
+c2-neuf	apres	18462	R D00320-D0041F -> 100000-1000FF somme 1FFF
+c2-neuf	apres	18463	remise s00 d02 m01
+c2-neuf	avant	185	remise s00 d00 m00
+c2-neuf	avant	185	sysret code 00
+c2-neuf	avant	185	S 100000-1000FF -> D00320-D0041F somme 0000
+c2-neuf	avant	189	remise s01 d00 m00
+c2-neuf	avant	189	sysret code 00
+c2-neuf	avant	189	S 108800-108FFF -> D01320-D01B1F somme 17AC
+c2-neuf	avant	191	R D00320-D0041F -> 100000-1000FF somme 0000
+c2-neuf	avant	192	remise s00 d02 m01
+c2-neuf	avant	5276	sysret code 02
+c2-neuf	avant	5276	S 100000-1000FF -> D00320-D0041F somme 1FE5
+c2-neuf	avant	5278	R D01320-D01B1F -> 108800-108FFF somme 17AC
+c2-neuf	avant	5279	remise s01 d02 m01
+c2-neuf	avant	9418	sysret code 02
+c2-neuf	avant	9418	S 108800-108FFF -> D01320-D01B1F somme 17AD
+c2-neuf	avant	9420	R D00320-D0041F -> 100000-1000FF somme 1FE5
+c2-neuf	avant	9421	remise s00 d02 m01
+c2-neuf	avant	14325	sysret code 02
+c2-neuf	avant	14325	S 100000-1000FF -> D00320-D0041F somme 1FFF
+c2-neuf	avant	14327	R D01320-D01B1F -> 108800-108FFF somme 17AD
+c2-neuf	avant	14328	remise s01 d02 m01
+c2-neuf	avant	18460	sysret code 02
+c2-neuf	avant	18460	S 108800-108FFF -> D01320-D01B1F somme 17AE
+c2-neuf	avant	18462	R D00320-D0041F -> 100000-1000FF somme 1FFF
+c2-neuf	avant	18463	remise s00 d02 m01
+c4-neuf	ref	281	remise s00 d00 m00
+c4-neuf	ref	281	sysret code 00
+c4-neuf	ref	282	S 100000-1000FF -> D00320-D0041F somme 0000
+c4-neuf	ref	283	remise s01 d00 m00
+c4-neuf	ref	283	sysret code 00
+c4-neuf	ref	284	S 108800-108FFF -> D01320-D01B1F somme 17AC
+c4-neuf	ref	286	remise s02 d00 m00
+c4-neuf	ref	286	sysret code 00
+c4-neuf	ref	287	S 100000-100FFF -> D02320-D0331F somme 0F2C
+c4-neuf	ref	289	remise s03 d00 m00
+c4-neuf	ref	294	sysret code 00
+c4-neuf	ref	295	S 100000-10007D -> D03320-D0339D somme 1903
+c4-neuf	ref	762	R D00320-D0041F -> 100000-1000FF somme 0000
+c4-neuf	ref	763	remise s00 d02 m01
+c4-neuf	ref	5847	sysret code 02
+c4-neuf	ref	5848	S 100000-1000FF -> D00320-D0041F somme 1FE5
+c4-neuf	ref	5848	R D01320-D01B1F -> 108800-108FFF somme 17AC
+c4-neuf	ref	5850	remise s01 d02 m01
+c4-neuf	ref	9991	sysret code 02
+c4-neuf	ref	9992	S 108800-108FFF -> D01320-D01B1F somme 17AD
+c4-neuf	ref	9993	R D02320-D0331F -> 100000-100FFF somme 0F2C
+c4-neuf	ref	9994	remise s02 d02 m01
+c4-neuf	ref	11886	sysret code 02
+c4-neuf	ref	11887	S 100000-100FFF -> D02320-D0331F somme 0F2C
+c4-neuf	ref	11888	R D03320-D0339D -> 100000-10007D somme 1903
+c4-neuf	ref	11889	remise s03 d02 m01
+c4-neuf	ref	15490	sysret code 02
+c4-neuf	ref	15491	S 100000-10007D -> D03320-D0339D somme 1906
+c4-neuf	ref	15491	R D00320-D0041F -> 100000-1000FF somme 1FE5
+c4-neuf	ref	15958	R D00320-D0041F -> 100000-1000FF somme 1FE5
+c4-neuf	ref	15959	remise s00 d02 m01
+c4-neuf	apres	185	remise s00 d00 m00
+c4-neuf	apres	185	sysret code 00
+c4-neuf	apres	185	S 100000-1000FF -> D00320-D0041F somme 0000
+c4-neuf	apres	189	remise s01 d00 m00
+c4-neuf	apres	189	sysret code 00
+c4-neuf	apres	189	S 108800-108FFF -> D01320-D01B1F somme 17AC
+c4-neuf	apres	192	remise s02 d00 m00
+c4-neuf	apres	192	sysret code 00
+c4-neuf	apres	192	S 100000-100FFF -> D02320-D0331F somme 0F2C
+c4-neuf	apres	195	remise s03 d00 m00
+c4-neuf	apres	200	sysret code 00
+c4-neuf	apres	200	S 100000-10007D -> D03320-D0339D somme 1903
+c4-neuf	apres	202	R D00320-D0041F -> 100000-1000FF somme 0000
+c4-neuf	apres	203	remise s00 d02 m01
+c4-neuf	apres	5287	sysret code 02
+c4-neuf	apres	5287	S 100000-1000FF -> D00320-D0041F somme 1FE5
+c4-neuf	apres	5289	R D01320-D01B1F -> 108800-108FFF somme 17AC
+c4-neuf	apres	5290	remise s01 d02 m01
+c4-neuf	apres	9429	sysret code 02
+c4-neuf	apres	9429	S 108800-108FFF -> D01320-D01B1F somme 17AD
+c4-neuf	apres	9431	R D02320-D0331F -> 100000-100FFF somme 0F2C
+c4-neuf	apres	9432	remise s02 d02 m01
+c4-neuf	apres	11324	sysret code 02
+c4-neuf	apres	11324	S 100000-100FFF -> D02320-D0331F somme 0F2C
+c4-neuf	apres	11326	R D03320-D0339D -> 100000-10007D somme 1903
+c4-neuf	apres	11327	remise s03 d02 m01
+c4-neuf	apres	14917	sysret code 02
+c4-neuf	apres	14917	S 100000-10007D -> D03320-D0339D somme 1906
+c4-neuf	apres	14919	R D00320-D0041F -> 100000-1000FF somme 1FE5
+c4-neuf	apres	14920	remise s00 d02 m01
+c4-neuf	apres	19824	sysret code 02
+c4-neuf	apres	19824	S 100000-1000FF -> D00320-D0041F somme 1FFF
+c4-neuf	apres	19826	R D01320-D01B1F -> 108800-108FFF somme 17AD
+c4-neuf	apres	19827	remise s01 d02 m01
+c4-neuf	avant	185	remise s00 d00 m00
+c4-neuf	avant	185	sysret code 00
+c4-neuf	avant	185	S 100000-1000FF -> D00320-D0041F somme 0000
+c4-neuf	avant	189	remise s01 d00 m00
+c4-neuf	avant	189	sysret code 00
+c4-neuf	avant	189	S 108800-108FFF -> D01320-D01B1F somme 17AC
+c4-neuf	avant	192	remise s02 d00 m00
+c4-neuf	avant	192	sysret code 00
+c4-neuf	avant	192	S 100000-100FFF -> D02320-D0331F somme 0F2C
+c4-neuf	avant	195	remise s03 d00 m00
+c4-neuf	avant	200	sysret code 00
+c4-neuf	avant	200	S 100000-10007D -> D03320-D0339D somme 1903
+c4-neuf	avant	202	R D00320-D0041F -> 100000-1000FF somme 0000
+c4-neuf	avant	203	remise s00 d02 m01
+c4-neuf	avant	5287	sysret code 02
+c4-neuf	avant	5287	S 100000-1000FF -> D00320-D0041F somme 1FE5
+c4-neuf	avant	5289	R D01320-D01B1F -> 108800-108FFF somme 17AC
+c4-neuf	avant	5290	remise s01 d02 m01
+c4-neuf	avant	9429	sysret code 02
+c4-neuf	avant	9429	S 108800-108FFF -> D01320-D01B1F somme 17AD
+c4-neuf	avant	9431	R D02320-D0331F -> 100000-100FFF somme 0F2C
+c4-neuf	avant	9432	remise s02 d02 m01
+c4-neuf	avant	11324	sysret code 02
+c4-neuf	avant	11324	S 100000-100FFF -> D02320-D0331F somme 0F2C
+c4-neuf	avant	11326	R D03320-D0339D -> 100000-10007D somme 1903
+c4-neuf	avant	11327	remise s03 d02 m01
+c4-neuf	avant	14917	sysret code 02
+c4-neuf	avant	14917	S 100000-10007D -> D03320-D0339D somme 1906
+c4-neuf	avant	14919	R D00320-D0041F -> 100000-1000FF somme 1FE5
+c4-neuf	avant	14920	remise s00 d02 m01
+c4-neuf	avant	19824	sysret code 02
+c4-neuf	avant	19824	S 100000-1000FF -> D00320-D0041F somme 1FFF
+c4-neuf	avant	19826	R D01320-D01B1F -> 108800-108FFF somme 17AD
+c4-neuf	avant	19827	remise s01 d02 m01

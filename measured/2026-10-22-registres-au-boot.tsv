@@ -1,0 +1,306 @@
+# Ce que la reference ecrit aux registres au boot, le 2026-10-22 : MAME 0.286, -bios euro, NVRAM
+# neuve, 400 trames, tap d'ecriture sur $3800xx, $3A00xx et $3C0006-$3C000F. Valeurs ecrites
+# seulement (DECISIONS.md §8), aucun PC consigné. Les trois jeux sont egaux sur les registres de ce lot.
+# Ce qu'on en tire (durcissement materiel) : REG_LSPCMODE <- $4000 a la trame 1 ; REG_NOSHADOW ecrit
+# une fois (trames 282-287) ; REG_CRDLOCK2 puis REG_CRDLOCK1 a la trame 277 ; aucun timer
+# (REG_TIMERHIGH/LOW/STOP) ; ni REG_RESETCC ni REG_SETCC.
+jeu	genre	trame	adresse	valeur	masque	ecrivain
+aof	W	1	3C000C	0007	FFFF	bios
+aof	W	1	3C0006	4000	FFFF	bios
+aof	W	1	380030	FFFF	00FF	bios
+aof	W	1	380040	FFFF	00FF	bios
+aof	W	1	380030	F7F7	00FF	bios
+aof	W	1	380030	EFEF	00FF	bios
+aof	W	1	380030	DFDF	00FF	bios
+aof	W	1	3A0002	0000	00FF	bios
+aof	W	1	3A000A	0000	00FF	bios
+aof	W	1	380064	0000	00FF	bios
+aof	W	1	380066	0000	00FF	bios
+aof	W	39	3A001C	FEFE	00FF	bios
+aof	W	77	3A001C	FFFF	00FF	bios
+aof	W	78	3A000C	FFFF	00FF	bios
+aof	W	78	3A001E	FFFF	00FF	bios
+aof	W	83	3A000E	FEFE	00FF	bios
+aof	W	87	3A001E	FEFE	00FF	bios
+aof	W	131	3A000C	0000	00FF	bios
+aof	W	131	380050	0000	00FF	bios
+aof	W	131	380050	0202	00FF	bios
+aof	W	131	380050	0101	00FF	bios
+aof	W	131	380050	0303	00FF	bios
+aof	W	131	380050	0404	00FF	bios
+aof	W	190	3C000C	0004	FFFF	bios
+aof	W	277	3A0006	3030	00FF	bios
+aof	W	277	3A0014	3030	00FF	bios
+aof	W	277	3A001C	3030	00FF	bios
+aof	W	277	380020	0000	00FF	bios
+aof	W	277	3A001A	0000	00FF	bios
+aof	W	277	380020	0101	00FF	bios
+aof	W	277	3A000A	7272	00FF	bios
+aof	W	277	3A000C	1818	00FF	bios
+aof	W	277	3A000A	1818	00FF	bios
+aof	W	277	3A0002	1818	00FF	bios
+aof	W	278	3A000E	0000	00FF	bios
+aof	W	278	3A001E	0000	00FF	bios
+aof	W	280	380000	0000	00FF	bios
+aof	W	280	3A001C	0000	00FF	bios
+aof	W	280	3A0012	0000	00FF	bios
+aof	W	281	380000	1212	00FF	bios
+aof	W	281	380000	1B1B	00FF	bios
+aof	W	282	3A001C	1212	00FF	bios
+aof	W	282	3A0002	1212	00FF	bios
+aof	W	282	3A000C	0101	00FF	bios
+aof	W	282	3A001C	0101	00FF	bios
+aof	W	283	3A0000	0000	00FF	bios
+aof	W	284	3A001C	8080	00FF	bios
+aof	C	3A001C|FFFF|00FF|bios	premiere=77	compte=2
+aof	C	3A000E|0000|00FF|bios	premiere=278	compte=2
+aof	C	3A0012|0000|00FF|bios	premiere=280	compte=3
+aof	C	3A001E|0000|00FF|bios	premiere=278	compte=2
+aof	C	380000|0000|00FF|bios	premiere=280	compte=122
+aof	C	3A000C|1818|00FF|bios	premiere=277	compte=1
+aof	C	3A000E|FEFE|00FF|bios	premiere=83	compte=1
+aof	C	3A0002|1818|00FF|bios	premiere=277	compte=1
+aof	C	380030|DFDF|00FF|bios	premiere=1	compte=61
+aof	C	3A000A|7272|00FF|bios	premiere=277	compte=1
+aof	C	380000|1212|00FF|bios	premiere=281	compte=120
+aof	C	3A001C|8080|00FF|bios	premiere=284	compte=117
+aof	C	380064|0000|00FF|bios	premiere=1	compte=1
+aof	C	3A001E|FEFE|00FF|bios	premiere=87	compte=1
+aof	C	3A001A|0000|00FF|bios	premiere=277	compte=3
+aof	C	380050|0404|00FF|bios	premiere=131	compte=6
+aof	C	380066|0000|00FF|bios	premiere=1	compte=1
+aof	C	3A001C|FEFE|00FF|bios	premiere=39	compte=1
+aof	C	3A0002|1212|00FF|bios	premiere=282	compte=1
+aof	C	380050|0101|00FF|bios	premiere=131	compte=20
+aof	C	380050|0000|00FF|bios	premiere=131	compte=138
+aof	C	3A001C|0101|00FF|bios	premiere=282	compte=1
+aof	C	3A000C|0101|00FF|bios	premiere=282	compte=1
+aof	C	3A000C|0000|00FF|bios	premiere=131	compte=7
+aof	C	380000|1B1B|00FF|bios	premiere=281	compte=120
+aof	C	380050|0202|00FF|bios	premiere=131	compte=118
+aof	C	3A001C|0000|00FF|bios	premiere=280	compte=6
+aof	C	380030|F7F7|00FF|bios	premiere=1	compte=1
+aof	C	3A001E|FFFF|00FF|bios	premiere=78	compte=1
+aof	C	380040|FFFF|00FF|bios	premiere=1	compte=121
+aof	C	3A0002|0000|00FF|bios	premiere=1	compte=1
+aof	C	3A000C|FFFF|00FF|bios	premiere=78	compte=120
+aof	C	3C000C|0004|FFFF|bios	premiere=190	compte=181
+aof	C	3A000A|0000|00FF|bios	premiere=1	compte=1
+aof	C	3C000C|0007|FFFF|bios	premiere=1	compte=3
+aof	C	380020|0000|00FF|bios	premiere=277	compte=4
+aof	C	3A0014|3030|00FF|bios	premiere=277	compte=1
+aof	C	3A001C|1212|00FF|bios	premiere=282	compte=1
+aof	C	3C0006|4000|FFFF|bios	premiere=1	compte=3
+aof	C	3A000A|1818|00FF|bios	premiere=277	compte=1
+aof	C	3A0006|3030|00FF|bios	premiere=277	compte=1
+aof	C	380050|0303|00FF|bios	premiere=131	compte=10
+aof	C	3A001C|3030|00FF|bios	premiere=277	compte=1
+aof	C	3A0000|0000|00FF|bios	premiere=283	compte=1
+aof	C	380030|EFEF|00FF|bios	premiere=1	compte=61
+aof	C	380030|FFFF|00FF|bios	premiere=1	compte=124
+aof	C	380020|0101|00FF|bios	premiere=277	compte=1
+puzzledp	W	1	3C000C	0007	FFFF	bios
+puzzledp	W	1	3C0006	4000	FFFF	bios
+puzzledp	W	1	380030	FFFF	00FF	bios
+puzzledp	W	1	380040	FFFF	00FF	bios
+puzzledp	W	1	380030	F7F7	00FF	bios
+puzzledp	W	1	380030	EFEF	00FF	bios
+puzzledp	W	1	380030	DFDF	00FF	bios
+puzzledp	W	1	3A0002	0000	00FF	bios
+puzzledp	W	1	3A000A	0000	00FF	bios
+puzzledp	W	1	380064	0000	00FF	bios
+puzzledp	W	1	380066	0000	00FF	bios
+puzzledp	W	39	3A001C	FEFE	00FF	bios
+puzzledp	W	77	3A001C	FFFF	00FF	bios
+puzzledp	W	78	3A000C	FFFF	00FF	bios
+puzzledp	W	78	3A001E	FFFF	00FF	bios
+puzzledp	W	83	3A000E	FEFE	00FF	bios
+puzzledp	W	87	3A001E	FEFE	00FF	bios
+puzzledp	W	131	3A000C	0000	00FF	bios
+puzzledp	W	131	380050	0000	00FF	bios
+puzzledp	W	131	380050	0202	00FF	bios
+puzzledp	W	131	380050	0101	00FF	bios
+puzzledp	W	131	380050	0303	00FF	bios
+puzzledp	W	131	380050	0404	00FF	bios
+puzzledp	W	190	3C000C	0004	FFFF	bios
+puzzledp	W	277	3A0006	3030	00FF	bios
+puzzledp	W	277	3A0014	3030	00FF	bios
+puzzledp	W	277	3A001C	3030	00FF	bios
+puzzledp	W	277	380020	0000	00FF	bios
+puzzledp	W	277	3A001A	0000	00FF	bios
+puzzledp	W	277	380020	0101	00FF	bios
+puzzledp	W	277	3A000A	8686	00FF	bios
+puzzledp	W	277	3A000C	1818	00FF	bios
+puzzledp	W	277	3A000A	1818	00FF	bios
+puzzledp	W	277	3A0002	1818	00FF	bios
+puzzledp	W	278	3A000E	0000	00FF	bios
+puzzledp	W	278	3A001E	0000	00FF	bios
+puzzledp	W	280	380000	0000	00FF	bios
+puzzledp	W	280	3A001C	0000	00FF	bios
+puzzledp	W	280	3A0012	0000	00FF	bios
+puzzledp	W	281	380000	1212	00FF	bios
+puzzledp	W	281	380000	1B1B	00FF	bios
+puzzledp	W	282	3A0002	FFFF	00FF	bios
+puzzledp	W	282	3A000C	0101	00FF	bios
+puzzledp	W	282	3A001C	0101	00FF	bios
+puzzledp	W	282	3A0000	0000	00FF	bios
+puzzledp	W	283	3A001C	8080	00FF	bios
+puzzledp	C	3A001E|0000|00FF|bios	premiere=278	compte=2
+puzzledp	C	3C000C|0004|FFFF|bios	premiere=190	compte=181
+puzzledp	C	3A000A|8686|00FF|bios	premiere=277	compte=1
+puzzledp	C	3A000A|0000|00FF|bios	premiere=1	compte=1
+puzzledp	C	380064|0000|00FF|bios	premiere=1	compte=1
+puzzledp	C	3A000A|1818|00FF|bios	premiere=277	compte=1
+puzzledp	C	3C000C|0007|FFFF|bios	premiere=1	compte=3
+puzzledp	C	3A001C|FFFF|00FF|bios	premiere=77	compte=2
+puzzledp	C	3A000C|0101|00FF|bios	premiere=282	compte=1
+puzzledp	C	3A001C|8080|00FF|bios	premiere=283	compte=118
+puzzledp	C	3A0006|3030|00FF|bios	premiere=277	compte=1
+puzzledp	C	3A0002|1818|00FF|bios	premiere=277	compte=1
+puzzledp	C	380050|0000|00FF|bios	premiere=131	compte=74
+puzzledp	C	3C0006|4000|FFFF|bios	premiere=1	compte=3
+puzzledp	C	380050|0202|00FF|bios	premiere=131	compte=61
+puzzledp	C	3A0000|0000|00FF|bios	premiere=282	compte=1
+puzzledp	C	380020|0000|00FF|bios	premiere=277	compte=4
+puzzledp	C	380020|0101|00FF|bios	premiere=277	compte=1
+puzzledp	C	3A000C|0000|00FF|bios	premiere=131	compte=7
+puzzledp	C	3A0002|0000|00FF|bios	premiere=1	compte=1
+puzzledp	C	380050|0101|00FF|bios	premiere=131	compte=14
+puzzledp	C	3A000E|FEFE|00FF|bios	premiere=83	compte=1
+puzzledp	C	3A000C|FFFF|00FF|bios	premiere=78	compte=121
+puzzledp	C	380066|0000|00FF|bios	premiere=1	compte=1
+puzzledp	C	3A000C|1818|00FF|bios	premiere=277	compte=1
+puzzledp	C	3A001A|0000|00FF|bios	premiere=277	compte=3
+puzzledp	C	380050|0303|00FF|bios	premiere=131	compte=7
+puzzledp	C	3A0002|FFFF|00FF|bios	premiere=282	compte=1
+puzzledp	C	3A001C|0101|00FF|bios	premiere=282	compte=1
+puzzledp	C	380000|1B1B|00FF|bios	premiere=281	compte=120
+puzzledp	C	380000|1212|00FF|bios	premiere=281	compte=120
+puzzledp	C	3A001C|0000|00FF|bios	premiere=280	compte=6
+puzzledp	C	3A0012|0000|00FF|bios	premiere=280	compte=3
+puzzledp	C	3A001C|FEFE|00FF|bios	premiere=39	compte=1
+puzzledp	C	3A000E|0000|00FF|bios	premiere=278	compte=2
+puzzledp	C	3A001C|3030|00FF|bios	premiere=277	compte=1
+puzzledp	C	380030|DFDF|00FF|bios	premiere=1	compte=61
+puzzledp	C	3A0014|3030|00FF|bios	premiere=277	compte=1
+puzzledp	C	380000|0000|00FF|bios	premiere=280	compte=122
+puzzledp	C	380030|FFFF|00FF|bios	premiere=1	compte=124
+puzzledp	C	380050|0404|00FF|bios	premiere=131	compte=4
+puzzledp	C	3A001E|FEFE|00FF|bios	premiere=87	compte=1
+puzzledp	C	3A001E|FFFF|00FF|bios	premiere=78	compte=1
+puzzledp	C	380030|EFEF|00FF|bios	premiere=1	compte=61
+puzzledp	C	380030|F7F7|00FF|bios	premiere=1	compte=1
+puzzledp	C	380040|FFFF|00FF|bios	premiere=1	compte=121
+mslug	W	1	3C000C	0007	FFFF	bios
+mslug	W	1	3C0006	4000	FFFF	bios
+mslug	W	1	380030	FFFF	00FF	bios
+mslug	W	1	380040	FFFF	00FF	bios
+mslug	W	1	380030	F7F7	00FF	bios
+mslug	W	1	380030	EFEF	00FF	bios
+mslug	W	1	380030	DFDF	00FF	bios
+mslug	W	1	3A0002	0000	00FF	bios
+mslug	W	1	3A000A	0000	00FF	bios
+mslug	W	1	380064	0000	00FF	bios
+mslug	W	1	380066	0000	00FF	bios
+mslug	W	39	3A001C	FEFE	00FF	bios
+mslug	W	77	3A001C	FFFF	00FF	bios
+mslug	W	78	3A000C	FFFF	00FF	bios
+mslug	W	78	3A001E	FFFF	00FF	bios
+mslug	W	83	3A000E	FEFE	00FF	bios
+mslug	W	87	3A001E	FEFE	00FF	bios
+mslug	W	131	3A000C	0000	00FF	bios
+mslug	W	131	380050	0000	00FF	bios
+mslug	W	131	380050	0202	00FF	bios
+mslug	W	131	380050	0101	00FF	bios
+mslug	W	131	380050	0303	00FF	bios
+mslug	W	131	380050	0404	00FF	bios
+mslug	W	190	3C000C	0004	FFFF	bios
+mslug	W	277	3A0006	3030	00FF	bios
+mslug	W	277	3A0014	3030	00FF	bios
+mslug	W	277	3A001C	3030	00FF	bios
+mslug	W	277	380020	0000	00FF	bios
+mslug	W	277	3A001A	0000	00FF	bios
+mslug	W	277	380020	0101	00FF	bios
+mslug	W	277	3A000A	8686	00FF	bios
+mslug	W	277	3A000C	1818	00FF	bios
+mslug	W	277	3A000A	1818	00FF	bios
+mslug	W	277	3A0002	1818	00FF	bios
+mslug	W	278	3A000E	0000	00FF	bios
+mslug	W	278	3A001E	0000	00FF	bios
+mslug	W	280	380000	0000	00FF	bios
+mslug	W	280	3A001C	0000	00FF	bios
+mslug	W	280	3A0012	0000	00FF	bios
+mslug	W	281	380000	1212	00FF	bios
+mslug	W	281	380000	1B1B	00FF	bios
+mslug	W	281	3C000C	0007	FFFF	jeu
+mslug	W	281	3A001E	0000	00FF	jeu
+mslug	W	281	3A000E	0000	00FF	jeu
+mslug	E	281	remise
+mslug	W	282	3A001C	3B3B	00FF	bios
+mslug	W	283	3A001C	0C0C	00FF	bios
+mslug	W	284	3A001C	DDDD	00FF	bios
+mslug	W	285	3A001C	ADAD	00FF	bios
+mslug	W	286	3A001C	7F7F	00FF	bios
+mslug	W	287	3A0002	FFFF	00FF	bios
+mslug	W	287	3A000C	7E7E	00FF	bios
+mslug	W	287	3A001C	7E7E	00FF	bios
+mslug	W	287	3A000C	0101	00FF	bios
+mslug	W	287	3A001C	0101	00FF	bios
+mslug	W	287	3A0000	0000	00FF	bios
+mslug	W	288	3A001C	8080	00FF	bios
+mslug	C	3A000C|1818|00FF|bios	premiere=277	compte=1
+mslug	C	3A001A|0000|00FF|bios	premiere=277	compte=3
+mslug	C	3A000C|FFFF|00FF|bios	premiere=78	compte=121
+mslug	C	3C000C|0007|FFFF|jeu	premiere=281	compte=1
+mslug	C	380066|0000|00FF|bios	premiere=1	compte=1
+mslug	C	3C0006|4000|FFFF|bios	premiere=1	compte=3
+mslug	C	3A001C|8080|00FF|bios	premiere=288	compte=113
+mslug	C	380020|0101|00FF|bios	premiere=277	compte=1
+mslug	C	3A0000|0000|00FF|bios	premiere=287	compte=1
+mslug	C	3A001E|0000|00FF|jeu	premiere=281	compte=1
+mslug	C	380030|DFDF|00FF|bios	premiere=1	compte=61
+mslug	C	3A001C|0101|00FF|bios	premiere=287	compte=1
+mslug	C	3A001C|3B3B|00FF|bios	premiere=282	compte=1
+mslug	C	380050|0202|00FF|bios	premiere=131	compte=61
+mslug	C	3A000A|0000|00FF|bios	premiere=1	compte=1
+mslug	C	380050|0303|00FF|bios	premiere=131	compte=7
+mslug	C	3A000A|8686|00FF|bios	premiere=277	compte=1
+mslug	C	3C000C|0007|FFFF|bios	premiere=1	compte=3
+mslug	C	3A001C|7E7E|00FF|bios	premiere=287	compte=1
+mslug	C	3A000C|7E7E|00FF|bios	premiere=287	compte=1
+mslug	C	3A0002|FFFF|00FF|bios	premiere=287	compte=1
+mslug	C	3A001C|7F7F|00FF|bios	premiere=286	compte=1
+mslug	C	380030|EFEF|00FF|bios	premiere=1	compte=61
+mslug	C	380050|0000|00FF|bios	premiere=131	compte=74
+mslug	C	3A000C|0101|00FF|bios	premiere=287	compte=1
+mslug	C	3A001E|FFFF|00FF|bios	premiere=78	compte=1
+mslug	C	3A001C|DDDD|00FF|bios	premiere=284	compte=1
+mslug	C	3A000C|0000|00FF|bios	premiere=131	compte=6
+mslug	C	380050|0101|00FF|bios	premiere=131	compte=14
+mslug	C	380000|0000|00FF|bios	premiere=280	compte=122
+mslug	C	3A001C|0C0C|00FF|bios	premiere=283	compte=1
+mslug	C	3A000E|0000|00FF|jeu	premiere=281	compte=1
+mslug	C	380000|1B1B|00FF|bios	premiere=281	compte=120
+mslug	C	3A001C|0000|00FF|bios	premiere=280	compte=5
+mslug	C	3A000A|1818|00FF|bios	premiere=277	compte=1
+mslug	C	3A001E|0000|00FF|bios	premiere=278	compte=2
+mslug	C	380000|1212|00FF|bios	premiere=281	compte=120
+mslug	C	3A0012|0000|00FF|bios	premiere=280	compte=3
+mslug	C	3A0006|3030|00FF|bios	premiere=277	compte=1
+mslug	C	3A0002|1818|00FF|bios	premiere=277	compte=1
+mslug	C	3C000C|0004|FFFF|bios	premiere=190	compte=181
+mslug	C	3A000E|0000|00FF|bios	premiere=278	compte=2
+mslug	C	3A0002|0000|00FF|bios	premiere=1	compte=1
+mslug	C	380030|F7F7|00FF|bios	premiere=1	compte=1
+mslug	C	3A000E|FEFE|00FF|bios	premiere=83	compte=1
+mslug	C	380064|0000|00FF|bios	premiere=1	compte=1
+mslug	C	380030|FFFF|00FF|bios	premiere=1	compte=124
+mslug	C	3A001E|FEFE|00FF|bios	premiere=87	compte=1
+mslug	C	380020|0000|00FF|bios	premiere=277	compte=4
+mslug	C	3A001C|FEFE|00FF|bios	premiere=39	compte=1
+mslug	C	3A001C|FFFF|00FF|bios	premiere=77	compte=2
+mslug	C	3A001C|ADAD|00FF|bios	premiere=285	compte=1
+mslug	C	380050|0404|00FF|bios	premiere=131	compte=4
+mslug	C	380040|FFFF|00FF|bios	premiere=1	compte=121
+mslug	C	3A0014|3030|00FF|bios	premiere=277	compte=1
+mslug	C	3A001C|3030|00FF|bios	premiere=277	compte=1

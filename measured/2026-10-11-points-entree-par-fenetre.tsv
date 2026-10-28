@@ -1,0 +1,21 @@
+# Les points d entree que chaque fenetre exerce, le 2026-10-11.
+#
+# LA FENETRE DECIDE DE CE QU ON PEUT CONTRACTUALISER, et c est le reste de I2. Sous BIOS SNK
+# sp-s2.sp1 sur puzzledp, le jeu ne prend la main qu a la trame 502,9, ce qui explique l ecart
+# entre les deux fenetres relevees ici.
+#
+# CE RELEVE NE DIT RIEN DES AUTRES TRAMES. Deux fenetres de huit et sept trames sur 515 : ce qui
+# est mesure l est, le reste ne l est pas.
+#
+# Regenerer : deux traces du co-simulateur LSPC/FX68K (non publie ici, voir docs/BENCH.md) sur
+#   $ROMS/puzzledp.zip, BIOS sp-s2.sp1 : 400 000 acces des la trame 330 (jusqu a 360), puis
+#   300 000 acces des la trame 505 (jusqu a 515) ;
+# puis, depuis la racine du depot, ./bench/generer-contrats.py <trace> <dossier>
+#
+# Les noms viennent de la page BIOS calls du NeoGeo Development Wiki ; le generateur, lui, ne
+# nomme rien et designe un appel par son offset.
+fenetre_trames	point_entree	nom_public	appels
+329.97-338.52	$C00438	SYSTEM_INT1	7
+504.97-511.53	$C0044A	SYSTEM_IO	7
+504.97-511.53	$C00450	CREDIT_CHECK	1
+504.97-511.53	$C004C2	FIX_CLEAR	1

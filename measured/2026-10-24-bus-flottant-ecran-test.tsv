@@ -1,0 +1,45 @@
+# Les lectures de la cartouche sous REG_BRDFIX, recensées et retirées, le 2026-10-24. MAME 0.286, -bios euro, -video none,
+# -sound none, -nothrottle, NVRAM neuve par run, romsets non-merged de $ROMS, seul sp-s2.sp1 remplacé.
+# Instrument : bench/bus-flottant.lua (la P-ROM, $000080-$0FFFFF et $200000-$2FFFFF, ne répond que sous REG_CRTFIX, comme le
+# matériel du retour du 2026-10-24, docs/ESSAI-MATERIEL.md), chargé par bench/son.lua (J_FLOTTANT) qui joue les entrées ; le
+# témoin est le même run en BF_LIBRE=1. Le PC ne sert qu'à dire qui lit (bios : $C00000-$C1FFFF) ; aucun octet de ROM relevé.
+# Images : « avant » = main c1fce0a4 (#1423), sha256 88366706883ed8dd… ; « après » = la copie du bloc soft-DIP en RAM
+# (src/c0/dip.s, .Lcopier_bloc), sha256 16c58ca28f0c1145c772102df7479aa186814951e6bde00b85df3873c0534208.
+#
+# LE RECENSEMENT, par famille : chaque écriture de REG_BRDFIX ($3A000B) dans src/c0, et ce qui lit ensuite la cartouche.
+#   c0.s, le reset → la détection (REG_CRTFIX avant l'en-tête)        : 0, corrigé par #1423 (étage 3f de non-regression.sh)
+#   c0.s, après la détection → l'écran de boot → le passage de slot    : 0, le NGH pris dans la table depuis #1423 (étage 3f)
+#   dip.s, l'éditeur de soft-DIP (écran TEST) : le nom et les intitulés : 244 à l'entrée (aof, mslug), 24 par déplacement du curseur —
+#                                                                        CORRIGÉ ici, le bloc recopié en RAM sous REG_CRTFIX
+#   tests.s, les autotests (sous le REG_BRDFIX de dip.s)                : 0 dans les tests ; 244 au retour (l'éditeur redessiné)
+#   jukebox.s (REG_CRTFIX à l'entrée, REG_BRDFIX à la sortie)          : 0 dans le jukebox ; 244 au retour (l'éditeur redessiné)
+#   plantage.s, l'écran de plantage                                     : 0 du BIOS (NGH pris dans la table depuis #1423)
+#   Le menu en jeu, GAME SETTINGS, l'éditeur mémoire, les cheats : jamais sous REG_BRDFIX — aucun n'en écrit, et le jeu ne
+#   tourne que sous REG_CRTFIX (sa P-ROM ne répondrait pas sinon).
+#   NON CORRIGÉ, aucune lecture sur le chemin normal : une exception levée pendant l'écran TEST ou l'écran de plantage lirait
+#   son vecteur sous REG_SWPROM et REG_BRDFIX, donc flottant (aucune ne l'est dans les runs ci-dessous).
+#
+# Colonnes : run, image, jeu, chemin, lectures flottantes du BIOS, du jeu, resets, trames différentes du témoin libre / trames.
+run	image	jeu	chemin	flottantes_bios	flottantes_jeu	resets	trames_diff
+r-dip	avant	aof	TEST 1-260, START 340	244	0	0	-
+r-ms	avant	mslug (MV-6F)	TEST 1-260, START 340	244	0	0	-
+r-tests	avant	aof	HARDWARE TESTS, WORK RAM, retour, deux lignes, START	536	0	0	-
+r-juke	avant	aof	JUKEBOX, A, START, START	488	0	0	-
+pl-adr	avant	aof	plantage.lua P_MODE=adr, START 1700	1 (le jig)	0	1 (la relance)	-
+r-dip	apres	aof	même chemin	0	0	0	-
+r-ms	apres	mslug (MV-6F)	même chemin	0	0	0	-
+r-tests	apres	aof	même chemin	0	0	0	-
+r-juke	apres	aof	même chemin	0	0	0	-
+pl-adr	apres	aof	même chemin	1 (le jig)	0	1 (la relance)	-
+bf-editeur	avant	aof	parcours.sh, scène bf-editeur	328	0	0	147/600
+bf-banque	avant	mslug (MV-6F)	parcours.sh, scène bf-banque	316	0	0	147/600
+bf-tests	avant	aof	parcours.sh, scène bf-tests	488	0	0	166/700
+bf-jukebox	avant	aof	parcours.sh, scène bf-jukebox	488	0	0	145/800
+bf-editeur	apres	aof	parcours.sh, scène bf-editeur	0	0	0	0/600
+bf-banque	apres	mslug (MV-6F)	parcours.sh, scène bf-banque	0	0	0	0/600
+bf-tests	apres	aof	parcours.sh, scène bf-tests	0	0	0	0/700
+bf-jukebox	apres	aof	parcours.sh, scène bf-jukebox	0	0	0	0/800
+# « 1 (le jig) » : la lecture de $000108 que plantage.lua fait lui-même à la trame 1699 pour son NGH attendu, pendant que le
+# BIOS a la main (d'où « bios ») ; sa VERIF NGH sort alors ECART dans les deux images. Le BIOS, lui, n'y lit rien.
+# Sous le modèle, « avant », l'éditeur montre des rangées de « Q Q Q » à la place des intitulés (le mot préchargé) ; « après »,
+# ROUND TIME, LANGUAGE… (aof) et HERO, CONTINUE, DIFFICULTY… (mslug, bloc à $2783D0, zone banquée).

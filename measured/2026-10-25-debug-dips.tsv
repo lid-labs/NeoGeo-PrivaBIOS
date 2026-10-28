@@ -1,0 +1,51 @@
+# Les debug dips, par observation, le 2026-10-25 : quels jeux du dossier montrent un effet quand on les force, et lequel. Pour
+# l'écran DEBUG DIPS (src/c0/debug.s, cinquième ligne de CABINET SETTINGS).
+#
+# LA SOURCE DE L'ADRESSE, lue dans le NeoGeo Development Wiki (« Debug DIPs », « 68k program header ») : deux octets de la RAM
+# de travail du jeu, « usually » les deux premiers de la zone pointée par le long de $10E de l'en-tête. Le pointeur est lu par
+# lua dans l'espace du 68000 (program space, $10E), rien d'autre de la P-ROM.
+#
+# LA MÉTHODE. MAME 0.286, -bios euro (le BIOS SNK sert d'hôte, sans être lu ni tracé), -video none, -sound none,
+# -nothrottle, NVRAM et cfg neufs par run, romsets non-merged de $ROMS tels quels. Un jig lua local (non versionné) :
+# à chaque fin de trame à partir de la trame 250, l'octet [$10E] (DIP 1) ou [$10E]+1 (DIP 2) est écrit à la valeur choisie ;
+# aucune entrée ; l'empreinte de l'écran à chaque trame, et des images à quelques trames. Un témoin sans écriture. Forcer dès la
+# trame 1 est écarté : le test mémoire du BIOS hôte y voit l'écriture (aof diverge dès la trame 11). Puis sous notre image
+# (a6ba92b90caa2237…), par l'écran DEBUG DIPS lui-même : la scène dd-effet de bench/parcours.sh.
+# « effet vu » : regardé sur des planches d'images côte à côte, témoin à gauche (non versionnées : elles portent les graphismes
+# des jeux) ; « trames » : celles qui diffèrent du témoin sur 2 000 trames (kof94) ou 2 400 (le balayage).
+#
+# 1. kof94, bit par bit (pointeur $100000) : la valeur 1 << bit, un run par bit et par octet.
+jeu	octet	bit	trames_differentes	effet_vu	methode
+kof94	DIP 1	0	1237 (763-2000)	« DEBUG OBJE », « CH CODE 00 », « ACT CODE 00 » en bas de l'écran et un personnage bleu au centre : un visualiseur de sprites	-bios euro, lua ; puis notre écran DEBUG DIPS (dd-effet)
+kof94	DIP 1	1	0	aucun	-bios euro, lua
+kof94	DIP 1	2	0	aucun	-bios euro, lua
+kof94	DIP 1	3	0	aucun	-bios euro, lua
+kof94	DIP 1	4	0	aucun	-bios euro, lua
+kof94	DIP 1	5	0	aucun	-bios euro, lua
+kof94	DIP 1	6	0	aucun	-bios euro, lua
+kof94	DIP 1	7	128 (828-1996, par endroits)	un coin gris sur la carte qui tourne de la démo (trames 835-940) ; sens inconnu	-bios euro, lua
+kof94	DIP 2	0	2 (762-763)	aucun à l'image	-bios euro, lua
+kof94	DIP 2	1	1237 (763-2000)	« MAIN MENU », « EDIT DATA », « LOAD DATA », « SAVE DATA » en haut à droite	-bios euro, lua
+kof94	DIP 2	2	0	aucun	-bios euro, lua
+kof94	DIP 2	3	0	aucun	-bios euro, lua
+kof94	DIP 2	4	1237 (763-2000)	une colonne de nombres hexadécimaux à gauche	-bios euro, lua
+kof94	DIP 2	5	1237 (763-2000)	« MENU », « PLAY », « CODE » en haut	-bios euro, lua
+kof94	DIP 2	6	0	aucun	-bios euro, lua
+kof94	DIP 2	7	1237 (763-2000)	« SEQ TOOL », « AI », « MOVE », « DIST », « STATUS » en haut	-bios euro, lua
+#
+# 2. Trois autres jeux, l'octet entier forcé à $FF (aucun bit isolé) : effet vu.
+samsho2	DIP 1	$FF	1642 (756-2400)	un tableau NAME / P-ADRS / T-WORK / T-PRT en haut (DEMO, SQU-EDIT, PAL-EDIT, SPD-EDIT, KEY-EDIT, D-SYS)	-bios euro, lua
+tophuntr	DIP 1	$FF	1646 (755-2400)	« MENU », « PLAY », « CODE » et une colonne de nombres hexadécimaux à gauche	-bios euro, lua
+sengoku2	DIP 1	$FF	1621 (774-2400)	des compteurs hexadécimaux sur l'écran, un personnage dessiné en aplat blanc	-bios euro, lua
+#
+# 3. LE BALAYAGE DU DOSSIER, DIP 1 puis DIP 2 forcés à $FF, 2 400 trames sans entrée, contre le témoin : 163 sets, 155 lus
+# (huit sans relevé : bakatono, irrmaze, janshin, minasan, popbounc, vliner, et les deux romsets rayspk de travail), dont 79
+# avec au moins une trame différente et 76 sans. Une trame différente n'est pas un effet vu : forcer une donnée du jeu change aussi
+# l'image (voir 4). Seuls les jeux des sections 1 et 2 ont été regardés.
+#
+# 4. CES DEUX OCTETS SONT SOUVENT DES DONNÉES DU JEU. Les valeurs de [$10E] et [$10E]+1 relevées à chaque trame de 300 à 3 000,
+# sans rien forcer, une pièce à 400 et START à 500 (puis A toutes les 40 trames), même hôte : 128 jeux relevés, 36 où elles
+# quittent zéro (androdun $0100, aodk $FF00 puis $0800, bstars un compteur à chaque trame, b2b $0010…). D'où le masque de
+# debug.s, qui ne met à 1 que les bits choisis et ne les laisse pas partir en sauvegarde. Et kof94, sans rien forcer, remet
+# $100000 à zéro à chaque départ de démo (sous notre image : trames 404, 409, 4 943 du run dd-1 d'essai) : une écriture unique
+# ne tient pas, d'où l'écriture à chaque SYSTEM_IO.

@@ -1,0 +1,32 @@
+# La matrice de la couche 1+2 APRES FIX_CLEAR et LSP_1st (src/c0/video.s), le 2026-10-16.
+# Declencheur : neomrdo appelle les deux crans a l'init et au START (fetchs mesures aux
+# trames 2 et 100) ; nos bouchons ne faisaient rien, le plan fix du titre recouvrait la
+# partie — le jeu jouait (pages VRAM identiques a la reference a l'unite pres) derriere un
+# ecran que rien n'effacait.
+# Resultat : neomrdo JOUE (pose 0) ; wjammers et magdrop2 passent de pose 100 a pose 0 ;
+# flipshot pose 0 — la famille des poses est close. 16/20 ; temoins 13/17 stables.
+# RESTENT : garou, mslug3, svc (SMA/PVC) et kof98 (joue noir, ~59 %).
+# Seules les lignes sprixe sont relevees ; controles de substitution tous ok.
+#
+# Image : la branche feat/bios-fix-clear, sha256 d0e1627dc5d1dfd4…
+jeu	bios	verdict	vifs_max	vitesse_pct	controle
+aof	sprixe	joue (plus longue pose 0 tr.)	68096	2143.73	ok
+garou	sprixe	FIGE dès 100 (3000 trames)	0	64.83	ok
+joyjoy	sprixe	joue (plus longue pose 0 tr.)	71281	2150.17	ok
+kof2003	sprixe	joue (plus longue pose 0 tr.)	60765	1889.16	ok
+kof94	sprixe	joue (plus longue pose 0 tr.)	66598	1784.09	ok
+kof98	sprixe	joue (plus longue pose 0 tr.)	0	58.93	ok
+lbowling	sprixe	joue (plus longue pose 0 tr.)	57983	2127.78	ok
+mslug	sprixe	joue (plus longue pose 0 tr.)	67321	2148.48	ok
+mslug3	sprixe	FIGE dès 100 (2500 trames)	0	59.29	ok
+nam1975	sprixe	joue (plus longue pose 0 tr.)	27604	2072.43	ok
+puzzledp	sprixe	joue (plus longue pose 0 tr.)	68096	2238.24	ok
+ridhero	sprixe	joue (plus longue pose 0 tr.)	71680	2004.68	ok
+samsho2	sprixe	joue (plus longue pose 0 tr.)	67829	2064.79	ok
+ssideki4	sprixe	joue (plus longue pose 0 tr.)	71197	1953.24	ok
+svc	sprixe	FIGE dès 100 (3400 trames)	0	2777.16	ok
+trally	sprixe	joue (plus longue pose 0 tr.)	70605	2204.74	ok
+wjammers	sprixe	joue (plus longue pose 0 tr.)	68096	1975.36	ok
+flipshot	sprixe	joue (plus longue pose 0 tr.)	68096	2039.39	ok
+neomrdo	sprixe	joue (plus longue pose 0 tr.)	67534	1823.07	ok
+magdrop2	sprixe	joue (plus longue pose 0 tr.)	67792	2010.68	ok

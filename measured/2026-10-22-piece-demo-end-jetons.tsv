@@ -1,0 +1,38 @@
+# La pièce qui fait le crédit pendant la démo : deux runs d'avant rejoués sur l'image de ce lot (sha256 8e0ea5b87d49c769…8ad173), contre la référence (-bios euro) et l'image de main (738d507f…74b637). Relevé du 2026-10-22.
+# MAME 0.286, machine neogeo (MV-6F), -cartN par la liste logicielle (-hashpath), -video none -sound none -nothrottle, SDL_MAC_BACKGROUND_APP=1, NVRAM neuve isolée par run ; Apple M4 Pro, 14 cœurs.
+# Jig bench/multislot.lua, MS_PLAGES=1, MS_SUIVRE. Plans : k10 de 2026-10-22-multi-slot-lot4.tsv (puzzledp + aof, pièce 1000, suivant 1200 et 1213, 1300 trames) ; puzzledp-p1 de
+#   2026-10-22-sauvegarde-jeu-seul.tsv (puzzledp, pièce 2000, start 2100, 14000 trames).
+# Jetons : remise sSS dDD mMM ; sysret code CC ; select code CC ; S zone lue -> bloc écrit ; R bloc lu -> zone écrite ; somme 16 bits (valeurs du jeu). Aucun PC consigné (le PC n'est lu que pour attribuer un accès au BIOS ou au jeu), aucun octet de la ROM du BIOS.
+# Référence : les jetons versionnés (2026-10-22-multi-slot-lot4-jetons.tsv, 2026-10-22-sauvegarde-jeu-seul-jetons.tsv). Avant : rejoués ici sur 738d507f.
+# Résumé, colonnes : run ; jetons_ref ; jetons_avant ; egal_avant (sommes comprises, trames ignorées) ; jetons_apres ; egal_apres ; trame de la remise qui suit la pièce (ref / avant / apres) ; note.
+run	jetons_ref	jetons_avant	egal_avant	jetons_apres	egal_apres	remise_apres_piece	note
+k10	17	17	oui	17	oui	1002 / 1001 / 1002	SELECT à 1213 pris, comme au relevé de #1406 ; la remise de la pièce tombe désormais à la trame de la référence
+puzzledp-p1	9	9	oui	9	oui	2002 / 2001 / 2002	égal ; la remise de la pièce, à la trame de la référence
+#
+# Suites de jetons de l'image après. Colonnes : run ; trame ; jeton.
+k10	185	remise s00 d00 m00
+k10	185	sysret code 00
+k10	185	S 100000-1000FF -> D00320-D0041F somme 0000
+k10	189	remise s01 d00 m00
+k10	189	sysret code 00
+k10	189	S 108800-108FFF -> D01320-D01B1F somme 17AC
+k10	191	R D00320-D0041F -> 100000-1000FF somme 0000
+k10	192	remise s00 d02 m01
+k10	1002	remise s00 d03 m01
+k10	1200	select code 04
+k10	1200	S 100000-1000FF -> D00320-D0041F somme 055B
+k10	1202	R D01320-D01B1F -> 108800-108FFF somme 17AC
+k10	1203	remise s01 d03 m01
+k10	1213	select code 04
+k10	1213	S 108800-108FFF -> D01320-D01B1F somme 17AC
+k10	1215	R D00320-D0041F -> 100000-1000FF somme 055B
+k10	1216	remise s00 d03 m01
+puzzledp-p1	185	remise s00 d00 m00
+puzzledp-p1	185	sysret code 00
+puzzledp-p1	185	S 100000-1000FF -> D00320-D0041F somme 0000
+puzzledp-p1	185	R D00320-D0041F -> 100000-1000FF somme 0000
+puzzledp-p1	186	remise s00 d02 m01
+puzzledp-p1	2002	remise s00 d03 m01
+puzzledp-p1	9931	sysret code 03
+puzzledp-p1	9931	S 100000-1000FF -> D00320-D0041F somme 1C7C
+puzzledp-p1	9932	remise s00 d02 m01

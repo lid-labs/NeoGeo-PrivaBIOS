@@ -1,0 +1,64 @@
+# Trois écarts vus au lot 4 du multi-slot (docs/RELECTURE-CONTRATS.md, dernière section) : FRAME_SKIP après une remise, le crédit au boot, la pièce qui ne fait pas encore de crédit. Relevé du 2026-10-22.
+# MAME 0.286, machine neogeo (MV-6F, six emplacements), -bios euro pour la référence, -cartN par la liste logicielle neogeo (-hashpath <dossier hash de MAME>), -video none -sound none -nothrottle,
+# SDL_MAC_BACKGROUND_APP=1, NVRAM isolée par run. Hôte : Apple M4 Pro, 14 cœurs, macOS 26.6. Jig : bench/multislot.lua, MS_PLAGES=1 et MS_SUIVRE (valeurs de RAM et de backup RAM en fin de trame).
+# Images : avant = celle de main (build/construire.sh src/c0, sha256 2a07a2a29e1338b8…fe754, celle du lot 4) ; après = celle de ce lot (sha256 738d507fa92fe2d2…74b637).
+# NVRAM « gardée » : le fichier saveram que laisse un run de 900 trames sans entrée, sous la même image, puis des octets de backup RAM posés dedans (mots en petit-boutiste dans le fichier).
+# Aucun PC consigné (le jig ne le lit que pour attribuer un accès au BIOS ou au jeu), aucun octet de la ROM du BIOS (docs/DECISIONS.md §8) : adresses de RAM, de backup RAM et de registres, valeurs écrites, valeurs lues par le jig hors des taps.
+# Runs : A = puzzledp + aof, NVRAM neuve, pièce 1000, suivant (SELECT P1) 1200, start 1500, 2400 trames ; B = puzzledp seul, NVRAM neuve, 3200 trames sans entrée ;
+#   C = puzzledp + aof, NVRAM neuve, 9000 trames sans entrée (rotation de la démo) ; D = puzzledp seul, NVRAM neuve, pièces 1000 et 1030, start 1100, 14000 trames (fin de partie avec un crédit) ;
+#   g1-g4, p1, p2 : voir les sections 2 et 3.
+#
+# 1. FRAME_SKIP ($10FEE1) APRÈS CHAQUE TYPE DE REMISE. MESURÉ : la référence pose $FF à la demande, $0A la trame suivante, puis $09 juste avant la lecture de $000122 ; $00 tombe 9 trames
+#    après la remise, et le premier SYSTEM_IO à le lire nul est celui de la 10e. Notre image posait $FF à la remise : le premier SYSTEM_IO du jeu le rechargeait à $0A, $00 tombait 11 trames
+#    après. D'où les deux trames. Sur les 15 runs de la référence de ce relevé, 28 remises de demande 2 ou 3 : toutes à $09, toutes à $00 en +9. Demande 0 : la première du boot entre à $00
+#    (7 sur 7), celle d'après un SYSTEM_RETURN code 0 à $FF, $00 en +12 (4 sur 4). Écrit : src/c0/c0.s _remettre_a_user ($09 aux demandes 2 et 3, rien à la demande 0).
+#    Colonnes : type de remise ; run ; ref, avant, apres : « valeur de $10FEE1 à la remise / trame de $00 relative à la remise ». « - » : non lisible, la remise suivante tombe avant
+#    (le jig ne note une écriture que si la valeur change, et deux $FF de suite n'en font qu'une).
+type_remise	run	ref	avant	apres
+demande 0, premier boot (NVRAM neuve)	A	00 / -	FF / -	00 / -
+demande 0 du slot suivant, après SYSTEM_RETURN code 0	A	FF / +12	FF / -	FF / +12
+demande 2, boot NVRAM neuve (après les demandes 0)	B	09 / +9	FF / +11	09 / +9
+demande 2, boot NVRAM gardée	g1	09 / +9	FF / +11	09 / +9
+demande 3, pièce pendant la démo	A	09 / +9	FF / +11	09 / +9
+demande 3, SELECT P1 au titre (changement de slot)	A	09 / +9	FF / +11	09 / +9
+demande 2, fin de démo, SYSTEM_RETURN code 2 (rotation)	C	09 / +9	FF / +11	09 / +9
+demande 3, fin de partie avec un crédit, SYSTEM_RETURN code 3	D	09 / +9	FF / +11	09 / +9
+#    Conséquence au geste, run k10 du lot 4 (SELECT 10 trames après la remise) : voir 2026-10-22-ecarts-remise-credit-jetons.tsv. Le retour du menu en jeu n'est pas mesuré : la référence
+#    n'a pas de menu en jeu, et notre `menu.s` ne passe pas par une remise.
+#
+# 2. LE CRÉDIT AU BOOT. MESURÉ : à chaque boot, la référence écrit $00 sur chaque octet de $D00020-$D00039 (trame 277 NVRAM neuve, 238 NVRAM gardée ; une cartouche comme deux), quel que soit
+#    leur contenu. Au même instant : $D00048-4B ← $00, $D0004C ← $3B, $D0005E-5F ← $FF, $D00060-61 ← $00, $D0005A-5D ← une valeur qui avance (non repris, hors de ce lot).
+#    Notre image ne touchait à rien. Écrit : src/c0/c0.s, au label _bram_valide ($D00020-$D00039 ← $00, avant la détection des slots).
+#    Colonnes : run ; cartouches ; octets posés dans la NVRAM gardée ; ref, avant, apres : $D00024 $D00025 $D00034 $D00035 à la première remise (et la trame de l'effacement).
+run	cartouches	nvram_posee	ref	avant	apres
+g1	puzzledp	D00034=02	00 00 00 00 (trame 238)	00 00 02 00	00 00 00 00 (trame 1)
+g2	puzzledp	D00035=03	00 00 00 00 (trame 238)	00 00 00 03	00 00 00 00 (trame 1)
+g3	puzzledp	D00024=01 D0003A=02	00 00 00 00 (trame 238)	01 00 00 00	00 00 00 00 (trame 1)
+g4	puzzledp + aof	D00034=02	00 00 00 00 (trame 238)	00 00 02 00	00 00 00 00 (trame 1)
+#    Lot 4, run boot-avec-credit (crédit laissé par une pièce, sans pose) : $D00034 01 → 00 à la trame 238, le même effacement.
+#
+# 3. LA PIÈCE QUI NE FAIT PAS ENCORE DE CRÉDIT, soft-DIP système « 2 pièces = 1 crédit » : $D0003A ← $02 posé dans la NVRAM gardée, $D00034 à $00, puzzledp seul.
+#    p1 = pièce 900 (démo), pièce 1300, 1700 trames, captures 960, 1100, 1360 ; p2 = pièces 900 et 930, pièce 1100 (au titre, un crédit en place), 1500 trames.
+#    MESURÉ, la référence : à la pièce seule, $D00024 ← $01, COIN_SOUND ($000134 lu par le BIOS) dans la trame, $10FDDA ← $30 et $10FDDB ← $3B (le départ forcé armé), ni $10FD81 ni remise :
+#    la démo continue, et $10FDDA reste à $30 jusqu'à la pièce suivante (400 trames : la démo ne décompte pas). La seconde pièce fait le crédit ($D00034 ← $01, $D00024 ← $00), puis
+#    $10FD81 ← $06 et la demande 3. Au titre, une pièce seule (p2, 1100) compte, sonne et recharge $10FDDA à $30, sans remise.
+#    Notre image avant : la pièce seule menait au titre (demande 3 à la trame 901, sans crédit), COIN_SOUND reporté à 913, départ forcé non armé ; au titre, $10FDDA non rechargé.
+#    Écrit : src/c0/io.s _io_crediter (départ forcé armé à toute pièce, bit 7 de %d6 posé quand un crédit est fait), _io_commun (remise au titre seulement sur ce bit),
+#    _io_compulsion (décompte au titre seulement, demande 3).
+#    Colonnes : geste ; ref ; avant ; apres.
+geste	ref	avant	apres
+p1 pièce 900 (démo) : $D00024	01	01	01
+p1 pièce 900 : $D00034	00	00	00
+p1 pièce 900 : COIN_SOUND	trame 900	trame 913	trame 900
+p1 pièce 900 : $10FDDA / $10FDDB	30 / 3B	inchangés	30 / 3B
+p1 pièce 900 : $10FD81 écrit	non	non	non
+p1 pièce 900 : remise	aucune, demande 2 gardée	demande 3 à 901	aucune, demande 2 gardée
+p1 900-1299 : $10FDDA	30, constant	-	30, constant
+p1 pièce 1300 : crédit, remise	01, $10FD81 ← 06, demande 3 à 1302	01, aucune (titre déjà demandé)	01, demande 3 à 1301
+p1 capture 1360 (titre)	empreinte c94299fc	empreinte 93a62e2f	empreinte c94299fc, égale à la référence
+p2 pièce 1100 (titre, crédit 01) : $D00024, COIN_SOUND, $10FDDA	01, trame 1100, 30	01, trame 1100, non rechargé	01, trame 1100, 30
+p2 $10FDDA après 1100	29 à 1159, 28 à 1219, -1 toutes les 60 trames	-	29 à 1159, 28 à 1219, -1 toutes les 60 trames
+#    Écran pendant la démo (captures 960 et 1100) : la référence et notre image après restent en démo, l'image avant est au titre. Les deux démos ne se comparent pas à l'octet :
+#    la nôtre part à la trame 185, celle de la référence à 709 (pas de logo chez nous).
+#    NON RÉSOLU, hors de ce lot : à la pièce qui fait le crédit, la référence appelle COIN_SOUND puis DEMO_END ($00012E) dans la trame, et rend la main deux trames plus tard ; notre image
+#    remet la main à la trame suivante et sonne après le décompte de FRAME_SKIP (p1 : trame 1311). SUPPOSÉ dans src/c0/io.s, inchangé.

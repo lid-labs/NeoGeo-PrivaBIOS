@@ -1,0 +1,75 @@
+# Les scores d'une mise sous tension à l'autre, en mode MVS et en mode AES de ReBIOS, le 2026-10-24 : où les jeux les gardent, et
+# ce qu'il en reste au boot suivant. Le PC n'est lu que pour attribuer une écriture au BIOS
+# ($C00000-$C1FFFF) ou au jeu, et n'est pas consigné ; aucune instruction lue, aucun octet de ROM. Aucun octet de la zone n'est consigné ici : des comptes seulement.
+#
+# CONDITIONS. MAME 0.286, -video none, -sound none, -nothrottle, SDL_MAC_BACKGROUND_APP=1 ; la MV-6F (`neogeo -cart1 <jeu>`, liste
+# logicielle), neogeo.zip de $ROMS recopié avec notre image en sp-s2.sp1 : main 70f73d53be4b7c9b… (avant ce lot, le
+# comportement mesuré n'en dépend pas). Jig : bench/son.lua (les entrées) avec bench/scores.lua (J_AUSSI) : la zone de sauvegarde
+# du jeu — le pointeur de $00010E et la taille de $000112 de l'en-tête (« 68k program header »), lus dans la région de la cartouche
+# —, la zone telle que le BIOS vient de la restaurer (RESTAURE), puis la zone en fin de trame aux trames demandées.
+#   Run A : NVRAM neuve, 6 000 trames, aucune entrée. Mode AES : au premier boot, l'éditeur (TEST tenu 1-260), MODE → AES (« haut »
+#           quatre fois, droite), START : la machine repart en AES, le jeu reçoit sa demande 0, puis la démo.
+#   Run C : la NVRAM de A, MAME relancé, 3 000 trames, aucune entrée — l'arrêt et la remise sous tension.
+#
+# SECTION 1 — CE QUI RESTE AU BOOT SUIVANT. Une ligne par jeu et par mode : la zone, les trames où le BIOS la restaure (au boot
+# avant la démo ; une seconde fois après la demande 1 des jeux à logo en mode AES, et au retour de chaque démo), puis le nombre
+# d'octets que le jeu a changés depuis la dernière restauration, aux trames 1 000 et 2 990. Les 18 jeux du corpus du lot 2026-10-22
+# dont la zone est valide (garou et mslug3 n'en ont pas ; kof2003 et svc ont un en-tête que la région ne rend pas en clair).
+#   VERDICT : en mode AES, chaque jeu retrouve sa zone au boot suivant et n'y change pas plus d'octets qu'en mode MVS — les mêmes
+#   comptes à un ou deux octets près, sauf magdrop2 (38 contre 448 à la trame 2 990 : le mode MVS en change plus, pas le mode AES).
+#   Aucun jeu ne remet sa zone aux valeurs d'usine parce qu'il se croit sur console. C'est l'écart voulu D5 du mode AES
+#   (DECISIONS §11, point 2) : pas de demande 0 à chaque mise sous tension, la backup RAM garde le bloc.
+#   kof98 en AES : sa zone sert de mémoire de travail pendant la demande 1 (le logo), d'où la seconde restauration à 649 ; le BIOS ne
+#   sauve pas au retour de la demande 1, il restaure, et la zone de la trame 2 990 est celle d'avant l'arrêt.
+#
+# SECTION 2 — CE QUE VOIT LE JOUEUR, puzzledp : le score de la scène scores (1ST 1234560 SPX, $100028 = 0012D680120F1708) posé à la
+# trame 1 500 du run A, 7 000 trames ; le même chemin sans la pose ; puis MAME relancé sur chaque NVRAM, 7 000 trames, une empreinte
+# d'image par trame. Trames qui diffèrent entre la NVRAM posée et l'autre : 262 en MVS, 265 en AES, l'écran BEST PLAYERS dès la
+# trame 4 798 ; le 1ST posé est dans la zone à la trame 200 du boot suivant, dans les deux modes. Scène : aes-scores
+# (bench/parcours.sh), 53 cases sur la ligne 1ST, comme la scène scores en MVS.
+#
+# SECTION 3 — LA PLACE SUR UNE CARTE DE 2 KIO. 27 blocs de données de 64 octets, 1 728 octets (card.s, « Memory card »). Les zones
+# des 161 sets du catalogue lus (en-têtes, runs du relevé 2026-10-24-scores-date.tsv) : 96 tiennent sur une carte vide, 65 non —
+# dont 55 de 4 096 octets (nam1975, magdrop2, minasan, wjammers, trally…) et aof (2 048). Copier la zone entière sur la carte ne
+# vaudrait donc que pour un jeu sur trois au plus grand nombre de blocs, et un seul jeu à la fois pour beaucoup d'entre eux.
+#
+# CE QUI EN SUIT pour le lot : rien n'est à combler pour garder les scores d'un boot à l'autre sur notre matériel, dans les deux
+# modes ; aucune sauvegarde des scores sur la carte n'est livrée. Ce qui reste hors mesure : une vraie console AES (aucune image pour
+# elle, D1), et une pile de backup RAM morte.
+section	jeu	ngh	zone	octets	mode	restaurations_trames	changes_depuis_restauration_a_1000	changes_depuis_restauration_a_2990	demandes_boot_2
+1	aof	0044	$108800	2048	mvs	184	0	1	184:01/02
+1	aof	0044	$108800	2048	aes	184	0	1	184:01/02
+1	b2b	0071	$105E20	52	mvs	184,2297	1	0	184:01/02
+1	b2b	0071	$105E20	52	aes	184,2097	1	1	184:01/02
+1	flipshot	0247	$102000	46	mvs	184	0	0	184:01/02
+1	flipshot	0247	$102000	46	aes	184,653	0	0	184:00/01 653:01/02
+1	joyjoy	0021	$100000	256	mvs	184,2085	0	0	184:01/02
+1	joyjoy	0021	$100000	256	aes	184,2510	0	0	184:01/02
+1	kof94	0055	$100000	256	mvs	184	2	4	184:01/02
+1	kof94	0055	$100000	256	aes	184	2	4	184:01/02
+1	kof98	0242	$100000	256	mvs	184	4	4	184:01/02
+1	kof98	0242	$100000	256	aes	184,649	3	3	184:00/01 649:01/02
+1	lbowling	0019	$102CA8	769	mvs	184,2883	0	0	184:01/02
+1	lbowling	0019	$102CA8	769	aes	184,2883	0	0	184:01/02
+1	magdrop2	0221	$100000	4096	mvs	184	33	448	184:01/02
+1	magdrop2	0221	$100000	4096	aes	184	38	38	184:01/02
+1	minasan	0027	$100000	4096	mvs	184,2701	1135	1034	184:01/02
+1	minasan	0027	$100000	4096	aes	184,2701	1137	1034	184:01/02
+1	mslug	0201	$100000	126	mvs	184	1	2	184:01/02
+1	mslug	0201	$100000	126	aes	184	1	2	184:01/02
+1	nam1975	0001	$100000	4096	mvs	184,2079	0	0	184:01/02
+1	nam1975	0001	$100000	4096	aes	184,651	0	0	184:00/01 651:01/02
+1	neomrdo	0207	$100000	52	mvs	184	1	1	184:01/02
+1	neomrdo	0207	$100000	52	aes	184	1	1	184:01/02
+1	puzzledp	0202	$100000	256	mvs	184	35	32	184:01/02
+1	puzzledp	0202	$100000	256	aes	184	35	32	184:01/02
+1	ridhero	0006	$100000	1	mvs	184,1395,2607	0	0	184:01/02
+1	ridhero	0006	$100000	1	aes	184	0	0	184:01/02
+1	samsho2	0063	$100000	256	mvs	184	1	1	184:01/02
+1	samsho2	0063	$100000	256	aes	184	1	1	184:01/02
+1	ssideki4	0215	$10E000	512	mvs	184	1	1	184:01/02
+1	ssideki4	0215	$10E000	512	aes	184	1	1	184:01/02
+1	trally	0038	$10E000	4096	mvs	184,2622	1	1	184:01/02
+1	trally	0038	$10E000	4096	aes	184,2528	1	1	184:01/02
+1	wjammers	0065	$100000	4096	mvs	184,2558	701	67	184:01/02
+1	wjammers	0065	$100000	4096	aes	184,2558	701	67	184:01/02

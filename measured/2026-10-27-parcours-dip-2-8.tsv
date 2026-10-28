@@ -1,0 +1,25 @@
+# Les commutateurs 2, 3 et 8 de la carte (src/c0/io.s, c0.s, ecran.s ; #1445, DECISIONS §21), le 2026-10-27 : les seuils de
+# leurs scènes au parcours du joueur (bench/parcours.sh, --ref-dip28), et ce que l'image mesure en face. MAME 0.286,
+# -video none, -sound none, -nothrottle, NVRAM et cfg neufs par run ; romsets non-merged de $ROMS, seul sp-s2.sp1
+# remplacé (dans ng_mv2f.zip, janshin.zip, kizuna.zip). Les commutateurs posés par J_DSW de bench/son.lua, OFF compris.
+# Le critère de chaque scène est dans l'en-tête de bench/parcours.sh ; ce que font les BIOS de référence, observés,
+# est dans 2026-10-27-dip-2-8.tsv.
+#
+# LES TÉMOINS : notre image au commutateur à OFF (gel0, mj-0, mjo-0, 4p0, ds0), et la référence sur la même machine — le BIOS
+# SNK européen pour le gel (gel-snk, gelb-snk), le japonais pour le panneau de mahjong (mj-b-snk, mj-0-snk ; le défaut de MAME
+# pour janshin) et pour le commutateur 2 (4p-snk, 4p0-snk ; l'européen ne le lit pas). La démo du BIOS SNK part ~560 trames
+# après la nôtre : son écran de kizuna est pris à 1460, le nôtre à 900.
+#
+# Image mesurée : 66c240b7fe755f92…, la construction de ce lot ; les sept scènes lancées seules, PASS, puis dix-neuf scènes
+# existantes que le code touche (boot, remise, SYSTEM_IO), PASS. Mutations : 11, écrites, éprouvées à la passe finale.
+#
+# Seule la colonne « seuil » juge. Unités : trames à 59,185 Hz, cases de 8 × 8 pixels.
+scene	grandeur	seuil	mesure
+dip-gel	figees_min	280	297 sur 297 trames égales à la précédente (BIOS SNK : 297)
+dip-gel	figees_off_max	100	0 sans gel
+dip-gel	reprise_min	400	490 sur 490 égales au run sans gel 300 trames plus tôt
+dip-gel	ym_ratio_min	0.5	2 982 écritures au YM2610 pendant le gel, 3 106 sans gel
+dip-gel-boot	reprise_max	300	la main au jeu 186 trames après le retour à OFF (BIOS SNK : 467)
+dip-mahjong	diff_min	300	398 sur 398 trames diffèrent du run sans B (BIOS SNK : 398)
+dip-mj-off	egales_min	390	398 sur 398 égales au run sans B
+dip-4p	cases_min	5	20 cases allumées contre 13 à OFF (BIOS SNK japonais : 20 contre 13)

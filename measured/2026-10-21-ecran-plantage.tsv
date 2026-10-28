@@ -1,0 +1,29 @@
+# L'ecran de plantage (src/c0/plantage.s) juge sous MAME, le 2026-10-21 : jig bench/plantage.lua,
+# -bios euro, -video none, notre image (sha256 30b3d18a69e83186...). Pas de reference : SNK n'a
+# pas cet ecran.
+#
+# L'INJECTION : a la trame 1500, D0-D7 et A0-A6 recoivent des valeurs reconnaissables ; un JMP
+# vers une adresse impaire (erreur d'adresse) ou $4AFC (instruction illegale) est ecrit en RAM a
+# $10E000 et le PC y est pose. Poser directement un PC impair laissait MAME finir une instruction
+# en file (D4 et SR changes sur mslug) : faux ecarts, d'ou le JMP. Temoin : un tap d'ecriture
+# capture le cadre que le 68000 empile, independamment du gestionnaire.
+#
+# LES CRENEAUX, mesures sur 20 cartouches (2026-10-21-vecteurs-cartouches.tsv) : l'instruction
+# illegale va a $C00414 dans les 20 (le modele « 68k vector table » pour cartouche dit $C0040E,
+# c'est celui « For CD systems » qui dit $C00414) ; $C00426 recoit aussi div/CHK/TRAPV, lignes
+# A/F, vecteur 15 selon les jeux ; lbowling envoie div/CHK/TRAPV a $C0041A ; kof98 et svc
+# envoient le niveau 7 a $C00402.
+jeu	exception	creneau	verifications	relance
+aof	erreur d'adresse	$C0040E	25/25	START trame 1700 -> reset 1707, le jeu repart
+mslug	erreur d'adresse	$C0040E	25/25	START trame 1700 -> reset 1708, mode attract a la trame 2000
+aof	instruction illegale	$C00414	22/22	le jeu repart
+mslug	instruction illegale	$C00414	22/22	le jeu repart
+(boot)	instruction illegale, trame 50	table du BIOS, vecteur 4	22/22	relance
+(boot)	erreur d'adresse, trame 50	table du BIOS, vecteur 3	25/25	relance
+# Verifications : les 16 registres, USP, SR, NGH, et contre le cadre empile le mot d'etat,
+# l'adresse d'acces, IR, SR et PC. Ecran entierement ecrit a la trame 1520.
+# Apres revue (image a9c6a522566e4743...) : drapeau efface avant la relance, jig etendu aux
+# lignes NOM et ENTRY : 27/27 (adresse) et 24/24 (illegale) sur aof et mslug, 0 ecart. Chemin
+# normal non touche, corpus non relance.
+# Non eprouves : erreur de bus, trace, interruption non initialisee ou parasite, les creneaux
+# partages $C0041A et $C00426, la reponse effective du Z80 a la poignee de main, le materiel.

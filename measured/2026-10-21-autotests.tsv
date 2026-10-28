@@ -1,0 +1,53 @@
+# Jig bench/autotests.lua, le 2026-10-21, MAME 0.286, -bios euro, image sha256 9d6248eb..., NVRAM neuve par run. Verdicts lus sur le plan fixe reconstruit.
+# Apres revue (image dc7069600d13cb79...) : defaut retire apres le releve RESULTAT ; sain, work-haut, alias et backup refaits sur aof, memes verdicts, backup 0 octet different, ROUND TIME 61 garde, le jeu demarre.
+run	jeu	defaut	test	duree_trames	ligne	detail
+sain	aof	aucun	WORK	83	 > WORK RAM OK 	 
+sain	aof	aucun	PALETTE	252	 > PALETTE RAM OK 	 
+sain	aof	aucun	VRAM	152	 > VRAM OK 	 
+sain	aof	aucun	BACKUP	22	 > BACKUP RAM OK 	 
+work-bas	aof	DEFAUT work pose adr=108000 bit=3	WORK	12	 > WORK RAM FAIL 	 AT 00108000 WROTE 0000 READ 0008 
+work-bas	aof	DEFAUT work pose adr=108000 bit=3	PALETTE	252	 > PALETTE RAM OK 	 
+work-bas	aof	DEFAUT work pose adr=108000 bit=3	VRAM	152	 > VRAM OK 	 
+work-bas	aof	DEFAUT work pose adr=108000 bit=3	BACKUP	22	 > BACKUP RAM OK 	 
+work-haut	aof	DEFAUT work pose adr=10F800 bit=0	WORK	72	 > WORK RAM FAIL 	 AT 0010F800 WROTE 0000 READ 0001 
+work-haut	aof	DEFAUT work pose adr=10F800 bit=0	PALETTE	252	 > PALETTE RAM OK 	 
+work-haut	aof	DEFAUT work pose adr=10F800 bit=0	VRAM	152	 > VRAM OK 	 
+work-haut	aof	DEFAUT work pose adr=10F800 bit=0	BACKUP	22	 > BACKUP RAM OK 	 
+alias	aof	DEFAUT alias pose adr=104000 bit=0	WORK	51	 > WORK RAM FAIL 	 AT 00104000 WROTE 2000 READ 3000 
+alias	aof	DEFAUT alias pose adr=104000 bit=0	PALETTE	252	 > PALETTE RAM OK 	 
+alias	aof	DEFAUT alias pose adr=104000 bit=0	VRAM	152	 > VRAM OK 	 
+alias	aof	DEFAUT alias pose adr=104000 bit=0	BACKUP	22	 > BACKUP RAM OK 	 
+pal0	aof	DEFAUT pal pose adr=400A00 bit=5	WORK	83	 > WORK RAM OK 	 
+pal0	aof	DEFAUT pal pose adr=400A00 bit=5	PALETTE	48	 > PALETTE RAM FAIL BANK 0 	 AT 00400A00 WROTE 0000 READ 0020 
+pal0	aof	DEFAUT pal pose adr=400A00 bit=5	VRAM	152	 > VRAM OK 	 
+pal0	aof	DEFAUT pal pose adr=400A00 bit=5	BACKUP	22	 > BACKUP RAM OK 	 
+pal1	aof	DEFAUT pal pose adr=401FFC bit=14	WORK	83	 > WORK RAM OK 	 
+pal1	aof	DEFAUT pal pose adr=401FFC bit=14	PALETTE	204	 > PALETTE RAM FAIL BANK 1 	 AT 00401FFC WROTE 0000 READ 4000 
+pal1	aof	DEFAUT pal pose adr=401FFC bit=14	VRAM	152	 > VRAM OK 	 
+pal1	aof	DEFAUT pal pose adr=401FFC bit=14	BACKUP	22	 > BACKUP RAM OK 	 
+vram-bas	aof	DEFAUT vram pose adr=007123 bit=15	WORK	83	 > WORK RAM OK 	 
+vram-bas	aof	DEFAUT vram pose adr=007123 bit=15	PALETTE	252	 > PALETTE RAM OK 	 
+vram-bas	aof	DEFAUT vram pose adr=007123 bit=15	VRAM	33	 > VRAM FAIL 	 AT 00007123 WROTE 0000 READ 8000 
+vram-bas	aof	DEFAUT vram pose adr=007123 bit=15	BACKUP	22	 > BACKUP RAM OK 	 
+vram-haut	aof	DEFAUT vram pose adr=008710 bit=1	WORK	83	 > WORK RAM OK 	 
+vram-haut	aof	DEFAUT vram pose adr=008710 bit=1	PALETTE	252	 > PALETTE RAM OK 	 
+vram-haut	aof	DEFAUT vram pose adr=008710 bit=1	VRAM	36	 > VRAM FAIL 	 AT 00008710 WROTE 0000 READ 0002 
+vram-haut	aof	DEFAUT vram pose adr=008710 bit=1	BACKUP	22	 > BACKUP RAM OK 	 
+bram	aof	DEFAUT bram pose adr=D01234 bit=7	WORK	83	 > WORK RAM OK 	 
+bram	aof	DEFAUT bram pose adr=D01234 bit=7	PALETTE	252	 > PALETTE RAM OK 	 
+bram	aof	DEFAUT bram pose adr=D01234 bit=7	VRAM	152	 > VRAM OK 	 
+bram	aof	DEFAUT bram pose adr=D01234 bit=7	BACKUP	10	 > BACKUP RAM FAIL 	 AT 00D01234 WROTE FFFF READ FF7F 
+kof98	kof98	aucun	WORK	83	 > WORK RAM OK 	 
+kof98	kof98	aucun	PALETTE	252	 > PALETTE RAM OK 	 
+kof98	kof98	aucun	VRAM	152	 > VRAM OK 	 
+kof98	kof98	aucun	BACKUP	22	 > BACKUP RAM OK 	 
+# sain f779 BRAM avant=0692DBDD apres=0692DBDD octets_differents=0
+# work-bas f708 BRAM avant=0692DBDD apres=0692DBDD octets_differents=0
+# work-haut f768 BRAM avant=0692DBDD apres=0692DBDD octets_differents=0
+# alias f747 BRAM avant=0692DBDD apres=0692DBDD octets_differents=0
+# pal0 f575 BRAM avant=0692DBDD apres=0692DBDD octets_differents=0
+# pal1 f731 BRAM avant=0692DBDD apres=0692DBDD octets_differents=0
+# vram-bas f660 BRAM avant=0692DBDD apres=0692DBDD octets_differents=0
+# vram-haut f663 BRAM avant=0692DBDD apres=0692DBDD octets_differents=0
+# bram f767 BRAM avant=0692DBDD apres=0692DBDD octets_differents=0
+# kof98 f779 BRAM avant=AED37FAC apres=AED37FAC octets_differents=0

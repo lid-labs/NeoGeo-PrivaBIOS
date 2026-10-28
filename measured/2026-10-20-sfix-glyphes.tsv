@@ -1,0 +1,41 @@
+# Les glyphes du SFIX standard, tels que le BIOS SNK les emploie, le 2026-10-20. MAME 0.260,
+# -bios euro, mslug, menu de test (Service Mode tenu aux trames 700-715), trame 900. Le plan fixe
+# ($7000-$74FF) est reconstruit par bench/fixmap.lua depuis les ecritures du 68000 au LSPC,
+# puis compare au texte affiche (capture de la meme trame). Aucun octet du SFIX ni du BIOS de
+# reference n'est lu : seuls des numeros de tuile ecrits en VRAM, et l'ecran.
+#
+# Une entree du plan fixe : palette (4 bits hauts), tuile (12 bits bas).
+#
+# 1. POLICE 8x16, en deux tuiles empilees : moitie haute = tuile $100 + code ASCII, moitie basse
+#    = tuile $200 + code ASCII, palette 0. Releve sur tout le texte du menu :
+#    "HARDWARE TEST", "SETTING UP THE HARD DIP", "... SOFT DIP", "BOOK KEEPING", "... CODE
+#    NUMBER", "... CALENDAR", "EXIT", la date "10/20/26" et "TUE" (horloge du jour) : les
+#    majuscules de ces mots, les chiffres 0, 1, 2 et 6, "/" et l'espace ($120/$220).
+# 2. POLICE 8x8 : tuile = code ASCII, palette 0 ; un seul caractere au releve, "5" ($035).
+# 3. Le fond du plan fixe est la tuile $020, palette 0.
+# 4. La fleche du curseur : tuiles $111/$211, palette 1 (rouge a l'ecran).
+#
+# Non mesure : les caracteres absents du menu (autres chiffres, ponctuation, minuscules). La page
+# "SFIX ROM" du NeoGeo Development Wiki en montre un rendu (banques 0 a 11) ou figurent aussi des
+# minuscules ; leur presence et leur place sont SUPPOSE tant qu'aucun releve ne les confirme.
+#
+# Une ligne par ligne d'ecran portant du texte : ligne du plan fixe (0-31), colonne de debut,
+# texte, tuile de la premiere lettre en haut puis en bas.
+ligne	colonne	texte	haut	bas
+5	10	HARDWARE TEST	$148	$248
+8	10	SETTING UP THE HARD DIP	$153	$253
+11	10	SETTING UP THE SOFT DIP	$153	$253
+14	10	BOOK KEEPING	$142	$242
+17	10	SETTING UP THE CODE NUMBER	$153	$253
+20	10	SETTING UP THE CALENDAR	$153	$253
+23	10	EXIT	$145	$245
+26	14	10/20/26	$131	$231
+26	24	TUE	$154	$254
+#
+# COMPLEMENT, le meme jour, sur NOTRE ecran de boot (src/c0/ecran.s), MAME 0.260, -bios euro avec
+# notre image, mslug, trame 50, SFIX de la carte de MAME. Captures non versionnees.
+# 5. La regle ASCII vaut aussi pour les minuscules c d e i o p r s v x, le point, les chiffres 3 a
+#    9, J Q V Y Z, ":", "-", "?" et "!" : chacun s'y lit a sa place. Les autres minuscules n'ont
+#    pas ete vues ; aucun accent n'a ete essaye.
+# 6. Les index de couleur des glyphes 8x16 : le trait est l'index 1, le fond de la case l'index 2 ;
+#    aucun pixel aux index 3 a 15 (capture d'essai : entree 1 rouge, 2 verte, 3 a 15 bleues).

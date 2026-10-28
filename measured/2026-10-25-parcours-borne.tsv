@@ -1,0 +1,36 @@
+# Les réglages de la borne (FREE PLAY, NO CONTINUE, DEMO SOUND ; src/c0/reglages.s, io.s, le sous-écran CABINET SETTINGS de
+# dip.s), le 2026-10-25 : les seuils de leurs scènes au parcours du joueur (bench/parcours.sh, --ref-borne), et ce que l'image
+# mesure en face. MAME 0.286, -video none, -sound none, -nothrottle, -wavwrite pour le son mixé, NVRAM par run, romsets
+# non-merged de $ROMS, seul sp-s2.sp1 remplacé. Le critère de chaque scène est dans l'en-tête de bench/parcours.sh ;
+# les mesures du lot (ce que fait le commutateur de la carte, le continue, la cellule de la démo muette) sont dans
+# 2026-10-25-free-play.tsv.
+#
+# LES TÉMOINS. Free play : le BIOS SNK (-bios euro, romset d'origine) avec le commutateur « Free Play » de la carte
+# (J_DSW=1:40), les entrées décalées de 567 trames (sa demande 2 à la trame 751, la nôtre à 184 après relance) ; la partie
+# part à la trame de l'appui sous les deux, mais pas à la même phase : les trames égales se comptent au meilleur décalage à
+# ± 3 trames. Continue et démo : notre image sur le même chemin sans le réglage (partie2, bo-cont, bo-dm0 relancé depuis
+# bo-set-0, qui ouvre et ferme CABINET SETTINGS sans rien changer). Mode AES : bo-aes-cont, relancé depuis aes-set.
+#
+# Les scènes bo-ecran et bf-borne n'ont pas de seuil : du texte exact, et chaque trame égale au témoin libre.
+#
+# Seule la colonne « seuil » juge. Image mesurée : cdaca6b7a397ee5f…, l'image finale du lot (les retouches de commentaires
+# de src/c0 ne changent aucun octet) ; mesures identiques dans la non-régression complète du 2026-10-25, un cfg MAME par
+# run. Unités : trames à 59,185 Hz, RMS du son mixé en échantillons 16 bits, rapports au témoin.
+scene	grandeur	seuil	mesure
+bo-free-play	temoin_min	550	665 sur 815 trames de démo égales à la démo SNK en free play (« PUSH 1P OR 2P START BUTTON »)
+bo-free-play	autre_max	450	304 égales à notre démo sans réglage (« INSERT COIN » clignote : ses trames éteintes sont communes)
+bo-free-play	snk_min	800	1 123 sur 2 099 trames après le START égales au BIOS SNK en free play
+bo-free-play	cases_min	500	1 064 cases sur 1 120 diffèrent de la démo à la trame 1400
+bo-fp-p2	snk_min	800	1 095 sur 2 099 égales au BIOS SNK en free play (START P2 en démo : les deux joueurs)
+bo-fp-p2	p1_max	650	418 égales à un START P1 seul
+bo-fp-joint	snk_min	800	1 062 sur 1 099 égales au BIOS SNK en free play (P2 se joint sans pièce)
+bo-fp-joint	seul_max	200	2 égales à la partie sans P2
+bo-no-continue	fin_min	2000	2 300 sur 2 300 égales à partie2 (game over, titre CREDIT 01)
+bo-no-continue	cont_max	200	0 égales au continue pris (bo-cont) ; les deux témoins entre eux : 0
+bo-demo-muette	demo_max	0.05	démo 600-2989 : RMS 0 contre 2 689, 0 key-on contre 792 ; après la partie (10007-11406) : 0 contre 2 659
+bo-demo-muette	keyon_max	10	0 et 0
+bo-demo-muette	titre_min	0.8	titre après la pièce : RMS 2 125 contre 2 157 (0,99), 88 key-on contre 89
+bo-demo-muette	partie_min	0.9	partie : RMS 2 212 contre 2 212 (1,00)
+bo-aes	cont_min	1100	1 296 sur 1 300 égales au continue pris sans réglage ; BORNE à $80 (bits 0-2 masqués)
+bo-aes	fin_max	200	3 égales au game over (aes-histoire) ; les deux témoins entre eux : 3
+bo-aes	demo_min	0.9	démo 300-989 : RMS 2 396 contre 2 396 (1,00), DEMO SOUND OFF inerte en AES

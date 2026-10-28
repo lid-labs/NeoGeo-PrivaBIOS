@@ -1,0 +1,37 @@
+# La matrice de la couche 1 APRES le code pays du descripteur ($C00401 : $00 Japon -> $02
+# Europe), le 2026-10-16. L'image tient la place du BIOS euro sur tout le banc, et la
+# reference euro publie $10FD83 = $02 ; les jeux lisent BIOS_COUNTRY_CODE a leur init et
+# choisissent leur chemin dessus.
+# flipshot se debloque (joue, pose 0 — il figeait a 2300). kof98 et neomrdo restent, chacun
+# documente : kof98 s'allume au tap causal pays mais reste "joue vifs 0 ~59 %" a la matrice ;
+# neomrdo a une SECONDE cause, mesuree — la piece des trames 0-8 du plan, acceptee pendant
+# l'init du jeu (notre boot est instantane), le noircit ; piece decalee a la trame 30, il
+# joue. La reference arme $10FEE1 (FRAME_SKIP) a chaque remise ($FF une trame puis $0A
+# decompte) et ne sonne COIN_SOUND que bien apres la piece ; notre remise laisse FRAME_SKIP
+# a 0 et COIN_SOUND part a la trame 1. Lot suivant.
+# Temoins (17) : 13/17, stables. Sur les 20 jeux du releve : 15 jouent.
+# Seules les lignes sprixe sont relevees : les autres BIOS sont inchanges et le banc est
+# deterministe (NVRAM isolee par run).
+#
+# Image : la branche fix/bios-code-pays, sha256 5c0d8e5bdd7e4161…
+jeu	bios	verdict	vifs_max	vitesse_pct	controle
+aof	sprixe	joue (plus longue pose 0 tr.)	68096	2145.11	ok
+garou	sprixe	FIGE dès 100 (3000 trames)	0	65.44	ok
+joyjoy	sprixe	joue (plus longue pose 0 tr.)	43264	2066.35	ok
+kof2003	sprixe	joue (plus longue pose 0 tr.)	60765	1916.90	ok
+kof94	sprixe	joue (plus longue pose 0 tr.)	66655	1739.26	ok
+kof98	sprixe	joue (plus longue pose 0 tr.)	0	59.10	ok
+lbowling	sprixe	joue (plus longue pose 0 tr.)	64260	2108.07	ok
+mslug	sprixe	joue (plus longue pose 0 tr.)	66026	2141.52	ok
+mslug3	sprixe	FIGE dès 100 (2500 trames)	0	59.47	ok
+nam1975	sprixe	joue (plus longue pose 0 tr.)	27604	2065.72	ok
+puzzledp	sprixe	joue (plus longue pose 0 tr.)	71680	2170.32	ok
+ridhero	sprixe	joue (plus longue pose 0 tr.)	71680	1985.95	ok
+samsho2	sprixe	joue (plus longue pose 0 tr.)	67829	2060.18	ok
+ssideki4	sprixe	joue (plus longue pose 0 tr.)	71197	1927.18	ok
+svc	sprixe	FIGE dès 100 (3400 trames)	0	2651.84	ok
+trally	sprixe	joue (plus longue pose 0 tr.)	71490	2240.29	ok
+wjammers	sprixe	joue (plus longue pose 100 tr.)	71680	1880.93	ok
+flipshot	sprixe	joue (plus longue pose 0 tr.)	71528	2000.88	ok
+neomrdo	sprixe	FIGE dès 100 (3400 trames)	0	2062.10	ok
+magdrop2	sprixe	joue (plus longue pose 100 tr.)	71680	1952.37	ok

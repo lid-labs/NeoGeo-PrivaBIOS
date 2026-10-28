@@ -1,0 +1,39 @@
+# Les garanties sur les défauts d'UniBIOS (ATTENTES §2 ; #1448, DECISIONS §23), le 2026-10-27 : les seuils de leurs scènes
+# au parcours du joueur (bench/parcours.sh, --ref-garanties), et ce que l'image mesure en face. MAME 0.286, -video none,
+# -sound none (le son par -wavwrite), -nothrottle, NVRAM et cfg neufs par run ; romsets non-merged de $ROMS, seul
+# sp-s2.sp1 remplacé (aof.zip, neogeo.zip). Le critère de chaque scène est dans l'en-tête de bench/parcours.sh.
+#
+# boot-graphismes : la fixture « brouille » (C ROM et S ROM d'aof remplacées par un bruit de graine fixe) et la VRAM et
+# les palettes bruitées à la mise sous tension (bench/vram-hasard.lua). Le témoin est UniBIOS 4.0 sur les mêmes deux
+# romsets : son logo NEO·GEO, dessiné avec les graphismes de la cartouche, se brouille sous MAME (le défaut connu
+# d'ATTENTES §2). Les trames d'avant la première palette du BIOS (2 et 3 ici) diffèrent : le bruit de la mise sous
+# tension, que le BIOS n'a pas encore effacé ; elles ne sont pas jugées.
+# ms-son-slot2 : le témoin est le BIOS SNK européen sur la même MV-6F (aof en -cart2). UniBIOS 4.0 n'y est pas muet sous
+# MAME (RMS 2 378, key-on 933, relevé du lot) : le défaut du matériel ne se reproduit pas ici, la scène fixe notre
+# comportement.
+# dip-vierge : les NVRAM posées par J_BRAM (VIERGE de parcours.sh) ; le témoin est le même chemin sur une NVRAM neuve.
+# Hors de la scène, même image, NVRAM de vierge-set-c relancée SANS l'éditeur (pièce 900, START 1000) : GAME_DIP vaut
+# 9999 9999 FFFF 0F0F… à la trame 300, tel que le bloc, et la partie de la trame 3000 n'est pas celle d'une NVRAM neuve
+# (61 105 pixels diffèrent : texte japonais en haut de l'écran, chronomètre à 98, un autre adversaire), alors que le même
+# chemin sur une NVRAM de même histoire sans les octets posés lui est égal à 0 pixel : `_relire_dip` (c0.s) ne valide rien.
+# Corrigé le même jour sur décision de l'utilisateur (DECISIONS §23 pt 5, `_dip_valider`) : scène dip-corrompue.
+# Depuis, vierge-n et vierge-c reçoivent un GAME_DIP déjà valide, et les mutations vierge-inutilises et
+# vierge-sans-validation y survivent (passe finale du 2026-10-27). D'où vierge-m : mslug, bloc dans la zone banquée, que
+# `_dip_valider` ne valide pas ; sans seuil, le bloc enregistré « FFFF FFFF 03FF 0003 0001 0100 0000 0000 » comme sur
+# une NVRAM neuve, image c33aaf5c… ; les deux mutations y tombent (bloc « 9999 9999 … 000F », éditeur à 250 différent).
+#
+# Image mesurée : 0844a407755761780877…, la construction de ce lot ; les trois scènes lancées seules, PASS, puis vingt et une
+# scènes existantes qui passent par l'éditeur du boot ou l'écran de boot, PASS. Sur l'image d'avant (66c240b7…), dip-vierge
+# sort FAIL : vierge-c enregistre « 9999 9999 41FF 0101 0002 0100 0000 000F ». Mutations : 5, écrites, éprouvées à la passe
+# finale.
+#
+# Seule la colonne « seuil » juge. Unités : trames à 59,185 Hz, cases de 8 × 8 pixels.
+scene	grandeur	seuil	mesure
+boot-graphismes	differ_max	0	0 trame sur 185 (trames 4-188, la remise à 188)
+boot-graphismes	jeu_min	400	493 sur 500 (trames 193-692)
+boot-graphismes	uni_min	100	155 sur 190 (UniBIOS 4.0, trames 60-249 ; son logo dès la trame 95)
+ms-son-slot2	rms_ratio_min	0.5	1.21 (RMS 2 955 contre 2 433 sous SNK, trames 600-3600)
+ms-son-slot2	keyon_ratio_min	0.5	1.14 (1 026 contre 898)
+dip-vierge	cases_max	0	0 case pour vierge-n comme pour vierge-c
+dip-corrompue	egales_min	1990	2 000 sur 2 000 (image bc35db51…, le lot de la relecture, DECISIONS §23 pt 5)
+jukebox-veille	rms_ratio_min	0.9	1.00 (RMS 3 254 contre 3 254, trames 7700-7990 ; image ae12ee8a…, DECISIONS §25)

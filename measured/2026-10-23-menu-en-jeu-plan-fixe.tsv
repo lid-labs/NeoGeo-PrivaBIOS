@@ -1,0 +1,66 @@
+# Le plan fixe et les palettes du menu en jeu (src/c0/menu.s), le 2026-10-23. MAME 0.286, -bios
+# euro, -video none, NVRAM neuve.
+# IMAGE DE LA CORRECTION : branche fix/bios-menu-en-jeu-son (menu.s sans $01, REG_BRDFIX,
+# REG_CRTFIX ni $03), sha256 528b7e9c7120bdabf29747eaa7993efdb2398df5a177062e1fb7314d1a60716a,
+# identique a l'octet au prototype mesure ci-dessous.
+#
+# A. LA TUILE $020 ET LES INDEX DES GLYPHES DANS LA S ROM DE LA CARTOUCHE. Captures du jig versionne
+# bench/police-cartouche.lua (trame 1200, attract, 0 bascule de banque de palettes dans les 22 runs),
+# decodees a nouveau : la case de l'espace (8x8, tuile $020) et les 41 cases 8x8 de la mire,
+# index de couleur par pixel. Aucun octet de ROM lu.
+jeu	tuile_020_srom	tuile_020_sfix	index_des_41_glyphes_8x8_srom
+aof	64 px index 2	64 px index 2	1 : 1014 px, 2 : 1610 px
+b2b	64 px index 2	64 px index 2	1 : 1014, 2 : 1610
+flipshot	64 px index 2	64 px index 2	1 : 1014, 2 : 1610
+garou	64 px index 2	64 px index 2	1 : 1014, 2 : 1610
+joyjoy	64 px index 2	64 px index 2	1 : 1014, 2 : 1610
+kof2003	64 px index 2	64 px index 2	2 : 2624 (aucun trait, comme le releve du 2026-10-21)
+kof94	64 px index 2	64 px index 2	1 : 1014, 2 : 1610
+kof98	64 px index 2	64 px index 2	1 : 1014, 2 : 1610
+lbowling	64 px index 2	64 px index 2	1 : 1014, 2 : 1610
+magdrop2	64 px index 2	64 px index 2	1 : 1014, 2 : 1610
+minasan	64 px index 2	64 px index 2	1 : 1014, 2 : 1610
+mslug	64 px index 2	64 px index 2	1 : 1014, 2 : 1610
+mslug3	64 px index 2	64 px index 2	1 : 1014, 2 : 1610
+nam1975	64 px index 2	64 px index 2	1 : 1014, 2 : 1610
+neomrdo	64 px index 2	64 px index 2	1 : 1014, 2 : 1610
+puzzledp	64 px index 2	64 px index 2	1 : 1014, 2 : 1610
+ridhero	64 px index 2	64 px index 2	1 : 1014, 2 : 1610
+samsho2	64 px index 2	64 px index 2	1 : 1014, 2 : 1610
+ssideki4	64 px index 2	64 px index 2	1 : 1014, 2 : 1610
+svc	64 px index 2	64 px index 2	1 : 1014, 2 : 1610
+trally	64 px index 2	64 px index 2	1 : 1013, 2 : 1611
+wjammers	64 px index 2	64 px index 2	1 : 1014, 2 : 1610
+# Sous la S ROM, la tuile $020 est pleine d'index 2 dans les 22 jeux, et les 41 glyphes n'ont que
+# les index 1 (trait) et 2 (fond) : aucun pixel transparent. Un cadre opaque se dessine donc sans
+# REG_BRDFIX, et deux entrees par palette (1 et 2) suffisent au texte et au fond.
+# Non mesure : le « > » du curseur ($03E), hors de la mire. Lisible a l'oeil sur les captures du
+# prototype (mslug, aof, kof98), pas plus.
+#
+# B. LE « PAVE VERT » DE MSLUG n'est pas un emprunt de palette. Menu ouvert (image trame 3080,
+# notre image 51bba42d) : un aplat vert a droite du cadre, sur les colonnes 34-35, lignes 8-11
+# du plan fixe. Ces cases portent, ecrites par le jeu, la palette 8 et les tuiles
+# $90E-$90F, $91E-$91F, $92E-$92F, $93E-$93F (le « GO! » du jeu, qu'on voit sous UniBIOS ou
+# apres la reprise, dessine sur le plan fixe). Lues dans le SFIX sous REG_BRDFIX, elles rendent un
+# aplat. Les palettes prises par le menu ce jour-la : 15, 13, 12 ; la 8 n'est pas touchee.
+#
+# C. LES PALETTES 1-15 DES SPRITES DU JEU, en partie (VRAM de MAME, SCB3 pour les sprites actifs,
+# hauteur du chef de chaine pour les sprites colles, SCB1 pour la palette de chaque tuile).
+jeu	trame	sprites_actifs	palettes_1_15_des_sprites	palettes_du_plan_fixe	libres_des_deux
+mslug	2300	27	aucune	0 2 5 6 7 14	1 3 4 8 9 10 11 12 13 15
+mslug	2700	27	aucune	0 2 3 5 6 7 14	1 4 8 9 10 11 12 13 15
+mslug	3000	27	aucune	0 2 5 6 7 8 14	1 3 4 9 10 11 12 13 15
+aof	2300	52	aucune	0 2 4 9 13	1 3 5 6 7 8 10 11 12 14 15
+aof	2700	55	aucune	0 2 4 9 13	1 3 5 6 7 8 10 11 12 14 15
+aof	3000	53	aucune	0 2 4 9 13	1 3 5 6 7 8 10 11 12 14 15
+kof98	2300	70	0 seulement	0 1	2 a 15
+kof98	2700	60	0 seulement	0 1 2 3 5 6 8 13 14	4 7 9 10 11 12 15
+kof98	3000	63	0 seulement	0 1 2 3 5 6 8 13 14	4 7 9 10 11 12 15
+# Dans ces neuf etats, aucune palette prise par .Lchoisir_palettes (libres du plan fixe) n'est
+# employee par un sprite. Ca ne prouve pas qu'aucun jeu ne le fasse.
+#
+# D. LE PROTOTYPE (copie jetable de src/c0, sha256 528b7e9c7120bdab..., menu.s sans poignee de
+# main ni REG_BRDFIX / REG_CRTFIX / $03) : images du menu ouvert, mslug (trame 3080), aof (2380),
+# kof98 (2380) : HUD du jeu intact hors du cadre (scores, BOMB, minuterie, INSERT COIN), plus de
+# pave vert, texte du menu lisible dans la police de la cartouche, curseur « > » lisible.
+# Captures non versionnees.

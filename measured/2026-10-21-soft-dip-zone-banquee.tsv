@@ -1,0 +1,41 @@
+# BIOS_GAME_DIP a la remise, premier boot, sous la reference et sous notre image, le 2026-10-21.
+# MAME 0.286, -bios euro, pays 02, NVRAM neuve, jig bench/softdip.lua : GAME_DIP releve a la
+# premiere trame finie avec le PC dans la cartouche ; un tap d'ecriture sur $10FD84-$10FD93 compte
+# les ecrivains (seul le BIOS y ecrit avant ce point, des deux cotes). Valeurs de RAM ecrites par
+# la reference ; pointeurs lus dans l'en-tete des cartouches. Aucun PC ni octet du BIOS de reference n'est
+# consigne : le PC n'est lu que pour situer la remise et attribuer les ecritures.
+#
+# AVANT la correction (image 3a1301206c73bbf9...) : 21/22 egaux, seul mslug differe (pointeur
+# $2783D0, zone banquee) : seize 00 chez nous, refus de tout pointeur > $0FFFE0.
+# APRES (image 81328af6cabdf64f...) : 22/22 egaux. Les 21 autres pointeurs sont sous $0A8E60 (kof98).
+#
+# LA BANQUE : lue telle qu'en place. Lu dans « Bankswitching » : au reset, les verrous de banque
+# reviennent a 0. Mesure sur mslug, sous la reference comme chez nous : les 32 octets lus a $2783D0
+# a la trame 1 et a la remise sont ceux du MiB a l'offset $100000 de la P-ROM, celui que MAME sert
+# au boot. Bornes eprouvees : $0FFFE0, $2FFFE0, $2783D0 acceptes ; $0FFFE1, $2FFFE1 refuses.
+#
+# mslug, vies ($100377) avec les memes entrees : sous la reference 3 au depart, puis 2, 1, 0, FF aux
+# trames 2200, 2640, 3120, 3860 ; apres correction identique trame pour trame ; avant 0 puis FF, FE...
+jeu	pays	pointeur	banque_snk	banque_nous	remise_snk	remise_nous	ecr_snk(bios/cart)	ecr_nous(bios/cart)	game_dip_snk	game_dip_nous	egal
+aof	02	0004EA	-	-	751	184	54/0	24/0	FF FF FF FF 3C FF 01 01 00 02 01 00 00 00 00 00	FF FF FF FF 3C FF 01 01 00 02 01 00 00 00 00 00	oui
+b2b	02	00048C	-	-	750	184	54/0	24/0	FF FF FF FF FF FF 00 03 00 00 00 00 00 00 00 00	FF FF FF FF FF FF 00 03 00 00 00 00 00 00 00 00	oui
+flipshot	02	000586	-	-	281	183	45/0	24/0	FF FF FF FF FF FF 03 01 01 00 01 01 00 00 00 00	FF FF FF FF FF FF 03 01 01 00 01 01 00 00 00 00	oui
+garou	02	0005E8	-	-	281	183	45/0	24/0	FF FF FF FF 3C FF 01 00 00 03 00 01 01 04 01 00	FF FF FF FF 3C FF 01 00 00 03 00 01 01 04 01 00	oui
+joyjoy	02	000266	-	-	750	184	54/0	24/0	FF FF FF FF FF 64 00 00 03 00 00 00 00 00 00 00	FF FF FF FF FF 64 00 00 03 00 00 00 00 00 00 00	oui
+kof2003	02	060400	-	-	283	184	54/0	24/0	FF FF FF FF FF FF 02 00 00 03 00 00 01 03 00 01	FF FF FF FF FF FF 02 00 00 03 00 00 01 03 00 01	oui
+kof94	02	04F3D0	-	-	281	183	45/0	24/0	FF FF FF FF FF FF 02 01 00 00 03 03 01 01 00 00	FF FF FF FF FF FF 02 01 00 00 03 03 01 01 00 00	oui
+kof98	02	0A8E60	-	-	281	183	45/0	24/0	FF FF FF FF FF FF 02 01 00 00 03 01 05 01 02 00	FF FF FF FF FF FF 02 01 00 00 03 01 05 01 02 00	oui
+lbowling	02	00043A	-	-	750	184	54/0	24/0	FF FF FF FF FF FF 00 03 00 03 05 03 01 00 00 00	FF FF FF FF FF FF 00 03 00 03 05 03 01 00 00 00	oui
+magdrop2	02	00060C	-	-	281	183	45/0	24/0	FF FF FF FF FF FF 00 03 00 00 00 00 02 02 01 00	FF FF FF FF FF FF 00 03 00 00 00 00 02 02 01 00	oui
+minasan	02	000200	-	-	752	183	54/0	24/0	FF FF FF FF FF FF 00 03 00 00 00 00 00 00 00 00	FF FF FF FF FF FF 00 03 00 00 00 00 00 00 00 00	oui
+mslug	02	2783D0	100000	100000	281	183	45/0	24/0	FF FF FF FF 03 FF 01 03 00 01 01 00 00 00 00 00	FF FF FF FF 03 FF 01 03 00 01 01 00 00 00 00 00	oui
+mslug3	02	002E90	-	-	281	183	45/0	24/0	FF FF FF FF 03 FF 01 03 00 01 01 02 00 00 00 00	FF FF FF FF 03 FF 01 03 00 01 01 02 00 00 00 00	oui
+nam1975	02	000648	-	-	285	184	54/0	24/0	FF FF FF FF FF 64 00 00 04 00 06 02 00 00 00 00	FF FF FF FF FF 64 00 00 04 00 06 02 00 00 00 00	oui
+neomrdo	02	000626	-	-	750	184	54/0	24/0	FF FF FF FF 03 FF 00 03 00 00 00 00 00 00 00 00	FF FF FF FF 03 FF 00 03 00 00 00 00 00 00 00 00	oui
+puzzledp	02	00114C	-	-	751	184	54/0	24/0	FF FF FF FF FF 64 03 00 00 00 00 00 00 00 00 00	FF FF FF FF FF 64 03 00 00 00 00 00 00 00 00 00	oui
+ridhero	02	000540	-	-	750	183	54/0	24/0	03 00 03 00 FF 64 00 00 03 00 00 00 00 00 00 00	03 00 03 00 FF 64 00 00 03 00 00 00 00 00 00 00	oui
+samsho2	02	000532	-	-	750	184	54/0	24/0	FF FF FF FF FF FF 00 03 01 00 00 01 00 00 00 00	FF FF FF FF FF FF 00 03 01 00 00 01 00 00 00 00	oui
+ssideki4	02	000512	-	-	281	183	45/0	24/0	FF FF FF FF FF FF 02 02 00 03 00 00 00 01 00 00	FF FF FF FF FF FF 02 02 00 03 00 00 00 01 00 00	oui
+svc	02	0A03E8	-	-	281	183	45/0	24/0	FF FF FF FF FF FF 02 00 01 03 01 01 00 00 00 00	FF FF FF FF FF FF 02 00 01 03 01 01 00 00 00 00	oui
+trally	02	00A0B8	-	-	281	183	45/0	24/0	FF FF FF FF FF 64 00 00 02 03 00 00 00 00 00 00	FF FF FF FF FF 64 00 00 02 03 00 00 00 00 00 00	oui
+wjammers	02	000498	-	-	281	183	45/0	24/0	FF FF FF FF 1E FF 00 03 00 00 00 00 00 00 00 00	FF FF FF FF 1E FF 00 03 00 00 00 00 00 00 00 00	oui

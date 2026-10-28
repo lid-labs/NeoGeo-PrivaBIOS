@@ -1,0 +1,175 @@
+# Les commutateurs de la carte — 7 « Free Play » et 1 « Setting Mode » — et le geste sans bouton TEST : ce que font le BIOS SNK
+# et UniBIOS, mesuré le 2026-10-25 par observation avant d'écrire la correction (src/c0/io.s, dip.s, menu.s), et ce que fait
+# notre image avant (n°12, sha256 e5b4ea94d82df51a…, = la construction de origin/main f30ba999) et après : « ce lot » est
+# fce2054a6308e20d… pour les sections 1 à 3 (le free play, inchangé depuis), et l'image finale 981cd2aff816d11b… pour la
+# section 4 (l'avertissement ajouté ensuite).
+# Retour de l'essai sur matériel (MV-2F consolisée, sans monnayeur ni bouton TEST, commutateur 7 à ON) : aucune entrée prise
+# en jeu, et aucun moyen d'ouvrir le menu.
+#
+# OUTIL : MAME 0.286, -video none, -sound none, -nothrottle, SDL_MAC_BACKGROUND_APP=1, un -cfg_directory et un
+# -nvram_directory neufs par run ; romsets non-merged de $ROMS ; jig bench/son.lua (J_DSW pose les commutateurs par
+# les champs du port :DSW à la trame donnée, J_SUIVRE relève des cellules documentées de la RAM). Machines : `ng_mv2f -cart1
+# <jeu>` (MV-2F) et `neogeo -cart1 <jeu>` (MV-6F), -bios euro (SNK) ou unibios40 (UniBIOS 4.0). Notre image substituée à
+# sp-s2.sp1 dans ng_mv2f.zip, neogeo.zip et le romset du jeu (la MV-2F lit son propre ng_mv2f.zip avant neogeo.zip : sans
+# lui, le BIOS SNK était chargé, faute repérée par l'absence de WRONG CHECKSUMS et ses runs écartés).
+# MÉTHODE. On juge l'image (empreinte par trame, captures) ; en complément BIOS_USER_MODE ($10FDAF),
+# BIOS_START_FLAG ($10FDB4), le crédit ($D00034), BIOS_PLAYER_MOD1-2 ($10FDB6), lus dans « BIOS RAM locations » et « Backup
+# RAM ». Aucune instruction lue ni tracée, aucun octet de ROM lu ; le jig ne lit le PC que pour attribuer une écriture au BIOS ou au
+# jeu, et ne le consigne pas.
+#
+# 0. LE COMMUTATEUR. Source de MAME (src/mame/neogeo/neogeo.cpp, INPUT_PORTS_START(neogeo)) : PORT_DIPNAME( 0x40, 0x40,
+#    DEF_STR( Free_Play ) ) PORT_DIPLOCATION("SW:7"), Off = $40, On = $00 ; PORT_DIPNAME( 0x01, 0x01, "Setting Mode" ) SW:1,
+#    Off = $01, On = $00 ; lus à $300000-$300001 (« DSW »). Wiki, « Memory mapped registers » : REG_DIPSW $300001, actif bas,
+#    bit 6 « Freeplay », bit 0 « Settings mode ». J_DSW=1:40 met donc le 7 à ON, 1:01 le 1, 1:00 tout à OFF.
+#
+# 1. FREE PLAY AU COMMUTATEUR, NVRAM neuve, aucune pièce. Témoin : la démo au commutateur à ON, sans START. Crédit relevé de la
+#    trame 300 à 2400 (avant 300, les motifs du test mémoire, piège 7 de docs/BENCH.md).
+section	machine	bios	jeu	entrees	constat
+1	ng_mv2f	snk	aof	ON, START 1600	la partie part : mode 2, $10FDB4 $01, crédit 0, 798/800 trames ≠ démo à ON sans START
+1	ng_mv2f	snk	aof	ON, START P2 1600	la partie part : mode 2, $10FDB4 $03, crédit 0, 798/800 trames ≠ démo à ON sans START
+1	ng_mv2f	snk	aof	OFF, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 512/800 trames ≠ démo à ON sans START
+1	ng_mv2f	snk	samsho4	ON, START 1600	la partie part : mode 2, $10FDB4 $01, crédit 0, 798/800 trames ≠ démo à ON sans START
+1	ng_mv2f	snk	samsho4	ON, START P2 1600	la partie part : mode 2, $10FDB4 $03, crédit 0, 798/800 trames ≠ démo à ON sans START
+1	ng_mv2f	snk	samsho4	OFF, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 402/800 trames ≠ démo à ON sans START
+1	ng_mv2f	snk	ssideki	ON, START 1600	la partie part : mode 2, $10FDB4 $01, crédit 0, 799/800 trames ≠ démo à ON sans START
+1	ng_mv2f	snk	ssideki	ON, START P2 1600	la partie part : mode 2, $10FDB4 $03, crédit 0, 799/800 trames ≠ démo à ON sans START
+1	ng_mv2f	snk	ssideki	OFF, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 318/800 trames ≠ démo à ON sans START
+1	ng_mv2f	snk	mslug	ON, START 1600	la partie part : mode 2, $10FDB4 $01, crédit 0, 797/800 trames ≠ démo à ON sans START
+1	ng_mv2f	snk	mslug	ON, START P2 1600	la partie part : mode 2, $10FDB4 $03, crédit 0, 797/800 trames ≠ démo à ON sans START
+1	ng_mv2f	snk	mslug	OFF, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 599/800 trames ≠ démo à ON sans START
+1	ng_mv2f	unibios40	aof	ON, START 1600	la partie part : mode 2, $10FDB4 $01, crédit 0, 798/800 trames ≠ démo à ON sans START
+1	ng_mv2f	unibios40	aof	ON, START P2 1600	la partie part : mode 2, $10FDB4 $03, crédit 0, 798/800 trames ≠ démo à ON sans START
+1	ng_mv2f	unibios40	aof	OFF, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 527/800 trames ≠ démo à ON sans START
+1	ng_mv2f	unibios40	samsho4	ON, START 1600	la partie part : mode 2, $10FDB4 $01, crédit 0, 798/800 trames ≠ démo à ON sans START
+1	ng_mv2f	unibios40	samsho4	ON, START P2 1600	la partie part : mode 2, $10FDB4 $03, crédit 0, 798/800 trames ≠ démo à ON sans START
+1	ng_mv2f	unibios40	samsho4	OFF, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 384/800 trames ≠ démo à ON sans START
+1	ng_mv2f	unibios40	ssideki	ON, START 1600	la partie part : mode 2, $10FDB4 $01, crédit 0, 799/800 trames ≠ démo à ON sans START
+1	ng_mv2f	unibios40	ssideki	ON, START P2 1600	la partie part : mode 2, $10FDB4 $03, crédit 0, 799/800 trames ≠ démo à ON sans START
+1	ng_mv2f	unibios40	ssideki	OFF, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 309/800 trames ≠ démo à ON sans START
+1	ng_mv2f	unibios40	mslug	ON, START 1600	la partie part : mode 2, $10FDB4 $01, crédit 0, 796/800 trames ≠ démo à ON sans START
+1	ng_mv2f	unibios40	mslug	ON, START P2 1600	la partie part : mode 2, $10FDB4 $03, crédit 0, 796/800 trames ≠ démo à ON sans START
+1	ng_mv2f	unibios40	mslug	OFF, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 417/800 trames ≠ démo à ON sans START
+1	ng_mv2f	notre (image n°12)	aof	ON, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 0/800 trames ≠ démo à ON sans START
+1	ng_mv2f	notre (image n°12)	aof	ON, START P2 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 0/800 trames ≠ démo à ON sans START
+1	ng_mv2f	notre (image n°12)	aof	OFF, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 0/800 trames ≠ démo à ON sans START
+1	ng_mv2f	notre (image n°12)	samsho4	ON, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 0/800 trames ≠ démo à ON sans START
+1	ng_mv2f	notre (image n°12)	samsho4	ON, START P2 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 0/800 trames ≠ démo à ON sans START
+1	ng_mv2f	notre (image n°12)	samsho4	OFF, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 0/800 trames ≠ démo à ON sans START
+1	ng_mv2f	notre (image n°12)	ssideki	ON, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 0/800 trames ≠ démo à ON sans START
+1	ng_mv2f	notre (image n°12)	ssideki	ON, START P2 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 0/800 trames ≠ démo à ON sans START
+1	ng_mv2f	notre (image n°12)	ssideki	OFF, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 0/800 trames ≠ démo à ON sans START
+1	ng_mv2f	notre (image n°12)	mslug	ON, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 0/800 trames ≠ démo à ON sans START
+1	ng_mv2f	notre (image n°12)	mslug	ON, START P2 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 0/800 trames ≠ démo à ON sans START
+1	ng_mv2f	notre (image n°12)	mslug	OFF, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 0/800 trames ≠ démo à ON sans START
+1	ng_mv2f	notre (ce lot)	aof	ON, START 1600	la partie part : mode 2, $10FDB4 $01, crédit 0, 798/800 trames ≠ démo à ON sans START
+1	ng_mv2f	notre (ce lot)	aof	ON, START P2 1600	la partie part : mode 2, $10FDB4 $03, crédit 0, 798/800 trames ≠ démo à ON sans START
+1	ng_mv2f	notre (ce lot)	aof	OFF, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 498/800 trames ≠ démo à ON sans START
+1	ng_mv2f	notre (ce lot)	samsho4	ON, START 1600	la partie part : mode 2, $10FDB4 $01, crédit 0, 798/800 trames ≠ démo à ON sans START
+1	ng_mv2f	notre (ce lot)	samsho4	ON, START P2 1600	la partie part : mode 2, $10FDB4 $03, crédit 0, 798/800 trames ≠ démo à ON sans START
+1	ng_mv2f	notre (ce lot)	samsho4	OFF, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 384/800 trames ≠ démo à ON sans START
+1	ng_mv2f	notre (ce lot)	ssideki	ON, START 1600	la partie part : mode 2, $10FDB4 $01, crédit 0, 797/800 trames ≠ démo à ON sans START
+1	ng_mv2f	notre (ce lot)	ssideki	ON, START P2 1600	la partie part : mode 2, $10FDB4 $03, crédit 0, 797/800 trames ≠ démo à ON sans START
+1	ng_mv2f	notre (ce lot)	ssideki	OFF, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 388/800 trames ≠ démo à ON sans START
+1	ng_mv2f	notre (ce lot)	mslug	ON, START 1600	la partie part : mode 2, $10FDB4 $01, crédit 0, 796/800 trames ≠ démo à ON sans START
+1	ng_mv2f	notre (ce lot)	mslug	ON, START P2 1600	la partie part : mode 2, $10FDB4 $03, crédit 0, 796/800 trames ≠ démo à ON sans START
+1	ng_mv2f	notre (ce lot)	mslug	OFF, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 406/800 trames ≠ démo à ON sans START
+1	neogeo	snk	aof	ON, START 1600	la partie part : mode 2, $10FDB4 $01, crédit 0, 798/800 trames ≠ démo à ON sans START
+1	neogeo	snk	aof	ON, START P2 1600	la partie part : mode 2, $10FDB4 $03, crédit 0, 798/800 trames ≠ démo à ON sans START
+1	neogeo	snk	aof	OFF, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 512/800 trames ≠ démo à ON sans START
+1	neogeo	snk	samsho4	ON, START 1600	la partie part : mode 2, $10FDB4 $01, crédit 0, 798/800 trames ≠ démo à ON sans START
+1	neogeo	snk	samsho4	ON, START P2 1600	la partie part : mode 2, $10FDB4 $03, crédit 0, 798/800 trames ≠ démo à ON sans START
+1	neogeo	snk	samsho4	OFF, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 402/800 trames ≠ démo à ON sans START
+1	neogeo	snk	ssideki	ON, START 1600	la partie part : mode 2, $10FDB4 $01, crédit 0, 799/800 trames ≠ démo à ON sans START
+1	neogeo	snk	ssideki	ON, START P2 1600	la partie part : mode 2, $10FDB4 $03, crédit 0, 799/800 trames ≠ démo à ON sans START
+1	neogeo	snk	ssideki	OFF, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 318/800 trames ≠ démo à ON sans START
+1	neogeo	snk	mslug	ON, START 1600	la partie part : mode 2, $10FDB4 $01, crédit 0, 797/800 trames ≠ démo à ON sans START
+1	neogeo	snk	mslug	ON, START P2 1600	la partie part : mode 2, $10FDB4 $03, crédit 0, 797/800 trames ≠ démo à ON sans START
+1	neogeo	snk	mslug	OFF, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 599/800 trames ≠ démo à ON sans START
+1	neogeo	unibios40	aof	ON, START 1600	la partie part : mode 2, $10FDB4 $01, crédit 0, 798/800 trames ≠ démo à ON sans START
+1	neogeo	unibios40	aof	ON, START P2 1600	la partie part : mode 2, $10FDB4 $03, crédit 0, 798/800 trames ≠ démo à ON sans START
+1	neogeo	unibios40	aof	OFF, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 527/800 trames ≠ démo à ON sans START
+1	neogeo	unibios40	samsho4	ON, START 1600	la partie part : mode 2, $10FDB4 $01, crédit 0, 798/800 trames ≠ démo à ON sans START
+1	neogeo	unibios40	samsho4	ON, START P2 1600	la partie part : mode 2, $10FDB4 $03, crédit 0, 798/800 trames ≠ démo à ON sans START
+1	neogeo	unibios40	samsho4	OFF, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 384/800 trames ≠ démo à ON sans START
+1	neogeo	unibios40	ssideki	ON, START 1600	la partie part : mode 2, $10FDB4 $01, crédit 0, 799/800 trames ≠ démo à ON sans START
+1	neogeo	unibios40	ssideki	ON, START P2 1600	la partie part : mode 2, $10FDB4 $03, crédit 0, 799/800 trames ≠ démo à ON sans START
+1	neogeo	unibios40	ssideki	OFF, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 309/800 trames ≠ démo à ON sans START
+1	neogeo	unibios40	mslug	ON, START 1600	la partie part : mode 2, $10FDB4 $01, crédit 0, 796/800 trames ≠ démo à ON sans START
+1	neogeo	unibios40	mslug	ON, START P2 1600	la partie part : mode 2, $10FDB4 $03, crédit 0, 796/800 trames ≠ démo à ON sans START
+1	neogeo	unibios40	mslug	OFF, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 417/800 trames ≠ démo à ON sans START
+1	neogeo	notre (image n°12)	aof	ON, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 0/800 trames ≠ démo à ON sans START
+1	neogeo	notre (image n°12)	aof	ON, START P2 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 0/800 trames ≠ démo à ON sans START
+1	neogeo	notre (image n°12)	aof	OFF, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 0/800 trames ≠ démo à ON sans START
+1	neogeo	notre (image n°12)	samsho4	ON, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 0/800 trames ≠ démo à ON sans START
+1	neogeo	notre (image n°12)	samsho4	ON, START P2 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 0/800 trames ≠ démo à ON sans START
+1	neogeo	notre (image n°12)	samsho4	OFF, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 0/800 trames ≠ démo à ON sans START
+1	neogeo	notre (image n°12)	ssideki	ON, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 0/800 trames ≠ démo à ON sans START
+1	neogeo	notre (image n°12)	ssideki	ON, START P2 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 0/800 trames ≠ démo à ON sans START
+1	neogeo	notre (image n°12)	ssideki	OFF, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 0/800 trames ≠ démo à ON sans START
+1	neogeo	notre (image n°12)	mslug	ON, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 0/800 trames ≠ démo à ON sans START
+1	neogeo	notre (image n°12)	mslug	ON, START P2 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 0/800 trames ≠ démo à ON sans START
+1	neogeo	notre (image n°12)	mslug	OFF, START 1600	refusé, la démo continue : mode 1, $10FDB4 $00, crédit 0, 0/800 trames ≠ démo à ON sans START
+# Lecture : sous les deux BIOS de référence, sur les deux machines et les quatre jeux, le commutateur à ON fait partir la partie à
+# l'appui de START P1 (BIOS_START_FLAG $01) et des deux joueurs à START P2 ($03), sans crédit ; à OFF, START est refusé. La
+# démo du commutateur à OFF diffère de celle à ON (aof : « INSERT COIN » contre « PUSH 1P OR 2P START BUTTON », captures de la
+# trame 1500) ; CREDIT 00 reste affiché dans les deux (aof, samsho4, ssideki, mslug). Notre image n°12 : le commutateur est
+# ignoré — aucune trame ne change, START refusé : le défaut vu à l'essai sur matériel. Notre image de ce lot : les comptes de la référence, à
+# deux ou trois trames près.
+#
+# 2. À CHAUD. Le commutateur basculé à la trame 1200 (démo), START à 1600 ; ng_mv2f, aof et mslug. « égales » : trames 1210-1599
+#    égales à la démo du run sans bascule au même commutateur.
+section	bios	jeu	bascule	constat
+2	snk	aof	DIP OFF->ON à 1200	avant 1000-1199 égal DIP-OFF 200/200 ; après 1210-1599 égal DIP-OFF 122/390, DIP-ON 390/390 ; START 1600 : mode ['2'] flag ['0', '1']
+2	snk	aof	DIP ON->OFF à 1200	avant 1000-1199 égal DIP-OFF 110/200 ; après 1210-1599 égal DIP-OFF 390/390, DIP-ON 122/390 ; START 1600 : mode ['1'] flag ['0']
+2	snk	mslug	DIP OFF->ON à 1200	avant 1000-1199 égal DIP-OFF 200/200 ; après 1210-1599 égal DIP-OFF 207/390, DIP-ON 304/390 ; START 1600 : mode ['2'] flag ['0', '1']
+2	snk	mslug	DIP ON->OFF à 1200	avant 1000-1199 égal DIP-OFF 65/200 ; après 1210-1599 égal DIP-OFF 304/390, DIP-ON 206/390 ; START 1600 : mode ['1'] flag ['0']
+2	unibios40	aof	DIP OFF->ON à 1200	avant 1000-1199 égal DIP-OFF 200/200 ; après 1210-1599 égal DIP-OFF 171/390, DIP-ON 382/390 ; START 1600 : mode ['2'] flag ['0', '1']
+2	unibios40	aof	DIP ON->OFF à 1200	avant 1000-1199 égal DIP-OFF 61/200 ; après 1210-1599 égal DIP-OFF 382/390, DIP-ON 171/390 ; START 1600 : mode ['1'] flag ['0']
+2	unibios40	mslug	DIP OFF->ON à 1200	avant 1000-1199 égal DIP-OFF 200/200 ; après 1210-1599 égal DIP-OFF 200/390, DIP-ON 390/390 ; START 1600 : mode ['2'] flag ['0', '1']
+2	unibios40	mslug	DIP ON->OFF à 1200	avant 1000-1199 égal DIP-OFF 107/200 ; après 1210-1599 égal DIP-OFF 390/390, DIP-ON 200/390 ; START 1600 : mode ['1'] flag ['0']
+2	notre (ce lot)	aof	DIP OFF->ON à 1200	avant 1000-1199 égal DIP-OFF 200/200 ; après 1210-1599 égal DIP-OFF 159/390, DIP-ON 383/390 ; START 1600 : mode ['2'] flag ['0', '1']
+2	notre (ce lot)	aof	DIP ON->OFF à 1200	avant 1000-1199 égal DIP-OFF 60/200 ; après 1210-1599 égal DIP-OFF 383/390, DIP-ON 159/390 ; START 1600 : mode ['1'] flag ['0']
+2	notre (ce lot)	mslug	DIP OFF->ON à 1200	avant 1000-1199 égal DIP-OFF 200/200 ; après 1210-1599 égal DIP-OFF 191/390, DIP-ON 388/390 ; START 1600 : mode ['2'] flag ['0', '1']
+2	notre (ce lot)	mslug	DIP ON->OFF à 1200	avant 1000-1199 égal DIP-OFF 95/200 ; après 1210-1599 égal DIP-OFF 390/390, DIP-ON 191/390 ; START 1600 : mode ['1'] flag ['0']
+2	notre (image n°12)	aof	les deux sens	ignoré : chaque trame égale à la démo sans bascule, START à 1600 refusé (mode 1)
+# Lecture : les deux BIOS de référence relisent le commutateur à chaud, dans les deux sens : dès la dixième trame après la
+# bascule, la démo est celle de l'autre position (de 304 à 390 trames égales sur 390, contre 122 à 207 à l'ancienne), et START
+# suit. Notre image de ce lot : 383 et 388 sur 390, START de même.
+#
+# 3. LE CONTINUE EN FREE PLAY (commutateur 7 à ON), aof sur ng_mv2f, START à 1600, la partie perdue sans entrée.
+section	bios	constat
+3	snk	continue affiché ($10FDB6 = $02) de 8055 à 8655, game over ($0303) puis la démo ; START à 8300 : le continue est pris ($01 à 8301), aucun crédit
+3	unibios40	continue affiché de 7182 à 7782 ; START à 7400 : pris ($01 à 7401), aucun crédit
+3	notre (ce lot)	continue affiché à 7008 ; START à 7400 : pris ($01 à 7401), aucun crédit
+#
+# 4. LE COMMUTATEUR 1, « SETTING MODE », ng_mv2f et MV-6F, aof.
+section	bios	entrees	constat
+4	snk, unibios40	commutateur 1 à ON dès la trame 1, aucune touche	leur menu de test (HARDWARE TEST, SETTING UP THE HARD DIP, … EXIT) dès l'écran ; 2 400 trames dans le BIOS, la main jamais au jeu ; mêmes images sur les deux machines
+4	snk, unibios40	à ON, EXIT choisi (bas ×6, A, à 400-470)	« DIP-SW 1 OFF !! », jusqu'à la trame 3000 : on n'en sort pas
+4	snk	à ON, EXIT, puis le commutateur à OFF à 1200	la machine repart (les motifs du test mémoire à 1205), la démo à 1909
+4	unibios40	de même	la démo à 1998
+4	snk	à ON de 1 à 299, puis OFF ; EXIT à 470	pas de message : la machine repart (motifs du test mémoire à 475), la démo à 1149
+4	unibios40	de même	la démo à 839, comme sans le commutateur : UniBIOS ne l'a pas lu avant la trame 300
+4	snk, unibios40	commutateur 1 basculé à ON à la trame 1000 (démo)	rien : la démo continue (mode 1), comme sans bascule
+4	notre (image n°12)	à ON dès la trame 1	ignoré : la démo à 189
+4	notre (ce lot)	à ON dès la trame 1, START à 600	SOFT DIP SETTINGS à 300 et 500 ; DIP SWITCH 1 IS ON à 650, la main au jeu à 787 (scène dip-setting)
+4	notre (ce lot)	à ON, rebasculé à OFF à 550, START à 600	pas d'avertissement, la main au jeu à 606
+# Lecture : le commutateur 1 n'est lu qu'au boot, sous les deux BIOS de référence. La sortie avec le commutateur encore à ON est
+# bloquée sous MAME (« DIP-SW 1 OFF !! ») ; sur matériel, le BIOS SNK donnerait un avertissement puis le jeu (rapporté, non vu
+# à l'essai). ReBIOS affiche l'avertissement environ trois secondes, puis le jeu : jamais bloqué.
+#
+# 5. SELECT EN PARTIE (le geste START + SELECT du menu en jeu). Le BIOS SNK sur la MV-6F (`neogeo -cart1`, qui a le champ SELECT,
+#    « Next Game »), commutateur 7 à ON, START à 1600 ; SELECT P1 tenu de 2200 à 2259 ; contre le même run sans SELECT, trames
+#    2200-2899 égales. Les 164 sets du catalogue (moitiés aa et ab de la matrice).
+section	compte	constat
+5	157	en partie (mode 2) à 2200
+5	154	toutes les trames égales au témoin : SELECT ne change rien à l'image
+5	1	kof94 : 699/700, une trame (2264) ; décalage d'une phase, rejoué à l'identique
+5	1	lastbld2 (écran HOW TO PLAY) : 236/700, la même animation une trame plus tôt (443/580 égales au décalage −1) ; rejoué à l'identique
+5	1	pbobblen : 355/700, mais deux témoins sans SELECT n'ont entre eux que 412/700 égales : le jeu ne se répète pas
+5	2	diggerma, lasthope : pas en partie à 2200 (mode 0) ; 700/700
+5	5	ng_mv1, ng_mv2f, ng_mv4f, mvstemp, vliner : pas de cartouche de ce nom pour -cart1 (MAME sort en 4)
+#
+# 6. REG_STATUS_B AU REPOS : $380000 lu par lua à la trame 600, aucune entrée, aof, BIOS SNK : $FF sur aof (le set à une
+#    cartouche), ng_mv1, ng_mv1f, ng_mv2f, ng_mv4f et la MV-6F — SELECT n'y est jamais lu actif au repos. Le matériel n'est pas
+#    mesuré.

@@ -1,0 +1,116 @@
+# La remise à zéro périodique des scores, le 2026-10-24 : quels jeux lisent la date, et ce qu'un changement de date fait à leurs
+# records ; puis SCORE RESET (src/c0/cal.s), qui la coupe. Le PC n'est lu que pour
+# attribuer un accès au BIOS ou au jeu, et n'est pas consigné ; aucune instruction lue, aucun octet de ROM. Des adresses, des comptes ; les seules valeurs consignées sont celles qu'on pose (« SPX », 535058).
+#
+# CONDITIONS. MAME 0.286, -video none, -sound none, -nothrottle, SDL_MAC_BACKGROUND_APP=1, NVRAM par run. Jig : bench/son.lua (les
+# entrées, une empreinte d'image par trame) avec bench/scores.lua (J_AUSSI) ; la date est fausse de deux façons, MAME rendant celle
+# de l'hôte : sections 2 et 3, SC_DATE de scores.lua remplace la date que le BIOS écrit en $10FDD2-$10FDD4 ; section 4,
+# bench/horloge.lua fausse l'horloge µPD4990A elle-même (le bit DATA OUT de REG_STATUS_A), pour tout lecteur.
+#
+# SECTION 1 — QUI LIT LA DATE. Le set de chaque jeu du catalogue (les 164 de 2026-10-24-matrice-catalogue.tsv), BIOS SNK -bios euro,
+# 6 000 trames : pièce à 400, START à 500, A toutes les 30 trames de 600 à 5 900. « appels » : READ_CALENDAR ($C0045C) appelé par
+# le jeu, compté comme bench/appels.lua ; « lectures » : lectures de $10FDD2-$10FDD9 par le jeu. 32 jeux l'appellent (mvstemp, un
+# modèle de développement qui l'appelle à chaque trame, est écarté) — UniBIOS 4.0 annonce son option sur « une trentaine de jeux »
+# (ATTENTES §1). Neuf autres lisent $10FDD2-$10FDD9 sans appel (kof98, kof2000, mslug4, mslug5, matrim, nitd, rotd, sengoku3,
+# zupapa), non suivis ici.
+#
+# SECTION 2 — CE QUE FAIT UN CHANGEMENT DE DATE. Les 32 jeux, notre image 63ae1e186ffa40ae… (ce lot avant SCORE RESET), MV-6F. Run A :
+# NVRAM neuve, le 2026-10-01, les entrées de la section 1, 6 000 trames. Puis trois relances sur sa NVRAM, 4 000 trames sans entrée :
+# le même jour, 38 jours plus tard (2026-11-08), un an plus tard (2027-10-01). Octets de la zone de sauvegarde que le JEU écrit
+# (« écrits », qu'il en change la valeur ou non) et dont il change la valeur (« changés ») sur ces 4 000 trames. Sur 16 jeux, la
+# relance de 38 jours écrit de 46 à 684 octets de plus que celle du même jour (ncommand : 4, non compté), à des valeurs presque
+# toutes égales : une table réécrite aux valeurs d'usine, qui l'étaient déjà (aucun score n'y était entré). Sur 9 d'entre eux, la
+# relance d'un an en fait autant ; sur 7 (aodk, gpilots, kof2001, kof2002, ncombat, twinspri, wjammers), non — le mois et le jour y
+# comptent, pas l'année. Les 16 autres n'écrivent pas plus après aucun des deux sauts ; ce qu'ils font de la date n'est pas mesuré.
+#
+# SECTION 3 — OÙ. Six jeux, mêmes runs : les plages de la zone (décalages en hexadécimal) que la relance de 38 jours écrit et pas
+# celle du même jour. Ce sont des tables de records : des initiales y sont lisibles (aof $38-$87, wh2 $00-$2F, kof2001 $04-$3F…).
+#
+# CE QUE VOIT LE JOUEUR (même image, SC_DATE). Les initiales SPX posées en tête de la table (aof $10883C, wh2 $10E004, kof2001
+# $100008 ; sonicwi3 $10007C, non gardées au boot suivant, écarté) à la trame 1 000 d'une relance du 2026-10-01, 6 000 trames ;
+# puis deux relances de 8 000 trames. Le même jour : SPX dans la zone en fin de run, sur les trois. 38 jours plus tard : les
+# initiales d'usine, sur les trois. À l'écran, wh2 (BEST HEROES, 610 trames) et kof2001 (BEST SCORE et TODAYS SCORE, 182 trames)
+# montrent SPX le même jour et les initiales d'usine 38 jours plus tard (captures non versionnées) ; aof ne montre pas sa table
+# dans les 8 000 trames de démo.
+#
+# SECTION 4 — SCORE RESET, l'image de ce lot (42d50129bfed6146…), bench/horloge.lua. wh2 sur la MV-6F, premier boot le 2026-10-01
+# (HL_DATE 2610014), l'éditeur : SCORE RESET laissé à ON, ou passé à OFF (« haut » six fois, droite), START ; SPX posé à $10E004
+# à la trame 1 500, 6 000 trames. Relances : ON le même jour ; ON 38 jours plus tard (2611080) ; OFF 38 jours plus tard. Trames
+# après la 200e où l'écran du même jour diffère du saut : 305 (BEST HEROES, 2 862-3 176). À OFF : 305 égales au même jour, 0 au
+# saut ; la zone garde SPX ; la ligne CLOCK de l'écran de boot dit 11/08/26 SUN, la vraie date. Scène : scores-gel.
+#   LE MÉCANISME, à nous : à OFF, READ_CALENDAR rend aux jeux la date enregistrée le jour du passage à OFF (année, mois, jour, jour
+#   de semaine ; l'heure reste vraie). Une date qui ne bouge pas ne déclenche plus la remise. SUPPOSÉ : qu'aucun des 32 jeux ne se
+#   serve de la date pour autre chose qu'un affichage ou ces remises ; le réglage est à ON par défaut, et ON rend la vraie date.
+section	jeu	appels_read_calendar	lectures_10FDD2_10FDD9_par_le_jeu
+1	aodk	2	2
+1	aof	4	8
+1	aof2	2	4
+1	aof3	6	10
+1	bjourney	3	6
+1	crswd2bl	1	1
+1	doubledr	1	1
+1	gpilots	4	4
+1	ironclad	1	1
+1	kof2001	1	3
+1	kof2002	1	3
+1	maglord	4	8
+1	ncombat	3	3
+1	ncommand	3	6
+1	overtop	2	4
+1	pgoal	1	0
+1	preisle2	1	1
+1	quizkof	3	3
+1	samsho2	1	1
+1	shocktr2	1	1
+1	shocktro	1	1
+1	sonicwi3	2	4
+1	spinmast	3	3
+1	stakwin	3	0
+1	trally	4	8
+1	twinspri	2	2
+1	wh1	3	6
+1	wh2	4	8
+1	wh2j	2	4
+1	whp	3	6
+1	wjammers	1	5
+1	zintrckb	4	8
+section	jeu	zone	ecrits_meme_jour	changes_meme_jour	ecrits_38_jours	changes_38_jours	ecrits_un_an	changes_un_an
+2	aodk	$10B000+$1000	2052	241	2736	244	2052	241
+2	aof	$108800+$0800	3	1	87	3	87	2
+2	aof2	$108800+$0800	3	1	87	3	87	2
+2	aof3	$10EC00+$0400	90	5	90	5	90	5
+2	bjourney	$103000+$1000	4096	108	4096	108	4096	108
+2	crswd2bl	$106000+$1000	2926	220	2926	220	2926	220
+2	doubledr	$100000+$03F0	16	11	16	11	16	11
+2	gpilots	$10E000+$1000	29	1	123	2	29	1
+2	ironclad	$10EF00+$0100	137	112	137	112	137	112
+2	kof2001	$100000+$0100	12	4	85	5	12	4
+2	kof2002	$100000+$0100	12	6	85	7	12	6
+2	maglord	$100000+$1000	4096	434	4096	434	4096	434
+2	ncombat	$101800+$1000	1833	213	1988	214	1833	213
+2	ncommand	$10E000+$1000	420	263	424	265	424	264
+2	overtop	$10E000+$1000	39	7	85	9	85	8
+2	pgoal	$10E000+$0F00	50	42	50	42	50	42
+2	preisle2	$10EF00+$0100	4	1	4	1	4	1
+2	quizkof	$10E000+$0F00	4	1	4	1	4	1
+2	samsho2	$100000+$0100	4	1	4	1	4	1
+2	shocktr2	$10EE80+$0180	32	19	32	19	32	19
+2	shocktro	$10EF00+$0100	6	2	6	2	6	2
+2	sonicwi3	$100000+$00F2	8	5	124	8	124	7
+2	spinmast	$100000+$002C	2	1	2	1	2	1
+2	stakwin	$100000+$0C7E	1279	906	1279	906	1279	906
+2	trally	$10E000+$1000	439	100	603	102	603	101
+2	twinspri	$10BC00+$0400	12	10	148	11	12	10
+2	wh1	$10E000+$1000	154	7	207	63	207	62
+2	wh2	$10E000+$1000	114	7	166	34	166	33
+2	wh2j	$10E000+$1000	11	8	63	35	63	34
+2	whp	$10E000+$1000	4	4	88	6	88	5
+2	wjammers	$100000+$1000	3276	1106	3335	1107	3276	1106
+2	zintrckb	$10E000+$0180	4	0	4	0	4	0
+section	jeu	decalages_ecrits_en_plus_apres_38_jours
+3	aof	8-B 38-87
+3	trally	4-7 2C0-30B 310-31B 320-32B 330-33B 340-34B 350-35B 400-407 410-417 420-427 430-437 440-447 460-467 470-477 480-487 490-497 4A0-4A7 4B0-4B7
+3	sonicwi3	7C-F1
+3	wh2	0-2F 200-205
+3	overtop	10-37 FD-105 108-10B
+3	kof2001	4-3F AB-AB E8-F3

@@ -1,0 +1,289 @@
+# Multi-slot lot 4 (la sélection par SELECT) : suites de jetons par run, référence (-bios euro) puis notre image (sha256 2a07a2a2…), le 2026-10-22.
+# MAME 0.286, machine neogeo (MV-6F), -cartN par la liste logicielle (-hashpath), jig bench/multislot.lua, MS_PLAGES=1, MS_SUIVRE ; plans d'entrées dans 2026-10-22-multi-slot-lot4.tsv.
+# Colonnes : run ; qui (ref, nous) ; trame (la nôtre est plus tôt au boot : pas de logo) ; jeton.
+# Jetons : remise sSS dDD mMM (slot servi = dernier REG_SLOT, demande, mode, à la lecture de $000122) ; sysret code CC ($10FD81 à l'entrée de SYSTEM_RETURN, $C00444) ;
+#   select code CC (écriture de $10FD81 ← $04/$05 par le BIOS) ; S zone de RAM lue -> bloc de backup RAM écrit ; R bloc lu -> zone écrite ; somme 16 bits des octets écrits (valeurs du jeu).
+# Aucun PC consigné (le PC n'est lu que pour attribuer un accès au BIOS ou au jeu), aucun octet de la ROM du BIOS (docs/DECISIONS.md §8).
+run	qui	trame	jeton
+c2-neuf	ref	281	remise s00 d00 m00
+c2-neuf	ref	281	sysret code 00
+c2-neuf	ref	282	S 100000-1000FF -> D00320-D0041F somme 0000
+c2-neuf	ref	283	remise s01 d00 m00
+c2-neuf	ref	283	sysret code 00
+c2-neuf	ref	284	S 108800-108FFF -> D01320-D01B1F somme 17AC
+c2-neuf	ref	752	R D00320-D0041F -> 100000-1000FF somme 0000
+c2-neuf	ref	753	remise s00 d02 m01
+c2-neuf	ref	1002	remise s00 d03 m01
+c2-neuf	ref	1200	select code 04
+c2-neuf	ref	1201	S 100000-1000FF -> D00320-D0041F somme 055B
+c2-neuf	ref	1201	R D01320-D01B1F -> 108800-108FFF somme 17AC
+c2-neuf	ref	1203	remise s01 d03 m01
+c2-neuf	ref	1500	select code 04
+c2-neuf	ref	1502	S 108800-108FFF -> D01320-D01B1F somme 17AC
+c2-neuf	ref	1503	R D00320-D0041F -> 100000-1000FF somme 055B
+c2-neuf	ref	1504	remise s00 d03 m01
+c2-neuf	ref	1800	select code 05
+c2-neuf	ref	1801	S 100000-1000FF -> D00320-D0041F somme 055B
+c2-neuf	ref	1801	R D01320-D01B1F -> 108800-108FFF somme 17AC
+c2-neuf	ref	1803	remise s01 d03 m01
+c2-neuf	nous	185	remise s00 d00 m00
+c2-neuf	nous	185	sysret code 00
+c2-neuf	nous	185	S 100000-1000FF -> D00320-D0041F somme 0000
+c2-neuf	nous	189	remise s01 d00 m00
+c2-neuf	nous	189	sysret code 00
+c2-neuf	nous	189	S 108800-108FFF -> D01320-D01B1F somme 17AC
+c2-neuf	nous	191	R D00320-D0041F -> 100000-1000FF somme 0000
+c2-neuf	nous	192	remise s00 d02 m01
+c2-neuf	nous	1001	remise s00 d03 m01
+c2-neuf	nous	1200	select code 04
+c2-neuf	nous	1200	S 100000-1000FF -> D00320-D0041F somme 055B
+c2-neuf	nous	1202	R D01320-D01B1F -> 108800-108FFF somme 17AC
+c2-neuf	nous	1203	remise s01 d03 m01
+c2-neuf	nous	1500	select code 04
+c2-neuf	nous	1500	S 108800-108FFF -> D01320-D01B1F somme 17AC
+c2-neuf	nous	1502	R D00320-D0041F -> 100000-1000FF somme 055B
+c2-neuf	nous	1503	remise s00 d03 m01
+c2-neuf	nous	1800	select code 05
+c2-neuf	nous	1800	S 100000-1000FF -> D00320-D0041F somme 055B
+c2-neuf	nous	1802	R D01320-D01B1F -> 108800-108FFF somme 17AC
+c2-neuf	nous	1803	remise s01 d03 m01
+c3-trou	ref	281	remise s00 d00 m00
+c3-trou	ref	281	sysret code 00
+c3-trou	ref	282	S 100000-1000FF -> D00320-D0041F somme 0000
+c3-trou	ref	283	remise s02 d00 m00
+c3-trou	ref	283	sysret code 00
+c3-trou	ref	284	S 108800-108FFF -> D01320-D01B1F somme 17AC
+c3-trou	ref	286	remise s03 d00 m00
+c3-trou	ref	286	sysret code 00
+c3-trou	ref	287	S 100000-100FFF -> D02320-D0331F somme 0F2C
+c3-trou	ref	755	R D00320-D0041F -> 100000-1000FF somme 0000
+c3-trou	ref	756	remise s00 d02 m01
+c3-trou	ref	1002	remise s00 d03 m01
+c3-trou	ref	1200	select code 04
+c3-trou	ref	1201	S 100000-1000FF -> D00320-D0041F somme 055B
+c3-trou	ref	1201	R D01320-D01B1F -> 108800-108FFF somme 17AC
+c3-trou	ref	1203	remise s02 d03 m01
+c3-trou	ref	1400	select code 04
+c3-trou	ref	1402	S 108800-108FFF -> D01320-D01B1F somme 17AC
+c3-trou	ref	1403	R D02320-D0331F -> 100000-100FFF somme 0F2C
+c3-trou	ref	1404	remise s03 d03 m01
+c3-trou	ref	1600	select code 04
+c3-trou	ref	1601	S 100000-100FFF -> D02320-D0331F somme 0F2C
+c3-trou	ref	1602	R D00320-D0041F -> 100000-1000FF somme 055B
+c3-trou	ref	1603	remise s00 d03 m01
+c3-trou	ref	1800	select code 05
+c3-trou	ref	1801	S 100000-1000FF -> D00320-D0041F somme 055B
+c3-trou	ref	1801	R D02320-D0331F -> 100000-100FFF somme 0F2C
+c3-trou	ref	1803	remise s03 d03 m01
+c3-trou	ref	2000	select code 05
+c3-trou	ref	2001	S 100000-100FFF -> D02320-D0331F somme 0F2C
+c3-trou	ref	2002	R D01320-D01B1F -> 108800-108FFF somme 17AC
+c3-trou	ref	2003	remise s02 d03 m01
+c3-trou	ref	2200	select code 05
+c3-trou	ref	2202	S 108800-108FFF -> D01320-D01B1F somme 17AC
+c3-trou	ref	2203	R D00320-D0041F -> 100000-1000FF somme 055B
+c3-trou	ref	2204	remise s00 d03 m01
+c3-trou	ref	2600	select code 04
+c3-trou	ref	2601	S 100000-1000FF -> D00320-D0041F somme 055B
+c3-trou	ref	2601	R D01320-D01B1F -> 108800-108FFF somme 17AC
+c3-trou	ref	2603	remise s02 d03 m01
+c3-trou	nous	185	remise s00 d00 m00
+c3-trou	nous	185	sysret code 00
+c3-trou	nous	185	S 100000-1000FF -> D00320-D0041F somme 0000
+c3-trou	nous	189	remise s02 d00 m00
+c3-trou	nous	189	sysret code 00
+c3-trou	nous	189	S 108800-108FFF -> D01320-D01B1F somme 17AC
+c3-trou	nous	192	remise s03 d00 m00
+c3-trou	nous	192	sysret code 00
+c3-trou	nous	192	S 100000-100FFF -> D02320-D0331F somme 0F2C
+c3-trou	nous	194	R D00320-D0041F -> 100000-1000FF somme 0000
+c3-trou	nous	195	remise s00 d02 m01
+c3-trou	nous	1001	remise s00 d03 m01
+c3-trou	nous	1200	select code 04
+c3-trou	nous	1200	S 100000-1000FF -> D00320-D0041F somme 055B
+c3-trou	nous	1202	R D01320-D01B1F -> 108800-108FFF somme 17AC
+c3-trou	nous	1203	remise s02 d03 m01
+c3-trou	nous	1400	select code 04
+c3-trou	nous	1400	S 108800-108FFF -> D01320-D01B1F somme 17AC
+c3-trou	nous	1402	R D02320-D0331F -> 100000-100FFF somme 0F2C
+c3-trou	nous	1403	remise s03 d03 m01
+c3-trou	nous	1600	select code 04
+c3-trou	nous	1600	S 100000-100FFF -> D02320-D0331F somme 0F2C
+c3-trou	nous	1602	R D00320-D0041F -> 100000-1000FF somme 055B
+c3-trou	nous	1603	remise s00 d03 m01
+c3-trou	nous	1800	select code 05
+c3-trou	nous	1800	S 100000-1000FF -> D00320-D0041F somme 055B
+c3-trou	nous	1802	R D02320-D0331F -> 100000-100FFF somme 0F2C
+c3-trou	nous	1803	remise s03 d03 m01
+c3-trou	nous	2000	select code 05
+c3-trou	nous	2000	S 100000-100FFF -> D02320-D0331F somme 0F2C
+c3-trou	nous	2002	R D01320-D01B1F -> 108800-108FFF somme 17AC
+c3-trou	nous	2003	remise s02 d03 m01
+c3-trou	nous	2200	select code 05
+c3-trou	nous	2200	S 108800-108FFF -> D01320-D01B1F somme 17AC
+c3-trou	nous	2202	R D00320-D0041F -> 100000-1000FF somme 055B
+c3-trou	nous	2203	remise s00 d03 m01
+c3-trou	nous	2600	select code 04
+c3-trou	nous	2600	S 100000-1000FF -> D00320-D0041F somme 055B
+c3-trou	nous	2602	R D01320-D01B1F -> 108800-108FFF somme 17AC
+c3-trou	nous	2603	remise s02 d03 m01
+c1	ref	281	remise s00 d00 m00
+c1	ref	281	sysret code 00
+c1	ref	282	S 100000-1000FF -> D00320-D0041F somme 0000
+c1	ref	749	R D00320-D0041F -> 100000-1000FF somme 0000
+c1	ref	750	remise s00 d02 m01
+c1	ref	1002	remise s00 d03 m01
+c1	ref	1200	select code 04
+c1	ref	1201	S 100000-1000FF -> D00320-D0041F somme 055B
+c1	ref	1201	R D00320-D0041F -> 100000-1000FF somme 055B
+c1	ref	1202	remise s00 d03 m01
+c1	ref	1500	select code 05
+c1	ref	1501	S 100000-1000FF -> D00320-D0041F somme 055B
+c1	ref	1501	R D00320-D0041F -> 100000-1000FF somme 055B
+c1	ref	1502	remise s00 d03 m01
+c1	nous	185	remise s00 d00 m00
+c1	nous	185	sysret code 00
+c1	nous	185	S 100000-1000FF -> D00320-D0041F somme 0000
+c1	nous	185	R D00320-D0041F -> 100000-1000FF somme 0000
+c1	nous	186	remise s00 d02 m01
+c1	nous	1001	remise s00 d03 m01
+c2-gardee	ref	708	R D00320-D0041F -> 100000-1000FF somme 055B
+c2-gardee	ref	709	remise s00 d02 m01
+c2-gardee	ref	802	remise s00 d03 m01
+c2-gardee	ref	1000	select code 04
+c2-gardee	ref	1001	S 100000-1000FF -> D00320-D0041F somme 055B
+c2-gardee	ref	1001	R D01320-D01B1F -> 108800-108FFF somme 17AC
+c2-gardee	ref	1003	remise s01 d03 m01
+c2-gardee	nous	184	R D00320-D0041F -> 100000-1000FF somme 055B
+c2-gardee	nous	185	remise s00 d02 m01
+c2-gardee	nous	801	remise s00 d03 m01
+c2-gardee	nous	1000	select code 04
+c2-gardee	nous	1000	S 100000-1000FF -> D00320-D0041F somme 055B
+c2-gardee	nous	1002	R D01320-D01B1F -> 108800-108FFF somme 17AC
+c2-gardee	nous	1003	remise s01 d03 m01
+c3-gardee	ref	708	R D00320-D0041F -> 100000-1000FF somme 055B
+c3-gardee	ref	709	remise s00 d02 m01
+c3-gardee	ref	902	remise s00 d03 m01
+c3-gardee	ref	1100	select code 04
+c3-gardee	ref	1101	S 100000-1000FF -> D00320-D0041F somme 055B
+c3-gardee	ref	1101	R D01320-D01B1F -> 108800-108FFF somme 17AC
+c3-gardee	ref	1103	remise s02 d03 m01
+c3-gardee	ref	1300	select code 05
+c3-gardee	ref	1302	S 108800-108FFF -> D01320-D01B1F somme 17AC
+c3-gardee	ref	1303	R D00320-D0041F -> 100000-1000FF somme 055B
+c3-gardee	ref	1304	remise s00 d03 m01
+c3-gardee	nous	184	R D00320-D0041F -> 100000-1000FF somme 055B
+c3-gardee	nous	185	remise s00 d02 m01
+c3-gardee	nous	901	remise s00 d03 m01
+c3-gardee	nous	1100	select code 04
+c3-gardee	nous	1100	S 100000-1000FF -> D00320-D0041F somme 055B
+c3-gardee	nous	1102	R D01320-D01B1F -> 108800-108FFF somme 17AC
+c3-gardee	nous	1103	remise s02 d03 m01
+c3-gardee	nous	1300	select code 05
+c3-gardee	nous	1300	S 108800-108FFF -> D01320-D01B1F somme 17AC
+c3-gardee	nous	1302	R D00320-D0041F -> 100000-1000FF somme 055B
+c3-gardee	nous	1303	remise s00 d03 m01
+tenu	ref	281	remise s00 d00 m00
+tenu	ref	281	sysret code 00
+tenu	ref	282	S 100000-1000FF -> D00320-D0041F somme 0000
+tenu	ref	283	remise s01 d00 m00
+tenu	ref	283	sysret code 00
+tenu	ref	284	S 108800-108FFF -> D01320-D01B1F somme 17AC
+tenu	ref	752	R D00320-D0041F -> 100000-1000FF somme 0000
+tenu	ref	753	remise s00 d02 m01
+tenu	ref	1002	remise s00 d03 m01
+tenu	ref	1200	select code 04
+tenu	ref	1201	S 100000-1000FF -> D00320-D0041F somme 055B
+tenu	ref	1201	R D01320-D01B1F -> 108800-108FFF somme 17AC
+tenu	ref	1203	remise s01 d03 m01
+tenu	nous	185	remise s00 d00 m00
+tenu	nous	185	sysret code 00
+tenu	nous	185	S 100000-1000FF -> D00320-D0041F somme 0000
+tenu	nous	189	remise s01 d00 m00
+tenu	nous	189	sysret code 00
+tenu	nous	189	S 108800-108FFF -> D01320-D01B1F somme 17AC
+tenu	nous	191	R D00320-D0041F -> 100000-1000FF somme 0000
+tenu	nous	192	remise s00 d02 m01
+tenu	nous	1001	remise s00 d03 m01
+tenu	nous	1200	select code 04
+tenu	nous	1200	S 100000-1000FF -> D00320-D0041F somme 055B
+tenu	nous	1202	R D01320-D01B1F -> 108800-108FFF somme 17AC
+tenu	nous	1203	remise s01 d03 m01
+k9	ref	281	remise s00 d00 m00
+k9	ref	281	sysret code 00
+k9	ref	282	S 100000-1000FF -> D00320-D0041F somme 0000
+k9	ref	283	remise s01 d00 m00
+k9	ref	283	sysret code 00
+k9	ref	284	S 108800-108FFF -> D01320-D01B1F somme 17AC
+k9	ref	752	R D00320-D0041F -> 100000-1000FF somme 0000
+k9	ref	753	remise s00 d02 m01
+k9	ref	1002	remise s00 d03 m01
+k9	ref	1200	select code 04
+k9	ref	1201	S 100000-1000FF -> D00320-D0041F somme 055B
+k9	ref	1201	R D01320-D01B1F -> 108800-108FFF somme 17AC
+k9	ref	1203	remise s01 d03 m01
+k9	nous	185	remise s00 d00 m00
+k9	nous	185	sysret code 00
+k9	nous	185	S 100000-1000FF -> D00320-D0041F somme 0000
+k9	nous	189	remise s01 d00 m00
+k9	nous	189	sysret code 00
+k9	nous	189	S 108800-108FFF -> D01320-D01B1F somme 17AC
+k9	nous	191	R D00320-D0041F -> 100000-1000FF somme 0000
+k9	nous	192	remise s00 d02 m01
+k9	nous	1001	remise s00 d03 m01
+k9	nous	1200	select code 04
+k9	nous	1200	S 100000-1000FF -> D00320-D0041F somme 055B
+k9	nous	1202	R D01320-D01B1F -> 108800-108FFF somme 17AC
+k9	nous	1203	remise s01 d03 m01
+k10	ref	281	remise s00 d00 m00
+k10	ref	281	sysret code 00
+k10	ref	282	S 100000-1000FF -> D00320-D0041F somme 0000
+k10	ref	283	remise s01 d00 m00
+k10	ref	283	sysret code 00
+k10	ref	284	S 108800-108FFF -> D01320-D01B1F somme 17AC
+k10	ref	752	R D00320-D0041F -> 100000-1000FF somme 0000
+k10	ref	753	remise s00 d02 m01
+k10	ref	1002	remise s00 d03 m01
+k10	ref	1200	select code 04
+k10	ref	1201	S 100000-1000FF -> D00320-D0041F somme 055B
+k10	ref	1201	R D01320-D01B1F -> 108800-108FFF somme 17AC
+k10	ref	1203	remise s01 d03 m01
+k10	ref	1213	select code 04
+k10	ref	1215	S 108800-108FFF -> D01320-D01B1F somme 17AC
+k10	ref	1216	R D00320-D0041F -> 100000-1000FF somme 055B
+k10	ref	1217	remise s00 d03 m01
+k10	nous	185	remise s00 d00 m00
+k10	nous	185	sysret code 00
+k10	nous	185	S 100000-1000FF -> D00320-D0041F somme 0000
+k10	nous	189	remise s01 d00 m00
+k10	nous	189	sysret code 00
+k10	nous	189	S 108800-108FFF -> D01320-D01B1F somme 17AC
+k10	nous	191	R D00320-D0041F -> 100000-1000FF somme 0000
+k10	nous	192	remise s00 d02 m01
+k10	nous	1001	remise s00 d03 m01
+k10	nous	1200	select code 04
+k10	nous	1200	S 100000-1000FF -> D00320-D0041F somme 055B
+k10	nous	1202	R D01320-D01B1F -> 108800-108FFF somme 17AC
+k10	nous	1203	remise s01 d03 m01
+titre-sans-credit	ref	708	R D00320-D0041F -> 100000-1000FF somme 055B
+titre-sans-credit	ref	709	remise s00 d02 m01
+titre-sans-credit	ref	1302	remise s00 d03 m01
+titre-sans-credit	ref	1500	select code 04
+titre-sans-credit	ref	1501	S 100000-1000FF -> D00320-D0041F somme 055B
+titre-sans-credit	ref	1501	R D01320-D01B1F -> 108800-108FFF somme 17AC
+titre-sans-credit	ref	1503	remise s01 d03 m01
+titre-sans-credit	ref	1700	select code 05
+titre-sans-credit	ref	1702	S 108800-108FFF -> D01320-D01B1F somme 17AC
+titre-sans-credit	ref	1703	R D00320-D0041F -> 100000-1000FF somme 055B
+titre-sans-credit	ref	1704	remise s00 d03 m01
+titre-sans-credit	nous	184	R D00320-D0041F -> 100000-1000FF somme 055B
+titre-sans-credit	nous	185	remise s00 d02 m01
+titre-sans-credit	nous	901	remise s00 d03 m01
+titre-sans-credit	nous	1500	select code 04
+titre-sans-credit	nous	1500	S 100000-1000FF -> D00320-D0041F somme 093C
+titre-sans-credit	nous	1502	R D01320-D01B1F -> 108800-108FFF somme 17AC
+titre-sans-credit	nous	1503	remise s01 d03 m01
+titre-sans-credit	nous	1700	select code 05
+titre-sans-credit	nous	1700	S 108800-108FFF -> D01320-D01B1F somme 17AC
+titre-sans-credit	nous	1702	R D00320-D0041F -> 100000-1000FF somme 093C
+titre-sans-credit	nous	1703	remise s00 d03 m01

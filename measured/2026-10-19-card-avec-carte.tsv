@@ -1,0 +1,124 @@
+# CARD ($C00468) sous le BIOS SNK, AVEC une carte memoire inseree, le 2026-10-19. MAME 0.260,
+# -bios euro, -memc <fichier .neo> (carte de 2 Kio que MAME cree quand le fichier n'existe pas).
+# Jig bench/card.lua, etendu pour compter les acces a la zone carte ($800000-$8FFFFF) pendant
+# chaque appel. Aucun PC ni octet du BIOS de reference n'est consigne (bench/forcer.lua, au
+# point 4, ne lit le PC que pour provoquer l'appel) ; la pile du BIOS ($10F200-$10F2FF) est
+# exclue. Les octets de la carte sont ecrits par la reference : on en releve la STRUCTURE.
+#
+# 1. CARTE NEUVE, NON FORMATEE (jig, sans fenetre) : aof, samsho2, kof94, mslug, ssideki4,
+#    puzzledp, magdrop2, wjammers appellent CARD une fois au demarrage (commande $02 ou $01).
+#    Reponse $81 ("carte non formatee", page "CARD"). Sur aof : $10FD00, $10FCF4, puis
+#    $10FDC6 <- $00, puis $10FDC6 <- $81 ; deux lectures de la carte ($800000-$800040). Aucun
+#    de ces jeux ne formate la carte en 6000 trames, piece, START et bouton A toutes les 300.
+#    Apres le boot de la reference, une carte neuve porte un motif : chaque mot vaut le double
+#    de son offset (0000 0004 0008 ...). Il vient du boot de la reference : sur une carte
+#    remplie de zeros, il ecrit toute la carte trois trames de suite (2048 ecritures chacune)
+#    et la laisse avec ce motif. Sur une carte formatee, le boot la lit sans l'ecrire.
+#
+# 2. FORMATAGE ET SAUVEGARDE, par une partie jouee a la main dans une fenetre MAME (aof, perdue,
+#    "MEMORY CARD SAVE" -> YES), SANS jig : les appels n'en sont pas releves, seule la carte
+#    qui en sort. Structure lue (offsets dans le fichier .neo, carte 8 bits) :
+#      $00-$09  zero
+#      $0A      CARD_SIZE (mot) = $1000
+#      $0C      zero ; $0D, $0E sommes des FAT 1 et 2 = $0B, $0B ; $0F zero (nom absent)
+#      $10-$1F  nom du titulaire : 16 espaces
+#      $20-$2F  CARD_MAGIC : "NEO-GEO" puis $80 aux offsets pairs ($20,$22,...,$2E) ;
+#               aux offsets impairs, le motif
+#      $30      region de formatage = $02 (Europe, -bios euro) ; le reste du bloc, motif intact
+#      $40-$BF  repertoire, 32 entrees de 4 octets ; la 1re : sous-sauvegarde $00, NGH $0044 (aof), premier
+#               bloc $05 ; les entrees libres ont $FF au premier octet, le reste intact
+#      $C0-$FF  FAT 1 : $02 $02 $02 $02 $02 (blocs 0-4 reserves) puis $01 (bloc 5, dernier),
+#               puis des zeros
+#      $100-$13F FAT 2 : identique a FAT 1
+#      $140-    bloc 5, donnees du jeu : le titre "ART OF FIGHTING" en tete (page "Memory card")
+#    Le motif reste dans l'en-tete et le repertoire.
+#
+# 3. CHARGEMENT de cette carte (jig, sans fenetre) : aof, commande $02 au demarrage. Reponse $00.
+#    212 lectures de la carte ($800000-$8002FE, octets impairs : carte 8 bits), aucune ecriture.
+#    82 ecritures en RAM, dans cet ordre :
+#      $10FD00 (long, comme sans carte), $10FCF4, $10FDC6, $10FCF4, $10FD16, $10FD14,
+#      $10FD04-$10FD12 (8 mots : variables temporaires de la page "CARD"), $10FDD0 (BIOS_CARD_SUB),
+#      $107100-$10713E (64 octets : le bloc, a BIOS_CARD_START), $10FDC8-$10FDCA (BIOS_CARD_START
+#      avance de $40). La carte sort inchangee.
+#
+# 4. APPELS PROVOQUES (jig bench/forcer.lua, sans fenetre) : a la trame 1200 d'aof, l'interface
+#    $10FDC4-$10FDD0 est ecrite, le PC courant empile comme adresse de retour, et le PC pose sur
+#    l'entree ; releve jusqu'au retour. Donnees de test a BIOS_CARD_START ($107100, $40 octets).
+#    Valide sur le chargement : memes ecritures et memes 212 lectures que l'appel naturel du
+#    point 3. Le releve RAM porte aussi l'interruption vblank du jeu, a ecarter.
+#    Interface ecrite : commande, $00, $00, $00, START $00107100, SIZE $0040, FCB $0044, SUB.
+#      commande  carte de depart       reponse  carte : ce qui change
+#      $03       celle du point 2      $00      un bloc libre (6) recoit les donnees ; l'entree
+#                SUB $00                        de sous-sauvegarde 0 pointe ce bloc ; FAT : bloc
+#                                               5 libere, bloc 6 dernier, dans les deux FAT ;
+#                                               sommes inchangees ($0B). Ordre des ecritures : le
+#                                               numero de bloc dans l'entree libre suivante, les
+#                                               donnees, puis FAT et entree trouvee
+#      $03       celle du point 2      $00      nouvelle entree (la 2e) : SUB $02, NGH, bloc 6 ;
+#                SUB $02, ou NGH $0055          FAT : bloc 6 dernier ; un NGH absent cree aussi
+#                                               une entree
+#      $01       apres $03             $00      aucune ecriture ; 48 a 50 lectures ; le mot
+#                                               $10FDD0 recoit le masque des sous-sauvegardes du
+#                                               NGH (bit n = sous-sauvegarde n) : $0001, $0004,
+#                                               $0000 pour un NGH absent, toujours reponse $00
+#      $05       plusieurs             $82      aucune ecriture, 176 lectures, sur cinq essais :
+#                                               SUB 0, 1, 2, SIZE $14, NGH absent. Non compris
+#      $04       apres $03, SUB $00    $00      entree 0 <- $FF ; bloc 6 libere ; sommes $0A
+#      $06       celle du point 2      $00      $0F <- $FF ; $10-$1F <- les 16 premiers octets
+#                                               de BIOS_CARD_START
+#      $07       apres $06             $00      aucune ecriture ; 31 lectures
+#      $00       celle du point 2      $00      3 trames ; test de la carte puis formatage :
+#                                               repertoire vide, FAT des seuls blocs reserves,
+#                                               sommes $0A ; le bloc 5 reecrit, $02 aux octets
+#                                               pairs, le motif aux impairs
+#    DETECTION, lue pendant l'appel : REG_STATUS_B ($380000, octet haut) lu 4 fois ; $FF sans
+#    carte (reponse $80), $8F avec (bits 4 a 6 a 0). Carte non formatee : 2 lectures, aux
+#    octets $00 et $20 de la carte (offsets $800000 et $800040), puis $81.
+#    REGISTRES DE LA CARTE ecrits pendant l'appel (octets impairs ; la donnee ne compte pas,
+#    page "Memory mapped registers"), dans l'ordre, hors interruption vblank du jeu :
+#      chargement : REG_CRDNORMAL ($3A0019), REG_CRDBANK ($380011) <- 0, puis REG_CRDLOCK2
+#                   ($3A0007), REG_CRDLOCK1 ($3A0015)
+#      sauvegarde : les memes, et REG_CRDUNLOCK1 ($3A0005) puis REG_CRDUNLOCK2 ($3A0017),
+#                   deux fois, avant les deux verrouillages
+#      sans carte : REG_CRDLOCK2, REG_CRDLOCK1
+#    Sans REG_CRDNORMAL, la carte ne se lit pas : sous notre premiere image, 2 lectures puis
+#    $81 ; la meme image lit la carte et repond $00 si le jig ecrit REG_CRDNORMAL avant l'appel.
+#    Releves ajoutes apres la premiere remise, qui ne les portait pas.
+#    $06 (nom) ne fait qu'une paire de deverrouillages ; $03 en fait deux. Ecritures RAM en
+#    plus de celles du point 3 : $01 ecrit le mot $10FDD0 juste apres $10FDC6 <- $00 et a la
+#    fin ; $03 l'ecrit a la fin ; $07 sur une carte dont l'octet $0F vaut $00 repond $82, sans
+#    copie, et ecrit $10FDC6 a la fin. Releves par bench/carte-diff.sh (reference contre notre
+#    image), qui compare reponses, ecritures RAM de CARD, octets de carte et registres.
+#    $00 (formater) : une seule paire de deverrouillages ; RAM : $10FD00, $10FCF4, $10FDC6,
+#    puis $10FD14 AVANT $10FD16, puis $10FD04-$10FD12, sans second $10FCF4. A la sortie, tout
+#    octet hors de la structure porte le motif (mot = 2 x offset), y compris l'ancienne entree
+#    0 du repertoire et l'ancien bloc 5 : le formatage de la reference remplit la carte du
+#    motif, puis ecrit la structure.
+#    CARD_ERROR sur $03/$81 : RAM $10FD00 et le mot $10FDC6, puis le mot $10FDC4 deux fois,
+#    puis un appel de formatage complet (sequence du $00), puis le mot $10FDC4, puis une
+#    sauvegarde complete ; registres : la sequence du $00, celle du $03, puis REG_CRDLOCK2 et
+#    REG_CRDLOCK1 une fois de plus. Interface a la sortie : $10FDC4 $03, $10FDC5 $03, $10FDC6
+#    $00, $10FDC7 $81 (la reponse d'origine y reste).
+#    SOMME D'UNE FAT : la somme de ses octets, mesure trois fois ($0B pour 5 x $02 + $01, $0A
+#    pour 5 x $02 apres suppression et apres formatage).
+#
+# 5. CARD_ERROR ($C0046E) provoque sur une carte neuve, interface d'une sauvegarde refusee
+#    (commande $03, reponse $81) : en 3 trames et sans rien afficher, la reference teste la
+#    carte (ecritures $AA et $55, dont une a $801000), la formate, puis fait la sauvegarde. La
+#    carte sort egale a celle du point 2 octet pour octet, hors le bloc de donnees. C'est le
+#    chemin probable de la partie du point 2 : le jeu y a appele CARD ($04 puis $03, reponse
+#    $81 ; bench/card.lua, partie jouee a la main), puis CARD_ERROR - SUPPOSE, ce jig ne
+#    regardait que $C00468.
+#
+# 6. JUGEMENT DE NOTRE IMAGE (src/c0/card.s), bench/carte-diff.sh : 13 appels provoques
+#    (chargement, recherche x2, sauvegarde x2, suppression, titre, nom x2, formatage, carte non
+#    formatee, sans carte, CARD_ERROR) sous la reference et sous notre image, memes cartes de
+#    depart. Memes reponses et interface, memes ecritures en RAM de CARD, memes octets de carte,
+#    memes registres de carte : 13 sur 13. Le juge passe la reference contre elle-meme a 13 sur 13.
+#
+# Deux parties instrumentees (jig dans la fenetre, carte neuve) n'ont pas abouti a une
+# sauvegarde : la premiere injectait le plan d'entrees de la matrice, d'ou A_SANS_ENTREES ; la
+# seconde est une manoeuvre ratee. Elle n'a vu qu'un appel, commande $02, reponse $81.
+#
+# Non mesure a ce jour : les cartes 16 bits et de plus de 2 Kio ; la sauvegarde sur plusieurs
+# blocs ; ce que CARD_ERROR fait des autres reponses ($82-$85) ; le sens de la commande $05.

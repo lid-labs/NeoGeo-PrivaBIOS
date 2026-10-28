@@ -1,0 +1,69 @@
+jeu	annee	bios	verdict	vifs_max	vitesse_pct	framecnt_fin
+joyjoy	1990	snk	joue (plus longue pose 0 tr.)	71680	2139.15	3260
+joyjoy	1990	unibios40	joue (plus longue pose 0 tr.)	71261	2307.34	3172
+joyjoy	1990	nullbios	joue (plus longue pose 0 tr.)	71261	2220.59	0
+joyjoy	1990	neopen	joue (plus longue pose 0 tr.)	71680	2247.93	0
+lbowling	1990	snk	joue (plus longue pose 0 tr.)	71680	2107.73	3260
+lbowling	1990	unibios40	joue (plus longue pose 0 tr.)	68096	2250.84	3172
+lbowling	1990	nullbios	joue (plus longue pose 0 tr.)	55724	2205.85	0
+lbowling	1990	neopen	joue (plus longue pose 0 tr.)	66722	2205.08	0
+nam1975	1990	snk	joue (plus longue pose 0 tr.)	71680	1828.75	3258
+nam1975	1990	unibios40	joue (plus longue pose 0 tr.)	70292	1944.60	3170
+nam1975	1990	nullbios	joue (plus longue pose 0 tr.)	27611	1975.94	0
+nam1975	1990	neopen	joue (plus longue pose 0 tr.)	68096	2619.96	0
+ridhero	1990	snk	joue (plus longue pose 0 tr.)	71680	2037.54	3260
+ridhero	1990	unibios40	joue (plus longue pose 0 tr.)	71680	2184.53	3172
+ridhero	1990	nullbios	joue (plus longue pose 0 tr.)	71680	2061.49	0
+ridhero	1990	neopen	joue (plus longue pose 100 tr.)	59748	2094.33	0
+trally	1991	snk	joue (plus longue pose 0 tr.)	71680	2141.40	3157
+trally	1991	unibios40	joue (plus longue pose 0 tr.)	71490	2342.64	2966
+trally	1991	nullbios	joue (plus longue pose 0 tr.)	70605	2370.32	0
+trally	1991	neopen	joue (plus longue pose 0 tr.)	71680	2372.68	0
+aof	1992	snk	joue (plus longue pose 0 tr.)	71680	1989.25	3260
+aof	1992	unibios40	joue (plus longue pose 0 tr.)	68096	2123.92	3171
+aof	1992	nullbios	FIGE dès 300 (3200 trames)	67795	2898.14	0
+aof	1992	neopen	joue (plus longue pose 0 tr.)	68096	2158.18	0
+kof94	1994	snk	joue (plus longue pose 0 tr.)	71680	1793.73	3259
+kof94	1994	unibios40	joue (plus longue pose 0 tr.)	68096	1978.71	3170
+kof94	1994	nullbios	joue (plus longue pose 100 tr.)	17836	2312.31	0
+kof94	1994	neopen	joue (plus longue pose 0 tr.)	67671	2021.15	0
+samsho2	1994	snk	joue (plus longue pose 0 tr.)	71680	1944.28	3260
+samsho2	1994	unibios40	joue (plus longue pose 0 tr.)	71680	2123.83	3172
+samsho2	1994	nullbios	joue (plus longue pose 0 tr.)	71680	2003.56	0
+samsho2	1994	neopen	joue (plus longue pose 0 tr.)	71680	2181.35	0
+wjammers	1994	snk	joue (plus longue pose 0 tr.)	71680	1954.64	3260
+wjammers	1994	unibios40	joue (plus longue pose 0 tr.)	68096	2120.28	3172
+wjammers	1994	nullbios	joue (plus longue pose 0 tr.)	68096	1969.01	0
+wjammers	1994	neopen	joue (plus longue pose 0 tr.)	68096	2096.12	0
+puzzledp	1995	snk	joue (plus longue pose 0 tr.)	71680	2148.59	3259
+puzzledp	1995	unibios40	joue (plus longue pose 0 tr.)	68096	2294.11	3171
+puzzledp	1995	nullbios	joue (plus longue pose 0 tr.)	68096	2258.87	0
+puzzledp	1995	neopen	joue (plus longue pose 0 tr.)	68096	2264.28	0
+mslug	1996	snk	joue (plus longue pose 0 tr.)	71680	2093.04	3220
+mslug	1996	unibios40	joue (plus longue pose 0 tr.)	68096	2238.06	3164
+mslug	1996	nullbios	FIGE dès 600 (2900 trames)	61072	2447.84	0
+mslug	1996	neopen	joue (plus longue pose 0 tr.)	67236	2216.84	0
+ssideki4	1996	snk	joue (plus longue pose 0 tr.)	71680	1941.42	3220
+ssideki4	1996	unibios40	joue (plus longue pose 0 tr.)	71186	2054.58	3164
+ssideki4	1996	nullbios	FIGE dès 100 (3400 trames)	0	2269.40	0
+ssideki4	1996	neopen	joue (plus longue pose 0 tr.)	71680	2003.39	0
+kof98	1998	snk	joue (plus longue pose 0 tr.)	71680	1616.75	2995
+kof98	1998	unibios40	joue (plus longue pose 0 tr.)	67200	1723.07	3130
+kof98	1998	nullbios	joue (plus longue pose 0 tr.)	0	55.74	0
+kof98	1998	neopen	joue (plus longue pose 0 tr.)	68096	1903.02	0
+garou	1999	snk	joue (plus longue pose 0 tr.)	71680	1561.88	2998
+garou	1999	unibios40	joue (plus longue pose 0 tr.)	70792	1660.39	3133
+garou	1999	nullbios	FIGE dès 100 (3200 trames)	0	60.90	0
+garou	1999	neopen	joue (plus longue pose 0 tr.)	70073	1893.85	0
+mslug3	2000	snk	joue (plus longue pose 0 tr.)	71680	1745.31	2971
+mslug3	2000	unibios40	joue (plus longue pose 0 tr.)	65338	1858.80	3135
+mslug3	2000	nullbios	joue (plus longue pose 0 tr.)	0	53.74	0
+mslug3	2000	neopen	joue (plus longue pose 0 tr.)	68096	2113.57	0
+kof2003	2003	snk	joue (plus longue pose 0 tr.)	71680	1647.63	3213
+kof2003	2003	unibios40	joue (plus longue pose 0 tr.)	65253	1855.46	3157
+kof2003	2003	nullbios	joue (plus longue pose 0 tr.)	0	53.59	0
+kof2003	2003	neopen	joue (plus longue pose 0 tr.)	61829	1941.15	0
+svc	2003	snk	joue (plus longue pose 0 tr.)	71680	1701.89	3220
+svc	2003	unibios40	joue (plus longue pose 0 tr.)	64836	1823.60	3164
+svc	2003	nullbios	FIGE dès 100 (3400 trames)	0	2821.12	0
+svc	2003	neopen	joue (plus longue pose 0 tr.)	68096	1939.37	0

@@ -1,0 +1,78 @@
+# Matrice du corpus sur l'image des LED et des petits écarts des remises, le 2026-10-23 : 22 jeux, BIOS_REF euro, sans la colonne nullbios.
+# MAME 0.286, Apple M4 Pro, 14 cœurs, macOS 26.6.2. Image sha256 112480d25eb38898…2b78dbd2 (main a84b44c2, 890e65f5…c94ee3c5, + ce lot). Sortie de l'étage 2 de bench/non-regression.sh
+# --jobs 2, passe complète PASS (4 étages PASS, 0 FAIL, 232 s, un catalogue tournant à côté) contre la référence par défaut, 2026-10-22-repetition-et-start-matrice.tsv.
+# Par rapport à l'image de main (2026-10-23-comptabilite-matrice.tsv, même image 890e65f5) : verdicts et contrôles identiques sur les 22 jeux ; vifs_max identiques sur 20 ;
+# changés sur 2, colonne sprixe : neomrdo 67550 → 67534 (−0,02 %), svc 66853 → 65544 (−1,96 % ; −1,11 % contre la référence du harnais, 66279). Contre la colonne snk (71680 sur
+# les deux) : les deux s'en éloignent (écart 4130 → 4146, 4827 → 6136). SUPPOSÉ, non isolé : svc suit le nombre de cycles de SYSTEM_INT1 (relevé du 2026-10-22), et les afficheurs
+# de _io_commun ont changé de place et de longueur.
+# Un premier essai de ce lot, l'attente de 3 200 tours après REG_SOUND ← $03 étendue à la démo, sortait kof94 de la tolérance (67737 → 66230, −2,22 %, étage 2 FAIL) : l'attente
+# retirée hors du titre (src/c0/c0.s, _remettre_a_user), kof94 est revenu à 67737 ; le $03 seul ne le bougeait pas (variantes mesurées sur kof94 seul).
+# Relevé à part, NON substitué au défaut de bench/non-regression.sh.
+# Régénérer : BIOS_SANS_NULLBIOS=1 BIOS_JEUX="<les 22>" BIOS_VARIANTES="sprixe=<image>" bench/matrice.sh $ROMS <travail>
+jeu	bios	verdict	vifs_max	vitesse_pct	controle
+aof	snk	joue (plus longue pose 0 tr.)	71680	1399.26	ok
+aof	unibios40	joue (plus longue pose 0 tr.)	68096	1507.65	ok
+aof	sprixe	joue (plus longue pose 0 tr.)	68096	1451.97	ok
+magdrop2	snk	joue (plus longue pose 0 tr.)	71680	1399.42	ok
+magdrop2	unibios40	joue (plus longue pose 0 tr.)	68096	1498.01	ok
+magdrop2	sprixe	joue (plus longue pose 0 tr.)	67702	1461.87	ok
+ssideki4	snk	joue (plus longue pose 0 tr.)	71680	1345.03	ok
+ssideki4	unibios40	joue (plus longue pose 0 tr.)	71186	1460.17	ok
+ssideki4	sprixe	joue (plus longue pose 0 tr.)	71186	1417.00	ok
+mslug3	snk	joue (plus longue pose 0 tr.)	71680	1266.14	ok
+mslug3	unibios40	joue (plus longue pose 0 tr.)	65338	1340.85	ok
+mslug3	sprixe	joue (plus longue pose 0 tr.)	64996	1333.05	ok
+wjammers	snk	joue (plus longue pose 0 tr.)	71680	1379.41	ok
+wjammers	unibios40	joue (plus longue pose 0 tr.)	68096	1478.40	ok
+wjammers	sprixe	joue (plus longue pose 0 tr.)	68096	1425.32	ok
+mslug	snk	joue (plus longue pose 0 tr.)	71680	1463.77	ok
+mslug	unibios40	joue (plus longue pose 0 tr.)	68096	1576.75	ok
+mslug	sprixe	joue (plus longue pose 0 tr.)	67315	1522.64	ok
+b2b	snk	joue (plus longue pose 0 tr.)	71680	1314.46	ok
+b2b	unibios40	joue (plus longue pose 0 tr.)	68096	1419.13	ok
+b2b	sprixe	joue (plus longue pose 0 tr.)	67677	1362.62	ok
+minasan	snk	joue (plus longue pose 0 tr.)	71680	1343.89	ok
+minasan	unibios40	joue (plus longue pose 0 tr.)	65309	1434.56	ok
+minasan	sprixe	joue (plus longue pose 0 tr.)	56085	1398.92	ok
+joyjoy	snk	joue (plus longue pose 0 tr.)	71680	1462.66	ok
+joyjoy	unibios40	joue (plus longue pose 0 tr.)	71261	1559.18	ok
+joyjoy	sprixe	joue (plus longue pose 0 tr.)	71680	1510.24	ok
+nam1975	snk	joue (plus longue pose 0 tr.)	71680	1285.33	ok
+nam1975	unibios40	joue (plus longue pose 0 tr.)	70292	1372.97	ok
+nam1975	sprixe	joue (plus longue pose 0 tr.)	70381	1310.98	ok
+garou	snk	joue (plus longue pose 0 tr.)	71680	1147.66	ok
+garou	unibios40	joue (plus longue pose 0 tr.)	70792	1217.74	ok
+garou	sprixe	joue (plus longue pose 0 tr.)	70792	1188.49	ok
+ridhero	snk	joue (plus longue pose 0 tr.)	71680	1418.80	ok
+ridhero	unibios40	joue (plus longue pose 0 tr.)	71680	1515.45	ok
+ridhero	sprixe	joue (plus longue pose 0 tr.)	71680	1493.75	ok
+flipshot	snk	joue (plus longue pose 0 tr.)	71680	1405.32	ok
+flipshot	unibios40	joue (plus longue pose 0 tr.)	68096	1488.19	ok
+flipshot	sprixe	joue (plus longue pose 0 tr.)	68096	1468.75	ok
+puzzledp	snk	joue (plus longue pose 0 tr.)	71680	1530.73	ok
+puzzledp	unibios40	joue (plus longue pose 0 tr.)	68096	1614.45	ok
+puzzledp	sprixe	joue (plus longue pose 0 tr.)	68096	1588.58	ok
+kof2003	snk	joue (plus longue pose 0 tr.)	71680	1267.64	ok
+kof2003	unibios40	joue (plus longue pose 0 tr.)	65253	1340.39	ok
+kof2003	sprixe	joue (plus longue pose 0 tr.)	66538	1312.30	ok
+neomrdo	snk	joue (plus longue pose 0 tr.)	71680	1278.28	ok
+neomrdo	unibios40	joue (plus longue pose 0 tr.)	68096	1363.74	ok
+neomrdo	sprixe	joue (plus longue pose 0 tr.)	67534	1329.18	ok
+lbowling	snk	joue (plus longue pose 0 tr.)	71680	1462.09	ok
+lbowling	unibios40	joue (plus longue pose 0 tr.)	68096	1567.95	ok
+lbowling	sprixe	joue (plus longue pose 0 tr.)	66663	1523.10	ok
+samsho2	snk	joue (plus longue pose 0 tr.)	71680	1381.04	ok
+samsho2	unibios40	joue (plus longue pose 0 tr.)	71680	1474.69	ok
+samsho2	sprixe	joue (plus longue pose 0 tr.)	71680	1470.16	ok
+kof98	snk	joue (plus longue pose 0 tr.)	71680	1114.71	ok
+kof98	unibios40	joue (plus longue pose 0 tr.)	67200	1197.65	ok
+kof98	sprixe	joue (plus longue pose 0 tr.)	67251	1155.65	ok
+trally	snk	joue (plus longue pose 0 tr.)	71680	1560.30	ok
+trally	unibios40	joue (plus longue pose 0 tr.)	71490	1647.69	ok
+trally	sprixe	joue (plus longue pose 0 tr.)	71490	1645.31	ok
+kof94	snk	joue (plus longue pose 0 tr.)	71680	1217.24	ok
+kof94	unibios40	joue (plus longue pose 0 tr.)	68096	1343.26	ok
+kof94	sprixe	joue (plus longue pose 0 tr.)	67737	1268.58	ok
+svc	snk	joue (plus longue pose 0 tr.)	71680	1234.67	ok
+svc	unibios40	joue (plus longue pose 0 tr.)	64836	1320.29	ok
+svc	sprixe	joue (plus longue pose 0 tr.)	65544	1347.07	ok

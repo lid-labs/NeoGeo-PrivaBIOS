@@ -1,0 +1,18 @@
+# Vérification de bout en bout de `build/construire.sh`, le 2026-10-11.
+#
+# Image : `build/harnais/` lié par `build/bios.ld`, 131 072 octets, octets inversés par paires.
+# Banc  : packages/sprixe-engine/bench/lspc, `puzzledp`, 20 trames, BIOS substitué par BIOS_ZIP.
+# Commande : voir `docs/tasks.md`, prérequis 2 de la couche 0.
+#
+# La donnée écrite ne figure pas ici : `measured/` ne porte que des adresses et des comptes.
+# Le harnais, versionné, dit laquelle il écrit.
+#
+# Watchdog (I3, 8 trames, aucun coup de pied du harnais) : 2 resets sur 20 trames,
+# aux trames 8 et 16, périodes 6460542 et 12921084.
+preuve	periode	adresse	sens	espace	attendu_par
+vecteur de reset, mot 0	127	000000	rd	sp	boot.md
+vecteur de reset, mot 1	143	000002	rd	sp	boot.md
+vecteur de reset, mot 2	159	000004	rd	sp	boot.md
+vecteur de reset, mot 3	175	000006	rd	sp	boot.md
+premier fetch apres le vecteur	191	C00008	rd	sp	bios.ld (vecteurs sur 8 octets)
+ecriture du harnais en RAM de travail	279	100000	WR	sd	harnais.s

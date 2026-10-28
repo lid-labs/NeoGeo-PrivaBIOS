@@ -1,0 +1,98 @@
+# Le mode AES de ReBIOS sur carte MVS, mesuré le 2026-10-23 contre le BIOS AES de SNK, par observation. MAME 0.286, -video none,
+# SDL_MAC_BACKGROUND_APP=1, -nothrottle, NVRAM par run. Aucun PC consigné, aucun octet de ROM de référence : des valeurs écrites en RAM
+# BIOS, des entrées du BIOS dans les points d'entrée publics ($122 USER, $128 PLAYER_START, $12E DEMO_END, $134 COIN_SOUND, et
+# $C00444 SYSTEM_RETURN, « BIOS calls »), des empreintes d'image. Le PC n'est lu que pour dire qui écrit (bios : $C00000-$C1FFFF).
+# Jig : aes.lua du cadrage (2026-10-23-aes-reference.tsv, non versionné) étendu de $10FDB4, $10FEE1, SYSTEM_RETURN, directions et
+# TEST ; non versionné, comme le relevé du cadrage.
+#
+# COLONNES. aes-snk : `aes -bios asia -cart <jeu>` (NEO-EPO), aes.zip recopié de neogeo.zip (neo-epo.bin, 000-lo.lo), contrôle :
+# pas de WRONG CHECKSUMS. rebios-aes : `neogeo -bios euro -cart1 <jeu>`, notre image (src/c0 de ce lot, sha256 ci-dessous), sp-s2.sp1
+# substitué (WRONG CHECKSUMS présent), NVRAM du run « bascule » : l'éditeur, MODE → AES, START, relance ; le slot d'aof y est inscrit,
+# les cinq autres jeux y sont donc nouveaux (demande 0 au premier boot, comme en MVS). rebios-mvs : notre image, NVRAM neuve, mode MVS.
+# Scénarios : repos (rien, 3000 trames) ; start (START P1 à 1500, 1800, 2100) ; piece (pièce à 1500, START à 1700 ; pas de pièce
+# sous `aes`) ; start-p2 (START P2 à 1500) ; game-over (aof : START 1500, 1700, 1900, 2100, A 2300, 2500, 2700, START 2900, puis rien
+# jusqu'à 20 000-20 500) ; second-boot (kof98, MAME relancé sur la NVRAM de son run repos).
+# Image : sha256 bc6560f50412bbb23cece3f5d38a4a818c5c606ca5564b4407c983db4bc8127b (src/c0 de ce lot), non versionnée.
+#
+# VERDICT, notre mode AES contre le BIOS AES de SNK :
+#  1. BIOS_MVS_FLAG ← $00 chez les deux, jamais $80 ; le jeu le lit de même (colonne lectures, les relectures du jig ôtées).
+#  2. START sans pièce : PLAYER_START à la trame de l'appui chez les deux, sur les six jeux, en démo comme en partie ; $10FDB4 ← $01
+#     (P1), $02 (P2 seul, pas $03). La référence n'écrit ni $10FEE1 (FRAME_SKIP) ni $10FD81 au START ; nous non plus pour FRAME_SKIP,
+#     mais $10FD81 ← $03, ÉCART VOULU (DECISIONS §11) : la fin de partie revient par le code 3 et non le code 2. Chez nous $10FDB4
+#     passe par $00 (la décision du chemin MVS, refusée) avant d'être réécrit aux pressés, d'où « 00,01 » : le START du mode AES est
+#     pris au refus pour que le chemin MVS garde ses instructions (`io.s`, `_io_start_refus`) ; le jeu n'a pas la main entre les deux.
+#  3. La pièce, en mode AES : ignorée (monnayeurs verrouillés au boot, REG_SETCL1/2) — ni COIN_SOUND, ni DEMO_END, ni titre ; le START qui suit est le START sans pièce.
+#  4. Jamais de demande 3, chez les deux. Demande 1 : kof98 seul ($114 = 1), juste après sa demande 0, mode 0, et la démo à son
+#     SYSTEM_RETURN (code 1) ; l'animation dure 464 trames chez les deux (9 → 473, 189 → 653). Notre premier boot n'est pas celui de la
+#     référence (demande 0 à 184, après notre écran de boot, contre 5) ; au second boot, la demande 1 revient, sans demande 0 (D5).
+#  5. Game over (aof) : SYSTEM_RETURN à 19 763 chez les deux, la démo (demande 2, mode 1) à 19 766 chez les deux, R+3 ; le code diffère
+#     (référence $02, nous $03, point 2). Pas de titre.
+#  6. Ce que voit le joueur (section 2, une empreinte par trame) : la démo du mode AES est celle de la référence au pixel près sur 41 à
+#     100 % des trames, à un décalage unique égal à l'écart des remises (aof, samsho2, puzzledp, kof94) ou à 3-6 trames près (mslug,
+#     kof98) ; après START à 1000 chez les deux, 1394 à 1398 trames sur 1400 égales (aof, mslug, puzzledp, kof94 : le menu console,
+#     GAME LEVEL, START / OPTION, GAME SELECT) ; kof98 et samsho2 ouvrent le même menu, mais l'animation de fond dépend de l'instant de
+#     la démo où tombe START (planche, non versionnée) : 175 et 66 trames égales. Game over d'aof, une empreinte toutes les 20 trames
+#     côté référence : les menus 73/73, le combat 44/873 (le hasard du jeu), la démo d'après 12/12.
+#
+# NON MESURÉ : le multi-slot et SELECT en mode AES (l'AES n'a qu'un slot : aucune référence) ; SELECT en partie (pause) ; la carte
+# mémoire ; les régions autres qu'asia ; les 16 autres jeux du corpus et les jeux marqués MVS seulement ; une vraie console (R1 du
+# cadrage : notre image ne tourne pas sous `aes`).
+#
+# SECTION 1 : une ligne par run. user = trame:demande/mode de chaque entrée à $122 ; system_return = trame:code ($10FD81 lu à l'entrée
+# de $C00444) ; player_start, coin_sound, demo_end = trames d'entrée ; start_flag et sysret_status = valeurs écrites par le BIOS après la
+# trame 1000 ; frame_skip = valeur écrite par le BIOS dans $10FEE1 à une trame d'appui de START ; reset = trames de reset machine ;
+# lectures = lectures de $10FD82 par le jeu sur le run.
+section	jeu	colonne	scenario	mvs_flag	user_trame:demande/mode	system_return_trame:code	player_start	coin_sound	demo_end	start_flag_bios_apres_1000	sysret_status_bios_apres_1000	frame_skip_bios_a_l_appui	reset	lectures_10FD82_jeu
+1	aof	aes-snk	repos	00	5:00/00 476:02/01	5:00	-	-	-	-	-	-	-	2543
+1	aof	rebios-aes	repos	00	184:02/01	-	-	-	-	-	-	-	-	2852
+1	aof	aes-snk	start	00	5:00/00 476:02/01	5:00	1500,1800,2100	-	-	01	-	-	-	2523
+1	aof	rebios-aes	start	00	184:02/01	-	1500,1800,2100	-	-	00,01	1500:03	-	-	2832
+1	aof	rebios-aes	piece	00	184:02/01	-	1700	-	-	00,01	1700:03	-	-	2835
+1	aof	rebios-mvs	repos	80	184:00/00 188:02/01	184:00	-	-	-	-	-	-	-	2849
+1	mslug	aes-snk	repos	00	5:00/00 481:02/01	10:00	-	-	-	-	-	-	-	7704
+1	mslug	rebios-aes	repos	00	184:00/00 193:02/01	189:00	-	-	-	-	-	-	-	8668
+1	mslug	aes-snk	start	00	5:00/00 481:02/01	10:00	1500,1800,2100	-	-	01	-	-	-	6482
+1	mslug	rebios-aes	start	00	184:00/00 193:02/01	189:00	1500,1800,2100	-	-	00,01	1500:03	-	-	7469
+1	mslug	rebios-aes	piece	00	184:00/00 193:02/01	189:00	1700	-	-	00,01	1700:03	-	-	7639
+1	mslug	rebios-mvs	repos	80	184:00/00 193:02/01	189:00	-	-	-	-	-	-	-	8668
+1	kof98	aes-snk	repos	00	5:00/00 9:01/00 476:02/01	6:00 473:01	-	-	-	-	-	-	-	10441
+1	kof98	rebios-aes	repos	00	184:00/00 189:01/00 654:02/01	185:00 653:01	-	-	-	-	-	-	-	9724
+1	kof98	aes-snk	start	00	5:00/00 9:01/00 476:02/01	6:00 473:01	1500,1800,2100	-	-	01	-	-	-	10520
+1	kof98	rebios-aes	start	00	184:00/00 189:01/00 654:02/01	185:00 653:01	1500,1800,2100	-	-	00,01	1500:03	-	-	9807
+1	kof98	rebios-aes	piece	00	184:00/00 189:01/00 654:02/01	185:00 653:01	1700	-	-	00,01	1700:03	-	-	9799
+1	kof98	rebios-mvs	repos	80	184:00/00 378:02/01	-	-	-	-	-	-	-	194	7764
+1	samsho2	aes-snk	repos	00	5:00/00 476:02/01	5:00	-	-	-	-	-	-	-	2518
+1	samsho2	rebios-aes	repos	00	184:00/00 188:02/01	184:00	-	-	-	-	-	-	-	2966
+1	samsho2	aes-snk	start	00	5:00/00 476:02/01	5:00	1500,1800,2100	-	-	01	-	-	-	2497
+1	samsho2	rebios-aes	start	00	184:00/00 188:02/01	184:00	1500,1800,2100	-	-	00,01	1500:03	-	-	2799
+1	samsho2	rebios-aes	piece	00	184:00/00 188:02/01	184:00	1700	-	-	00,01	1700:03	-	-	2801
+1	samsho2	rebios-mvs	repos	80	184:00/00 188:02/01	184:00	-	-	-	-	-	-	-	2966
+1	puzzledp	aes-snk	repos	00	5:00/00 476:02/01	5:00	-	-	-	-	-	-	-	12595
+1	puzzledp	rebios-aes	repos	00	184:00/00 188:02/01	184:00	-	-	-	-	-	-	-	11249
+1	puzzledp	aes-snk	start	00	5:00/00 476:02/01	5:00	1500,1800,2100	-	-	01	-	-	-	11071
+1	puzzledp	rebios-aes	start	00	184:00/00 188:02/01	184:00	1500,1800,2100	-	-	00,01	1502:03	-	-	11221
+1	puzzledp	rebios-aes	piece	00	184:00/00 188:02/01	184:00	1700	-	-	00,01	1702:03	-	-	11232
+1	puzzledp	rebios-mvs	repos	80	184:00/00 188:02/01	184:00	-	-	-	-	-	-	-	11249
+1	kof94	aes-snk	repos	00	5:00/00 477:02/01	6:00	-	-	-	-	-	-	-	2276742
+1	kof94	rebios-aes	repos	00	184:00/00 189:02/01	185:00	-	-	-	-	-	-	-	2414486
+1	kof94	aes-snk	start	00	5:00/00 477:02/01	6:00	1500,1800,2100	-	-	01	-	-	-	2574743
+1	kof94	rebios-aes	start	00	184:00/00 189:02/01	185:00	1500,1800,2100	-	-	00,01	1500:03	-	-	2845095
+1	kof94	rebios-aes	piece	00	184:00/00 189:02/01	185:00	1700	-	-	00,01	1700:03	-	-	2818096
+1	kof94	rebios-mvs	repos	80	184:00/00 189:02/01	185:00	-	-	-	-	-	-	-	3052631
+1	aof	aes-snk	start-p2	00	5:00/00 476:02/01	5:00	1500	-	-	02	-	-	-	1223
+1	kof98	aes-snk	start-p1-puis-p2	00	5:00/00 9:01/00 476:02/01	6:00 473:01	1500,1800	-	-	01,02	-	-	-	6321
+1	aof	aes-snk	game-over	00	5:00/00 476:02/01 19766:02/01	5:00 19763:02	1500,1700,1900,2100,2900	-	-	01	-	-	-	19523
+1	aof	rebios-aes	game-over	00	184:02/01 19766:02/01	19763:03	1500,1700,1900,2100,2900	-	-	00,01	1500:03 19764:02	-	-	20161
+1	aof	rebios-aes	bascule	00	533:00/00 537:02/01	533:00	-	-	-	-	-	-	349	952
+1	kof98	rebios-aes	second-boot	00	184:01/00 649:02/01	648:01	-	-	-	-	-	-	-	2618
+#
+# SECTION 2 : les images, une empreinte de l'écran entier par trame (runs à part, J_SIG=1, 2400 trames, START à 1000 seul). D = écart
+# des remises de la démo (référence − nous) ; égales à D sur la fenêtre de notre remise + 1 à 2400 − D ; meilleur décalage et son compte ;
+# après START, trames 1001-2400 égales à la même trame.
+section	jeu	remise_snk	remise_nous	D	demo_egales_a_D	meilleur_D	demo_egales_meilleur	apres_start_egales
+2	aof	476	184	292	1641/1924	292	1641/1924	1397/1400
+2	mslug	481	193	288	599/1919	285	1623/1919	1394/1400
+2	kof98	476	654	-178	427/1746	-184	1090/1746	175/1400
+2	samsho2	476	188	288	795/1924	288	795/1924	66/1400
+2	puzzledp	476	188	288	961/1924	288	961/1924	1395/1400
+2	kof94	477	189	288	1923/1923	288	1923/1923	1398/1400

@@ -1,0 +1,59 @@
+# Depart de P2, le 2026-10-22 : notre image avant (9dccf8cb). MAME sans fenetre, NVRAM isolee, sonde p2.lua (hors depot).
+# Ecritures de $10FDB4, $10FDB6/7, $10FDAF, $D00034/$D00035 et fetch de PLAYER_START ($000128), dans [START, START+5].
+# origine « bios » : ecriture faite depuis la ROM du BIOS, SANS adresse (DECISIONS.md §8) ; « jeu:PC » : PC du jeu.
+# B4/D34/D35 : valeurs AVANT l ecriture.
+cas	plan	jeu	trame	evenement	origine	adr	valeur	B4	D34	D35
+b	coin@900 coin@960 start1@1100 start2@1700	cyberlip	1100	ecrit	bios	10FDB4	01	00	02	00
+b	coin@900 coin@960 start1@1100 start2@1700	cyberlip	1100	PLAYER_START	-	000128	-	01	02	00
+b	coin@900 coin@960 start1@1100 start2@1700	cyberlip	1100	ecrit	jeu:00ABBE	10FDB6	01	01	02	00
+b	coin@900 coin@960 start1@1100 start2@1700	cyberlip	1100	ecrit	jeu:00AC06	10FDB4	01	01	02	00
+b	coin@900 coin@960 start1@1100 start2@1700	cyberlip	1100	ecrit	jeu:00AC14	10FDAF	02	01	02	00
+b	coin@900 coin@960 start1@1100 start2@1700	cyberlip	1100	ecrit	bios	D00034	01	01	02	00
+b	coin@900 coin@960 start1@1100 start2@1700	kof94	1100	ecrit	bios	10FDB4	01	00	02	00
+b	coin@900 coin@960 start1@1100 start2@1700	kof94	1100	PLAYER_START	-	000128	-	01	02	00
+b	coin@900 coin@960 start1@1100 start2@1700	kof94	1100	ecrit	jeu:0326F0	10FDAF	02	01	02	00
+b	coin@900 coin@960 start1@1100 start2@1700	kof94	1100	ecrit	jeu:032948	10FDB6	01	01	02	00
+b	coin@900 coin@960 start1@1100 start2@1700	kof94	1100	ecrit	jeu:03270C	10FDB4	01	01	02	00
+b	coin@900 coin@960 start1@1100 start2@1700	kof94	1100	ecrit	bios	D00034	01	01	02	00
+b	coin@900 coin@960 start1@1100 start2@1700	aof	1100	ecrit	bios	10FDB4	01	00	02	00
+b	coin@900 coin@960 start1@1100 start2@1700	aof	1100	PLAYER_START	-	000128	-	01	02	00
+b	coin@900 coin@960 start1@1100 start2@1700	aof	1100	ecrit	jeu:00545E	10FDB4	01	01	02	00
+b	coin@900 coin@960 start1@1100 start2@1700	aof	1100	ecrit	jeu:005464	10FDAF	02	01	02	00
+b	coin@900 coin@960 start1@1100 start2@1700	aof	1100	ecrit	bios	D00034	01	01	02	00
+b	coin@900 coin@960 start1@1100 start2@1700	aof	1100	ecrit	jeu:0054F6	10FDB6	01	01	01	00
+c	coin2@900 start2@1100	cyberlip	1100	ecrit	bios	10FDB4	02	00	00	02
+c	coin2@900 start2@1100	cyberlip	1100	PLAYER_START	-	000128	-	02	00	02
+c	coin2@900 start2@1100	cyberlip	1100	ecrit	jeu:00ABFA	10FDB7	01	02	00	02
+c	coin2@900 start2@1100	cyberlip	1100	ecrit	jeu:00AC06	10FDB4	02	02	00	02
+c	coin2@900 start2@1100	cyberlip	1100	ecrit	jeu:00AC14	10FDAF	02	02	00	02
+c	coin2@900 start2@1100	cyberlip	1100	ecrit	bios	D00035	01	02	00	02
+c	coin2@900 start2@1100	kof94	1100	ecrit	bios	10FDB4	02	00	00	02
+c	coin2@900 start2@1100	kof94	1100	PLAYER_START	-	000128	-	02	00	02
+c	coin2@900 start2@1100	kof94	1100	ecrit	jeu:0326F0	10FDAF	02	02	00	02
+c	coin2@900 start2@1100	kof94	1100	ecrit	jeu:032948	10FDB7	01	02	00	02
+c	coin2@900 start2@1100	kof94	1100	ecrit	jeu:03270C	10FDB4	02	02	00	02
+c	coin2@900 start2@1100	kof94	1100	ecrit	bios	D00035	01	02	00	02
+c	coin2@900 start2@1100	aof	1100	ecrit	bios	10FDB4	02	00	00	02
+c	coin2@900 start2@1100	aof	1100	PLAYER_START	-	000128	-	02	00	02
+c	coin2@900 start2@1100	aof	1100	ecrit	jeu:00545E	10FDB4	02	02	00	02
+c	coin2@900 start2@1100	aof	1100	ecrit	jeu:005464	10FDAF	02	02	00	02
+c	coin2@900 start2@1100	aof	1100	ecrit	bios	D00035	01	02	00	02
+c	coin2@900 start2@1100	aof	1100	ecrit	jeu:0054F6	10FDB7	01	02	00	01
+d	coin@900 start1@1100 start2@1700	cyberlip	1100	ecrit	bios	10FDB4	01	00	01	00
+d	coin@900 start1@1100 start2@1700	cyberlip	1100	PLAYER_START	-	000128	-	01	01	00
+d	coin@900 start1@1100 start2@1700	cyberlip	1100	ecrit	jeu:00ABBE	10FDB6	01	01	01	00
+d	coin@900 start1@1100 start2@1700	cyberlip	1100	ecrit	jeu:00AC06	10FDB4	01	01	01	00
+d	coin@900 start1@1100 start2@1700	cyberlip	1100	ecrit	jeu:00AC14	10FDAF	02	01	01	00
+d	coin@900 start1@1100 start2@1700	cyberlip	1100	ecrit	bios	D00034	00	01	01	00
+d	coin@900 start1@1100 start2@1700	kof94	1100	ecrit	bios	10FDB4	01	00	01	00
+d	coin@900 start1@1100 start2@1700	kof94	1100	PLAYER_START	-	000128	-	01	01	00
+d	coin@900 start1@1100 start2@1700	kof94	1100	ecrit	jeu:0326F0	10FDAF	02	01	01	00
+d	coin@900 start1@1100 start2@1700	kof94	1100	ecrit	jeu:032948	10FDB6	01	01	01	00
+d	coin@900 start1@1100 start2@1700	kof94	1100	ecrit	jeu:03270C	10FDB4	01	01	01	00
+d	coin@900 start1@1100 start2@1700	kof94	1100	ecrit	bios	D00034	00	01	01	00
+d	coin@900 start1@1100 start2@1700	aof	1100	ecrit	bios	10FDB4	01	00	01	00
+d	coin@900 start1@1100 start2@1700	aof	1100	PLAYER_START	-	000128	-	01	01	00
+d	coin@900 start1@1100 start2@1700	aof	1100	ecrit	jeu:00545E	10FDB4	01	01	01	00
+d	coin@900 start1@1100 start2@1700	aof	1100	ecrit	jeu:005464	10FDAF	02	01	01	00
+d	coin@900 start1@1100 start2@1700	aof	1100	ecrit	bios	D00034	00	01	01	00
+d	coin@900 start1@1100 start2@1700	aof	1100	ecrit	jeu:0054F6	10FDB6	01	01	00	00

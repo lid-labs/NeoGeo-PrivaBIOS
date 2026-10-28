@@ -1,0 +1,84 @@
+# Le crédit en mode AES, mesuré le 2026-10-23 par observation, contre le BIOS AES de SNK : ce que les jeux lisent à $D00034/$D00035
+# (« Backup RAM », crédits P1/P2) et ce que CREDIT_CHECK ($C00450, « BIOS calls ») rend dans BIOS_CREDIT_DEC1/2 ($10FDB0/$10FDB1,
+# « BIOS RAM locations »). MAME 0.286, -video none, -sound none, SDL_MAC_BACKGROUND_APP=1, -nothrottle, NVRAM par run. Aucun PC
+# consigné, aucun octet de ROM de référence : des comptes de lectures et d'écritures, des valeurs, des empreintes d'image. Le PC n'est
+# lu que pour dire qui lit ou écrit (BIOS : $C00000-$C1FFFF, sinon le jeu). Un appel de CREDIT_CHECK est compté comme dans
+# bench/appels.lua : la lecture de $C00450 pendant que le jeu a la main ($10FD80 bit 7), suivie d'une écriture en RAM de travail.
+# Jig : credit.lua (taps de lecture et d'écriture sur $D00034-$D00035 et $10FDB0-$10FDB3, lecture de $C00450), non versionné, comme
+# celui de 2026-10-23-mode-aes.tsv.
+#
+# COLONNES. aes-snk : `aes -bios asia -cart <jeu>`, aes.zip recopié de neogeo.zip comme bench/parcours.sh, pas de WRONG CHECKSUMS.
+# rebios-aes-avant : notre image de main (src/c0 5af9aede, sha256 bc6560f50412bbb23cece3f5d38a4a818c5c606ca5564b4407c983db4bc8127b)
+# en mode AES ; rebios-aes-apres : la même avec la correction de CREDIT_CHECK (src/c0/io.s, sha256
+# 6fc2d51b7bf2823575e3dc0436f732314aa045de328a16ff52ff9e277d265ec6) ; WRONG CHECKSUMS présent. aof : `aof -bios euro`, NVRAM du run
+# aes-set de bench/parcours.sh (MODE → AES par l'éditeur) ; les cinq autres : `neogeo -bios euro -cart1 <jeu>`, NVRAM du run
+# aes-m1-set (MODE → AES sur la MV-6F). rebios-mvs-* : NVRAM neuve, mode MVS, sans pièce.
+# Scénarios : partie (START 1000, START 1200, A 1400, A 1600, START P2 3000 ; 9 000 trames) ; histoire (aof : START 1000, bas 1800,
+# A 1830 — STORY MODE —, START P2 4100 ; 8 800 trames, le scénario de la scène aes-texte) ; gameover (aof : START 1500, 1700, 1900,
+# 2100, A 2300, 2500, 2700, START 2900, puis rien jusqu'à 20 500 : le game over est à 19 766, comme dans 2026-10-23-mode-aes.tsv) ;
+# mvs-sans-piece (START 400 et 1000, START P2 3000, aucune pièce ; 6 000 trames).
+#
+# VERDICT :
+#  1. EN MODE AES, AUCUN JEU NE LIT $D00034 NI $D00035, sous les deux BIOS (colonnes lu_jeu, les six jeux, tous les scénarios). L'indice
+#     du cadrage — $D00034 relu $01 sous `aes`, $00 chez nous — n'explique donc pas le texte de P2 : seul le BIOS y lit, chez nous.
+#     En mode MVS, aof et puzzledp le lisent (17 418 et 11 568 lectures) : le jeu ne le regarde que sur MVS.
+#  2. aof (STORY MODE, à partir du combat) et puzzledp (dès la démo) posent DEC1 = DEC2 = $01 et appellent CREDIT_CHECK, puis relisent
+#     DEC. La référence n'écrit JAMAIS $10FDB0-$10FDB3 après la trame 1, appels compris : le jeu relit la demande qu'il a posée (aof :
+#     DEC2 = $01 aux 8 relectures, DEC1 $00 ou $01 selon ce qu'il a lui-même écrit ; puzzledp $01/$01 aux 8 496). Avant la correction,
+#     notre CREDIT_CHECK comparait la demande au crédit, nul en mode AES (la pièce est ignorée, DECISIONS §11 D2), et mettait les deux
+#     à $00 : aof affichait alors « INSERT COIN » pour P2 au lieu de « PUSH START » (section 2). C'est la cause.
+#  3. Ni START, ni P2 qui rejoint, ni le game over ne font écrire $D00034, $D00035 ou DEC par la référence : la valeur ne change pas au
+#     fil de la partie. Chez nous, $D00034/$D00035 ne sont écrits qu'au boot ($00), et ne bougent pas non plus.
+#  4. Après la correction (src/c0/io.s, `_credit_check` : en mode AES, les deux chemins de refus laissent la demande), les relectures
+#     du jeu sont celles de la référence, sur aof comme sur puzzledp. Seul écart restant : le mot $10FDB2 (P3/P4) reste écrit à
+#     $0000 par notre BIOS à chaque appel, là où la référence ne l'écrit pas ; aof et puzzledp y ont écrit $0000 eux-mêmes juste
+#     avant (colonnes non reproduites ici, même jig : 8 et 8 784 écritures du jeu à $00) — sans effet sur ces deux jeux.
+#  5. Le mode MVS est inchangé : sur aof et puzzledp (mvs-sans-piece), le relevé du jig est identique à l'octet entre l'image de main
+#     et l'image corrigée (même fichier, `cmp`). Désassemblage de NOS objets (bios.elf et io_s.o, m68k-neogeo-elf-objdump, main contre
+#     la correction) : les 16 objets sont identiques à l'octet sauf io_s.o ; dans io_s.o, toutes les routines ont la même suite
+#     d'instructions (SYSTEM_IO, START, le départ forcé, SELECT, la partie commune, les pièces, le temps) sauf `_credit_check`, qui a
+#     deux fois `tst.b $10FD82 ; beq.s` de plus, chacune juste avant une mise à zéro de DEC : un appel MVS dont la demande passe garde
+#     ses instructions à l'identique ; un refus MVS en exécute deux de plus (24 cycles). 16 octets de code de plus.
+#
+# SECTION 1 : une ligne par run. user = trame:mode/demande à chaque changement ($10FDAF/$10FDAE) ; credit_check = appels comptés et
+# trame du premier ; lu_jeu = valeurs lues par le jeu × nombre ; ecrit_bios_* = valeurs écrites par le BIOS après la trame 1 (la trame
+# 1 est l'initialisation, chez les deux) ; relu_jeu_DEC1/DEC2 = valeurs que le jeu lit dans $10FDB0/$10FDB1 × nombre.
+section	jeu	colonne	scenario	user_trame:mode/demande	credit_check_appels@premier	lu_jeu_D00034	lu_jeu_D00035	ecrit_bios_D00034/35_apres_trame1	ecrit_jeu_D00034/35	ecrit_bios_10FDB0/B1/B2/B3_apres_trame1	relu_jeu_DEC1/DEC2
+1	aof	rebios-aes-avant	partie	1:00/00 184:01/02 1001:02/02	0	-	-	-/-	-/-	-/-/-/-	-/-
+1	aof	rebios-aes-avant	gameover	1:00/00 184:01/02 1501:02/02 19766:01/02	0	-	-	-/-	-/-	-/-/-/-	-/-
+1	aof	rebios-aes-avant	histoire	1:00/00 184:01/02 1001:02/02	8@3858	-	-	-/-	-/-	00×4/00×4/00×8/00×8	00×8/00×8
+1	kof94	rebios-aes-avant	partie	1:00/00 189:01/00 190:01/02 1001:02/02	0	-	-	-/-	-/-	-/-/-/-	-/-
+1	kof98	rebios-aes-avant	partie	1:00/00 190:00/01 654:01/02 1001:02/02	0	-	-	-/-	-/-	-/-/-/-	-/-
+1	mslug	rebios-aes-avant	partie	1:00/00 193:01/00 194:01/02 1001:02/02	0	-	-	-/-	-/-	-/-/-/-	-/-
+1	puzzledp	rebios-aes-avant	partie	1:00/00 188:01/00 189:01/02 1001:02/02	8784@195	-	-	-/-	-/-	00×8784/00×8784/00×8784/00×8784	00×8784/00×8784
+1	samsho2	rebios-aes-avant	partie	1:00/00 188:01/00 189:01/02 1001:02/02	0	-	-	-/-	-/-	-/-/-/-	-/-
+1	aof	aes-snk	partie	1:00/00 476:01/00 477:01/02 1001:02/02	0	-	-	-/-	-/-	-/-/-/-	-/-
+1	aof	aes-snk	gameover	1:00/00 476:01/00 477:01/02 1501:02/02 19766:01/02	0	-	-	-/-	-/-	-/-/-/-	-/-
+1	aof	aes-snk	histoire	1:00/00 476:01/00 477:01/02 1001:02/02	8@3874	-	-	-/-	-/-	-/-/-/-	00×4,01×4/01×8
+1	kof94	aes-snk	partie	1:00/00 477:01/00 478:01/02 1001:02/02	0	-	-	-/-	-/-	-/-/-/-	-/-
+1	kof98	aes-snk	partie	1:00/00 10:00/01 476:01/01 477:01/02 1001:02/02	0	-	-	-/-	-/-	-/-/-/-	-/-
+1	mslug	aes-snk	partie	1:00/00 481:01/00 482:01/02 1001:02/02	0	-	-	-/-	-/-	-/-/-/-	-/-
+1	puzzledp	aes-snk	partie	1:00/00 476:01/00 477:01/02 1001:02/02	8496@483	-	-	-/-	-/-	-/-/-/-	01×8496/01×8496
+1	samsho2	aes-snk	partie	1:00/00 476:01/00 477:01/02 1001:02/02	0	-	-	-/-	-/-	-/-/-/-	-/-
+1	aof	rebios-aes-apres	partie	1:00/00 184:01/02 1001:02/02	0	-	-	-/-	-/-	-/-/-/-	-/-
+1	aof	rebios-aes-apres	gameover	1:00/00 184:01/02 1501:02/02 19766:01/02	0	-	-	-/-	-/-	-/-/-/-	-/-
+1	aof	rebios-aes-apres	histoire	1:00/00 184:01/02 1001:02/02	8@3858	-	-	-/-	-/-	-/-/00×8/00×8	00×4,01×4/01×8
+1	kof94	rebios-aes-apres	partie	1:00/00 189:01/00 190:01/02 1001:02/02	0	-	-	-/-	-/-	-/-/-/-	-/-
+1	kof98	rebios-aes-apres	partie	1:00/00 190:00/01 654:01/02 1001:02/02	0	-	-	-/-	-/-	-/-/-/-	-/-
+1	mslug	rebios-aes-apres	partie	1:00/00 193:01/00 194:01/02 1001:02/02	0	-	-	-/-	-/-	-/-/-/-	-/-
+1	puzzledp	rebios-aes-apres	partie	1:00/00 188:01/00 189:01/02 1001:02/02	8784@195	-	-	-/-	-/-	-/-/00×8784/00×8784	01×8784/01×8784
+1	samsho2	rebios-aes-apres	partie	1:00/00 188:01/00 189:01/02 1001:02/02	0	-	-	-/-	-/-	-/-/-/-	-/-
+1	aof	rebios-mvs-main	mvs-sans-piece	1:00/00 188:01/00 189:01/02	232@209	00×17418	-	-/-	-/-	00×116/00×232/00×232/00×232	00×232/00×232
+1	puzzledp	rebios-mvs-main	mvs-sans-piece	1:00/00 188:01/00 189:01/02	5784@195	00×11568	-	-/-	-/-	00×5784/00×5784/00×5784/00×5784	00×5784/00×5784
+1	aof	rebios-mvs-apres	mvs-sans-piece	1:00/00 188:01/00 189:01/02	232@209	00×17418	-	-/-	-/-	00×116/00×232/00×232/00×232	00×232/00×232
+1	puzzledp	rebios-mvs-apres	mvs-sans-piece	1:00/00 188:01/00 189:01/02	5784@195	00×11568	-	-/-	-/-	00×5784/00×5784/00×5784/00×5784	00×5784/00×5784
+#
+# SECTION 2 : ce que voit le joueur, la scène aes-texte de bench/parcours.sh (aof, histoire sans START P2), la zone du message de P2
+# (x 208-303, y 0-15) : trames 3845-4099 du combat dont l'empreinte est une image de la zone sous le BIOS AES de SNK ; états tenus
+# (≥ 10 trames d'une même image) absents du témoin. Images de la trame 3960 et 3990 (planche non versionnée) : avant, « WAITING FOR A
+# CHALLENGER » et « INSERT COIN » ; après et chez SNK, « WAITING FOR A CHALLENGER » et « PUSH START », la bascule tombant 16 trames
+# plus tôt chez nous (le combat commence à 3861 contre 3877 : premier CREDIT_CHECK à 3858 contre 3874, section 1). Le décor défile
+# derrière le texte : les trames d'animation de la bascule sont rarement égales d'un BIOS à l'autre, d'où les 57 trames hors du témoin.
+section	image	trames_du_temoin	etats_tenus	etats_absents_du_temoin
+2	rebios-aes-avant	81/255	8	4
+2	rebios-aes-apres	198/255	8	0

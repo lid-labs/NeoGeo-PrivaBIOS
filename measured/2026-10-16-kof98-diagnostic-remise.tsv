@@ -1,0 +1,69 @@
+# Diagnostic de kof98 (joue noir, ~59 %) et des FIGE garou, mslug3, svc, le 2026-10-16,
+# sous MAME (sonde, jigs lua a taps, NVRAM isolee par run), images jetables hors depot.
+#
+# UNE CAUSE ETABLIE, ET LIVREE : LA TABLE D'ALEA. Le jeu lit des octets dans la fenetre
+# $C04200-$C042FF de la ROM du BIOS. Chez nous c'etait du padding $FF : le jeu reste
+# alors aux PC $096560-$096590, watchdog jamais nourri, reboot ~9 trames. nullbios, meme padding, meme noir. Lectures
+# voisines : $C04000+k*$40, k=0..7, constantes tolerees. Juge du lot : la table SEULE
+# (aucun autre changement) fait jouer svc, sans regression sur kof94, flipshot, neomrdo
+# (relevé 2026-10-16-matrice-table-alea.tsv).
+#
+# DEUX HYPOTHESES TESTEES ET NON LIVREES, faute de gain mesure :
+#   - une attente IRQ ouvertes avant la remise (la reference echantillonne SR=$2000 pendant
+#     son attente, $10FEE4 avance, puis remet la main a IPL 7). Ecrite par un agent d'implementation
+#     (« vI ») : 7 jeux sur 10 sensibles jouent, exactement les memes que la table seule ;
+#   - une garde « pas de relance au titre avant la premiere remise » sur une piece du boot.
+#     Elle n'etait necessaire qu'a cause de l'attente.
+#
+# KOF98, GAROU, MSLUG3 RESTENT ROUGES. Ce qui est mesure :
+#   - ils jouent quand la premiere remise part IRQ OUVERTES (variante « vE' ») — mais alors
+#     kof94 (noir) et flipshot (FIGE) cassent ; ouverte et calee sur le vblank (« vE'' ») :
+#     memes deux rouges. Remise masquee : l'inverse ;
+#   - ils jouent aussi quand une piece du plan d'entrees, tombee pendant l'attente du boot,
+#     relance la remise au titre (demande 3) au lieu de l'init (demande 0) — mais neomrdo
+#     fige alors des 1000 ;
+#   - kof98 lui-meme (PC $00B3F0-$00B44C) : il ecrit 16 octets a $D00220+slot*16 et lit
+#     $D00124 (8 entrees), puis reste ~18 trames IRQ masquees sans servir le watchdog
+#     (PC $B434-$B43C) : un reset VOLONTAIRE. Sous la reference aussi kof98 reboote la
+#     (PC $00B43E trames 283-290, reset 291), puis finit par jouer ; chez nous, sans fin ;
+#   - REFUTES par test causal sur notre image : poser les soft-DIP de l'en-tete dans
+#     $10FD84-$10FD93 (decodes ou bruts) ; poser la zone backup par jeu $D00100-$D0014F
+#     aux valeurs de la reference (verifiee par relecture, backup deverrouillee) ; ecrire
+#     $80|mode au lieu de $82 dans $10FD80 a la remise.
+#   Sous la reference, la zone par jeu vaut : $D00122=$23, puis 00 00 FF FF de $D00124 a
+#   $D00143, zeros ailleurs (trames 150 et 260). Piste suivante : ce qui change au boot qui
+#   SUIT le reset volontaire chez la reference.
+#
+# Matrices des images d'essai ci-dessous (« jetable-tbl » : table + SR $2000 a la remise ;
+# « jetable4 » : table + attente + vecteur 25, sans garde de piece). Controles tous ok.
+jeu	bios	verdict	vifs_max	vitesse_pct	controle
+aof	jetable-tbl	joue (plus longue pose 0 tr.)	68096	1481.12	ok
+flipshot	jetable-tbl	FIGE dès 100 (3400 trames)	0	1767.73	ok
+garou	jetable-tbl	joue (plus longue pose 0 tr.)	70919	1297.34	ok
+joyjoy	jetable-tbl	joue (plus longue pose 0 tr.)	71281	1541.01	ok
+kof2003	jetable-tbl	joue (plus longue pose 0 tr.)	66574	1316.17	ok
+kof94	jetable-tbl	FIGE dès 100 (3300 trames)	0	64.93	ok
+kof98	jetable-tbl	joue (plus longue pose 0 tr.)	66941	1326.78	ok
+lbowling	jetable-tbl	joue (plus longue pose 0 tr.)	57983	1512.53	ok
+magdrop2	jetable-tbl	joue (plus longue pose 0 tr.)	67792	1430.32	ok
+mslug	jetable-tbl	joue (plus longue pose 0 tr.)	67321	1520.41	ok
+mslug3	jetable-tbl	joue (plus longue pose 0 tr.)	65017	1447.69	ok
+nam1975	jetable-tbl	joue (plus longue pose 0 tr.)	27604	1458.82	ok
+neomrdo	jetable-tbl	joue (plus longue pose 0 tr.)	67534	1206.97	ok
+puzzledp	jetable-tbl	joue (plus longue pose 0 tr.)	68096	1575.22	ok
+ridhero	jetable-tbl	joue (plus longue pose 0 tr.)	71680	1395.56	ok
+samsho2	jetable-tbl	joue (plus longue pose 0 tr.)	67829	1455.95	ok
+ssideki4	jetable-tbl	joue (plus longue pose 0 tr.)	71197	1377.14	ok
+svc	jetable-tbl	joue (plus longue pose 0 tr.)	64448	1153.87	ok
+trally	jetable-tbl	joue (plus longue pose 0 tr.)	70605	1552.02	ok
+wjammers	jetable-tbl	joue (plus longue pose 0 tr.)	68096	1378.01	ok
+kof98	jetable4	joue (plus longue pose 0 tr.)	66941	1315.73	ok
+kof94	jetable4	joue (plus longue pose 0 tr.)	66915	1228.55	ok
+flipshot	jetable4	joue (plus longue pose 0 tr.)	68096	1406.34	ok
+puzzledp	jetable4	joue (plus longue pose 0 tr.)	68096	1579.97	ok
+wjammers	jetable4	joue (plus longue pose 0 tr.)	68096	1447.33	ok
+neomrdo	jetable4	FIGE dès 1000 (2500 trames)	52354	1329.00	ok
+garou	jetable4	joue (plus longue pose 0 tr.)	70919	1291.25	ok
+mslug3	jetable4	joue (plus longue pose 0 tr.)	65017	1481.29	ok
+svc	jetable4	joue (plus longue pose 0 tr.)	67859	1214.76	ok
+joyjoy	jetable4	joue (plus longue pose 0 tr.)	71281	1525.49	ok

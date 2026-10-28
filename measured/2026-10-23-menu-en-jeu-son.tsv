@@ -1,0 +1,89 @@
+# Le son apres le menu en jeu (src/c0/menu.s), le 2026-10-23. MAME 0.286, -bios euro, -video none,
+# -sound none (le Z80 et le YM2610 tournent quand meme), NVRAM neuve. Notre image construite depuis
+# 51bba42d (sha256 ea0de49eb7fe863e...). Jig de diagnostic bench/son.lua (verse avec ce
+# releve) : piece trame 400, START 500, TEST tenu 40 trames au geste, A tous les 20 trames pour
+# faire du bruit (tir, coup), RESUME par un appui A.
+# IMAGE DE LA CORRECTION : branche fix/bios-menu-en-jeu-son (menu.s sans $01, REG_BRDFIX,
+# REG_CRTFIX ni $03), sha256 528b7e9c7120bdabf29747eaa7993efdb2398df5a177062e1fb7314d1a60716a,
+# identique a l'octet au prototype mesure ci-dessous.
+#
+# CE QUI EST COMPTE, sans tracer de code :
+#   cmdJ   ecritures de REG_SOUND ($320000) par le jeu (la classe B/J vient du PC au moment de
+#          l'ecriture : dans $C00000-$C1FFFF ou non ; le PC n'est pas consigne)
+#   ym     ecritures du Z80 sur les ports 4-7 (YM2610)
+#   fm     key-on FM (port A, registre $28, un bit de slot a 1)
+#   aa     key-on ADPCM-A (port B, registre $00, bit 7 a 0, un canal a 1)
+#   ab     depart ADPCM-B (port A, registre $10, bit 7)
+#   ssg    ecritures des registres SSG $00-$0D (ce ne sont pas des notes)
+# Les key-on sont la mesure du son ; le total « ym » ne l'est pas : un pilote muet ecrit encore
+# 850 a 2 750 fois par tranche de 100/300 trames (registres d'entretien). Le releve du 2026-10-21
+# (« 27 a 80 % d'ecritures YM2610 en moins ») comptait ce total et a masque un silence complet.
+#
+# ALIGNEMENT : la pause decale le jeu ; le temoin (meme run sans TEST) est pris a la trame decalee
+# de la duree de la pause, verifie par la suite identique des commandes du jeu.
+# Notation : valeur sous menu / valeur au temoin, sommes sur la fenetre.
+jeu	condition	fenetre_apres_reprise	cmdJ	fm	aa	ab	ssg
+mslug	menu ouvert 3036, $03 du menu 3105	1490 trames	65/66	0/218	15/594	0/128	0/3158
+mslug	menu ouvert 2336, $03 du menu 2405	1490 trames	76/77	0/238	16/639	0/163	0/3276
+mslug	menu ouvert 1536 (avant le depart de mission), $03 1605	100 premieres trames	3/3	0/0	0/30	0/0	0/0
+mslug	idem	trames +100 a +1390	48/53	195/195	502/507	131/131	2340/2340
+aof	menu ouvert 2337, $03 du menu 2405	1790 trames	202/224	0/361	0/507	0/45	4929/341
+mslug	$03 seul injecte a 2400 (sans menu ni bascule de ROM)	9599 trames (fin du run)	518/518	0/1460	137/3567	0/736	4/21157
+aof	$03 seul injecte a 2400	jusqu'a 5460 (3060 trames)	323/323	0/608	0/776	0/73	9716/2464
+aof	idem	apres 5470 (6530 trames)	199/199	851/851	1102/1102	77/77	24/24
+#
+# CONSTATS
+# 1. Les commandes du jeu ne changent pas : il envoie apres la reprise ce qu'il envoie au temoin.
+#    C'est le pilote son qui ne joue plus. mslug en pleine mission : aucun key-on FM ni ADPCM-B,
+#    l'ADPCM-A seulement sur la commande $D5 (run « $03 seul » : les 137 key-on ADPCM-A des 9 599
+#    trames tombent tous a 30 trames au plus d'un $D5 du jeu), d'ou « seule une voix » ; le tir
+#    ($F7, 65 envois) reste muet. aof : aucun key-on du tout.
+# 2. Le $03 seul suffit : injecte sans menu, sans REG_BRDFIX ni REG_CRTFIX, il produit le meme
+#    silence (lignes « $03 seul »). La poignee de main $01 et la bascule de M1 n'y sont pour rien.
+# 3. JUSQU'A QUAND. aof : jusqu'au prochain $03 que le JEU envoie lui-meme (trame 5463, fin de
+#    manche), suivi de $07 (5469) : des 5470, key-on identiques au temoin a l'unite. mslug : 160 s
+#    au moins (9 600 trames, fin du run) en pleine mission ; ouvert juste avant un depart de
+#    mission (1536), seul le trou de la pause manque, puis identique au temoin.
+# 4. Le Z80 est vivant : apres le $03, il change de banque M1 (lectures des ports $08-$0B) a chaque
+#    commande du jeu, mais sur mslug avec d'autres numeros de banque qu'au temoin pour le meme $F7.
+#    Lecture : le pilote relance travaille sur un etat incoherent (SUPPOSE : de la RAM Z80 que son
+#    reset logiciel ne remet pas). Le 68000 ne voit pas la RAM du Z80 : cet etat ne se sauve pas.
+#
+# LES COMMANDES QUE LE JEU ENVOIE APRES UN $03 (le jeu, pas le BIOS ; trames, run temoin)
+# aof    : $03 BIOS (boot) 184 -> $07 193 ; $03 BIOS (piece) 403 -> $07 408, $7F 409, $3C 410 ;
+#          $03 du JEU 502 -> $07 508 ; $03 du JEU 5463 -> $07 5469, $45 5470
+# mslug  : $03 BIOS (boot) 193 -> $04 200, $10 204, $DF 205 ; $03 BIOS (piece) 407 -> $0F 414,
+#          $04 415 ; avant le depart de mission : $27 1293, $8B 1543, $92 1577, $04 1605, $00 1665,
+#          $21 1666, $11 1801, $31 1802, $10 1923. mslug n'envoie jamais $03 lui-meme dans ces runs.
+#
+# REJOUER CES COMMANDES APRES LE $03 (injectees par le jig a REG_SOUND) :
+jeu	sequence injectee	fenetre	fm	aa	ab	ssg
+aof	$03 puis $07 (+6 trames)	1790 trames	0/363	156/503	0/45	341/341
+aof	menu, puis $07 9 trames apres son $03	1790 trames	0/362	142/508	0/45	341/341
+mslug	$03 puis $0F,$04 (+7)	1200 trames	0/183	0/502	0/103	0/2682
+mslug	$03 puis $04 (+7)	1200 trames	0/183	0/502	0/103	0/2682
+mslug	$03 puis $0F (+7)	1200 trames	0/183	18/502	0/103	0/2682
+mslug	$03 puis $04,$10,$DF (boot)	1200 trames	0/183	63/502	0/103	2709/2682
+mslug	$03 puis $0F,$04 (+60)	1200 trames	0/183	0/502	0/103	36/2682
+mslug	$03, $0F, $04, puis la suite du depart de mission $27..$10 aux memes ecarts	1200 trames	0/183	5/502	0/103	0/2682
+mslug	$03, suite du boot, $0C $10 $DF $E2, $27	1200 trames	0/183	58/502	0/103	2709/2682
+mslug	menu, puis la suite du depart de mission $8B..$10	790 trames	0/102	2/302	0/98	0/1872
+# Une commande seule injectee 55 trames apres la reprise du menu (mslug, 12 runs) : $04 $00 $21
+# $11 $31 $10 $0F $06 $2B $DF $FC $27 $8B $92 $E2 $E4 $0C $3E : FM 0 dans les 12+8 runs ; $10
+# relance l'SSG (936 ecritures / 200 trames, comme le temoin), rien d'autre.
+# aof : $07 rend l'ADPCM-A (bruitages, environ 30 % du temoin) mais pas le FM (la musique, qui ne
+# revient qu'au prochain $03/$07 du jeu). mslug : rien ne rend ni le FM ni le tir.
+#
+# PROTOTYPE (copie jetable de src/c0, sha256 528b7e9c7120bdab...) : menu.s sans la poignee de main
+# $01, sans REG_BRDFIX, sans REG_CRTFIX ni $03 ni les 8 trames d'attente ; plan fixe laisse sur la
+# S ROM de la cartouche. Meme jig, memes entrees.
+jeu	condition	fenetre_apres_reprise	cmdJ	fm	aa	ab	ssg
+mslug	proto, menu 3036-3105	1490 trames	65/66	212/218	593/594	124/128	2808/3158
+aof	proto, menu 2337-2405	1790 trames	227/224	363/361	508/507	45/45	0/341
+kof98	proto, menu 2337-2405	1790 trames	269/269	78/87	341/346	40/39	0/0
+# Prototype : aucune ecriture du BIOS a REG_SOUND, a REG_BRDFIX ou a REG_CRTFIX de toute la
+# partie ; key-on a moins de 3 % du temoin, sauf le FM de kof98 (78/87, 10 %) ; les ecarts
+# suivent le decalage de la partie, non verifie trame a trame. Pendant
+# les 66 trames de pause, le pilote continue de jouer : mslug fm 20, aa 27, ab 5 ; aof fm 14,
+# aa 12 (la musique continue pendant la pause, comme sous UniBIOS, releve
+# 2026-10-23-unibios-menu-en-jeu.tsv).

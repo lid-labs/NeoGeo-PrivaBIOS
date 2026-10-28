@@ -1,0 +1,42 @@
+# Le menu en jeu (src/c0/menu.s, crochet dans io.s) juge sous MAME, le 2026-10-21 : jig
+# bench/menu.lua, -bios euro, -video none, notre image (sha256 6342618f8f9d80e4...). Pas de
+# reference : SNK n'a pas ce menu.
+#
+# LE GESTE : TEST tenu 20 appels de SYSTEM_IO en partie ($10FDAF = 2). D'abord START + SELECT P1,
+# abandonne : les sets MVS du corpus n'ont pas de SELECT sous MAME (port :edge:joy:START = deux
+# START seulement, $380000 lu $FF), et kof94, kof98, mslug3, ridhero, samsho2 lisent $380000 en
+# partie. $300081 n'est lu en partie que par ridhero ; TEST tenu y change un octet ($100152).
+# 2026-10-21-test-tenu-en-partie.tsv.
+#
+# LA SAUVEGARDE : $10F800-$10FAFF. Aucun jeu du corpus n'ecrit $10F4B4-$10FBFF en 3 600 trames
+# (2026-10-21-ecrivains-ram-bios.tsv). Constat : nam1975 ecrit $10F300-$10F4B3, qui recouvre
+# $10F400-$10F45B de plantage.s (ecran terminal ; non corrige ici).
+#
+# LA FILE VRAM DU JEU : les 22 jeux appellent SYSTEM_IO depuis leur vblank (IPL 1, ou 7 pour
+# kof94, kof98, samsho2) ; 9 sur 22 ecrivent REG_VRAMRW au retour sans reposer d'adresse
+# (2026-10-21-appels-system-io-ipl.tsv). REG_VRAMADDR ne se relit pas : le menu la retrouve par
+# une paire sonde et un balayage ; 11 fermetures sur 11 egales a l'adresse interne de MAME.
+#
+# LE SON : « 68k/Z80 communication » ne prevoit aucune sortie de la boucle en RAM sans reset ; le
+# pilote son du jeu est relance a la reprise, la musique en cours est coupee. Apres reprise : autant
+# de commandes REG_SOUND qu'au temoin, 27 a 80 % d'ecritures YM2610 en moins. REFUTE le 2026-10-23 : tout le son est perdu (2026-10-23-menu-en-jeu-son.tsv).
+jeu	mesure	resultat
+aof, mslug, kof98	VRAM avant/apres (69 632 octets)	0 different
+aof, mslug, kof98	palettes avant/apres (8 192 octets)	0 different
+aof, mslug, kof98	RAM de travail avant/apres (65 536 octets)	280 a 445 differents, tous dans $10F800-$10FAFF
+aof, mslug, kof98	REG_VRAMMOD et adresse VRAM	rendus
+kof98	contre temoin decale de la pause, trames +30/+100/+600	0 octet sur RAM, VRAM, palettes
+mslug	idem	1 octet, $10F27F sous la pile du jeu
+aof	idem	53 a 258 octets dans $107400-$1074FF et $108180, bloc qui diverge deja avant l'ouverture
+aof, mslug, kof98	image apres RESUME	egale au temoin
+aof	RESTART GAME	reset a la trame 2008, le jeu repart
+# Apres revue (image 68481ced362451fe...) : palette choisie deux fois quand une ou deux seulement
+# sont libres (le jeu reprenait avec une palette aux couleurs du menu), corrige ; sonde VRAM a deux
+# paires ; echo du Z80 lu une trame apres l'envoi. Rejoue : aof, mslug, kof98, plus quatre runs a
+# palettes forcees (seule la 14 libre sur aof et kof98, 14 et 15 libres sur aof, aucune sur mslug) :
+# VRAM 0 et palettes 0 octet different, RAM seulement dans $10F800-$10FAFF, adresse VRAM retrouvee
+# dans les 7 runs. RESTART : reset trame 2007, le jeu repart.
+# Defaut latent corrige en route (io.s, _io_start) : %d0 n'etait charge que par move.b avant les
+# remises COIN_SOUND et PLAYER_START ; flipshot, a sa PLAYER_START, depend du mot bas de %d0 recu,
+# et les bits hauts herites du jeu l'ont envoye en erreur d'adresse quand le crochet a decale
+# les cycles. moveq #0,%d0 avant les deux remises : flipshot atteint le mode 2.

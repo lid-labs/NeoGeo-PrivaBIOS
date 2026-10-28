@@ -1,0 +1,28 @@
+# L'editeur de soft-DIP (src/c0/dip.s) juge sous MAME, le 2026-10-20 : jig bench/editeur.lua,
+# -bios euro, -video none, notre image (sha256 43eb5dd2fd86dc9d...), NVRAM neuve au premier run
+# puis gardee pour les suivants. Octets de BIOS_GAME_DIP ($10FD84-$10FD93) et du bloc de
+# sauvegarde du jeu ($D00220 + 16 x index), ecrits par NOTRE image ; aucun PC ni octet du BIOS
+# de reference. Pas de critere de reference : SNK n'a pas ecrit cet ecran.
+#
+# LE BOUTON TEST : $300081 bit 7 vaut 1 relache, 0 tenu (champ MAME ":TEST" "Service Mode") ;
+# actif a l'etat bas, ce que "Memory mapped registers" ne precise pas.
+#
+# LES INTITULES DE LA CARTOUCHE (lus par lua dans les P-ROM de kof98 et aof, non versionnes) : un
+# reglage special inutilise ne prend aucun intitule ; aof, qui a un compte, commence par le sien ;
+# la suite de la table tombe juste sur les deux jeux.
+#
+# LE Z80 (aof) : l'editeur refait la poignee de main de changement de slot ($01, echo,
+# REG_BRDFIX ... REG_CRTFIX, $03). Apres sa sortie le pilote son revient dans la meme boucle que
+# sans editeur, et le jeu lui envoie la meme suite de commandes (3, 19 puis 25 ecritures de
+# REG_SOUND, relevees de 100 en 100 trames), cent trames plus tard. Le son n'a pas ete ecoute.
+#
+# Ce qui n'est pas eprouve : un reglage de temps sur une vraie cartouche (aucun jeu du releve
+# n'en a ; chemin essaye sur kof98 retouche en memoire seulement), un pointeur de bloc refuse,
+# le materiel reel.
+jeu	run	chemin	appuis	octet	avant	apres	jeu_ensuite
+kof98	1 (NVRAM neuve, TEST)	_slot_inscrit	DEMO SOUND droite, START	8	00	01	reset voulu du jeu (trame 332, connu), vifs 17955
+kof98	2 (meme NVRAM, sans TEST)	_slot_present	aucun	8	01	01 (relu)	vifs 67759
+kof98	3 (meme NVRAM, TEST)	_slot_present	haut (boucle sur RESET TO DEFAULTS), droite, START	8	01	00	le jeu repart
+aof	1 (NVRAM neuve, TEST)	_slot_inscrit	ROUND TIME droite ; LANGUAGE droite, A, A, A ; START	4 ; 6	3C ; 01	3D ; 02	vifs 68096
+aof	2 (meme NVRAM, sans TEST)	_slot_present	aucun	4 ; 6	3D ; 02	3D ; 02 (relu)	le jeu tourne en espagnol
+kof98	robustesse (bloc retouche en memoire)	_slot_present	temps $3070, compte $00, nombre $65, choix $0F	-	invalides	defauts de la cartouche	aucun plantage ; 01:31 puis 01:29, 99 borne a droite, A repart a 1

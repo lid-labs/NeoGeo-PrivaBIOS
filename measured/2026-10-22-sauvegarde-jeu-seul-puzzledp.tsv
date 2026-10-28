@@ -1,0 +1,13 @@
+# Preuve visible, puzzledp seul (-cart1), machine neogeo, MAME 0.286, le 2026-10-22. Run A : NVRAM neuve, 7000 trames, MS_POSER=1500@100028=0012D680120F1708 (1re ligne de BEST PLAYERS : 1234560 SPX ; la ligne d'origine est 000F4240 13 04 11 08 = 1000000 TER). Run B : la NVRAM de A, 6400 trames, sans pose.
+# Zone du jeu $100000+$100 ; ram = la zone en fin de trame, bram = son bloc $D00320 ; colonnes : les 8 octets de $100028 (1ST) dans chacun.
+image	run	trame	ram_1ST	bram_1ST	ecran_BEST_PLAYERS_run_B
+ref	A	1501	0012d680120f1708	0000000000000000	-
+ref	A	6999	0012d680120f1708	0012d680120f1708	-
+ref	B	720	0012d680120f1708	0012d680120f1708	f05450 : 1ST 1234560 SPX
+apres	A	1501	0012d680120f1708	0000000000000000	-
+apres	A	6999	0012d680120f1708	0012d680120f1708	-
+apres	B	720	0012d680120f1708	0012d680120f1708	f04900 : 1ST 1234560 SPX
+avant	A	1501	0012d680120f1708	0000000000000000	-
+avant	A	6999	0012d680120f1708	0000000000000000	-
+avant	B	720	000f424013041108	0000000000000000	f05100 : 1ST 1000000 TER
+# transition : NVRAM de l'image avant (bloc jamais sauve, a zero) bootee sous l'image apres : R D00320-D0041F somme 0000 a la trame 184, puis le jeu reconstruit sa table par defaut (1ST 000F4240 13041108 a la trame 186).

@@ -1,0 +1,14 @@
+# La grille de $C02000-$C03FFF (src/c0/grille.s), le 2026-10-25 : le seuil de la scène demo-ssideki du parcours du joueur
+# (bench/parcours.sh, --ref-ssideki), et ce que l'image et le son mesurent en face. MAME 0.286, -video none, -sound none,
+# -nothrottle, NVRAM et cfg par run, romsets non-merged de $ROMS ; notre image servie par neogeo.zip à la MV-6F
+# (neogeo -cart1 ssideki), le témoin SNK par le romset d'origine (ssideki, -bios euro). Le critère est dans l'en-tête de
+# bench/parcours.sh ; le diagnostic dans 2026-10-25-ssideki-demo.tsv.
+#
+# LA FENÊTRE. De 400 à 2399 trames après la remise de la main au jeu (REMISE de bench/son.lua) : la nôtre à 376, celle du
+# témoin à 966. L'intro du stade finit vers 180 trames après la remise ; le titre, KICK OFF et le match de démo viennent dans la
+# fenêtre. Unités : images entières différentes (l'empreinte de son.lua) et key-on du YM2610 (FM, ADPCM-A, ADPCM-B).
+#
+# Seule la colonne « seuil » juge. Le seuil des images laisse de la marge des deux côtés : l'intro figée anime encore son décor.
+scene	grandeur	seuil	mesure
+demo-ssideki	images_ratio_min	0.8	1,060 : 1 441 images contre 1 360 au témoin, image 03a634f3…, la même sur 8f03e1de… ; 0,663 sous la mutation grille-haute-ff (902), 0,288 sous l'image de main d'avant le lot (391, MV-6F)
+demo-ssideki	keyon_ratio_min	0.6	1,000 : 929 key-on contre 929 ; 0,125 sous la mutation (116), 0,125 sous l'image d'avant (116)

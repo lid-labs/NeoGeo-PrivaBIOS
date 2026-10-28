@@ -1,0 +1,16 @@
+# Le jeu tourne-t-il vraiment ? La condition 3 ne le garantit pas : un BIOS qui boucle dans la
+# P-ROM sans appeler USER la remplirait aussi. Compteurs du banc, qui vont jusqu'a la trame 20,
+# sur la trace du verdict (image sha256 5529e3f4...).
+# Le piege d exception est a $C00884 dans cette image - son adresse suit la taille du code.
+grandeur	trame 0	trame 1	trame 10	trame 20
+vsync_hz	0.000	59.186	59.186	59.186
+ecritures VRAM lentes cumulees	0	160	6157	25027
+ecritures VRAM rapides cumulees	0	0	1888	6518
+mots VRAM non nuls	0	160	1487	1487
+IRQ prises cumulees	0	0	9	19
+commandes son cumulees	0	0	2	3
+coups de pied watchdog cumules	2	3	12	22
+resets watchdog	0	0	0	0
+periodes en HALT	0	0	0	0
+bascules inattendues	0	0	0	0
+acces au piege d exception	0	0	0	0

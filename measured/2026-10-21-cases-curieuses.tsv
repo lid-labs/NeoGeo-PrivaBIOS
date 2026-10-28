@@ -1,0 +1,12 @@
+# Cases croisees pendant la recherche des cheats, le 2026-10-21, hors table. Memes conditions que 2026-10-21-cheats-recherche.tsv.
+jeu	adresse	vu	forcee	effet
+mslug	100391	copie des bombes ($1004C0), memes valeurs	oui, a $0A	aucun effet visible : HUD BOMB baisse, $1004C0 aussi (capture 11)
+mslug	10B957,10B977,10B997,10B9D9...	0 -> FF a la premiere mort, ensuite constants	non	-
+mslug	10B95E,10B9B9,10B9BF,10B9FF	0 -> $63 a la premiere mort	non	-
+mslug	10FD88 (BIOS_GAME_DIP+4, RAM du BIOS)	0 sous notre image (soft-DIP refuse, voir l'autre releve)	oui, a 3 des la trame 300	la partie part a 3 vies et finit apres la 4e mort (user 01 a 3262)
+aof	108407	decompte de trames de la seconde ($3C, -1 par trame)	non	-
+aof	1092CC	octet voisin de la vie de P1	non	-
+kof94	10882E	secondes du round, BCD	oui, a $60	TIME 60, mais au KO le jeu se fige : jauge vide, plus de suite, user reste 2 jusqu'a 9000 (capture 12). Ecarte au profit de $10882F
+kof94	108223,10824D	copies animees de la jauge de P1 ($10824D part de $FF)	non	-
+kof94	108831	bit 7 a 1 hors combat, 0 pendant le combat (arret du temps, suppose)	non	-
+kof94	108832	drapeaux changeant aux transitions de round	non	-

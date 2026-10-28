@@ -1,0 +1,34 @@
+# Les commutateurs de la carte et le geste sans bouton TEST (src/c0/io.s, dip.s, menu.s), le 2026-10-25 : les seuils de leurs
+# scènes au parcours du joueur (bench/parcours.sh, --ref-dip), et ce que l'image mesure en face. MAME 0.286, -video none,
+# -sound none, -nothrottle, NVRAM et cfg neufs par run, `ng_mv2f -cart1 aof` (la MV-2F de l'essai sur matériel, qui a un champ SELECT),
+# romsets non-merged de $ROMS, seul sp-s2.sp1 remplacé (dans ng_mv2f.zip, que la machine lit avant neogeo.zip). Les
+# commutateurs posés par J_DSW de bench/son.lua, OFF compris (« 1:00 »). Le critère de chaque scène est dans l'en-tête de
+# bench/parcours.sh ; ce que font les BIOS de référence, observés, est dans 2026-10-25-dip-free-play.tsv.
+#
+# LES TÉMOINS sont notre image sur la même machine : la démo au commutateur 7 à OFF (df-t0) et à ON (df-t), un START P1
+# (df-p1), le commutateur 1 à OFF (ds0) ou rebasculé à OFF avant START (ds-bascule), START seul ou SELECT seul tenus au boot
+# (gb0, gb-sel) et en partie (gj0, gj-sel) ; et pour dip-free-play, le BIOS SNK sur la même machine (df-snk-t, df-snk-t0), au
+# meilleur décalage (sa démo part à la trame 751, la nôtre à 189). dip-fp-reglage est sur le set aof, relancé sur la NVRAM de
+# bo-set-fp. geste-partie joue aof, mslug, samsho4, ssideki. Les scènes dip-fp-cabinet et geste-boot n'ont pas de seuil : du
+# texte exact et des remises.
+#
+# Image mesurée : 981cd2aff816d11b0cbd2b5dc5a97a04950ed37a17fa30545027f83dd7ced0e8 (CRC32 7E672E6D), l'image finale du lot ;
+# mesures identiques dans la non-régression complète du 2026-10-25. Mutations du lot : 17, toutes tuées (en-tête de
+# bench/parcours.sh).
+#
+# Seule la colonne « seuil » juge. Unités : trames à 59,185 Hz, cases de 8 × 8 pixels (1 120 à l'écran).
+scene	grandeur	seuil	mesure
+dip-free-play	cases_min	500	1 064 cases sur 1 120 diffèrent de la démo à la trame 2000 (START à 1600 sans pièce : la partie)
+dip-free-play	demo_min	400	640 des trames 600-1599 de la démo à ON diffèrent de la démo à OFF (« PUSH 1P OR 2P START BUTTON »)
+dip-free-play	snk_min	500	709 sur 1 000 égales à la démo du BIOS SNK au commutateur à ON (décalage −562)
+dip-free-play	snk_off_max	400	230 égales à celle du BIOS SNK à OFF (« INSERT COIN » clignote : ses trames éteintes sont communes)
+dip-fp-p2	diff_min	250	407 des trames 1601-2400 diffèrent d'un START P1 ; BIOS_START_FLAG $03
+dip-fp-refus	egales_min	700	800 sur 800 égales à la démo sans START : refusé
+dip-fp-chaud	apres_min	300	383 sur 390 (OFF → ON, égales à la démo à ON) et 383 sur 390 (ON → OFF, à la démo à OFF)
+dip-fp-chaud	temoins_max	250	152 sur 390 égales entre la démo à ON et celle à OFF
+dip-fp-reglage	cases_min	500	1 064 cases diffèrent de la démo à la trame 1400 (START à 1000, commutateur à OFF, FREE PLAY ON)
+dip-setting	avert_min	150	la main au jeu 187 trames après START (l'avertissement, AVERT_TRAMES = 180, plus la sortie)
+dip-setting	direct_max	30	rebasculé à OFF avant START : la main au jeu 6 trames après START, sans avertissement
+geste-jeu	pause_min	100	pause de 1720 à 2000 (281 trames, le run finit) ; START seul, SELECT seul : aucune pause
+geste-partie	compte_max	20	0 sur les quatre jeux, 5 000 trames de partie chacun (le menu s'ouvre à 20 ; le témoin gj y arrive)
+geste-partie	pause_min	30	0 : aucune trame en pause sur les quatre jeux

@@ -1,0 +1,9 @@
+# Depart de P2, synthese, le 2026-10-22. Jeux : cyberlip, kof94, aof. Detail par evenement : 2026-10-22-depart-p2-{reference,avant,apres}.tsv.
+# Valeurs de RAM ecrites par la reference (DECISIONS.md §8), aucun PC du BIOS. apres = 4e156aa5, egal a la reference evenement par evenement sur les 18 couples (cas x jeu).
+cas	plan	reference	avant (9dccf8cb)	apres
+a1 titre, 1 credit, START P2	coin@900 start2@1100	$10FDB4 <- $02 puis $00 ; pas de PLAYER_START ; credit garde (3/3 jeux)	aucune ecriture de $10FDB4 (credit P2 = $D00035 = 0)	= reference
+a2 titre, 2 credits, START P2	coin@900 coin@960 start2@1100	$10FDB4 <- $02 puis $03 ; PLAYER_START avec $03 ; $D00034 $02 -> $01 -> $00 ; P1 et P2 en jeu (3/3)	refuse : jeu reste au titre, CREDITS 02	= reference
+b partie, 1 credit restant, START P2	coin@900 coin@960 start1@1100 start2@1700	$10FDB4 <- $02 puis $02 ; PLAYER_START ; kof94 garde le bit : $10FDB7 <- 1, $D00034 $01 -> $00 ; cyberlip et aof l effacent : pas de deduction	refuse : pas de PLAYER_START (kof94 reste « PUSH START »)	= reference
+c piece 2, START P2 au titre	coin2@900 start2@1100	piece 2 : $D00034 <- $02 ($D00035 jamais ecrit hors boot) ; puis comme a2	piece 2 creditee dans $D00035 ; P2 part seul ($10FDB4 = $02), $D00035 deduit	= reference
+d partie, 0 credit, START P2	coin@900 start1@1100 start2@1700	$10FDB4 <- $02 puis $00 ; rien d autre	aucune ecriture	= reference
+e demo, 0 credit, START P1 puis P2	start1@1100 start2@1300	$10FDB4 <- $01 puis $00 ; $02 puis $00	aucune ecriture	= reference

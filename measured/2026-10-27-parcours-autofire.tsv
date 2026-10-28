@@ -1,0 +1,23 @@
+# L'autofire (src/c0/autofire.s, io.s, menu.s ; #1454, DECISIONS §22), le 2026-10-27 : les seuils de ses scènes au parcours du
+# joueur (bench/parcours.sh, --ref-af), et ce que l'image mesure en face. MAME 0.286, -video none, -sound none, -nothrottle,
+# NVRAM et cfg neufs par run sauf af-sauve, af-sauve0 et af-relu (NVRAM du run nommé) ; romsets non-merged de $ROMS,
+# seul sp-s2.sp1 remplacé (viewpoin.zip, janshin.zip). Le critère de chaque scène est dans l'en-tête de bench/parcours.sh ;
+# la liste des jeux où le turbo est vu : 2026-10-27-autofire.tsv.
+#
+# LES TÉMOINS sont des runs de notre image, le même chemin dans le menu : A tapé deux trames sur quatre sans turbo (af-m), A
+# tenu sans turbo (af-r), la même NVRAM remise à OFF (af-sauve0), le panneau de mahjong sans fiche (mjaf0). Aucun BIOS de
+# référence n'a d'autofire.
+#
+# Image mesurée : la construction de ce lot ; les quatre scènes lancées seules. Mutations : 7, écrites, éprouvées à la
+# passe finale.
+#
+# Seule la colonne « seuil » juge. Unités : trames à 59,185 Hz.
+scene	grandeur	seuil	mesure
+af-tir	egales_min	1050	1100 sur 1100 trames égales au run où A est tapé au motif
+af-tir	diff_min	300	555 sur 1100 trames diffèrent du run où A est tenu sans turbo
+af-tir	ram_min	990	998 sur 998 trames de BIOS_P1CURRENT au motif
+af-sauve	egales_min	1050	1100 sur 1100 trames égales à af-t
+af-sauve	diff_min	300	555 sur 1100 trames diffèrent d'af-sauve0
+af-off	egales_min	1050	1100 sur 1100 trames égales à af-r, af-sauve0 comme af-relu
+af-mahjong	egales_min	400	410 sur 410 trames égales au run sans fiche
+af-mahjong	bascules_min	150	198 bascules de A dans BIOS_P1CURRENT, commutateur 3 à OFF (mjoaf)

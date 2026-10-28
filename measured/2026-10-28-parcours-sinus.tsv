@@ -1,0 +1,10 @@
+# La table du sinus de $C04000-$C041FF (src/c0/sinus.s, #1458), le 2026-10-28 : les seuils des scènes alpha-trajectoire et
+# howto-preisle2 du parcours du joueur (bench/parcours.sh, --ref-sinus), et ce qu'elles mesurent. MAME 0.286, -video none,
+# -sound none, -nothrottle, NVRAM et cfg par run, romsets non-merged de $ROMS ; notre image substituée dans le
+# romset du jeu, le témoin SNK par le romset d'origine (-bios euro). Le critère est dans l'en-tête de bench/parcours.sh.
+#
+# Trois images mesurées : la nôtre (d54340ec…, la table), la même zone laissée à $FF (l'image de main d'avant le lot), et
+# la table avec 1,0 codé $FFFF au lieu de $0001. Seule la colonne « seuil » juge.
+scene	grandeur	seuil	mesure
+alpha-trajectoire	tol_px	1	0 : les huit déplacements égaux au témoin (±40 px droits, 28 ou 29 px en diagonale) ; $FF : « haut » donne (+40, -40) contre (0, -40) ; $FFFF : 1 px d'écart sur cinq directions, sous le seuil
+howto-preisle2	egales_min	1250	1301/1301 trames égales au témoin, trame 1000 égale ; $FF : 34, trame 1000 différente (l'objet absent) ; $FFFF : 632, trame 1000 égale

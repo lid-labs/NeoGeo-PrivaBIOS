@@ -1,0 +1,31 @@
+# La matrice de la couche 1 APRES le correctif rte de SYSTEM_INT1, le 2026-10-15 au soir.
+# Le nombre passe de 6/17 (measured/2026-10-15-matrice-couche1.tsv, meme regle de comptage :
+# "joue" ET vifs_max non nul) a 11/17 : joyjoy, mslug, ridhero, samsho2 et ssideki4 se
+# debloquent. Seules les lignes sprixe sont relevees ici : snk, unibios40 et nullbios sont
+# inchangees du releve precedent, et le banc est deterministe.
+#
+# RESTENT SIX : garou, kof98, mslug3, svc (figes, ecran noir -- une autre famille que celle
+# du rte) ; trally (joue 2600 trames PUIS fige) ; wjammers (FIGE des 100, vifs 71680 : image
+# riche gelee). Causes non diagnostiquees a ce releve.
+#
+# Image : la branche feat/bios-int1-ack-timer au commit a0e66ea5 (contrats consolides +
+# rte + acquittement selon le mode), construite par build/construire.sh.
+# Regenerer : meme commande que le releve precedent, image de a0e66ea5.
+jeu	bios	verdict	vifs_max	vitesse_pct	controle
+aof	sprixe	joue (plus longue pose 0 tr.)	71680	2076.98	ok
+garou	sprixe	FIGE dès 300 (2500 trames)	0	61.65	ok
+joyjoy	sprixe	joue (plus longue pose 0 tr.)	15939	1942.39	ok
+kof2003	sprixe	joue (plus longue pose 0 tr.)	54336	2293.72	ok
+kof94	sprixe	joue (plus longue pose 0 tr.)	12452	1874.11	ok
+kof98	sprixe	FIGE dès 100 (3400 trames)	0	56.91	ok
+lbowling	sprixe	joue (plus longue pose 0 tr.)	65642	2257.62	ok
+mslug	sprixe	joue (plus longue pose 0 tr.)	66955	2393.21	ok
+mslug3	sprixe	FIGE dès 100 (3300 trames)	0	56.59	ok
+nam1975	sprixe	joue (plus longue pose 0 tr.)	71680	2402.63	ok
+puzzledp	sprixe	joue (plus longue pose 0 tr.)	71680	2324.73	ok
+ridhero	sprixe	joue (plus longue pose 0 tr.)	71680	2176.34	ok
+samsho2	sprixe	joue (plus longue pose 0 tr.)	71680	2230.66	ok
+ssideki4	sprixe	joue (plus longue pose 0 tr.)	69568	2104.66	ok
+svc	sprixe	FIGE dès 100 (3400 trames)	0	2914.50	ok
+trally	sprixe	FIGE dès 2600 (900 trames)	34928	2280.18	ok
+wjammers	sprixe	FIGE dès 100 (3400 trames)	71680	2161.91	ok

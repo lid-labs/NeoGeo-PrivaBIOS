@@ -1,0 +1,37 @@
+# Le parcours du joueur en mode AES (bench/parcours.sh, scènes aes-*), le 2026-10-23 : les seuils qui jugent chaque scène, et ce que
+# l'image de ce lot mesure en face. Une extension de 2026-10-23-parcours.tsv, dans un relevé à part pour que celui-là reste tel quel ;
+# le parcours lit les deux (--ref et --ref-aes). Mêmes conditions : MAME 0.286, -video none, -sound none, -nothrottle, NVRAM par run,
+# romsets non-merged de $ROMS, seul sp-s2.sp1 remplacé. Image : src/c0 de ce lot, sha256
+# bc6560f50412bbb23cece3f5d38a4a818c5c606ca5564b4407c983db4bc8127b. Jeu : aof.
+#
+# LES DEUX TÉMOINS. Le BIOS AES de SNK, `aes -bios asia -cart aof` (run aes-snk, START à 1000) : aes.zip recopié de neo-epo.bin et
+# 000-lo.lo de neogeo.zip par le parcours, sans être lu ; contrôle : pas de WRONG CHECKSUMS. Et notre image en mode MVS (runs boot,
+# demo, partie du parcours). Le mode AES se pose par l'éditeur (run aes-set : TEST au boot, « haut » quatre fois, droite, START),
+# puis MAME est relancé sur sa NVRAM (aes-demo, aes-start, aes-piece, aes-retour). La référence rend la démo à la trame 476 (son
+# eyecatcher), nous vers 184 : la démo se compare au meilleur décalage (meilleur_decalage, comme fin-demo).
+#
+# Seule la colonne « seuil » juge ; « mesure » est la valeur de l'image de ce lot. Le critère de chaque scène est dans l'en-tête de
+# bench/parcours.sh. Un changement voulu du comportement demande un nouveau relevé, pas un seuil relâché. Unités : case = 8 × 8
+# pixels (1 120 à l'écran), trames à 59,185 Hz.
+#
+# CE QUE LE PARCOURS A MONTRÉ : aucun défaut ; le mode AES rend la démo et le menu console du BIOS AES de SNK au pixel près sur la
+# majorité des trames (396/500 et 1 371/1 371), et la pièce n'y change aucune trame ni aucun key-on. aes-piece exige toutes les
+# trames : une pièce ignorée ne doit rien changer de visible, il n'y a pas de marge à laisser.
+#
+# LES MUTATIONS (bench/parcours-mutations.py --eprouver, une à la fois sur une copie de src/c0) : 5 éprouvées, 5 tuées, chacune
+# par les scènes visées —
+#   mode-ignore    (c0.s, le mode lu n'est pas posé)            aes-bascule « SYSTEM AES » absent ; aes-demo 12 trames du témoin SNK
+#   mode-perdu     (dip.s, le mode n'est pas enregistré)        aes-bascule « SYSTEM AES » absent après la relance
+#   start-refuse   (io.s, START sans crédit refusé)             aes-start 0 case ; aes-menu 0 trame égale
+#   piece-comptee  (c0.s, monnayeurs jamais verrouillés)       aes-piece 3 trames égales
+#   mode-bloque    (dip.s, la ligne MODE ne redescend pas)      aes-retour l'éditeur ne montre pas MODE MVS
+scene	grandeur	seuil	mesure
+aes-bascule	cases_min	4	4 (SYSTEM MVS → AES, deux lettres sur deux lignes de 8 ; 0 case ailleurs, CLOCK ignorée)
+aes-demo	snk_min	300	396 sur 500 (décalage −292 : remise 184 contre 476)
+aes-demo	mvs_max	100	12 sur 500 (décalage −4 ; des trames sombres sans texte)
+aes-start	cases_min	300	1 064 (trame 1400, le menu GAME LEVEL contre la démo)
+aes-menu	egales_min	1200	1 371 sur 1 371 (trames 1030-2400)
+aes-piece	egales_min	1401	1 401 sur 1 401 (trames 1000-2400)
+aes-piece	keyon_max	0	0 (118 contre 118, trames 1000-1300)
+aes-retour	demo_min	350	445 sur 500 (trames 600-1099, START sans pièce à 1000 compris)
+aes-retour	titre_min	60	128 (trames 1100-1400)
