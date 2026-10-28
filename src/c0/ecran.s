@@ -97,6 +97,7 @@
 
         .section .haut, "ax"
         .global _ecran_boot
+        .global _txt_version            | la version, reprise par l'écran ABOUT (`about.s`)
 
         .equ    VRAMADDR, 0x3C0000
         .equ    VRAMRW,   0x3C0002
@@ -651,6 +652,7 @@ _ecran_boot:
 .Lurl:
         .asciz  "sprixe.dev/bios"
 .Lversion:
+_txt_version:
         .asciz  "v0.1 BETA"
 .Lrappel:
         .asciz  "PRESS A BUTTON TO SKIP"
