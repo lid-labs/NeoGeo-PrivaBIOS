@@ -38,6 +38,12 @@
 --   BF_TEST    <de>-<a> : le bouton TEST tenu sur ces trames (l'éditeur de soft-DIP du boot)
 --   BF_LIBRE   1 : ne fausse rien — le même relevé sur le MAME d'origine, en témoin
 --   BF_SLOT_MAX n : borne REG_SLOT pour MAME (voir plus bas), 6 pour l'image de diagnostic
+--   BF_ABSENTE n : la cartouche rend $FFFF, ce que MAME rend pour un slot vide, sur ses trames 0 à
+--              n-1, sous l'une et l'autre bascule — un flash cart qui charge encore son menu à la
+--              mise sous tension (retour du matériel du 2026-10-28, `docs/ESSAI-MATERIEL.md`).
+--              SUPPOSÉ : ce qu'un flash cart rend pendant ce temps, et combien de temps il le
+--              rend ; rien n'en est mesuré. Une lecture flottante sous REG_BRDFIX reste comptée et
+--              rendue comme telle : seule la cartouche servie est muette
 --   BF_HOTE    1 : chargé par un autre jig (`son.lua`, J_FLOTTANT), qui joue les entrées et quitte
 --              MAME : ce jig n'y touche pas, et à BF_FIN il écrit son bilan sans quitter
 --
@@ -57,6 +63,7 @@ local FIN = tonumber(os.getenv("BF_FIN") or "900")
 local DIR = os.getenv("BF_DIR") or OUT:match("^(.*)/[^/]*$") or "."
 local LIBRE = os.getenv("BF_LIBRE") == "1"
 local HOTE = os.getenv("BF_HOTE") == "1"
+local ABSENTE = tonumber(os.getenv("BF_ABSENTE") or "0")
 local fini = false
 local images = {}
 for k in (os.getenv("BF_IMAGES") or ""):gmatch("%d+") do images[tonumber(k)] = true end
@@ -99,7 +106,10 @@ end
 local function lecture(off, data, mask)
   if interne then return end
   local c = cote()
-  if not flotte(off) then return end
+  if not flotte(off) then
+    if trame < ABSENTE and (off >= 0x80 or vecteurs == "SWPROM") then return 0xFFFF end
+    return
+  end
   faux[c] = faux[c] + 1
   faux_trame[c] = faux_trame[c] + 1
   if faux_detail < 40 then

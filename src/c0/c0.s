@@ -578,10 +578,19 @@ _slots_compter:
         | le même jeu deux fois (slots 0 et 1, 0 et 3, 1 et 2) : le second slot sort $0000 /
         | $FFFF. « Backup RAM » : « slot1 are slot2 with the second one empty ». SUPPOSÉ : que
         | ce soit le NGH qu'elle compare, et non tout l'en-tête.
+        |
+        | AUCUN SLOT OCCUPÉ : LE PARCOURS EST REFAIT À CHAQUE TRAME, jusqu'à ATTENTE_CARTE trames,
+        | pour un flash cart qui ne rend pas encore son en-tête (`DECISIONS.md` §31). La référence
+        | parcourt vers la trame 276 (`measured/2026-10-24-slot-crtfix.tsv`) ; mesuré sous MAME,
+        | `measured/2026-10-28-carte-lente.tsv`. SUPPOSÉ, et non couvert : un flash cart lent à
+        | côté d'une cartouche prompte, que le premier parcours trouve sans lui.
+        .equ    ATTENTE_CARTE, 270
         bsr     _garer_z80_vite         | clobbers %d0, %d4
+        move.w  #ATTENTE_CARTE - 1, %d7
+        lea     -16(%sp), %sp
+_slots_essai:
         move.b  #0, 0x380021            | REG_SLOT ← 0 avant la bascule, comme la référence
         move.b  %d0, 0x3A001B           | REG_CRTFIX : la cartouche du slot répond (SLOTCS)
-        lea     -16(%sp), %sp
         moveq   #0, %d5
         moveq   #0, %d1
 _slots_parcourir:
@@ -613,6 +622,14 @@ _slots_parcourir:
         cmp.w   %d6, %d1
         blo.s   _slots_parcourir
         move.b  %d0, 0x3A000B           | REG_BRDFIX, mesuré après le parcours : la police de la carte
+        tst.b   %d5
+        bne.s   1f                      | un slot occupé
+        tst.w   %d7
+        beq.s   1f                      | borne atteinte : aucun
+        bsr     .Lsync                  | une trame, watchdog compris
+        subq.w  #1, %d7
+        bra.s   _slots_essai
+1:
 
         | LA TABLE, HUIT ENTRÉES, l'entrée k pour le slot k (mesuré ; « Slot-N NGH number and
         | bram game block ID », « Backup RAM »). Mesuré, à l'octet :

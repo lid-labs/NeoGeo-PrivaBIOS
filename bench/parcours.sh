@@ -282,9 +282,15 @@
 #   bf-tests      aof : HARDWARE TESTS, CROSSHATCH, START, EXIT (l'éditeur redessiné), START.
 #   bf-jukebox    aof : JUKEBOX, un code, START (l'éditeur redessiné), START.
 #   sans-cartouche ng_mv1 sans cartouche, sous le modèle, 1 500 trames sans entrée : aucun reset, aucune
-#                 lecture flottante, chaque trame finie dans le BIOS, HARDWARE TESTS aux trames 400 et
-#                 1400. Jusqu'au 2026-10-24, le slot 0 vide recevait la main et le watchdog relançait la
-#                 carte toutes les 192 trames (`c0.s`, `_sans_cartouche`). Mutation : cartouche-absente-servie.
+#                 lecture flottante, chaque trame finie dans le BIOS, HARDWARE TESTS aux trames 700 et
+#                 1400 (400 jusqu'au 2026-10-28 : la détection attend désormais ~270 trames une cartouche
+#                 qui tarde, voir flash-cart). Jusqu'au 2026-10-24, le slot 0 vide recevait la main et le
+#                 watchdog relançait la carte toutes les 192 trames (`c0.s`, `_sans_cartouche`). Mutation :
+#                 cartouche-absente-servie.
+#   flash-cart    aof, sous le modèle, la cartouche muette sur ses 30 premières trames (BF_ABSENTE), comme
+#                 un flash cart qui charge son menu : GAME NGH ..... 0044 sur l'écran de boot, aucun
+#                 reset, le jeu a la main. Retour du matériel du 2026-10-28 : NeoSD Pro et BackBit arrêtés
+#                 sur l'écran de boot, GAME NGH 0000 (`c0.s`, ATTENTE_CARTE). Mutation : carte-lente-ignoree.
 #   LE GESTIONNAIRE DE LA CARTE MÉMOIRE, le 2026-10-24 (`src/c0/gestion-carte.s`, seuils dans --ref-carte) : l'écran
 #   TEST, « haut » cinq fois (MEMORY CARD, juste avant MODE), A. Jugé sur le plan fixe décodé et, quand la carte
 #   change, sur la carte que MAME écrit à la sortie (-memc), comparée à celle du BIOS SNK après la même commande
@@ -672,7 +678,8 @@
 # panneau de mahjong, le 2026-10-28 (relevé --ref-panneau), éprouvées seules sur l'image f1b21158… : pn-sans-traduction
 # (pn-menu-on, pn-valeur, pn-verrou, pn-jeu), pn-sans-1b (pn-menu-off, pn-verrou), pn-verrou-relu (pn-verrou), pn-e-f-echangees
 # (pn-menu-on, pn-valeur, pn-verrou, pn-jeu). 201 en tout. boot-sans-saut suit `_panneau_p1` dans `ecran.s`, rééprouvée et tuée le même jour.
-# Celles de l'écran ABOUT, le 2026-10-28 : ab-ligne-absente, ab-ne-s-ouvre-pas, ab-start-ignore (ab-ecran). 204 en tout.
+# Celle de la cartouche qui tarde, le 2026-10-28 : carte-lente-ignoree (flash-cart). 202 en tout.
+# Celles de l'écran ABOUT, le 2026-10-28 : ab-ligne-absente, ab-ne-s-ouvre-pas, ab-start-ignore (ab-ecran). 205 en tout.
 #
 # CE QU'IL NE COUVRE PAS : le matériel, hors du modèle de `bus-flottant.lua` ; NO SOFT DIP DATA sur un vrai jeu (aucun des 166 sets du
 # dossier n'a de bloc refusé : la scène est jouée sur une fixture) ; les commandes CARD autrement
@@ -709,7 +716,7 @@ REF_GAR="$PAQUET/measured/2026-10-27-parcours-garanties.tsv"
 REF_SINUS="$PAQUET/measured/2026-10-28-parcours-sinus.tsv"
 REF_PANNEAU="$PAQUET/measured/2026-10-28-parcours-panneau.tsv"
 JOBS=2
-SCENES_TOUTES="boot-ecran boot-saut calendrier carte demo-son partie-credit partie-start fin-demo fin-titre scores dip-temps dip-langue region autotests jukebox menu-hud menu-reprise menu-son cheats restart ms-demo ms-select ms-garde aes-bascule aes-demo aes-start aes-menu aes-piece aes-retour dip-defauts dip-mmss dip-fois region-europe region-japon region-usa autotests-palette autotests-vram autotests-backup tests-entrees tests-barres tests-grille jukebox-pas jukebox-stop cheats-off partie-p2 carte-sauve ms-select-p2 aes-ms-select aes-pause aes-logo aes-fin aes-texte depart-force piece-son ms-seule jukebox-repete partie-p2-joint carte-chercher carte-supprimer carte-nom tests-p2 tests-dip dip-sans-donnees gs-compte gs-defauts gs-choix gs-mmss gs-fois gs-sans-donnees gs-banque me-ecran me-goto me-octet me-ligne me-page me-repete me-poke me-gel me-liste me-degel me-borne bf-editeur bf-banque bf-tests bf-jukebox sans-cartouche cm-liste cm-libres cm-effacer cm-annuler cm-formater cm-non-formatee cm-sans-carte cm-protegee cm-insertion bf-carte aes-scores scores-gel bo-ecran ab-ecran bo-free-play bo-fp-p2 bo-fp-joint bo-no-continue bo-demo-muette bo-aes bf-borne cheats-vies bo-cd-menu bo-cd-gel dip-free-play dip-fp-p2 dip-fp-refus dip-fp-chaud dip-fp-reglage dip-fp-cabinet dip-setting geste-boot geste-jeu geste-partie demo-ssideki japon-intitules gs-japon gs-japon-garde crc-fixe crc-banques crc-miroir bf-crc bf-crc-banque dd-effet dd-off dip-gel dip-gel-off dip-gel-boot dip-mahjong dip-mj-off dip-4p dip-4p-off af-tir af-sauve af-off af-mahjong boot-graphismes ms-son-slot2 dip-vierge dip-corrompue tests-mahjong jukebox-veille cm-copier alpha-trajectoire howto-preisle2 tests-sauvegarde dd-connu pn-menu-on pn-menu-off pn-valeur pn-verrou pn-jeu"
+SCENES_TOUTES="boot-ecran boot-saut calendrier carte demo-son partie-credit partie-start fin-demo fin-titre scores dip-temps dip-langue region autotests jukebox menu-hud menu-reprise menu-son cheats restart ms-demo ms-select ms-garde aes-bascule aes-demo aes-start aes-menu aes-piece aes-retour dip-defauts dip-mmss dip-fois region-europe region-japon region-usa autotests-palette autotests-vram autotests-backup tests-entrees tests-barres tests-grille jukebox-pas jukebox-stop cheats-off partie-p2 carte-sauve ms-select-p2 aes-ms-select aes-pause aes-logo aes-fin aes-texte depart-force piece-son ms-seule jukebox-repete partie-p2-joint carte-chercher carte-supprimer carte-nom tests-p2 tests-dip dip-sans-donnees gs-compte gs-defauts gs-choix gs-mmss gs-fois gs-sans-donnees gs-banque me-ecran me-goto me-octet me-ligne me-page me-repete me-poke me-gel me-liste me-degel me-borne bf-editeur bf-banque bf-tests bf-jukebox sans-cartouche flash-cart cm-liste cm-libres cm-effacer cm-annuler cm-formater cm-non-formatee cm-sans-carte cm-protegee cm-insertion bf-carte aes-scores scores-gel bo-ecran ab-ecran bo-free-play bo-fp-p2 bo-fp-joint bo-no-continue bo-demo-muette bo-aes bf-borne cheats-vies bo-cd-menu bo-cd-gel dip-free-play dip-fp-p2 dip-fp-refus dip-fp-chaud dip-fp-reglage dip-fp-cabinet dip-setting geste-boot geste-jeu geste-partie demo-ssideki japon-intitules gs-japon gs-japon-garde crc-fixe crc-banques crc-miroir bf-crc bf-crc-banque dd-effet dd-off dip-gel dip-gel-off dip-gel-boot dip-mahjong dip-mj-off dip-4p dip-4p-off af-tir af-sauve af-off af-mahjong boot-graphismes ms-son-slot2 dip-vierge dip-corrompue tests-mahjong jukebox-veille cm-copier alpha-trajectoire howto-preisle2 tests-sauvegarde dd-connu pn-menu-on pn-menu-off pn-valeur pn-verrou pn-jeu"
 SCENES="$SCENES_TOUTES"
 HASHPATH="${BIOS_HASHPATH:-}"
 while [ $# -gt 0 ]; do
@@ -1142,6 +1149,7 @@ runs_de() {
     bf-tests) echo "bf-tests bf-tests-libre" ;;
     bf-jukebox) echo "bf-juke bf-juke-libre" ;;
     sans-cartouche) echo sc-mv1 ;;
+    flash-cart) echo fc ;;
     aes-scores) echo "aes-sc-a aes-sc-a0 aes-sc-b aes-sc-b0" ;;
     scores-gel) echo "sg-a-on sg-a-off sg-b-meme sg-b-saut sg-b-gel" ;;
     cm-liste|cm-libres) echo cm-liste ;;
@@ -1455,7 +1463,10 @@ for x in "dip|$NOTRE|270:bas,280:droite,290:bas,300:droite,340:START|330|600" \
 done
 # La MV-1 sans cartouche, sous le modèle : 1 500 trames, aucune entrée.
 veut sc-mv1 && lancer sc-mv1 son.lua "ng_mv1 -rompath $R" $BFM BF_FIN=1499 J_PIECE=0 J_START=0 \
-  J_TEXTE=400,1400 J_HACHES=1-1500 J_FIN=1500
+  J_TEXTE=700,1400 J_HACHES=1-1500 J_FIN=1500
+# aof muette sur ses 30 premières trames, sous le modèle : 900 trames, aucune entrée.
+veut fc && lancer fc son.lua "$NOTRE" $BFM BF_ABSENTE=30 BF_FIN=899 J_PIECE=0 J_START=0 \
+  J_TEXTE=150 J_HACHES=1-900 J_FIN=900
 veut me-borne && lancer me-borne son.lua "$NOTRE" $MENU_TEST \
   J_APPUIS=$VERS_ME,2392:C,2398:bas,2404:droite,2410:bas,2416:bas,2422:bas,2428:droite,2434:haut,2440:haut,2446:haut,2452:haut,2458:haut,2464:haut,2470:haut,2476:haut,2482:droite,2488:haut,2494:haut,2500:haut,2506:haut,2512:A,2518:A,2524:D,2530:START,2536:bas,2542:A \
   J_SUIVRE=10FD84:1 J_TEXTE=2517,2529 J_FIN=2700
@@ -2960,8 +2971,19 @@ def sans_cartouche():
     exiger(r == 0, f"{r} reset(s) : la carte redémarre en boucle")
     exiger(lb == 0 and lj == 0, f"{lb} lectures flottantes du BIOS, {lj} du jeu")
     exiger(jeu == 0 and n and not hors, f"la main quitte le BIOS ({jeu} trames dans le jeu, la première hors du BIOS : {hors[0] if hors else '-'})")
-    for k in (400, 1400):
+    for k in (700, 1400):
         exiger("HARDWARE TESTS" in a.texte(k), f"trame {k} : le plan fixe ne montre pas « HARDWARE TESTS »")
+def flash_cart():
+    (a,) = sain("fc")
+    r, lb, lj, b = bf_bilan(a)
+    m = re.search(r"(\d+) trames finies dans le jeu", b)
+    exiger(m, f"{a.nom} : bilan illisible")
+    jeu = int(m[1])
+    dit(f"cartouche muette (BF_ABSENTE) : {r} reset(s), {lb} lectures flottantes du BIOS, {lj} du jeu, {jeu} trames finies dans le jeu")
+    exiger("GAME NGH ..... 0044" in a.texte(150), "trame 150 : l'écran de boot ne montre pas « GAME NGH ..... 0044 »")
+    exiger(r == 0, f"{r} reset(s)")
+    exiger(lb == 0 and lj == 0, f"{lb} lectures flottantes du BIOS, {lj} du jeu")
+    exiger(jeu > 0, "le jeu n'a jamais la main")
 
 # ---- le gestionnaire de la carte mémoire (relevé --ref-carte) ----
 # Les lignes de l'écran (`src/c0/gestion-carte.s`) : l'état à la ligne 6, la protection à la 7, la liste de la 10 à
@@ -3503,7 +3525,7 @@ JUGES = {"aes-bascule": aes_bascule, "aes-demo": aes_demo, "aes-start": aes_star
          "me-page": me_page, "me-repete": me_repete, "me-poke": me_poke, "me-gel": me_gel,
          "me-liste": me_liste, "me-degel": me_degel, "me-borne": me_borne,
          "bf-editeur": bf_editeur, "bf-banque": bf_banque, "bf-tests": bf_tests, "bf-jukebox": bf_jukebox,
-         "sans-cartouche": sans_cartouche, "cm-liste": cm_liste, "cm-libres": cm_libres, "cm-effacer": cm_effacer,
+         "sans-cartouche": sans_cartouche, "flash-cart": flash_cart, "cm-liste": cm_liste, "cm-libres": cm_libres, "cm-effacer": cm_effacer,
          "cm-annuler": cm_annuler, "cm-formater": cm_formater, "cm-non-formatee": cm_non_formatee,
          "cm-sans-carte": cm_sans_carte, "cm-protegee": cm_protegee, "cm-insertion": cm_insertion, "bf-carte": bf_carte,
          "aes-scores": aes_scores, "scores-gel": scores_gel,

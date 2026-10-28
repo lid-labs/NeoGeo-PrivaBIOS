@@ -1,0 +1,22 @@
+# Une cartouche qui tarde à répondre au boot, comme un flash cart qui charge son menu (retour du matériel du 2026-10-28,
+# docs/ESSAI-MATERIEL.md, image n°15 : NeoSD Pro et BackBit arrêtés sur l'écran de boot, GAME NGH 0000). MAME 0.286, aof
+# seul, -bios euro, -video none, -nothrottle, NVRAM neuve, un -cfg_directory par run, 900 trames, aucune entrée. Jig
+# bench/bus-flottant.lua sous son modèle du matériel (la cartouche ne répond que sous REG_CRTFIX), BF_ABSENTE=n : la
+# cartouche rend $FFFF sur ses trames 0 à n-1. SUPPOSÉ, ce qu'un flash cart rend pendant ce temps et combien de temps.
+# Images : avant = main 1944849 (sha256 20f5da6e…), apres = ce lot (sha256 676c9778…, DECISIONS §31) ; ref = le BIOS
+# SNK euro du set neogeo, romset tel quel. Notre image porte WRONG CHECKSUMS dans le journal de MAME, la référence non.
+# Colonnes : image, n (BF_ABSENTE), trame où le jeu a la main pour la première fois (« - » : jamais), trames finies dans
+# le jeu, resets, lectures flottantes (BIOS, jeu).
+image	absente	main_au_jeu	trames_jeu	resets	flottantes
+avant	0	188	713	0	0,0
+avant	30	-	0	0	0,0
+ref	0	750	151	0	0,0
+ref	30	750	151	0	0,0
+apres	0	188	713	0	0,0
+apres	30	217	684	0	0,0
+apres	200	387	514	0	0,0
+apres	300	-	0	0	0,0
+# Lecture : avant, une cartouche muette sur 30 trames passe pour un slot vide (écran de boot GAME NGH ..... 0000, puis les
+# autotests) ; la référence, qui parcourt les slots vers la trame 276, ne voit pas la différence. Après, la main vient au
+# jeu 29 trames plus tard pour n = 30, et jusqu'à n = 200 ; à n = 300, au-delà de la borne de 270 parcours, la cartouche
+# reste introuvable (la référence n'a pas été jouée à 300). Sans délai, avant et après sont égaux à la trame près.
