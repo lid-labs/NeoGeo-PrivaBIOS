@@ -1,17 +1,43 @@
 # Sprixe BIOS
 
-A replacement system ROM (BIOS) for the Neo Geo MVS, written from scratch in 68000 assembly and
-tested game by game.
+[![build](https://img.shields.io/github/actions/workflow/status/lid-labs/sprixe-bios/build.yml?branch=main&label=build)](https://github.com/lid-labs/sprixe-bios/actions/workflows/build.yml)
+[![license: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE)
+![test scenes: 150](https://img.shields.io/badge/test%20scenes-150-informational)
+![mutations killed: 195/195](https://img.shields.io/badge/mutations%20killed-195%2F195-informational)
+![MAME catalogue: 161/164 play](https://img.shields.io/badge/MAME%20catalogue-161%2F164%20play-informational)
+![runs on real MV-2F hardware](https://img.shields.io/badge/runs%20on-real%20MV--2F%20hardware-success)
 
-Sprixe BIOS replaces the system ROM of a Neo Geo MVS board. Hold START + SELECT during a game and a
-menu opens with the game's settings, cheats, a memory editor and autofire remembered for each game.
-Operators get free play, no continue and a silent demo for every game, and one switch that turns
-cheats and debug off for the whole board. None of it comes from SNK's code or from UniBIOS.
+The test scene, mutation and catalogue figures are measured locally under MAME, with our own ROM
+sets ([`docs/BENCH.md`](docs/BENCH.md), [`measured/HISTORIQUE.md`](measured/HISTORIQUE.md)). The CI
+builds the image, checks its SHA-256 and runs the generators' tests; it does not run MAME.
+
+![The Sprixe BIOS boot screen](docs/screenshots/boot.gif)
+
+Sprixe BIOS is a free, open-source replacement BIOS for the Neo Geo MVS arcade board, written from
+scratch in 68000 assembly and tested game by game. It plays the role players know from UniBIOS: hold
+START + SELECT during a game and a menu opens with the game's settings, cheats, a memory editor and
+autofire remembered for each game. Operators get free play, no continue and a silent demo for every
+game, and one switch that turns cheats and debug off for the whole board. None of its code comes
+from SNK or from any game. It is licensed under the GPL-3.0-or-later.
+
+Website: https://sprixe.dev/bios
 
 Status: in testing, no release yet (v0.1.0 unreleased). Technical notes in `docs/` are in French.
 
 Sprixe BIOS was developed under the working name ReBIOS; that name still appears in dated notes and
 in the backup RAM signature.
+
+## Screenshots
+
+Taken under MAME 0.286 from the image this repository builds (SHA-256 `18da0b0a…`), with Magic
+Castle, a homebrew game made with the Sprixe studio, as the cartridge.
+
+| | | |
+|---|---|---|
+| ![Boot screen](docs/screenshots/boot.png)<br>Boot screen | ![Test menu](docs/screenshots/test-menu.png)<br>Test menu (soft-DIP settings) | ![Cabinet settings](docs/screenshots/cabinet-settings.png)<br>Cabinet settings |
+| ![In-game menu](docs/screenshots/in-game-menu.png)<br>In-game menu | ![Autofire](docs/screenshots/autofire.png)<br>Autofire, per game | ![Debug dips](docs/screenshots/debug-dips.png)<br>Debug dips |
+| ![Hardware tests](docs/screenshots/hardware-tests.png)<br>Hardware tests | ![Cartridge CRC](docs/screenshots/cartridge-crc.png)<br>Cartridge CRC32 | ![Memory card](docs/screenshots/memory-card.png)<br>Memory card manager |
+| ![Jukebox](docs/screenshots/jukebox.png)<br>Jukebox | | |
 
 ## Features
 

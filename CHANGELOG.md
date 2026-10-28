@@ -6,6 +6,11 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- README: badges, an animated boot screen and a gallery of screenshots (`docs/screenshots/`),
+  taken under MAME with a homebrew cartridge.
+
 ## [0.1.0] - Unreleased
 
 First public version. Development history before this release (October 2026) is summarised in
