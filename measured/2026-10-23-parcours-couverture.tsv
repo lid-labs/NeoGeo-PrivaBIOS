@@ -111,6 +111,7 @@ mode AES : SELECT en démo, multi-slot	io.s	aes-ms-select (nouvelle)	la démo de
 mode AES : SELECT en partie, rendu au jeu	io.s	aes-pause (nouvelle)	la pause du jeu, comme sous SNK AES	pause-aes-retiree
 mode AES : le message de P2 en partie (CREDIT_CHECK)	io.s	aes-texte (nouvelle, défaut corrigé)	PUSH START comme sous SNK AES, aucun état tenu hors du témoin	aes-insert-coin
 autotests : WORK RAM en défaut	tests.s	autotests	WORK RAM FAIL AT 00108000	autotests-aveugles
+autotests sur un jeu déjà inscrit : sa sauvegarde restaurée survit (#1456, le 2026-10-28)	c0.s, tests.s	tests-sauvegarde (nouvelle)	zone du jeu = son bloc en backup RAM à la remise	restauration-avant-editeur
 autotests : machine saine, backup RAM intacte	tests.s	étage 3c	quatre OK, 0 octet changé	— (.Lsync)
 autotests : PALETTE RAM en défaut	tests.s	autotests-palette (nouvelle)	PALETTE RAM FAIL AT 00400A00	palette-non-testee
 autotests : VRAM en défaut	tests.s	autotests-vram (nouvelle)	VRAM FAIL AT 00007123	vram-non-testee

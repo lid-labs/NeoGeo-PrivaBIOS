@@ -1209,6 +1209,23 @@ MUTATIONS = {
           "4:      btst    #7, %d0                 | C : copier la sauvegarde de la ligne\n        nop                             | MUTATION\n        nop\n")],
         "C ne copie pas",
     ),
+    "restauration-avant-editeur": (
+        "tests-sauvegarde", "c0.s",
+        [("_slot_present:\n        bsr     _relire_dip\n",
+          "_slot_present:\n        movea.l %a0, %a4                | MUTATION : restauré avant l'éditeur\n"
+          "        moveq   #0, %d1\n        move.b  0xD00108, %d1\n        bsr     _restaurer_jeu\n"
+          "        movea.l %a4, %a0\n        bsr     _relire_dip\n"),
+         ("        moveq   #0, %d1\n        move.b  0xD00108, %d1\n        bsr     _restaurer_jeu\n"
+          "        jsr     _dd_poser               | registres rendus\n",
+          "        jsr     _dd_poser               | registres rendus\n")],
+        "la sauvegarde d'un jeu déjà inscrit restaurée avant l'écran TEST : WORK RAM la détruit",
+    ),
+    "dd-ecrase-a-la-restauration": (
+        "dd-connu", "c0.s",
+        [("        bsr     _restaurer_jeu\n        jsr     _dd_poser               | registres rendus\n",
+          "        bsr     _restaurer_jeu\n        nop                             | MUTATION : masque non reposé\n")],
+        "la restauration d'un jeu déjà inscrit écrase les debug dips posés par l'écran TEST",
+    ),
 }
 
 

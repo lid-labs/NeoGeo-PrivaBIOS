@@ -812,16 +812,20 @@ _slots_aucun:
         | demande 2, la référence recopie le bloc de sauvegarde du slot servi dans la RAM de
         | travail du jeu (`_restaurer_jeu`). Ce bloc a toujours été sauvé avant : un slot
         | n'a de bloc qu'après sa demande 0, que suit sa sauvegarde (`_sysret_init`).
+        | APRÈS L'ÉDITEUR, juste avant la remise, comme la référence : WORK RAM (`tests.s`)
+        | écrit la RAM de travail, et une restauration
+        | faite avant laissait au jeu une zone détruite, sauvée à la fin de sa démo (mesuré,
+        | `measured/2026-10-28-work-ram-restauree.tsv`). Puis les debug dips reposés
+        | (`_dd_poser`, `debug.s`) : la restauration écrasait ceux que l'éditeur venait de poser.
 _slot_present:
-        movea.l %a0, %a4                | l'entrée du slot servi
-        moveq   #0, %d1
-        move.b  0xD00108, %d1
-        bsr     _restaurer_jeu
-        movea.l %a4, %a0
         bsr     _relire_dip
         moveq   #0, %d6                 | un slot connu : son entrée reste à un mode changé
         jsr     _editeur_dip            | comme plus haut : %a1 juste après le bloc
         move.b  %d0, 0x3A000D           | REG_SRAMLOCK
+        moveq   #0, %d1
+        move.b  0xD00108, %d1
+        bsr     _restaurer_jeu
+        jsr     _dd_poser               | registres rendus
         move.b  #0x02, 0x10FD81         | BIOS_SYSRET_STATUS, mesuré : voir `_sysret_demo`
         moveq   #1, %d1                 | BIOS_USER_MODE    = titre / démo
         moveq   #2, %d2                 | BIOS_USER_REQUEST = démo

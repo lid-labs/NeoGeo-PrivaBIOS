@@ -11,6 +11,15 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 - README: badges, an animated boot screen and a gallery of screenshots (`docs/screenshots/`),
   taken under MAME with a homebrew cartridge.
 
+### Fixed
+
+- HARDWARE TESTS → WORK RAM no longer erases the save of a game already registered in backup RAM.
+  The save was restored to work RAM before the TEST screen, the RAM test overwrote it, and the end
+  of the demo wrote the damaged area back to backup RAM. It is now restored after the soft-DIP
+  editor, then the debug dips are set again (`src/c0/c0.s`,
+  `measured/2026-10-28-work-ram-restauree.tsv`). Scenes `tests-sauvegarde` and `dd-connu`, two
+  mutations.
+
 ## [0.1.0] - Unreleased
 
 First public version. Development history before this release (October 2026) is summarised in
