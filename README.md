@@ -20,7 +20,7 @@ autofire remembered for each game. Operators get free play, no continue and a si
 game, and one switch that turns cheats and debug off for the whole board. None of its code comes
 from SNK or from any game. It is licensed under the GPL-3.0-or-later.
 
-Website: https://sprixe.dev/bios
+Website: https://bios.sprixe.dev/ (sources in [`site/`](site/), see [`docs/SITE.md`](docs/SITE.md)).
 
 Status: in testing, no release yet (v0.1.0 unreleased). Technical notes in `docs/` are in French.
 
@@ -29,9 +29,9 @@ in the backup RAM signature.
 
 ## Screenshots
 
-Taken under MAME 0.286 from the image this repository builds (SHA-256 `18da0b0a…`), with Magic
-Castle, a homebrew game made with the Sprixe studio, as the cartridge. The in-game menu and
-autofire screens are over Metal Slug (© SNK).
+Taken under MAME 0.286 from the image this repository builds (SHA-256 `18da0b0a…`; the boot screen
+from `8d9a7611…`), with Magic Castle, a homebrew game made with the Sprixe studio, as the
+cartridge. The in-game menu and autofire screens are over Metal Slug (© SNK).
 
 | | | |
 |---|---|---|
@@ -144,6 +144,11 @@ deliberately breaking the BIOS. The full account, including one incident, is in
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md). Questions go to
 [Discussions](https://github.com/lid-labs/sprixe-bios/discussions).
+
+## Thanks
+
+Sebastian Klötzer, for testing every image on a real MV-2F board and reporting what MAME could
+not show.
 
 ## License
 

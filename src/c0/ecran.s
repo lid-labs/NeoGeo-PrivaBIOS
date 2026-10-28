@@ -108,12 +108,13 @@
         .equ    PALETTES, 0x400000
         .equ    FOND,     0x401FFE
 
-        | Une case du plan fixe, colonne c, ligne l (« Fix layer »).
-        .equ    CASE_TITRE,   0x7000 + 14 * 32 + 6     | « SPRIXE BIOS », 11 caractères, colonnes 14-24
-        .equ    CASE_URL,     0x7000 + 12 * 32 + 10    | 15 caractères, colonnes 12-26
-        .equ    CASE_VERSION, 0x7000 + 18 * 32 + 12    | 4 caractères, colonnes 18-21
-        .equ    CASE_LIGNES,  0x7000 +  7 * 32 + 17    | étiquettes, colonnes 7-20
-        .equ    CASE_VALEURS, 0x7000 + 22 * 32 + 17    | valeurs, depuis la colonne 22
+        | Une case du plan fixe, colonne c, ligne l (« Fix layer »). Lignes 2-3 en marge ; titre,
+        | URL et version centrés sur la colonne 19.
+        .equ    CASE_TITRE,   0x7000 + 14 * 32 + 4     | « SPRIXE BIOS », 11 caractères, colonnes 14-24
+        .equ    CASE_URL,     0x7000 + 12 * 32 + 8     | 15 caractères, colonnes 12-26
+        .equ    CASE_VERSION, 0x7000 + 15 * 32 + 10    | « v0.1 BETA », 9 caractères, colonnes 15-23
+        .equ    CASE_LIGNES,  0x7000 +  7 * 32 + 15    | étiquettes, colonnes 7-20, lignes 15-24
+        .equ    CASE_VALEURS, 0x7000 + 22 * 32 + 15    | valeurs, depuis la colonne 22
         .equ    CASE_RAPPEL,  0x7000 +  9 * 32 + 27    | 22 caractères, colonnes 9-30, lignes 27-28
         .equ    CASE_GEL1,    0x7000 + 11 * 32 + 11    | « DIP SWITCH 8 IS ON », colonnes 11-28, lignes 11-12
         .equ    CASE_GEL2,    0x7000 +  9 * 32 + 15    | 22 caractères, colonnes 9-30, lignes 15-16
@@ -650,7 +651,7 @@ _ecran_boot:
 .Lurl:
         .asciz  "sprixe.dev/bios"
 .Lversion:
-        .asciz  "v0.1"
+        .asciz  "v0.1 BETA"
 .Lrappel:
         .asciz  "PRESS A BUTTON TO SKIP"
 | Cinq étiquettes de 14 caractères, 15 octets chacune avec le zéro.
