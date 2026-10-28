@@ -35,3 +35,6 @@ __pycache__/
 
 # OS
 .DS_Store
+
+# Local site preview (site/serve.sh)
+/.site-preview/

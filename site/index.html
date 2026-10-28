@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Sprixe BIOS is a free, open-source (GPL-3.0) BIOS for the Neo Geo MVS, written from scratch as an alternative to UniBIOS: in-game menu, per-game autofire, cheats, free play, soft-DIPs, memory card manager and hardware tests." />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="theme-color" content="#0a1228" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="canonical" href="https://bios.sprixe.dev/" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <!-- Les captures et la carte de partage sont celles de docs/screenshots/, copiées sous img/ au
+         déploiement (.github/workflows/pages.yml) et en local par serve.sh : jamais dupliquées ici. -->
+    <meta property="og:title" content="Sprixe BIOS — a free, open-source Neo Geo MVS BIOS" />
+    <meta property="og:description" content="A replacement system ROM for the Neo Geo MVS, written from scratch: in-game menu, per-game autofire, free play, soft-DIPs and hardware tests. GPL-3.0." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://bios.sprixe.dev/" />
+    <meta property="og:image" content="https://bios.sprixe.dev/img/social-preview.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1280" />
+    <meta property="og:image:height" content="640" />
+    <meta property="og:image:alt" content="The Sprixe BIOS boot screen, next to the title: a free, open-source replacement BIOS for the Neo Geo MVS." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@sprixedev" />
+    <meta name="twitter:title" content="Sprixe BIOS — a free, open-source Neo Geo MVS BIOS" />
+    <meta name="twitter:description" content="A replacement system ROM for the Neo Geo MVS, written from scratch: in-game menu, per-game autofire, free play, soft-DIPs and hardware tests. GPL-3.0." />
+    <meta name="twitter:image" content="https://bios.sprixe.dev/img/social-preview.png" />
+    <title>Sprixe BIOS — free, open-source Neo Geo MVS BIOS</title>
+    <!-- Pas de downloadUrl tant qu'aucun fichier n'est publié : la page le dit, les données
+         structurées ne doivent pas promettre plus. -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Sprixe BIOS",
+        "description": "A free, open-source replacement BIOS for the Neo Geo MVS, written from scratch: in-game menu, per-game autofire, cheats, free play, soft-DIPs, memory card manager and hardware tests.",
+        "url": "https://bios.sprixe.dev/",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Neo Geo MVS",
+        "softwareVersion": "0.1 beta",
+        "license": "https://www.gnu.org/licenses/gpl-3.0.html",
+        "image": "https://bios.sprixe.dev/img/social-preview.png",
+        "screenshot": "https://bios.sprixe.dev/img/in-game-menu.png",
+        "sameAs": "https://github.com/lid-labs/sprixe-bios",
+        "author": { "@type": "Person", "name": "Thibaut Lion" },
+        "publisher": { "@id": "https://www.sprixe.dev/#organization" },
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,600;0,700;1,400&amp;family=Silkscreen&amp;family=VT323&amp;display=swap" />
+    <link rel="stylesheet" href="site.css" />
+    <script src="site.js" defer></script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="top">
+      <div class="top-in">
+        <a class="logo" href="#top" aria-label="Sprixe BIOS, back to top">SPRIXE BIOS <span>v0.1 beta</span></a>
+        <nav aria-label="On this page">
+          <ul>
+            <li><a href="#download">Download</a></li>
+            <li><a href="#compare">Compared</a></li>
+            <li><a href="#features">Screens</a></li>
+            <li><a href="#method">How it's tested</a></li>
+            <li><a href="#faq">FAQ</a></li>
+            <li><a href="#manual">Manual</a></li>
+            <li><a href="#changelog">Changelog</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main class="bios" id="main">
+      <div class="bios-hero" id="top">
+        <div>
+          <div class="eyebrow">Neo Geo MVS system ROM · v0.1 beta</div>
+          <h1>A Neo Geo BIOS written from scratch, and tested game by game</h1>
+          <p class="lede">Sprixe BIOS replaces the system ROM of a Neo Geo MVS board. Hold START + SELECT during a game and a menu opens with the game's settings, cheats, a memory editor and autofire remembered for each game. Operators get free play, no continue and a silent demo for every game, and one switch that turns cheats and debug off for the whole board. None of it comes from SNK's code or from UniBIOS.</p>
+          <div class="cta">
+            <!-- Aucun fichier n'est publié : le bouton mène à la section, jamais à un binaire. -->
+            <a class="dl" href="#download">
+              <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m6 10 6 6 6-6"/><path d="M4 20h16"/></svg>
+              <span>Download Sprixe BIOS<small>v0.1 beta · 128 KB · MVS</small></span>
+            </a>
+            <a class="gh-btn" href="https://github.com/lid-labs/sprixe-bios" rel="noopener noreferrer"><svg class="gh" width="20" height="20" viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>View on GitHub</span></a>
+            <span class="draft"><b>Draft</b>The files are not online yet.</span>
+            <p class="alt">For a 27C1024 EPROM, or for MAME. Source, issues and discussions on <a class="gh-link" href="https://github.com/lid-labs/sprixe-bios" rel="noopener noreferrer"><svg class="gh" width="20" height="20" viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>GitHub</a>.</p>
+          </div>
+          <ul class="facts">
+            <li><span>161</span> of 164 games play in the MAME catalogue</li>
+            <li><span>157</span> on-screen test scenes</li>
+            <li>Boots on a real <span>MV-2F</span></li>
+          </ul>
+        </div>
+        <figure class="screen">
+          <img src="img/in-game-menu.png" alt="The Sprixe BIOS in-game menu open over Metal Slug: resume, restart game, infinite lives, bombs and time, autofire, game settings, memory editor" width="640" height="448" />
+          <figcaption>In-game menu over Metal Slug (© SNK), captured under MAME</figcaption>
+        </figure>
+      </div>
+
+      <section id="status" class="status">
+        <div class="col">
+          <p><strong>Status, 28 October 2026.</strong> Sprixe BIOS is in testing and has no public release yet. Everything below was measured under MAME, except where a line says real hardware: one tester has been burning each image on an MV-2F since 21 October and sending videos back.</p>
+        </div>
+      </section>
+
+      <section id="compare">
+        <div class="col">
+          <div class="eyebrow">Compared</div>
+          <h2>Sprixe BIOS and UniBIOS 4.0, line by line</h2>
+          <p>UniBIOS is the reference everyone already knows, so this table uses it as the yardstick, including the lines where it does more than Sprixe BIOS. The UniBIOS column comes from its author's release notes (v1.3 to v4.0) and public forum threads. We never opened its binary. The Sprixe BIOS column is measured, each line by its own test scene.</p>
+        </div>
+        <!-- Décompte et listes d'écarts calculés depuis le tableau par site.js. -->
+        <div class="tally" id="tally"></div>
+        <div class="diffs" id="diffs"></div>
+        <div class="tablebox" id="matrix">
+          <table>
+            <thead><tr><th>Topic</th><th>UniBIOS 4.0</th><th>Sprixe BIOS</th></tr></thead>
+            <tbody>
+              <tr class="group"><td colspan="3">Playing</td></tr>
+              <tr>
+                <td class="topic">Per-game autofire</td>
+                <td><span class="v unk"><i aria-hidden="true">?</i>Not found</span><small>Not in any release note we read.</small></td>
+                <td><span class="v yes"><i aria-hidden="true">✓</i>Yes</span>A, B, C and D set one by one, at 10, 15 or 30 shots per second, remembered for each game. It only reaches games that read the controls through the BIOS: 89 of the 164 we measured.</td>
+              </tr>
+              <tr>
+                <td class="topic">Cheats</td>
+                <td><span class="v yes"><i aria-hidden="true">✓</i>Yes</span>A database of more than 1,570 cheats, plus Patch Memory (v2.0).</td>
+                <td><span class="v part"><i aria-hidden="true">◐</i>Smaller</span>40 cheats for 35 games, found by observing the games. Far fewer than UniBIOS.</td>
+              </tr>
+              <tr>
+                <td class="topic">Cheats and debug switched off by the operator</td>
+                <td><span class="v unk"><i aria-hidden="true">?</i>Not found</span><small>RetroAchievements bans UniBIOS as a whole because of cheats and debug (RetroArch #18989, April 2026).</small></td>
+                <td><span class="v yes"><i aria-hidden="true">✓</i>Yes</span>CHEATS/DEBUG OFF in cabinet settings removes the cheats, the memory editor and the debug dips.</td>
+              </tr>
+              <tr>
+                <td class="topic">Soft-DIPs during a game</td>
+                <td><span class="v yes"><i aria-hidden="true">✓</i>Yes</span>From the in-game menu (v4.0).</td>
+                <td><span class="v yes"><i aria-hidden="true">✓</i>Yes</span>GAME SETTINGS in the in-game menu, and the editor at boot.</td>
+              </tr>
+              <tr>
+                <td class="topic">Soft-DIPs of a game never launched</td>
+                <td><span class="v no"><i aria-hidden="true">✕</i>Known issue</span><small>Listed by its author as a v4.0 limit: the entry gets corrupted. We only saw this page through a search snippet.</small></td>
+                <td><span class="v yes"><i aria-hidden="true">✓</i>Handled</span>The editor shows the cartridge defaults and saves a clean entry. A garbled entry left by another BIOS is checked value by value before the game sees it.</td>
+              </tr>
+              <tr class="group"><td colspan="3">Saving</td></tr>
+              <tr>
+                <td class="topic">High scores</td>
+                <td><span class="v yes"><i aria-hidden="true">✓</i>Yes</span>On the memory card, AES mode included (v3.1). Forum users report scores that are neither saved nor read back (v3.1 to v3.3).</td>
+                <td><span class="v part"><i aria-hidden="true">◐</i>Partly</span>Kept in backup RAM in MVS and AES modes, with SCORE RESET to stop the periodic wipe. Not saved on the memory card.</td>
+              </tr>
+              <tr>
+                <td class="topic">Memory card manager</td>
+                <td><span class="v yes"><i aria-hidden="true">✓</i>Yes</span>Reachable in every mode.</td>
+                <td><span class="v part"><i aria-hidden="true">◐</i>Partly</span>In the test screen only: list, free blocks, delete, format, and copy one save to another card. No COPY ALL.</td>
+              </tr>
+              <tr class="group"><td colspan="3">Operators and repair</td></tr>
+              <tr>
+                <td class="topic">Free play, no continue, silent demo</td>
+                <td><span class="v unk"><i aria-hidden="true">?</i>Not found</span><small>Not in the release notes we read.</small></td>
+                <td><span class="v yes"><i aria-hidden="true">✓</i>Yes</span>FREE PLAY, NO CONTINUE and DEMO SOUND in cabinet settings. Board switch 7 also gives free play.</td>
+              </tr>
+              <tr>
+                <td class="topic">Board without a TEST button</td>
+                <td><span class="v unk"><i aria-hidden="true">?</i>Not documented</span></td>
+                <td><span class="v yes"><i aria-hidden="true">✓</i>Yes</span>Switch 1, or START + SELECT held at power-on, opens the test screen. Found on the tester's consolized MV-2F.</td>
+              </tr>
+              <tr>
+                <td class="topic">Cartridge CRC32</td>
+                <td><span class="v yes"><i aria-hidden="true">✓</i>Yes</span>Since v1.3.</td>
+                <td><span class="v yes"><i aria-hidden="true">✓</i>Yes</span>The fixed P-ROM and each bank, as the 68000 reads them. SMA and PVC protected cartridges are not recognised yet.</td>
+              </tr>
+              <tr>
+                <td class="topic">RAM and VRAM viewers, debug dips</td>
+                <td><span class="v yes"><i aria-hidden="true">✓</i>Yes</span>RAM and VRAM viewers, debug dips, developer mode.</td>
+                <td><span class="v part"><i aria-hidden="true">◐</i>Partly</span>RAM editor with value freezing, and debug dips. No VRAM viewer.</td>
+              </tr>
+              <tr>
+                <td class="topic">Input test</td>
+                <td><span class="v yes"><i aria-hidden="true">✓</i>Yes</span>4-player adapter and mahjong panel (v3.2).</td>
+                <td><span class="v part"><i aria-hidden="true">◐</i>Partly</span>Joysticks and the mahjong panel. No 4-player page.</td>
+              </tr>
+              <tr class="group"><td colspan="3">Boot and multi-slot</td></tr>
+              <tr>
+                <td class="topic">Boot screen on flash and homebrew carts</td>
+                <td><span class="v no"><i aria-hidden="true">✕</i>Known issue</span>The logo is drawn with the cartridge's graphics and comes out scrambled on slow flash boards (several forum threads, 2018 on). Under MAME, with the cartridge graphics replaced by noise, it scrambles in 155 of 190 frames.</td>
+                <td><span class="v yes"><i aria-hidden="true">✓</i>Yes</span>The boot screen uses only the BIOS font. Same noise test: not one frame changes.</td>
+              </tr>
+              <tr>
+                <td class="topic">Multi-slot boards</td>
+                <td><span class="v no"><i aria-hidden="true">✕</i>Reported</span>v4.0 is reported to boot to a black screen or EXCEPTION ERROR HANDLING, and to lose sound on slot 2 and up. Forums advise v3.2. We could not reproduce it under MAME.</td>
+                <td><span class="v yes"><i aria-hidden="true">✓</i>Yes</span>MV-6F under MAME: rotating demo, SELECT for P1 and P2, sound on slot 2 with slot 1 empty. Real MV-2F: games boot from both slots.</td>
+              </tr>
+              <tr class="group"><td colspan="3">Look and extras</td></tr>
+              <tr>
+                <td class="topic">Screen saver, menu colours</td>
+                <td><span class="v yes"><i aria-hidden="true">✓</i>Yes</span>Screen saver (v2.3), menu colours (v4.0).</td>
+                <td><span class="v part"><i aria-hidden="true">◐</i>Partly</span>Screen saver in the jukebox: black screen after about two minutes, music keeps playing. No menu colours.</td>
+              </tr>
+              <tr>
+                <td class="topic">US-style credit display, Arcade VS, PC-2-NEO, PICKnMIX</td>
+                <td><span class="v yes"><i aria-hidden="true">✓</i>Yes</span></td>
+                <td><span class="v no"><i aria-hidden="true">✕</i>No</span></td>
+              </tr>
+              <tr>
+                <td class="topic">Licence</td>
+                <td>Personal use only: no sale on chips, no redistribution, no modification.</td>
+                <td>GPL-3.0-or-later. Our own code, not derived from SNK or UniBIOS. The source code will be published.</td>
+              </tr>
+              <tr>
+                <td class="topic">Development</td>
+                <td>Last release, v4.0, in May 2018.</td>
+                <td>Active since October 2026.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note">"Not found" means the feature is absent from the release notes and threads we could read, which is not proof that UniBIOS lacks it. Sources and dates for every UniBIOS line are listed in our research notes of 23 October 2026.</p>
+      </section>
+
+      <section id="features">
+        <div class="col">
+          <div class="eyebrow">What it looks like</div>
+          <h2>The screens</h2>
+          <p>Every screen below is the Sprixe BIOS image running under MAME, scaled up with no filter.</p>
+          <p class="sub">The in-game screens are over Metal Slug (© SNK); the BIOS screens were taken with <a href="https://studio.sprixe.dev/p/SYxAmnNKNfkd">Magic Castle</a>, a homebrew game made with the Sprixe studio, as the cartridge.</p>
+        </div>
+
+        <div class="shotgroup">
+          <h3>During a game <span>Hold START + SELECT, or TEST, for about a third of a second. The game pauses behind the menu.</span></h3>
+          <div class="shots">
+            <figure class="shot big">
+              <div class="screen"><img loading="lazy" src="img/in-game-menu.png" alt="In-game menu over Metal Slug" width="640" height="448" /></div>
+              <h4>In-game menu</h4>
+              <p>Resume, restart, autofire, game settings and the memory editor, over the paused game. The music keeps playing. Metal Slug has cheats in the table, so infinite lives, bombs and time are switched on and off from the same menu.</p>
+            </figure>
+            <figure class="shot">
+              <div class="screen"><img loading="lazy" src="img/autofire.png" alt="Autofire screen over Metal Slug" width="640" height="448" /></div>
+              <h4>Autofire</h4>
+              <p>Buttons A to D, three rates, remembered for this game. Here, BUTTON A switched ON in Metal Slug.</p>
+            </figure>
+          </div>
+        </div>
+
+        <div class="shotgroup">
+          <h3>At power-on <span>Hold TEST, or START + SELECT, or turn board switch 1 ON.</span></h3>
+          <div class="shots">
+            <figure class="shot big">
+              <div class="screen"><img loading="lazy" src="img/test-menu.png" alt="Soft DIP settings" width="640" height="448" /></div>
+              <h4>Soft DIP settings</h4>
+              <p>The region, then the BIOS pages. A cartridge with settings of its own lists them here too.</p>
+            </figure>
+            <figure class="shot">
+              <div class="screen"><img loading="lazy" src="img/cabinet-settings.png" alt="Cabinet settings" width="640" height="448" /></div>
+              <h4>Cabinet settings</h4>
+              <p>Free play, no continue, silent demo, and one switch that turns cheats and debug off for the whole board.</p>
+            </figure>
+            <figure class="shot">
+              <!-- L'animation de démarrage, et son image fixe pour qui demande moins de mouvement. -->
+              <div class="screen"><picture>
+                <source media="(prefers-reduced-motion: reduce)" srcset="img/boot.png" />
+                <img loading="lazy" src="img/boot.gif" alt="Boot screen" width="640" height="448" />
+              </picture></div>
+              <h4>Boot screen</h4>
+              <p>Any button skips it. It uses only the BIOS font, nothing from the cartridge's graphics.</p>
+            </figure>
+            <figure class="shot">
+              <div class="screen"><img loading="lazy" src="img/hardware-tests.png" alt="Hardware tests" width="640" height="448" /></div>
+              <h4>Hardware tests</h4>
+              <p>RAM, palette, VRAM and backup RAM checks, input test, colour bars, crosshatch and the cartridge CRC.</p>
+            </figure>
+            <figure class="shot">
+              <div class="screen"><img loading="lazy" src="img/cartridge-crc.png" alt="Cartridge CRC32" width="640" height="448" /></div>
+              <h4>Cartridge CRC32</h4>
+              <p>The program ROM as the 68000 reads it, bank by bank, to compare with a known dump.</p>
+            </figure>
+            <figure class="shot">
+              <div class="screen"><img loading="lazy" src="img/memory-card.png" alt="Memory card" width="640" height="448" /></div>
+              <h4>Memory card</h4>
+              <p>Saves on the card with their game, free blocks, delete, format, and copy one save to another card.</p>
+            </figure>
+            <figure class="shot">
+              <div class="screen"><img loading="lazy" src="img/jukebox.png" alt="Jukebox" width="640" height="448" /></div>
+              <h4>Jukebox</h4>
+              <p>Play the cartridge's sound codes. After two minutes without input the screen goes black and the music keeps going.</p>
+            </figure>
+            <figure class="shot">
+              <div class="screen"><img loading="lazy" src="img/debug-dips.png" alt="Debug dips" width="640" height="448" /></div>
+              <h4>Debug dips</h4>
+              <p>The developer switches some games still read, set until power-off.</p>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <section id="download">
+        <div class="col">
+          <div class="eyebrow">Download</div>
+          <h2>Get Sprixe BIOS v0.1</h2>
+          <p class="pending"><b>Draft</b><span>The files are not online yet. The download button will point to the first release.</span></p>
+          <p>One image, two byte orders. Pick the one your programmer or emulator expects.</p>
+        </div>
+        <div class="dlbox">
+          <div class="file">
+            <h3>sprixe-bios-v0.1.rom</h3>
+            <p>MAME byte order, the same as the <code>sp-s2.sp1</code> file in <code>neogeo.zip</code>. Burn it as is on most programmers.</p>
+          </div>
+          <div class="file">
+            <h3>sprixe-bios-v0.1-byteswapped.bin</h3>
+            <p>Bytes swapped in pairs, for a programmer set the other way round. If the board shows nothing, try the other file.</p>
+          </div>
+        </div>
+        <div class="dlbox">
+          <div>
+            <h3>On an MVS board</h3>
+            <ol class="steps">
+              <li>Burn the image on a 27C1024 EPROM.</li>
+              <li>Keep the original BIOS chip. Swap it out, mind the notch.</li>
+              <li>Power on: the Sprixe BIOS screen shows for a moment, then the game starts.</li>
+            </ol>
+          </div>
+          <div>
+            <h3>In MAME</h3>
+            <ol class="steps">
+              <li>Work on copies. Replace <code>sp-s2.sp1</code> with the Sprixe BIOS file in <code>neogeo.zip</code>, and also in the game's zip if your set is non-merged: each of those zips carries its own copy of the BIOS, and MAME reads it first.</li>
+              <li>Run the game with <code>-bios euro</code>.</li>
+              <li>MAME warns WRONG CHECKSUMS for <code>sp-s2.sp1</code>. That warning means Sprixe BIOS is the BIOS in use.</li>
+            </ol>
+          </div>
+        </div>
+        <div class="col">
+          <p class="sub">Source code, issues and discussions: <a class="gh-link" href="https://github.com/lid-labs/sprixe-bios" rel="noopener noreferrer"><svg class="gh" width="20" height="20" viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>github.com/lid-labs/sprixe-bios</a>.</p>
+        </div>
+      </section>
+
+      <section id="method">
+        <div class="col">
+          <div class="eyebrow">How it's tested</div>
+          <h2>Clean room, then a test for everything the player sees</h2>
+          <p>A BIOS is the first code the board runs, and games keep calling into it for controls, credits and saves. Much of what it has to do is documented nowhere, so we measured it.</p>
+        </div>
+        <div class="numbers">
+          <div><b>164</b><span>games in the MAME catalogue, run under Sprixe BIOS, the SNK BIOS and UniBIOS 4.0</span></div>
+          <div><b>157</b><span>test scenes, each judged on what the player sees or hears</span></div>
+          <div><b>201</b><span>deliberate bugs, every one caught by its scene</span></div>
+          <div><b>14</b><span>test images sent to a tester with a real MV-2F so far</span></div>
+        </div>
+        <div class="two">
+          <div>
+            <h3>Clean room</h3>
+            <p>No code from SNK, UniBIOS or any game was copied or disassembled. The original BIOS was observed while it ran: under MAME (picture, sound, RAM, how often an address is read) and, early on, through bus traces in a co-simulation (addresses and timing). The code was written from what those observations showed and from public documentation.</p>
+            <p>This is slower. It also means Sprixe BIOS sometimes differs from the original on purpose, and each of those differences is written down with the reason.</p>
+          </div>
+          <div>
+            <h3>Tests the player would notice</h3>
+            <p>A scene plays a short sequence under MAME (a coin, START, a menu, a held button) and compares what is on screen and in the speakers against a reference run. Then we break the BIOS on purpose, one change at a time, and check that the scene fails. A scene that cannot fail is removed or rewritten.</p>
+            <p>The catalogue boots every game in the set and watches it play. Under Sprixe BIOS, 161 of 164 play. Two others freeze under the SNK BIOS and UniBIOS too, so the harness is the cause, and one (irrmaze) cannot be measured with a substituted BIOS.</p>
+          </div>
+        </div>
+        <div class="col">
+          <p>MAME is not the hardware, and the real board keeps finding things it missed. The tester's MV-2F showed that Sprixe BIOS read the cartridge header at the wrong moment (fixed 24 October), that a consolized board without a TEST button could not reach the settings (25 October), and that a BlueRetro wireless adapter holds every button for a second when it wakes up (27 October). A shoot'em up played by hand on 28 October found the latest one: Alpha Mission II's ship drifted sideways. The fix is in testing below.</p>
+          <p class="thanks">Thanks to Sebastian Klötzer, for testing every image on a real MV-2F board and reporting what MAME could not show.</p>
+        </div>
+      </section>
+
+      <section id="faq">
+        <div class="col">
+          <div class="eyebrow">Questions</div>
+          <h2>Before you burn a chip</h2>
+        </div>
+        <dl class="faq">
+          <div>
+            <dt>Will it run on my MV-1C, or on another MVS board?</dt>
+            <dd>We don't know yet. One real board has run Sprixe BIOS so far, a two-slot MV-2F. Under MAME it is also tested on the six-slot MV-6F. Other boards are untested. On some MVS boards the BIOS chip is soldered, and it needs a socket before you can swap it.</dd>
+          </div>
+          <div>
+            <dt>And on an AES console?</dt>
+            <dd>No. There is no Sprixe BIOS image for the AES console and none has been tried. What Sprixe BIOS has is an AES mode for an MVS board: set MODE to AES in the settings, and games show their home version, with PUSH START and their option menus.</dd>
+          </div>
+          <div>
+            <dt>Can I go back to UniBIOS or the SNK BIOS?</dt>
+            <dd>Yes: keep the chip you take out, and put it back the same way. Going the other way, Sprixe BIOS checks the soft-DIP blocks another BIOS left in backup RAM before a game reads them: a value out of range goes back to the cartridge default.</dd>
+          </div>
+          <div>
+            <dt>Can I try it without burning anything?</dt>
+            <dd>Yes, in MAME. Replace <code>sp-s2.sp1</code> with the Sprixe BIOS file and run the game with <code>-bios euro</code>. The <a href="#download">install steps</a> give the details, including the non-merged sets.</dd>
+          </div>
+          <div>
+            <dt>Does autofire work in every game?</dt>
+            <dd>No, it depends on how the game reads the joystick. Measured under MAME on player 1's A button: 89 games see it fully, 25 partly, 35 never, and 15 were not measured. Last Resort, Alpha Mission II and the first Metal Slug see it. Pulstar, Metal Slug 2 and Metal Slug 5 see it partly. Blazing Star, Metal Slug 3, 4 and X read the joystick themselves, so no BIOS autofire reaches them.</dd>
+          </div>
+          <div>
+            <dt>My cabinet has no TEST button.</dt>
+            <dd>Turn board switch 1 ON, or hold START + SELECT at power-on: both open the settings screen. During a game, START + SELECT held about a third of a second opens the in-game menu. This came from the tester's consolized MV-2F.</dd>
+          </div>
+          <div>
+            <dt>Where are my scores and settings kept?</dt>
+            <dd>In the board's backup RAM: region, mode, cabinet settings, each game's soft-DIPs and autofire, and the high scores. Scores are not saved on the memory card.</dd>
+          </div>
+          <div>
+            <dt>What are the terms of use?</dt>
+            <dd>GPL-3.0-or-later. You can use it, burn it, share it and modify it; if you distribute a modified version, you share its source too. The code is our own, not derived from SNK or UniBIOS, and its source will be published with the first release.</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section id="manual">
+        <div class="col">
+          <div class="eyebrow">Manual</div>
+          <h2>Using Sprixe BIOS</h2>
+          <p>Controls are player 1's. A press counts once; hold a direction to repeat.</p>
+        </div>
+        <pre aria-label="Menu map">Power on
+├── Boot screen ──────────── any button skips it
+├── TEST held, START + SELECT held, or switch 1 ON
+│   └── SOFT DIP SETTINGS
+│       ├── REGION
+│       ├── the cartridge's own settings
+│       ├── CABINET SETTINGS ── FREE PLAY, NO CONTINUE, DEMO SOUND,
+│       │                       CHEATS/DEBUG, DEBUG DIPS
+│       ├── SCORE RESET
+│       ├── MEMORY CARD ─────── saves, FORMAT CARD, copy with C
+│       ├── MODE ────────────── MVS or AES
+│       ├── HARDWARE TESTS ──── WORK RAM ... CROSSHATCH, CARTRIDGE CRC
+│       ├── JUKEBOX
+│       └── RESET TO DEFAULTS
+└── The game
+    ├── TEST or START + SELECT, held about 1/3 s in a game
+    │   └── IN-GAME MENU
+    │       ├── RESUME
+    │       ├── RESTART GAME
+    │       ├── cheats for this game, ON/OFF
+    │       ├── AUTOFIRE
+    │       ├── GAME SETTINGS
+    │       └── MEMORY EDITOR
+    └── SELECT outside a game, on a multi-slot board ── next game</pre>
+
+        <div class="manual-grid">
+          <div>
+            <h3>Board DIP switches</h3>
+            <div class="tablebox">
+              <table>
+                <thead><tr><th>Switch</th><th>ON means</th></tr></thead>
+                <tbody>
+                  <tr><td>1</td><td>Open the settings screen at every power-on</td></tr>
+                  <tr><td>2</td><td>VS mode, passed to the game as on the Japanese SNK BIOS and UniBIOS</td></tr>
+                  <tr><td>3</td><td>Mahjong panel on player 1, with its own page in INPUT TEST. Autofire is off.</td></tr>
+                  <tr><td>4 to 6</td><td>Nothing for the BIOS; some games read them</td></tr>
+                  <tr><td>7</td><td>Free play</td></tr>
+                  <tr><td>8</td><td>Freeze the game. At power-on, Sprixe BIOS says so on screen instead of staying black.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <h3>In-game menu</h3>
+            <div class="tablebox">
+              <table>
+                <thead><tr><th>Keys</th><th>Action</th></tr></thead>
+                <tbody>
+                  <tr><td><kbd>Up</kbd> <kbd>Down</kbd></td><td>Choose a line</td></tr>
+                  <tr><td><kbd>A</kbd> or <kbd>START</kbd></td><td>Open, or switch a cheat ON/OFF</td></tr>
+                  <tr><td><kbd>Left</kbd> <kbd>Right</kbd></td><td>Change a value</td></tr>
+                  <tr><td><kbd>START</kbd></td><td>Back</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="sub">The game pauses while the menu is open and the music keeps playing.</p>
+          </div>
+        </div>
+
+        <div class="col">
+          <details open>
+            <summary>Autofire</summary>
+            <p>Open the in-game menu, go up three lines to AUTOFIRE, press A. Each of BUTTON A to BUTTON D is OFF or ON (Right turns it on), and RATE sets 15, 30 or 10 shots per second. Hold a button that is ON and it fires by itself, the first shot straight away. The setting belongs to the game and survives power-off; players 1 and 2 share it.</p>
+            <p>It works on games that read the joystick through the BIOS. Measured on player 1's A button: 89 games see it fully, 25 partly, 35 read the joystick themselves and never see it.</p>
+          </details>
+          <details>
+            <summary>Settings that stay</summary>
+            <p>Region, mode, cabinet settings and each game's soft-DIPs are kept in the board's backup RAM. A soft-DIP block left by another BIOS is checked before the game sees it: values out of range go back to the cartridge default.</p>
+          </details>
+          <details>
+            <summary>Known limits</summary>
+            <p>The settings screen and menus cannot be driven from a mahjong panel yet. The WORK RAM test can clear the RAM of a game that was running (found in the code, not yet measured). SMA and PVC cartridges are not recognised by the CRC page. Only the MV-2F has run Sprixe BIOS on real hardware; AES consoles and other MVS boards are untested.</p>
+          </details>
+        </div>
+      </section>
+
+      <section id="changelog">
+        <div class="col">
+          <div class="eyebrow">Changelog</div>
+          <h2>What changed, and when</h2>
+          <p>The tester's image number is given where a change reached the real board.</p>
+        </div>
+        <ol class="log" reversed>
+          <li><time datetime="2026-10-28">In testing</time><ul>
+            <li>A sine table where games expect one in the BIOS ROM. Alpha Mission II's ship moves straight again, Prehistoric Isle 2's tutorial shows its item, Last Resort's satellite keeps its orbit.</li>
+          </ul></li>
+          <li><time datetime="2026-10-28">28 Oct 2026</time><ul>
+            <li>Per-game autofire in the in-game menu.</li>
+            <li>CARTRIDGE CRC in hardware tests, and DEBUG DIPS in cabinet settings.</li>
+            <li>Board switches 2, 3 and 8: VS mode, mahjong panel, freeze with a message at power-on.</li>
+            <li>Mahjong panel page in INPUT TEST, jukebox screen saver, copy a save from one memory card to another.</li>
+            <li>A garbled soft-DIP block is checked before the game reads it.</li>
+          </ul></li>
+          <li><time datetime="2026-10-27">27 Oct 2026</time><ul>
+            <li>Soft-DIP labels show in the JAPAN region.</li>
+            <li>A BlueRetro adapter waking up no longer opens the test screen or the in-game menu. Found on the real board, image 14.</li>
+          </ul></li>
+          <li><time datetime="2026-10-25">25 Oct 2026</time><ul>
+            <li>Cabinet settings: FREE PLAY, NO CONTINUE, DEMO SOUND.</li>
+            <li>Cheats for 35 games, and the CHEATS/DEBUG switch.</li>
+            <li>Memory card manager and SCORE RESET.</li>
+            <li>Board switches 1 and 7, and the settings screen without a TEST button. Found on the real board, image 12.</li>
+            <li>Super Sidekicks' demo no longer freezes after the stadium intro.</li>
+          </ul></li>
+          <li><time datetime="2026-10-24">24 Oct 2026</time><ul>
+            <li>GAME SETTINGS and MEMORY EDITOR in the in-game menu.</li>
+            <li>The cartridge header is read at the right moment. Before this, the real MV-2F rebooted in a loop: image 8.</li>
+            <li>With no cartridge, the board opens the hardware tests instead of rebooting.</li>
+          </ul></li>
+          <li><time datetime="2026-10-23">23 Oct 2026</time><ul>
+            <li>AES mode on an MVS board.</li>
+            <li>Every BIOS function covered by at least one test scene.</li>
+          </ul></li>
+          <li><time datetime="2026-10-22">22 Oct 2026</time><ul>
+            <li>Multi-slot: SELECT changes game.</li>
+            <li>Game start, credits, joystick repeat and LEDs aligned with the original, measured cause by cause.</li>
+            <li>The local test harness that every change since has had to pass.</li>
+          </ul></li>
+          <li><time datetime="2026-10-21">21 Oct 2026</time><ul>
+            <li>Hardware tests and the jukebox. First image sent to the tester.</li>
+          </ul></li>
+          <li><time datetime="2026-10-20">20 Oct 2026</time><ul>
+            <li>The Sprixe BIOS boot screen, and the soft-DIP editor opened by TEST at boot.</li>
+          </ul></li>
+          <li><time datetime="2026-10-15">15–20 Oct 2026</time><ul>
+            <li>The system calls games rely on: controls, credits, timer interrupt, sound handshake, memory card, calendar.</li>
+          </ul></li>
+          <li><time datetime="2026-10-11">11 Oct 2026</time><ul>
+            <li>First boot of a cartridge.</li>
+          </ul></li>
+        </ol>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <div class="foot-in">
+        <p>Sprixe BIOS is part of <a href="https://www.sprixe.dev">Sprixe</a>, a free and non-commercial project around arcade hardware. GPL-3.0-or-later, source on <a class="gh-link" href="https://github.com/lid-labs/sprixe-bios" rel="noopener noreferrer"><svg class="gh" width="20" height="20" viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>GitHub</a>.</p>
+        <p class="legal">Not affiliated with or endorsed by SNK Corporation or the author of UniBIOS. Neo Geo, MVS and AES are trademarks of SNK.</p>
+      </div>
+    </footer>
+  </body>
+</html>
