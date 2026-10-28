@@ -577,6 +577,12 @@ MUTATIONS = {
           "        nop                             | MUTATION : le slot vide reçoit la main\n")],
         "sans cartouche, la main remise au slot vide : le watchdog relance la carte en boucle",
     ),
+    # Le flash cart (le 2026-10-28) : un seul parcours des slots, à la trame 1, comme avant ce lot.
+    "carte-lente-ignoree": (
+        "flash-cart", "c0.s",
+        [("        .equ    ATTENTE_CARTE, 270\n", "        .equ    ATTENTE_CARTE, 1        | MUTATION : un seul parcours\n")],
+        "une cartouche muette aux premières trames passe pour un slot vide : le boot finit dans les autotests",
+    ),
     # Le gestionnaire de la carte mémoire (le 2026-10-24) : une mutation par fonction de l'écran MEMORY CARD.
     "cm-liste-vide": (
         "cm-liste", "gestion-carte.s",

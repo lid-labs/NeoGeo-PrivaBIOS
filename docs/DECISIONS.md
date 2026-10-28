@@ -859,6 +859,25 @@ Le BIOS SNK japonais et UniBIOS 4.0 s'y pilotent à l'identique ; on reprend ce 
    il reste inaccessible sur une borne de mahjong. Ce que font les références en partie n'a pas été
    mesuré.
 
+## 31. Une cartouche qui tarde : le parcours des slots refait jusqu'à la trame 270
+
+**Décidé le 2026-10-28 en mode autonome, à confirmer par l'utilisateur**, sur le retour du matériel
+du même jour (`ESSAI-MATERIEL.md`, image n°15) : le NeoSD Pro et le BackBit s'arrêtaient sur l'écran
+de boot, GAME NGH 0000, un slot vide.
+
+1. **L'écart à la référence.** Elle parcourt les slots une fois, vers la trame 276
+   (`measured/2026-10-24-slot-crtfix.tsv`). Nous les parcourons dès le boot, pour que l'écran de
+   boot montre l'en-tête du slot servi, et, tant qu'aucun n'est occupé, à chaque trame jusqu'à 270
+   parcours (`c0.s`, ATTENTE_CARTE). Une cartouche trouvée au premier parcours n'attend rien.
+2. **Pourquoi pas un parcours unique à la trame 276** : chaque boot attendrait 4,5 s de plus, et
+   tout le chronométrage sur lequel reposent la matrice et les scènes bougerait.
+3. **Le prix** : sans cartouche, l'écran de boot vient environ 4,5 s plus tard (scène
+   sans-cartouche, HARDWARE TESTS jugé à la trame 700 au lieu de 400).
+4. **SUPPOSÉ** : qu'un flash cart soit muet sur ses premières trames ; mesuré seulement sous MAME,
+   où une cartouche muette sur 30 trames (`bus-flottant.lua`, BF_ABSENTE) est trouvée
+   (`measured/2026-10-28-carte-lente.tsv`). **Non couvert** : un flash cart lent à côté d'une
+   cartouche prompte, que le premier parcours trouve sans lui.
+
 ## Ce qui reste à trancher
 
 - **Le verrou du save state** : existe-t-il une voie d'écriture vers une cartouche flash ? Aucun

@@ -177,3 +177,16 @@ inversée : CRC32 `299AC253`. Vérifié sur cette image exacte (#1460) : non-ré
 (150 scènes), 195 mutations tuées, catalogue 161 sur 164 identique jeu par jeu à la référence
 (ng_mv1f non mesuré). Tout ce qui est neuf n'a tourné que sous MAME. Pas encore de retour de la
 carte.
+
+**Ce que la carte a montré, le 2026-10-28.** Les cartouches du commerce démarrent. Le NeoSD Pro et
+le BackBit s'arrêtent sur l'écran de boot, GAME NGH ..... 0000 ; la DarkSoft donne un écran noir,
+mais elle ne démarre pas non plus une fois le BIOS d'origine remis, où l'autotest SNK se bloque au
+test de la WORK RAM : ce second symptôme n'est pas imputé à cette image.
+
+GAME NGH vient de la table des slots, et 0000 y est un slot vide : la détection n'a trouvé aucune
+cartouche. Elle parcourait les slots une fois, à la trame 1 ; la référence le fait à la trame 276
+(`measured/2026-10-24-slot-crtfix.tsv`). SUPPOSÉ : un flash cart charge son menu après la mise sous
+tension et ne rend pas encore son en-tête à la trame 1. Sous MAME, une cartouche muette sur 30
+trames reproduit l'écran (`measured/2026-10-28-carte-lente.tsv`). Corrigé (`DECISIONS.md` §31,
+scène flash-cart). Non reproduit : sous MAME, l'image passe ensuite aux HARDWARE TESTS, et la carte
+n'en a rien montré.
