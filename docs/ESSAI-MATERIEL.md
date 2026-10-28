@@ -190,3 +190,14 @@ tension et ne rend pas encore son en-tête à la trame 1. Sous MAME, une cartouc
 trames reproduit l'écran (`measured/2026-10-28-carte-lente.tsv`). Corrigé (`DECISIONS.md` §31,
 scène flash-cart). Non reproduit : sous MAME, l'image passe ensuite aux HARDWARE TESTS, et la carte
 n'en a rien montré.
+
+## Image n°16 — 2026-10-28
+
+La branche `fix/flash-cart-detection` à `672dda5` (#7, `main` fusionné). Elle ajoute à l'image n°15 la
+correction des flash carts (`DECISIONS.md` §31), la sauvegarde du jeu gardée après le test WORK RAM,
+les menus au panneau de mahjong (§30), le nom Sprixe BIOS et l'écran de boot `v0.1 BETA`.
+`sprixe-bios-v0.1.rom` : CRC32 `4C2FA24C`, somme des octets `28FB`, SHA-256
+`6a662f7f16b5447c4ac210178abf73aaa3a784c1ae79509e49350731169aa015` ; inversée : CRC32 `E903F17A`.
+Vérifié sur cette image exacte : 12 scènes ciblées PASS (sans-cartouche, flash-cart, boot, multi-slot,
+bus flottant, mode AES). Ni la non-régression complète ni le catalogue n'ont tourné. Pas encore de
+retour de la carte.
