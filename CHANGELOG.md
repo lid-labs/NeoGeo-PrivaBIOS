@@ -10,6 +10,21 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 
 - README: badges, an animated boot screen and a gallery of screenshots (`docs/screenshots/`),
   taken under MAME with a homebrew cartridge.
+- The BIOS menus can be driven from a mahjong panel (`src/c0/panneau.s`, `docs/DECISIONS.md` §30).
+  With board switch 3 ON, A-D act as buttons A-D, E/F as up/down and G/H as left/right; with it
+  OFF, the panel reads as a joystick. The switch is read when a menu opens, as the Japanese SNK
+  BIOS and UniBIOS 4.0 were observed to do (`measured/2026-10-28-panneau-menus-reference.tsv`).
+  The in-game menu stays out of reach from the panel, which has no SELECT. Five `pn-*` scenes,
+  four mutations.
+
+### Fixed
+
+- HARDWARE TESTS → WORK RAM no longer erases the save of a game already registered in backup RAM.
+  The save was restored to work RAM before the TEST screen, the RAM test overwrote it, and the end
+  of the demo wrote the damaged area back to backup RAM. It is now restored after the soft-DIP
+  editor, then the debug dips are set again (`src/c0/c0.s`,
+  `measured/2026-10-28-work-ram-restauree.tsv`). Scenes `tests-sauvegarde` and `dd-connu`, two
+  mutations.
 
 ## [0.1.0] - Unreleased
 

@@ -77,9 +77,9 @@ The bench runs under MAME with your own ROM sets; none are provided. See [`BENCH
   with the count of lit pixels, since a changing picture is not proof that a game runs.
 - **Scenes** (`bench/parcours.sh`): one or more per BIOS function the player can see. A scene plays a
   short sequence (a coin, START, a menu, a held button) and compares the picture and the mixed sound
-  with a reference run. 150 scenes as of 28 October 2026.
+  with a reference run. 157 scenes as of 28 October 2026.
 - **Mutations** (`bench/parcours-mutations.py`): each one breaks a single visible function of the BIOS
-  on purpose, and the scene that judges it must fail. A scene that cannot fail proves nothing. 195
+  on purpose, and the scene that judges it must fail. A scene that cannot fail proves nothing. 201
   mutations, all caught, on 28 October 2026.
 - **Regression** (`bench/non-regression.sh`) chains the generator's tests, the build, the game matrix,
   the measuring scripts against their recorded results, and the scenes.

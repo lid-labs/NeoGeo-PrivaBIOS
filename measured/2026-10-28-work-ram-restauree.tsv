@@ -1,0 +1,22 @@
+# #1456 : le test WORK RAM de HARDWARE TESTS et la sauvegarde du jeu restaurée au boot, le 2026-10-28.
+# MAME 0.286, -bios euro, -video none, -nothrottle, NVRAM et cfg par run, aof seul (romset non-merged de $ROMS).
+# Notre image : main a5fe8f66, sha256 18da0b0a…, substituée dans aof.zip et neogeo.zip ; le témoin SNK par le romset
+# d'origine. Boîte noire : on lit la zone de sauvegarde du jeu en RAM de travail (pointeur long $00010E, taille $000112
+# de l'en-tête de la cartouche : $108800 + $800) et son bloc en backup RAM ($D00320 + $1000 × b, b lu dans $D00124),
+# en somme des octets et en empreinte (h = h × 31 + octet, 32 bits), à chaque trame ; une ligne par changement.
+# Aucun code SNK ni de jeu lu ni tracé.
+#
+# Protocole : boot 1 sur NVRAM neuve, 1 500 trames, aucune entrée (demande 0, puis sauvegarde : bloc = zone, somme
+# 6065, sous les deux BIOS). Boot 2 sur une copie de cette NVRAM :
+#   ctrl     aucune entrée ;
+#   tests    notre image : bench/autotests.lua sans défaut (TEST tenu 1-260, une ligne de soft-DIP changée, les quatre
+#            tests de mémoire, INPUT TEST, COLOR BARS, CROSSHATCH, retour, START) ;
+#   exit     SNK : TEST tenu 1-260, « bas » six fois, A sur EXIT (son menu n'a pas de test de RAM au premier niveau ;
+#            HARDWARE TEST ouvre une mire en quadrillage que A ne fait pas défiler — non poursuivi).
+# « remise » : première trame où $10FD80 passe à $82 (le jeu prend la main, demande 2). « zone » et « bloc » : sommes.
+bios	run	remise	zone_a_la_remise	bloc_a_la_remise	verdict	note
+sprixe	ctrl	184	6065	6065	EGALES	restauration au boot, comme la référence
+sprixe	tests	1011	320512	6065	DIFFERENTES	la zone porte le motif d'adresse complémenté du test WORK RAM ($100000-$10EFFF)
+sprixe	tests-long	1011	320512	6065	DIFFERENTES	à la fin de la démo (trame 5151, code 2) la zone abîmée est SAUVÉE : bloc 6065 → 291762, la perte est définitive
+SNK	ctrl	709	6065	6065	EGALES	le boot teste la RAM ($55, $AA… trames 3-30), puis restaure à la trame 708, juste avant la remise
+SNK	exit	1109	6065	6065	EGALES	EXIT relance tout le boot : test de RAM aux trames 433-460, restauration à la trame 1108

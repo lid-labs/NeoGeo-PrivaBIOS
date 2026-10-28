@@ -742,7 +742,7 @@ page 4 joueurs. La scène juge des états, sans seuil.
    boot n'écrit pas REG_POUTPUT avant ses écrans, et le panneau ne répond qu'à une rangée choisie. Le BIOS
    SNK japonais et UniBIOS 4.0 entrent dans HARDWARE TEST par A du panneau, commutateur 3 à ON. Sur une
    borne de mahjong, la page n'est donc atteignable qu'avec une manette branchée en P1. Corriger demande
-   de choisir quelles touches du panneau mènent les menus : une décision.
+   de choisir quelles touches du panneau mènent les menus : une décision. **Levé par §30.**
 
 ## 25. L'économiseur d'écran du JUKEBOX
 
@@ -840,6 +840,24 @@ signature de la backup RAM (`REBIOS`, `src/c0/reglages.s`) est un format interne
 pas : elle reste, pour que les réglages déjà enregistrés sur une carte restent valides.
 
 **Ce qui le renverserait** : une antériorité sur SPRIXE dans ces classes, trouvée avant le dépôt.
+
+## 30. Les menus du BIOS au panneau de mahjong
+
+**Décidé le 2026-10-28 par l'utilisateur (#1455), sur le relevé en boîte noire du même jour**
+(`measured/2026-10-28-panneau-menus-reference.tsv`). Il lève le « constaté, non corrigé » de §24 pt 4.
+Le BIOS SNK japonais et UniBIOS 4.0 s'y pilotent à l'identique ; on reprend ce comportement.
+
+1. **Commutateur 3 à ON : le panneau traduit en manette.** A, B, C, D font les boutons A, B, C, D ;
+   E monte, F descend, G va à gauche, H à droite ; START reste START. Les autres touches (I à N, PON
+   à REACH) ne font rien dans les menus.
+2. **Commutateur 3 à OFF : le panneau lu comme un joystick**, REG_POUTPUT à $1B, comme §21 pt 4 :
+   A/H haut, B/I bas, C/J gauche, D/K droite, E/L bouton A, F/M bouton B, G/N bouton C. Le bouton D
+   n'a pas de touche, chez les références comme ici.
+3. **Le commutateur est lu à l'ouverture du menu**, comme le BIOS SNK japonais ; UniBIOS le lit au
+   boot. Basculé menu ouvert, la traduction reste celle de l'ouverture, chez les deux.
+4. **Hors de ce lot** : le menu en jeu s'ouvre par START + SELECT, et le panneau n'a pas de SELECT ;
+   il reste inaccessible sur une borne de mahjong. Ce que font les références en partie n'a pas été
+   mesuré.
 
 ## Ce qui reste à trancher
 

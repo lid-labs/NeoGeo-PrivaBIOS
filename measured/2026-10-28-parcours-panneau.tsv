@@ -1,0 +1,7 @@
+# Les menus du BIOS au panneau de mahjong (src/c0/panneau.s, #1455, DECISIONS §30), le 2026-10-28 : le seuil de la scène
+# pn-jeu du parcours du joueur (bench/parcours.sh, --ref-panneau), et ce qu'elle mesure. Les autres scènes pn-* jugent des
+# états du plan fixe (la ligne sous le curseur, l'écran ouvert), sans seuil. MAME 0.286, machine janshin, -video none,
+# -sound none, -nothrottle, NVRAM et cfg par run, romset non-merged de $ROMS, notre image substituée. Le critère
+# est dans l'en-tête de bench/parcours.sh. Seule la colonne « seuil » juge.
+scene	grandeur	seuil	mesure
+pn-jeu	diff_min	300	398 sur 398 trames diffèrent du run sans B après RESUME, 0 avant (comme dip-mahjong : 398 sans menu)

@@ -30,15 +30,9 @@ python3 -c 'import sys; d=open(sys.argv[1],"rb").read(); open(sys.argv[2],"wb").
 ## Reproducibility
 
 The Dockerfile pins `ngdevkit-toolchain` to version `0.1+202602051135-14~ubuntu22.04.1` (GNU
-assembler 2.44). With that version, the sources of the v0.1.0 commit build to an image with this
-SHA-256:
-
-```
-18da0b0a51535b4428461122387fc6399300fae1c3209b5d21cc2292f2f16bb0
-```
-
-That value is kept in [`build/expected-sha256.txt`](../build/expected-sha256.txt); the CI builds the
-image and fails if its SHA-256 differs. A change to the sources that changes the image updates that
+assembler 2.44). With that version, the SHA-256 of the image built from the current sources is the
+one in [`build/expected-sha256.txt`](../build/expected-sha256.txt); the CI builds the image and fails
+if its SHA-256 differs. A change to the sources that changes the image updates that
 file in the same commit.
 
 Two builds of the same sources give the same bytes: the object order is sorted and nothing in the

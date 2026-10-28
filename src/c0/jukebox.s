@@ -71,7 +71,6 @@
         .equ    VRAMMOD,  0x3C0004
         .equ    LSPCMODE, 0x3C0006
         .equ    WATCHDOG, 0x300001
-        .equ    P1CNT,    0x300000
         .equ    SOUND,    0x320000
         .equ    STATUS_B, 0x380000
         .equ    BRDFIX,   0x3A000B
@@ -164,7 +163,9 @@ _jukebox:
         bsr     .Lsync
         bsr     .Lentrees               | %d0 les fronts, %d5 l'état
         | L'ÉCONOMISEUR (voir l'en-tête) : %d3 s'arrête à INACTIF, l'écran noir.
-        move.b  P1CNT, %d1
+        move.l  %d0, %d1                | les fronts gardés
+        jsr     _panneau_p1             | %d0 : P1, manette ou panneau traduit (`panneau.s`)
+        exg     %d0, %d1
         not.b   %d1
         or.b    %d5, %d1                | C et D comptent aussi, que `.Lentrees` ne lit pas
         bne.s   8f
@@ -274,7 +275,8 @@ _jukebox:
 | LES BOUTONS. Bits : 0 haut, 1 bas, 2 gauche, 3 droite, 4 A, 5 B, 6 START. %d5 l'état
 | d'avant, mis à jour ; %d0 les fronts. Clobbers %d1, %d2.
 .Lentrees:
-        move.b  P1CNT, %d2
+        jsr     _panneau_p1             | %d0 : P1, manette ou panneau traduit (`panneau.s`)
+        move.b  %d0, %d2
         not.b   %d2
         andi.b  #0x3F, %d2
         move.b  STATUS_B, %d1

@@ -294,6 +294,9 @@ _editeur_dip:
 3:      cmpi.b  #0x10, P1CNT
         bcs.s   2b                      | les quatre tenus : le geste est refusé
 1:      movem.l %d0-%d7/%a0-%a6, -(%sp)
+        | LE COMMUTATEUR 3 lu ici, à l'ouverture, et pas après : P1 dans cet écran et ceux qu'il ouvre
+        | (`panneau.s`, DECISIONS §30).
+        jsr     _panneau_verrou
         link    %a6, #F_LIEN
         move.b  %d6, F_NOUVEAU(%a6)
         move.l  %a3, F_INSCRIT(%a6)
@@ -772,7 +775,8 @@ _dip_table:
 | LES BOUTONS. %d5 : l'état de la trame d'avant, mis à jour ; %d0 : les fronts.
 | Bits : 0 haut, 1 bas, 2 gauche, 3 droite, 4 A, 5 START. Clobbers %d1, %d2.
 .Lentrees:
-        move.b  P1CNT, %d2
+        jsr     _panneau_p1             | %d0 : P1, manette ou panneau traduit (`panneau.s`)
+        move.b  %d0, %d2
         not.b   %d2
         andi.b  #0x1F, %d2
         move.b  STATUS_B, %d1

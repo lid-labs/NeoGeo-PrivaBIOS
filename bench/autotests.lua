@@ -227,6 +227,22 @@ emu.register_frame_done(function()
   if not ok then W("f%d ERREUR %s", n, tostring(err)) end
   local u = string.format("%02X/%02X", p:read_u8(0x10FDAF), p:read_u8(0x10FDAE))
   if u ~= G.user then G.user = u W("f%d user=%s", n, u) end
+  -- À la remise au jeu ($10FD80 ← $82), sa zone de sauvegarde (pointeur $10E, taille $112 de
+  -- l'en-tête) et son bloc en backup RAM ($D00320 + $1000 × b), en somme et en empreinte.
+  if not G.remise and p:read_u8(0x10FD80) == 0x82 then
+    G.remise = true
+    local function emp(a, k)
+      local s, h = 0, 0
+      for i = 0, k - 1 do local b = p:read_u8(a + i) s = s + b h = (h * 31 + b) & 0xFFFFFFFF end
+      return s, h
+    end
+    local ptr, taille = p:read_u32(0x10E), p:read_u16(0x112)
+    local bloc = p:read_u16(0xD00124 + 4 * p:read_u8(0xD00108) + 2)
+    local zs, zh = emp(ptr, taille)
+    local bs, bh = 0, 0
+    if bloc < 8 then bs, bh = emp(0xD00320 + 0x1000 * bloc, taille) end
+    W("f%d REMISE zone=%06X+%X somme=%d h=%08X bloc=%d somme=%d h=%08X", n, ptr, taille, zs, zh, bloc, bs, bh)
+  end
   if n % 100 == 0 then W("f%d vifs=%d", n, vifs()) end
   if n >= FIN then out:close() m:exit() end
 end)

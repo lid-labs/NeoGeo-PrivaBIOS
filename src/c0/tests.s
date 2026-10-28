@@ -182,7 +182,8 @@ _autotests:
 | de la liste en 8×16) + 8
 | (bsr, jsr) + 60 (movem ici) + 4 + 48 (ce cadre) + 16 (movem et jsr du lancement) + 12 (trois
 | appels au plus ; le test n'appelle pas `.Lsync`) = 602 octets, donc rien sous $10F0A6 : la zone basse
-| $100000-$10EFFF est libre et se teste sans précaution. La zone haute $10F000-$10FFFF (4 Kio) est d'abord copiée dans la zone basse
+| $100000-$10EFFF est libre et se teste sans précaution ; la sauvegarde du jeu y est restaurée
+| après l'éditeur (`_slot_present`, `c0.s`), ce qui rend ce test non destructif pour le jeu. La zone haute $10F000-$10FFFF (4 Kio) est d'abord copiée dans la zone basse
 | tout juste testée, la pile y est déplacée du même écart, la zone haute est testée, puis
 | recopiée. Rien d'autre n'écrit dans la RAM de travail : IRQ masquées, aucun appel au jeu.
 | Enfin la zone basse hors de la copie est relue : son dernier motif d'adresse doit y être
@@ -1078,7 +1079,8 @@ _autotests:
 | LES BOUTONS DE P1, comme `dip.s`. %d5 : l'état d'avant, mis à jour ; %d0 : les fronts.
 | Bits : 0 haut, 1 bas, 2 gauche, 3 droite, 4 A, 5 START. Clobbers %d1, %d2.
 .Lentrees:
-        move.b  P1CNT, %d2
+        jsr     _panneau_p1             | %d0 : P1, manette ou panneau traduit (`panneau.s`)
+        move.b  %d0, %d2
         not.b   %d2
         andi.b  #0x1F, %d2
         move.b  STATUS_B, %d1

@@ -1243,3 +1243,16 @@ le BIOS AES de SNK affiche « PUSH START ».
 **Issue de cette remise** : la référence ne touche jamais la demande en AES ; CREDIT_CHECK fait de même
 en mode AES, le mode MVS gardant ses instructions sur le chemin accepté
 (`measured/2026-10-23-aes-credit.tsv`, DECISIONS §11 point 10).
+
+## Couche 3 → les menus au panneau de mahjong, le 2026-10-28
+
+Demandé par l'utilisateur (#1455), décisions de `DECISIONS.md` §30.
+
+| Élément | Décision |
+|---|---|
+| ce que font le BIOS SNK japonais et UniBIOS 4.0 de chaque touche du panneau dans leurs menus, et quand ils lisent le commutateur 3, en boîte noire (`measured/2026-10-28-panneau-menus-reference.tsv`) | **gardé** : effets à l'écran, valeurs écrites à REG_POUTPUT, trames |
+| l'octet de P1CNT que rend MAME par touche selon REG_POUTPUT (même relevé, « lecture brute ») | **gardé** : c'est le matériel émulé, pas un BIOS |
+| les pages « Memory mapped registers » et « BIOS RAM locations » | **gardé** |
+| le code des BIOS de référence ou des jeux | **écarté** : aucune lecture |
+
+**Vérifié avant la remise** : aucune adresse d'instruction ni octet de BIOS tiers dans le relevé.

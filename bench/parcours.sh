@@ -37,10 +37,11 @@
 #   --ref-garanties <tsv> celui des garanties sur les défauts d'UniBIOS
 #                        (défaut : measured/2026-10-27-parcours-garanties.tsv)
 #   --ref-sinus <tsv>    celui de la table du sinus (défaut : measured/2026-10-28-parcours-sinus.tsv)
+#   --ref-panneau <tsv>  celui des menus au panneau de mahjong (défaut : measured/2026-10-28-parcours-panneau.tsv)
 #   --jobs <n>           runs MAME en parallèle (défaut 2)
 #   --hashpath <dossier> le `hash/` de MAME, pour la liste logicielle du multi-slot
 #
-# Il faut aof, puzzledp, b2b, kof98, ncombat et neogeo dans <dossier-roms>, mslug pour les scènes bf-banque, bf-crc-banque et dip-vierge, ng_mv1 pour sans-cartouche, ng_mv2f pour les scènes dip-* et geste-*, kizuna pour dip-4p et dip-4p-off, janshin pour dip-mahjong, dip-mj-off et af-mahjong, viewpoin pour af-tir, af-sauve et af-off, wh2 pour scores-gel, mslug2 pour cheats-vies et crc-banques, kof94 pour dd-effet et dd-off ssideki pour demo-ssideki, alpham2 pour alpha-trajectoire et preisle2 pour howto-preisle2, non-merged (`docs/BENCH.md`,
+# Il faut aof, puzzledp, b2b, kof98, ncombat et neogeo dans <dossier-roms>, mslug pour les scènes bf-banque, bf-crc-banque et dip-vierge, ng_mv1 pour sans-cartouche, ng_mv2f pour les scènes dip-* et geste-*, kizuna pour dip-4p et dip-4p-off, janshin pour dip-mahjong, dip-mj-off, af-mahjong et les scènes pn-*, viewpoin pour af-tir, af-sauve et af-off, wh2 pour scores-gel, mslug2 pour cheats-vies et crc-banques, kof94 pour dd-effet, dd-off et dd-connu, ssideki pour demo-ssideki, alpham2 pour alpha-trajectoire et preisle2 pour howto-preisle2, non-merged (`docs/BENCH.md`,
 # piège 1) ; kof98 et ncombat ne tournent que sur la MV-6F, leur romset lu tel quel.
 # Le dossier de travail reçoit l'image, les romsets substitués (seul sp-s2.sp1 remplacé, comme
 # `matrice.sh`), un dossier par run (son.txt, images, son.wav, mame.log, rc) et parcours.txt.
@@ -100,6 +101,11 @@
 #   autotests     un défaut injecté en RAM de travail ($108000, bit 3, comme
 #                 2026-10-21-autotests.tsv) : WORK RAM FAIL AT 00108000, les trois autres OK.
 #                 Le run sain est l'étage 3c de `non-regression.sh`.
+#   tests-sauvegarde  aof DÉJÀ INSCRIT (NVRAM de tests-sauv-set : premier boot, sauvegarde faite), les
+#                 autotests sans défaut depuis l'écran TEST, START : à la remise ($10FD80 ← $82), la zone de
+#                 sauvegarde du jeu (pointeur $10E, taille $112) est égale à son bloc en backup RAM
+#                 (2026-10-28-work-ram-restauree.tsv). Sur NVRAM neuve, la scène autotests ne restaurait rien
+#                 à détruire : c'est pourquoi elle n'a pas vu le défaut.
 #   jukebox       codes 7F, 21, 25 ($07 avant chacun) : pour chacun, le son de la fenêtre de
 #                 réponse a un RMS d'au moins « rms_min », et au moins « gain_min » fois celui
 #                 de la fenêtre de contrôle (+1), et la puce compte plus de déclenchements.
@@ -234,7 +240,7 @@
 #                 rend la main au jeu.
 #   LE MENU EN JEU COMPLET, le 2026-10-23 (GAME SETTINGS, MEMORY EDITOR, les gels ; seuils dans --ref-menu). Le menu s'ouvre à
 #   2357 sur la partie d'aof (TEST 2337-2376) ; témoin : le run partie, ou l'éditeur du boot réglé de même (temps1, langue,
-#   temps-nc1, fois1). « R » : la trame du RESET de RESTART GAME, 2418 sur ncombat et puzzledp, mesurée et exigée.
+#   temps-nc1, fois1). « R » : la trame du RESET de RESTART GAME, 2417 sur ncombat et 2418 sur puzzledp, mesurées et exigées.
 #   gs-compte     ROUND TIME 60 → 65 en partie, RESUME : au round suivant, au moins « trames_min » trames montrent un chronomètre
 #                 que seul ROUND TIME 65 montre (des images de temps1 que le témoin n'a jamais) — l'effet est pris sans relance.
 #   gs-defauts    la même chose, puis RESET TO DEFAULTS : ROUND TIME 60 à l'écran, et au plus « trames_max » de ces trames.
@@ -455,6 +461,9 @@
 #                 le bas de l'écran (x 120-215, y 184-221 : DEBUG OBJE, CH CODE, ACT CODE) diffère du témoin dd-0 (le même
 #                 chemin sans A) sur au moins « zone_min » trames ; $100000 a son bit 0 sur au moins « ram_min » trames (complément),
 #                 et le premier octet du bloc de sauvegarde ($D00320) ne l'a jamais : le masque ne part pas en backup RAM.
+#   dd-connu      kof94 DÉJÀ INSCRIT (NVRAM de dd-set : premier boot, sauvegarde faite), le chemin de dd-1 : à la remise
+#                 ($10FD80 ← $82), $100000 a son bit 0. La sauvegarde est restaurée après l'éditeur ; sans le
+#                 masque reposé après elle, elle l'écrasait jusqu'au premier SYSTEM_IO.
 #   dd-off        kof94 : DIP 1 bit 0 mis, puis CHEATS/DEBUG → OFF dans le même sous-écran : DEBUG DIPS dit OFF et A ne l'ouvre
 #                 plus ; le jeu, de 400 à 6000, a chaque trame égale au témoin dd-0off (le même chemin sans le bit), et $100000
 #                 n'a jamais son bit 0.
@@ -534,7 +543,8 @@
 #   tests-mahjong INPUT TEST, le commutateur 3 à ON (DECISIONS §24) : la page MAHJONG PANEL, chaque touche suivie
 #                 de 0 ou 1. Sur la manette d'aof, lue dans les trois rangées à la fois : A met E, L et REACH à 1, B met F
 #                 et M, haut met A, H et PON, START met START ; tout le reste à 0 ; START tenu rend le menu des tests.
-#                 Non couvert : le panneau lui-même (le menu ne se parcourt pas au panneau, DECISIONS §24).
+#                 Le commutateur passe à ON l'éditeur ouvert, juste avant INPUT TEST : les menus, ouverts à OFF, y restent
+#                 en manette (DECISIONS §30). Le panneau lui-même dans INPUT TEST n'est prouvé que par dip-mahjong (§24 pt 3).
 #   dip-corrompue la NVRAM de vierge-c (aof connu, son bloc soft-DIP quelconque) relancée SANS l'éditeur, pièce et
 #                 START comme temps0 : GAME_DIP à la trame 300 est celui du témoin (la même histoire sans les octets
 #                 posés), et au moins « egales_min » des trames 1000-2999 sont les siennes (DECISIONS §23 pt 5 :
@@ -548,6 +558,18 @@
 #   howto-preisle2 preisle2, pièce 400, START 500, sans autre entrée : l'écran HOW TO PLAY. L'image de la trame 1000
 #                 (l'objet à ramasser à l'écran) est celle du témoin, et au moins « egales_min » des trames 525-1825
 #                 le sont au même instant. Sous $FF, l'objet n'apparaît jamais.
+#   LES MENUS AU PANNEAU DE MAHJONG, le 2026-10-28 (`src/c0/panneau.s`, DECISIONS §30 ; seuils dans --ref-panneau).
+#   janshin, notre image ; aucun témoin : les références ne s'y comparent pas à l'image (leurs menus ne sont pas les nôtres),
+#   ce qu'elles font est dans measured/2026-10-28-panneau-menus-reference.tsv. Des états, lus au curseur « > » du plan fixe.
+#   pn-menu-on    l'éditeur du bouton TEST, commutateur 3 à ON : REGION à l'ouverture ; E quatre fois, MODE MVS ; I, PON, B
+#                 et C n'y changent rien ; F, HARDWARE TESTS ; A ouvre les autotests (WORK RAM).
+#   pn-menu-off   de même à OFF : A, H, A, H mènent à MODE MVS ; PON et F n'y changent rien ; B, HARDWARE TESTS ; E l'ouvre.
+#   pn-valeur     à ON, sur MODE : H le met à AES, G le remet à MVS (droite et gauche, l'éditeur de valeur).
+#   pn-verrou     le commutateur basculé à 268, l'éditeur ouvert (ON → OFF, puis OFF → ON) : le chemin de pn-menu-on, puis
+#                 celui de pn-menu-off, mènent toujours aux autotests (relu, E serait le bouton A sur REGION, A aussi).
+#   pn-jeu        le menu en jeu, commutateur 3 à ON, ouvert par TEST sur l'écran du choix de mode : F mène à RESTART GAME,
+#                 E à RESUME, A reprend ; B à 1800 change au moins « diff_min » des trames 1802-2199 au regard du même chemin
+#                 sans B (le jeu lit encore le panneau), aucune avant.
 #   L'écran de plantage n'est pas ici : l'étage 3a de `non-regression.sh` le juge.
 #
 # CHAQUE SCÈNE SAIT ÉCHOUER : `bench/parcours-mutations.py --eprouver <roms> <travail>`, une
@@ -639,7 +661,13 @@
 # la copie de carte : cp-sans-ecrasement, cp-ram-perdue, cp-inerte (cm-copier). 193 en tout. slot2-muet (ms-son-slot2)
 # est retirée : MAME relance le Z80 sans sa remise à zéro, la démo sonne (DECISIONS §23 pt 2). Celles de la table du
 # sinus, le 2026-10-28 (relevé --ref-sinus) : sinus-ff (alpha-trajectoire, howto-preisle2), sinus-un-ffff
-# (howto-preisle2 seule : son pixel d'écart reste sous le « tol_px » d'alpha-trajectoire). 195 en tout.
+# (howto-preisle2 seule : son pixel d'écart reste sous le « tol_px » d'alpha-trajectoire). 195 en tout. Celles de la
+# sauvegarde d'un jeu déjà inscrit, le 2026-10-28 : restauration-avant-editeur (tests-sauvegarde),
+# dd-ecrase-a-la-restauration (dd-connu). 197 en tout.
+# Celles des menus au
+# panneau de mahjong, le 2026-10-28 (relevé --ref-panneau), éprouvées seules sur l'image f1b21158… : pn-sans-traduction
+# (pn-menu-on, pn-valeur, pn-verrou, pn-jeu), pn-sans-1b (pn-menu-off, pn-verrou), pn-verrou-relu (pn-verrou), pn-e-f-echangees
+# (pn-menu-on, pn-valeur, pn-verrou, pn-jeu). 201 en tout. boot-sans-saut suit `_panneau_p1` dans `ecran.s`, rééprouvée et tuée le même jour.
 #
 # CE QU'IL NE COUVRE PAS : le matériel, hors du modèle de `bus-flottant.lua` ; NO SOFT DIP DATA sur un vrai jeu (aucun des 166 sets du
 # dossier n'a de bloc refusé : la scène est jouée sur une fixture) ; les commandes CARD autrement
@@ -674,8 +702,9 @@ REF_DIP28="$PAQUET/measured/2026-10-27-parcours-dip-2-8.tsv"
 REF_AF="$PAQUET/measured/2026-10-27-parcours-autofire.tsv"
 REF_GAR="$PAQUET/measured/2026-10-27-parcours-garanties.tsv"
 REF_SINUS="$PAQUET/measured/2026-10-28-parcours-sinus.tsv"
+REF_PANNEAU="$PAQUET/measured/2026-10-28-parcours-panneau.tsv"
 JOBS=2
-SCENES_TOUTES="boot-ecran boot-saut calendrier carte demo-son partie-credit partie-start fin-demo fin-titre scores dip-temps dip-langue region autotests jukebox menu-hud menu-reprise menu-son cheats restart ms-demo ms-select ms-garde aes-bascule aes-demo aes-start aes-menu aes-piece aes-retour dip-defauts dip-mmss dip-fois region-europe region-japon region-usa autotests-palette autotests-vram autotests-backup tests-entrees tests-barres tests-grille jukebox-pas jukebox-stop cheats-off partie-p2 carte-sauve ms-select-p2 aes-ms-select aes-pause aes-logo aes-fin aes-texte depart-force piece-son ms-seule jukebox-repete partie-p2-joint carte-chercher carte-supprimer carte-nom tests-p2 tests-dip dip-sans-donnees gs-compte gs-defauts gs-choix gs-mmss gs-fois gs-sans-donnees gs-banque me-ecran me-goto me-octet me-ligne me-page me-repete me-poke me-gel me-liste me-degel me-borne bf-editeur bf-banque bf-tests bf-jukebox sans-cartouche cm-liste cm-libres cm-effacer cm-annuler cm-formater cm-non-formatee cm-sans-carte cm-protegee cm-insertion bf-carte aes-scores scores-gel bo-ecran bo-free-play bo-fp-p2 bo-fp-joint bo-no-continue bo-demo-muette bo-aes bf-borne cheats-vies bo-cd-menu bo-cd-gel dip-free-play dip-fp-p2 dip-fp-refus dip-fp-chaud dip-fp-reglage dip-fp-cabinet dip-setting geste-boot geste-jeu geste-partie demo-ssideki japon-intitules gs-japon gs-japon-garde crc-fixe crc-banques crc-miroir bf-crc bf-crc-banque dd-effet dd-off dip-gel dip-gel-off dip-gel-boot dip-mahjong dip-mj-off dip-4p dip-4p-off af-tir af-sauve af-off af-mahjong boot-graphismes ms-son-slot2 dip-vierge dip-corrompue tests-mahjong jukebox-veille cm-copier alpha-trajectoire howto-preisle2"
+SCENES_TOUTES="boot-ecran boot-saut calendrier carte demo-son partie-credit partie-start fin-demo fin-titre scores dip-temps dip-langue region autotests jukebox menu-hud menu-reprise menu-son cheats restart ms-demo ms-select ms-garde aes-bascule aes-demo aes-start aes-menu aes-piece aes-retour dip-defauts dip-mmss dip-fois region-europe region-japon region-usa autotests-palette autotests-vram autotests-backup tests-entrees tests-barres tests-grille jukebox-pas jukebox-stop cheats-off partie-p2 carte-sauve ms-select-p2 aes-ms-select aes-pause aes-logo aes-fin aes-texte depart-force piece-son ms-seule jukebox-repete partie-p2-joint carte-chercher carte-supprimer carte-nom tests-p2 tests-dip dip-sans-donnees gs-compte gs-defauts gs-choix gs-mmss gs-fois gs-sans-donnees gs-banque me-ecran me-goto me-octet me-ligne me-page me-repete me-poke me-gel me-liste me-degel me-borne bf-editeur bf-banque bf-tests bf-jukebox sans-cartouche cm-liste cm-libres cm-effacer cm-annuler cm-formater cm-non-formatee cm-sans-carte cm-protegee cm-insertion bf-carte aes-scores scores-gel bo-ecran bo-free-play bo-fp-p2 bo-fp-joint bo-no-continue bo-demo-muette bo-aes bf-borne cheats-vies bo-cd-menu bo-cd-gel dip-free-play dip-fp-p2 dip-fp-refus dip-fp-chaud dip-fp-reglage dip-fp-cabinet dip-setting geste-boot geste-jeu geste-partie demo-ssideki japon-intitules gs-japon gs-japon-garde crc-fixe crc-banques crc-miroir bf-crc bf-crc-banque dd-effet dd-off dip-gel dip-gel-off dip-gel-boot dip-mahjong dip-mj-off dip-4p dip-4p-off af-tir af-sauve af-off af-mahjong boot-graphismes ms-son-slot2 dip-vierge dip-corrompue tests-mahjong jukebox-veille cm-copier alpha-trajectoire howto-preisle2 tests-sauvegarde dd-connu pn-menu-on pn-menu-off pn-valeur pn-verrou pn-jeu"
 SCENES="$SCENES_TOUTES"
 HASHPATH="${BIOS_HASHPATH:-}"
 while [ $# -gt 0 ]; do
@@ -697,6 +726,7 @@ while [ $# -gt 0 ]; do
     --ref-af) REF_AF="${2:?--ref-af attend un fichier}"; shift 2 ;;
     --ref-garanties) REF_GAR="${2:?--ref-garanties attend un fichier}"; shift 2 ;;
     --ref-sinus) REF_SINUS="${2:?--ref-sinus attend un fichier}"; shift 2 ;;
+    --ref-panneau) REF_PANNEAU="${2:?--ref-panneau attend un fichier}"; shift 2 ;;
     --jobs) JOBS="${2:?--jobs attend un nombre}"; shift 2 ;;
     --hashpath) HASHPATH="${2:?--hashpath attend un dossier}"; shift 2 ;;
     --) shift; break ;;
@@ -704,7 +734,7 @@ while [ $# -gt 0 ]; do
     *) break ;;
   esac
 done
-ROMS="${1:?usage : bench/parcours.sh [--image f | --sources d] [--scenes l] [--ref f] [--ref-aes f] [--ref-couv f] [--ref-menu f] [--ref-carte f] [--ref-borne f] [--ref-cheats f] [--ref-dip f] [--ref-ssideki f] [--ref-crc f] [--ref-dip28 f] [--ref-af f] [--ref-garanties f] [--ref-sinus f] [--jobs n] <dossier-roms> <dossier-travail>}"
+ROMS="${1:?usage : bench/parcours.sh [--image f | --sources d] [--scenes l] [--ref f] [--ref-aes f] [--ref-couv f] [--ref-menu f] [--ref-carte f] [--ref-borne f] [--ref-cheats f] [--ref-dip f] [--ref-ssideki f] [--ref-crc f] [--ref-dip28 f] [--ref-af f] [--ref-garanties f] [--ref-sinus f] [--ref-panneau f] [--jobs n] <dossier-roms> <dossier-travail>}"
 WORK="${2:?dossier de travail attendu}"
 case "$JOBS" in ''|*[!0-9]*|0) echo "--jobs refusé : $JOBS" >&2; exit 2 ;; esac
 for s in $SCENES; do case " $SCENES_TOUTES " in *" $s "*) ;; *) echo "scène inconnue : $s" >&2; exit 2 ;; esac; done
@@ -723,6 +753,7 @@ for s in $SCENES; do case " $SCENES_TOUTES " in *" $s "*) ;; *) echo "scène inc
 [ -s "$REF_AF" ] || { echo "relevé introuvable : $REF_AF" >&2; exit 2; }
 [ -s "$REF_GAR" ] || { echo "relevé introuvable : $REF_GAR" >&2; exit 2; }
 [ -s "$REF_SINUS" ] || { echo "relevé introuvable : $REF_SINUS" >&2; exit 2; }
+[ -s "$REF_PANNEAU" ] || { echo "relevé introuvable : $REF_PANNEAU" >&2; exit 2; }
 command -v mame >/dev/null || { echo "mame introuvable" >&2; exit 2; }
 # Le hash/ de MAME : à côté de son bin/ (Homebrew : /opt/homebrew/share/mame/hash).
 [ -n "$HASHPATH" ] || HASHPATH="$(dirname "$(command -v mame)")/../share/mame/hash"
@@ -743,6 +774,7 @@ REF_DIP28="$(cd "$(dirname "$REF_DIP28")" && pwd)/$(basename "$REF_DIP28")"
 REF_AF="$(cd "$(dirname "$REF_AF")" && pwd)/$(basename "$REF_AF")"
 REF_GAR="$(cd "$(dirname "$REF_GAR")" && pwd)/$(basename "$REF_GAR")"
 REF_SINUS="$(cd "$(dirname "$REF_SINUS")" && pwd)/$(basename "$REF_SINUS")"
+REF_PANNEAU="$(cd "$(dirname "$REF_PANNEAU")" && pwd)/$(basename "$REF_PANNEAU")"
 DEBUT=$(date +%s)
 
 # ---- L'image et les romsets ---------------------------------------------------------------------
@@ -773,7 +805,7 @@ case " $SCENES " in *" bf-banque "*|*" dip-vierge "*) [ -s "$ROMS/mslug.zip" ] |
 # ssideki (scène demo-ssideki) : sur la MV-6F, comme kof98 ; le témoin SNK lit le même romset.
 case " $SCENES " in *" demo-ssideki "*) [ -s "$ROMS/ssideki.zip" ] || { echo "set introuvable : $ROMS/ssideki.zip" >&2; exit 2; } ;; esac
 case " $SCENES " in *" scores-gel "*) [ -s "$ROMS/wh2.zip" ] || { echo "set introuvable : $ROMS/wh2.zip" >&2; exit 2; } ;; esac
-# mslug2 (scènes cheats-vies, crc-banques) et kof94 (dd-effet, dd-off) : leur romset, notre image substituée, comme aof.
+# mslug2 (scènes cheats-vies, crc-banques) et kof94 (dd-effet, dd-off, dd-connu) : leur romset, notre image substituée, comme aof.
 copier_set() {
   local j="$1" d="$R/$1.zip"
   [ -L "$d" ] && { echo "REFUS : $d est un lien symbolique" >&2; exit 1; }
@@ -784,10 +816,10 @@ copier_set() {
   fi
 }
 case " $SCENES " in *" cheats-vies "*|*" crc-banques "*) copier_set mslug2 ;; esac
-case " $SCENES " in *" dd-effet "*|*" dd-off "*) copier_set kof94 ;; esac
+case " $SCENES " in *" dd-effet "*|*" dd-off "*|*" dd-connu "*) copier_set kof94 ;; esac
 # janshin (dip-mahjong, dip-mj-off : sa propre machine, le panneau de mahjong) et kizuna (dip-4p, dip-4p-off) : leur
 # romset, notre image substituée, comme aof.
-case " $SCENES " in *" dip-mahjong "*|*" dip-mj-off "*|*" af-mahjong "*) copier_set janshin ;; esac
+case " $SCENES " in *" dip-mahjong "*|*" dip-mj-off "*|*" af-mahjong "*|*" pn-"*) copier_set janshin ;; esac
 case " $SCENES " in *" af-tir "*|*" af-sauve "*|*" af-off "*) copier_set viewpoin ;; esac
 case " $SCENES " in *" dip-4p "*|*" dip-4p-off "*) copier_set kizuna ;; esac
 # alpham2 (alpha-trajectoire) et preisle2 (howto-preisle2) : leur romset, notre image substituée ; le témoin lit l'original.
@@ -1041,6 +1073,7 @@ runs_de() {
     dip-langue) echo "editeur langue" ;;
     region) echo "editeur region" ;;
     autotests) echo autotests ;;
+    tests-sauvegarde) echo "tests-sauv-set tests-sauv" ;;
     jukebox) echo jukebox ;;
     menu-hud) echo menu ;;
     menu-reprise|menu-son) echo "menu partie" ;;
@@ -1146,6 +1179,7 @@ runs_de() {
     bf-crc) echo "bf-crc bf-crc-libre" ;;
     bf-crc-banque) echo "bf-crc-ms bf-crc-ms-libre" ;;
     dd-effet) echo "dd-1 dd-0" ;;
+    dd-connu) echo "dd-set dd-connu" ;;
     dd-off) echo "dd-off dd-0off" ;;
     dip-gel) echo "gel gel0 gel-snk" ;;
     dip-gel-off) echo "gel0 ds0" ;;
@@ -1163,6 +1197,11 @@ runs_de() {
     dip-vierge) echo "vierge-set-n vierge-set-c vierge-0 vierge-n vierge-c vierge-set-m vierge-m0 vierge-m" ;;
     dip-corrompue) echo "vierge-set-c vierge-set-0 corrompue corrompue-0" ;;
     tests-mahjong) echo "tests-mj" ;;
+    pn-menu-on) echo "pn-on" ;;
+    pn-menu-off) echo "pn-off" ;;
+    pn-valeur) echo "pn-val" ;;
+    pn-verrou) echo "pn-v-on pn-v-off" ;;
+    pn-jeu) echo "pn-j pn-j0" ;;
     jukebox-veille) echo "veille veille-0" ;;
     cm-copier) echo "cp-vide cp-cible cp-renonce" ;;
     alpha-trajectoire) for d in h hd d bd b bg g hg; do echo "at-$d at-$d-snk"; done ;;
@@ -1212,6 +1251,8 @@ veut temps0 && lancer temps0 son.lua "$NOTRE" $TEMPS J_APPUIS=340:START
 veut temps1 && lancer temps1 son.lua "$NOTRE" $TEMPS J_TEXTE=330 J_HACHES=2300-4000 J_ZONES="146,10,173,29" J_FIN=4000 \
   J_APPUIS=270:bas,280:droite,290:droite,300:droite,310:droite,320:droite,340:START
 veut autotests && lancer autotests autotests.lua "$NOTRE" T_DEFAUT=work T_ADR=0x108000 T_BIT=3 T_FIN=3000
+# Le premier boot d'aof, sans entrée : sa demande 0, puis sa sauvegarde ; tests-sauv repart de cette NVRAM.
+veut tests-sauv-set && lancer tests-sauv-set son.lua "$NOTRE" J_PIECE=0 J_START=0 J_FIN=600
 veut jukebox && lancer jukebox jukebox.lua "$NOTRE $WAV" J_SEQUENCE="7F 21 25" J_APRES_RAZ=07 J_JEU=500
 veut ms-demo && lancer ms-demo multislot.lua "$MS" MS_FIN=2400 MS_CAPT_USER=60
 veut ms-select && lancer ms-select multislot.lua "$MS" MS_FIN=1300 MS_CAPT_USER=60 MS_ENTREES=1000:piece,1050:suivant:1
@@ -1260,8 +1301,10 @@ veut autotests-bram && lancer autotests-bram autotests.lua "$NOTRE" T_DEFAUT=bra
 VERS_TESTS="270:haut,280:haut,290:haut,300:A"
 # INPUT TEST : chaque entrée à son tour, TEST compris (J_TESTS), puis START tenu 80 trames.
 # La page du panneau de mahjong : le commutateur 3 à ON dès la trame 1, la manette d'aof (une manette se lit
-# dans les trois rangées à la fois) : A, B, haut, START, puis START tenu 80 trames.
-veut tests-mj && lancer tests-mj son.lua "$NOTRE" J_TESTS=1-260 J_PIECE=0 J_START=0 J_DSW=1:04 \
+# dans les trois rangées à la fois) : A, B, haut, START, puis START tenu 80 trames. Le commutateur 3 passe à ON à 365, l'éditeur
+# déjà ouvert : INPUT TEST le lit à son ouverture (370), et les menus restent traduits comme à la leur, en manette
+# (à ON dès le boot, la manette serait traduite comme le panneau, haut en A, A en haut).
+veut tests-mj && lancer tests-mj son.lua "$NOTRE" J_TESTS=1-260 J_PIECE=0 J_START=0 J_DSW=1:00,365:04 \
   J_APPUIS=$VERS_TESTS,330:bas,340:bas,350:bas,360:bas,370:A,420:A:8,440:B:8,460:haut:8,480:START:8,520:START:80 \
   J_TEXTE=400,424,444,464,484,640 J_FIN=660
 veut tests-entrees && lancer tests-entrees son.lua "$NOTRE" J_TESTS=1-260,680-687 J_PIECE=0 J_START=0 \
@@ -1348,10 +1391,11 @@ veut gs-def && lancer gs-def son.lua "$NOTRE" $MENU_TEST J_APPUIS=$VERS_GS,$CINQ
 veut gs-langue && lancer gs-langue son.lua "$NOTRE" $MENU_TEST J_APPUIS=$VERS_GS,2398:bas,2404:droite,2410:haut,2416:haut,2422:A \
   J_TEXTE=2409 J_REMISE=754 J_FIN=3500
 # ncombat (PLAY TIME 03:00 → 03:01, droite) et puzzledp (CONTINUE INFINITE → WITHOUT, A), puis
-# RESTART GAME (« haut »), A à 2410 : la relance à R = 2418, mesuré. Les entrées d'après sont celles
+# RESTART GAME (« haut »), A à 2410 : la relance à R = 2417 sur ncombat (2418 avant la lecture du panneau)
+# et R = 2418 sur puzzledp, mesuré. Les entrées d'après sont celles
 # de temps-nc1 et fois1, décalées de R (pièce à R + 900, START à R + 1000).
-veut gs-nc && lancer gs-nc son.lua "$MS_NC" $MENU_TEST J_APPUIS=$VERS_GS,2398:droite,2404:haut,2410:A,3318:piece:8,3418:START:8 \
-  J_TEXTE=2403 J_IMAGES=3718,4418,5418 J_FIN=5419
+veut gs-nc && lancer gs-nc son.lua "$MS_NC" $MENU_TEST J_APPUIS=$VERS_GS,2398:droite,2404:haut,2410:A,3317:piece:8,3417:START:8 \
+  J_TEXTE=2403 J_IMAGES=3717,4417,5417 J_FIN=5418
 veut gs-pz && lancer gs-pz son.lua "$PZ" $MENU_TEST J_APPUIS=$VERS_GS,2398:A,2404:haut,2410:A,3318:piece:8,3418:START:8 \
   J_TEXTE=2403 J_FIN=11418
 # NO SOFT DIP DATA en partie, sur les deux fixtures (plus haut), puis START et RESUME.
@@ -1556,6 +1600,26 @@ MJAF="J_PIECE=1500 J_START=0 J_HACHES=1690-2100 J_SUIVRE=10FD94:1,10FD95:1,10FB4
 veut mjaf && lancer mjaf son.lua "$MJ" $MJAF J_BRAM=1@D001B0=41555446004811A6 J_DSW=1:04
 veut mjaf0 && lancer mjaf0 son.lua "$MJ" $MJAF J_DSW=1:04
 veut mjoaf && lancer mjoaf son.lua "$MJ" $MJAF J_BRAM=1@D001B0=41555446004811A6 J_DSW=1:00
+# LES MENUS AU PANNEAU (DECISIONS §30 ; relevé --ref-panneau). janshin, l'éditeur du bouton TEST (TEST tenu au boot,
+# ouvert avant 265) : depuis REGION, « haut » quatre fois mène à MODE, « bas » de là à HARDWARE TESTS, « valider » l'ouvre.
+# Commutateur 3 à ON : E haut, F bas, A le bouton A, H droite, G gauche ; I, PON, B et C ne bougent rien sur ces lignes.
+# À OFF : A et H haut, B bas, E le bouton A ; PON et F ne bougent rien.
+PN="J_TESTS=1-260 J_PIECE=0 J_START=0"
+PN_ON="270:mjE,280:mjE,290:mjE,300:mjE,310:mjI,320:mjPon,330:mjB,340:mjC,350:mjF,360:mjA"
+PN_OFF="270:mjA,280:mjH,290:mjA,300:mjH,310:mjPon,320:mjF,350:mjB,360:mjE"
+veut pn-on && lancer pn-on son.lua "$MJ" $PN J_DSW=1:04 J_APPUIS=$PN_ON J_TEXTE=265,305,345,355,400 J_FIN=420
+veut pn-off && lancer pn-off son.lua "$MJ" $PN J_DSW=1:00 J_APPUIS=$PN_OFF J_TEXTE=265,305,345,355,400 J_FIN=420
+veut pn-val && lancer pn-val son.lua "$MJ" $PN J_DSW=1:04 J_APPUIS=270:mjE,280:mjE,290:mjE,300:mjE,310:mjH,320:mjG \
+  J_TEXTE=305,315,325 J_FIN=340
+# Le verrou : le commutateur basculé à 268, l'éditeur déjà ouvert ; le chemin de la position d'ouverture mène toujours aux
+# autotests (relu, E à OFF serait le bouton A sur REGION, A à ON aussi).
+veut pn-v-on && lancer pn-v-on son.lua "$MJ" $PN J_DSW=1:04,268:00 J_APPUIS=$PN_ON J_TEXTE=265,305,345,355,400 J_FIN=420
+veut pn-v-off && lancer pn-v-off son.lua "$MJ" $PN J_DSW=1:00,268:04 J_APPUIS=$PN_OFF J_TEXTE=265,305,345,355,400 J_FIN=420
+# Le menu en jeu, commutateur 3 à ON : pièce 1500, START 1600 (l'écran du choix de mode), TEST tenu 1650-1689 ; F (RESTART
+# GAME), E (RESUME), A ; puis B à 1800, ou rien (pn-j0).
+PNJ="J_TESTS=1650-1689 J_PIECE=1500 J_START=0 J_DSW=1:04 J_TEXTE=1700,1710 J_HACHES=1600-2200 J_FIN=2200"
+veut pn-j && lancer pn-j son.lua "$MJ" $PNJ J_APPUIS=1600:mjStart:8,1695:mjF,1705:mjE,1715:mjA,1800:mjB:6
+veut pn-j0 && lancer pn-j0 son.lua "$MJ" $PNJ J_APPUIS=1600:mjStart:8,1695:mjF,1705:mjE,1715:mjA
 # LES GARANTIES SUR LES DÉFAUTS D'UNIBIOS (relevé --ref-garanties). L'ÉCRAN DE BOOT : aof et la fixture brouille,
 # VRAM et palettes pleines de bruit à la mise sous tension (`vram-hasard.lua`) ; le témoin UniBIOS 4.0 sur les mêmes
 # romsets (`-bios unibios40`, lu dans le zip d'aof : notre sp-s2.sp1 y est, d'où WRONG CHECKSUMS sous les deux BIOS).
@@ -1609,6 +1673,7 @@ wait
 PIDS=""
 # L'entrée jamais initialisée : les deux NVRAM posées plus haut.
 if veut vierge-n; then NV_DE=vierge-set-n; lancer vierge-n son.lua "$NOTRE" $VIERGE_EDIT; fi
+if veut tests-sauv; then NV_DE=tests-sauv-set; lancer tests-sauv autotests.lua "$NOTRE" T_FIN=1200; fi
 if veut vierge-c; then NV_DE=vierge-set-c; lancer vierge-c son.lua "$NOTRE" $VIERGE_EDIT; fi
 if veut vierge-m; then NV_DE=vierge-set-m; lancer vierge-m son.lua "$MS_MSLUG" $VIERGE_EDIT_M; fi
 # L'entrée corrompue SANS l'éditeur (DECISIONS §23 pt 5) : pièce à 900, START à 1000, comme temps0.
@@ -1662,6 +1727,8 @@ veut dd-off && lancer dd-off son.lua "$KOF94" $EDIT \
   J_APPUIS=$VERS_DD,360:A,366:START,372:haut,378:droite,384:bas,390:A,395:START,400:START J_TEXTE=363,369,381,387,393 $DD
 veut dd-0off && lancer dd-0off son.lua "$KOF94" $EDIT \
   J_APPUIS=$VERS_DD,366:START,372:haut,378:droite,384:bas,390:A,395:START,400:START J_TEXTE=369,393 $DD
+# Le premier boot de kof94, sans entrée : sa demande 0, puis sa sauvegarde ; dd-connu repart de cette NVRAM.
+veut dd-set && lancer dd-set son.lua "$KOF94" J_PIECE=0 J_START=0 J_FIN=600
 # La carte de la partie, relue par un nouveau boot : MEMORY CARD LOAD, puis la partie reprise.
 if veut carte-relue; then CARTE_DE=carte-sauve; lancer carte-relue son.lua "$NOTRE -memc @/carte.neo" J_HACHES=1-2500 J_FIN=2500; fi
 if veut carte-relue-snk; then CARTE_DE=carte-sauve-snk; lancer carte-relue-snk son.lua "$SNK -memc @/carte.neo" J_HACHES=1-2500 J_FIN=2500; fi
@@ -1707,6 +1774,11 @@ done
 for x in aes-sc-b aes-sc-b0; do
   if veut $x; then NV_DE=${x/-b/-a}; lancer $x son.lua "$PZ" J_PIECE=0 J_START=0 J_TEXTE=100 J_HACHES=4000-6400 J_IMAGES=4900 J_FIN=6400; fi
 done
+# Les debug dips d'un kof94 déjà inscrit (NVRAM de dd-set), sous le modèle du bus flottant : la sauvegarde
+# restaurée après l'éditeur, puis le masque reposé, cartouche lue sous REG_CRTFIX seulement.
+if veut dd-connu; then NV_DE=dd-set; lancer dd-connu son.lua "$KOF94" $EDIT $BFM BF_FIN=699 \
+  J_APPUIS=$VERS_DD,360:A,366:bas,372:droite,378:A,384:A,390:START,395:START,400:START J_TEXTE=393 \
+  J_SUIVRE=100000:1,10FD80:1 J_FIN=700; fi
 # L'autofire de viewpoin gardé en backup RAM : MAME relancé sur la NVRAM d'af-t, A laissé à ON ou remis à OFF.
 if veut af-sauve; then NV_DE=af-t; lancer af-sauve son.lua "$VP" $AF_X J_APPUIS=$(af_nav droite),1300:A:1000; fi
 if veut af-sauve0; then NV_DE=af-t; lancer af-sauve0 son.lua "$VP" $AF_X J_APPUIS=$(af_nav A),1300:A:1000; fi
@@ -1722,7 +1794,7 @@ case " $SCENES " in *" crc-"*|*" bf-crc"*)
   python3 -I -B "$ICI/crc-cartouche.py" "$ROMS" aof mslug2 mslug > "$WORK/crc-attendus.tsv" \
     || { echo "crc-cartouche.py en échec" >&2; exit 1; } ;;
 esac
-python3 -I -B - "$WORK/runs" "$REF" "$SCENES" "$RUNS" "$REF_AES" "$REF_COUV" "$REF_MENU" "$REF_CARTE" "$R/cartes/fixture.neo" "$REF_BORNE" "$REF_CHEATS" "$REF_DIP" "$REF_SSIDEKI" "$REF_CRC" "$WORK/crc-attendus.tsv" "$REF_DIP28" "$REF_AF" "$REF_GAR" "$REF_SINUS" > "$WORK/parcours.txt" <<'PY'
+python3 -I -B - "$WORK/runs" "$REF" "$SCENES" "$RUNS" "$REF_AES" "$REF_COUV" "$REF_MENU" "$REF_CARTE" "$R/cartes/fixture.neo" "$REF_BORNE" "$REF_CHEATS" "$REF_DIP" "$REF_SSIDEKI" "$REF_CRC" "$WORK/crc-attendus.tsv" "$REF_DIP28" "$REF_AF" "$REF_GAR" "$REF_SINUS" "$REF_PANNEAU" > "$WORK/parcours.txt" <<'PY'
 import array, itertools, math, os, re, struct, sys, wave
 
 RUNS, REF, SCENES, LANCES, REF_AES, REF_COUV, REF_MENU, REF_CARTE, FIXTURE = sys.argv[1], sys.argv[2], sys.argv[3].split(), sys.argv[4].split(), sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], sys.argv[9]
@@ -1732,10 +1804,11 @@ REF_DIP28 = sys.argv[16]
 REF_AF = sys.argv[17]
 REF_GAR = sys.argv[18]
 REF_SINUS = sys.argv[19]
+REF_PANNEAU = sys.argv[20]
 
 # Les relevés : scène, grandeur, seuil, mesure. Seul le seuil juge.
 SEUILS = {}
-for ref in (REF, REF_AES, REF_COUV, REF_MENU, REF_CARTE, REF_BORNE, REF_CHEATS, REF_DIP, REF_SSIDEKI, REF_CRC, REF_DIP28, REF_AF, REF_GAR, REF_SINUS):
+for ref in (REF, REF_AES, REF_COUV, REF_MENU, REF_CARTE, REF_BORNE, REF_CHEATS, REF_DIP, REF_SSIDEKI, REF_CRC, REF_DIP28, REF_AF, REF_GAR, REF_SINUS, REF_PANNEAU):
     for l in open(ref, encoding="utf-8"):
         if l.startswith("#") or not l.strip():
             continue
@@ -2011,6 +2084,18 @@ def autotests():
     m = re.search(r"^f\d+ DETAIL   WORK \|(.*)\|$", t, re.M)
     exiger(m and "AT 00108000" in m[1], f"le détail ne nomme pas $108000 : {m[1].strip() if m else '?'}")
     dit("WORK RAM FAIL AT 00108000, les trois autres OK")
+
+def tests_sauvegarde():
+    sain("tests-sauv-set", "tests-sauv")
+    t = open(os.path.join(RUNS, "tests-sauv", "autotests.txt"), errors="replace").read()
+    for nom in ("WORK", "PALETTE", "VRAM", "BACKUP"):
+        exiger(re.search(r"^f\d+ RESULTAT " + nom + r" duree=\d+ \|.*\bOK\b", t, re.M), f"{nom} : pas de OK")
+    m = re.search(r"^f(\d+) REMISE zone=(\S+) somme=(\d+) h=(\w+) bloc=(\d+) somme=(\d+) h=(\w+)$", t, re.M)
+    exiger(m, "aucune remise au jeu relevée")
+    exiger(int(m[5]) < 8, f"le jeu n'a pas de bloc ({m[5]}) : la NVRAM de tests-sauv-set n'a pas servi")
+    exiger(int(m[6]) > 0, "bloc vide : la sauvegarde du premier boot n'a pas eu lieu")
+    dit(f"remise trame {m[1]} : zone {m[2]} somme {m[3]}, bloc {m[5]} somme {m[6]}")
+    exiger(m[4] == m[7], f"zone {m[4]} ≠ bloc {m[7]} : la sauvegarde du jeu a été détruite")
 
 def jukebox():
     sain("jukebox")
@@ -2660,16 +2745,16 @@ def gs_choix():
     exiger(len(dans) >= F("gs-choix", "cases_min"), f"{len(dans)} cases dans le texte")
     exiger(len(s) <= F("gs-choix", "espagnol_max"), f"{len(s)} cases diffèrent de l'espagnol posé au boot")
 
-def relance(run, apres):
+def relance(run, apres, attendu=2418):
     rs = [n for n, r in run.ev if r == "RESET" and n > apres]
     exiger(rs, f"{run.nom} : pas de RESET après RESTART GAME")
-    exiger(rs[0] == 2418, f"{run.nom} : RESET à {rs[0]}, les entrées d'après sont prévues pour 2418")
+    exiger(rs[0] == attendu, f"{run.nom} : RESET à {rs[0]}, les entrées d'après sont prévues pour {attendu}")
     return rs[0]
 
 def gs_mmss():
     g, a, b = sain("gs-nc", "temps-nc0", "temps-nc1")
     exiger(re.search(r"PLAY TIME +03:01", g.texte(2403)), "GAME SETTINGS ne montre pas PLAY TIME 03:01")
-    R = relance(g, 2410)
+    R = relance(g, 2410, 2417)
     for k in (1300, 2000, 3000):
         ig = g.img(R + k)
         # Le TIME du HUD de ncombat : colonnes 10-15 de la ligne 26 (y 208-215), comme dip-mmss.
@@ -3340,6 +3425,18 @@ def dd_effet():
     exiger(bit >= F("dd-effet", "ram_min"), f"$100000 bit 0 sur {bit} trames seulement")
     exiger(not bloc, f"le masque est parti en backup RAM (trame {bloc[0] if bloc else 0})")
 
+def dd_connu():
+    c, = sain("dd-set", "dd-connu")[1:]
+    exiger(re.search(r"> DEBUG DIPS +0100", c.texte(393)), "trame 393 : la ligne DEBUG DIPS ne dit pas 0100")
+    r = [k for k in sorted(c.f) if c.f[k].get("m10FD80", "").upper() == "82"]
+    exiger(r, "aucune remise au jeu ($10FD80 jamais à $82)")
+    v = int(c.f[r[0]]["m100000"], 16)
+    rs, lb, lj, _ = bf_bilan(c)
+    dit(f"remise trame {r[0]} : $100000 = {v:02X} ; sous le modèle du bus flottant : {lb} lectures flottantes du BIOS, "
+        f"{lj} du jeu, {rs} reset(s)")
+    exiger(lb == 0 and lj == 0 and rs == 0, f"{lb} lectures flottantes du BIOS, {lj} du jeu, {rs} reset(s)")
+    exiger(v & 1, f"$100000 = {v:02X} à la remise : le masque n'est pas posé quand le jeu part")
+
 def dd_off():
     o, z = sain("dd-off", "dd-0off")
     exiger(re.search(r"DIP 1 +1 0 0 0 0 0 0 0", o.texte(363)), "trame 363 : DIP 1 bit 0 n'est pas mis")
@@ -3978,6 +4075,57 @@ def jukebox_veille():
     dit(f"le code : {c1} après le réveil, {c2} après le HAUT suivant")
     exiger(c1 == "21" and c2 == "22", f"le code {c1} puis {c2}, 21 puis 22 attendus")
 
+# ---- Les menus au panneau de mahjong (relevé --ref-panneau) ----
+def choisie(run, n):
+    """La ligne sous le curseur « > » du plan fixe à la trame n, sans le curseur ; None s'il n'y en a pas."""
+    l = [s.strip()[1:].strip() for s in run.fix.get(n, {}).values() if s.strip().startswith(">")]
+    exiger(len(l) <= 1, f"{run.nom}, trame {n} : {len(l)} curseurs")
+    return " ".join(l[0].split()) if l else None
+def editeur_vers_tests(run, n_mode, n_tests):
+    """Le chemin de l'éditeur : REGION à l'ouverture, MODE MVS jusqu'à n_mode, HARDWARE TESTS à n_mode + 10, ouverts à n_tests."""
+    for n, attendu in ((265, "REGION EUROPE"), (305, "MODE MVS"), (n_mode, "MODE MVS"), (n_mode + 10, "HARDWARE TESTS")):
+        c = choisie(run, n)
+        dit(f"{run.nom}, trame {n} : « {c} »")
+        exiger(c == attendu, f"{run.nom}, trame {n} : « {c} », « {attendu} » attendu")
+    t = run.texte(n_tests)
+    exiger(t.splitlines() and "HARDWARE TESTS" in t and choisie(run, n_tests) == "WORK RAM", f"{run.nom} : les autotests ne s'ouvrent pas à {n_tests}")
+
+def pn_menu_on():
+    (r,) = sain("pn-on")
+    editeur_vers_tests(r, 345, 400)
+
+def pn_menu_off():
+    (r,) = sain("pn-off")
+    editeur_vers_tests(r, 345, 400)
+
+def pn_valeur():
+    (r,) = sain("pn-val")
+    for n, attendu in ((305, "MODE MVS"), (315, "MODE AES"), (325, "MODE MVS")):
+        c = choisie(r, n)
+        dit(f"trame {n} : « {c} »")
+        exiger(c == attendu, f"trame {n} : « {c} », « {attendu} » attendu")
+
+def pn_verrou():
+    for r in sain("pn-v-on", "pn-v-off"):
+        editeur_vers_tests(r, 345, 400)
+
+def pn_jeu():
+    j, z = sain("pn-j", "pn-j0")
+    for n, attendu in ((1700, "RESTART GAME"), (1710, "RESUME")):
+        c = choisie(j, n)
+        dit(f"menu en jeu, trame {n} : « {c} »")
+        exiger("IN-GAME MENU" in j.texte(n) and c == attendu, f"trame {n} : « {c} », « {attendu} » attendu")
+    p = pause_apres(j, 1650)
+    e = sum(1 for n in range(1802, 2200) if j.h(n) != z.h(n))
+    avant = sum(1 for n in range(1600, 1800) if j.h(n) != z.h(n))
+    dit(f"pause {p[0]}-{p[1]} ; après RESUME, B à 1800 : {e}/398 trames diffèrent du run sans B ({avant} avant)")
+    exiger(p[1] < 1800, f"le jeu ne reprend pas avant B (pause jusqu'à {p[1]})")
+    exiger(avant == 0, f"{avant} trames diffèrent avant B : les deux runs ne font pas le même chemin")
+    exiger(e >= F("pn-jeu", "diff_min"), f"{e} trames : le jeu ne voit plus B après le menu")
+
+JUGES.update({"pn-menu-on": pn_menu_on, "pn-menu-off": pn_menu_off, "pn-valeur": pn_valeur, "pn-verrou": pn_verrou,
+              "pn-jeu": pn_jeu})
+
 JUGES.update({"boot-graphismes": boot_graphismes, "ms-son-slot2": ms_son_slot2, "dip-vierge": dip_vierge,
               "dip-corrompue": dip_corrompue, "tests-mahjong": tests_mahjong, "jukebox-veille": jukebox_veille,
               "cm-copier": cm_copier})
@@ -4017,6 +4165,7 @@ def howto_preisle2():
     exiger(e >= F("howto-preisle2", "egales_min"), f"{e} trames égales au témoin")
 
 JUGES.update({"alpha-trajectoire": alpha_trajectoire, "howto-preisle2": howto_preisle2})
+JUGES.update({"tests-sauvegarde": tests_sauvegarde, "dd-connu": dd_connu})
 # Un défaut connu du BIOS, pas encore corrigé : la scène tourne et dit son verdict, « CONNU » au
 # lieu de FAIL, sans faire échouer le parcours (grandeur « bug_connu » du relevé, 1). Corrigé,
 # elle sort PASS : retirer alors la ligne du relevé.
