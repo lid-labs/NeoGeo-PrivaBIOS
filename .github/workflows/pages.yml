@@ -1,0 +1,50 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Thibaut Lion
+#
+# Publishes the website (site/) on GitHub Pages, at bios.sprixe.dev. The screenshots are not
+# duplicated in site/: they are copied from docs/screenshots/ into img/ of the published artifact.
+# Inactive until the repository is public and Pages is enabled with GitHub Actions as the source:
+# see docs/SITE.md.
+name: pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - "docs/screenshots/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Assemble the site with the screenshots
+        run: |
+          mkdir -p _site/img
+          cp -R site/. _site/
+          rm -f _site/serve.sh
+          cp docs/screenshots/* _site/img/
+          ls -R _site
+
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
