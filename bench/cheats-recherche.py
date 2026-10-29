@@ -302,7 +302,8 @@ def cmd_forcer(a):
         jeu, sc, nom, f = job
         o = os.path.join(travail, "forcer", f"{jeu}-{sc}-{nom}")
         env = {"C_MODE": "forcer" if f else "releve", "C_ENTREES": SCENARIOS[sc], "C_FIN": str(a.fin),
-               "C_PAS": "50", "C_DEPUIS": str(a.depuis), "C_FORCER": f, "C_IMAGES": images}
+               "C_PAS": "50", "C_DEPUIS": str(a.depuis), "C_FORCER": f, "C_IMAGES": images,
+               "C_SUIVRE": a.suivre.get(jeu, "")}
         rc = mame(jeu, rp, o, env)
         for x in ("ram.bin", "ram.idx"):
             try:
@@ -475,6 +476,8 @@ def main():
     f.add_argument("candidats")
     f.add_argument("--fin", type=int, default=12000)
     f.add_argument("--images", default="4600,5600,6600", help="trames des images, virgules")
+    f.add_argument("--suivre", default="", type=lambda x: dict(y.split("=") for y in x.split() if y),
+                   help="« jeu=adr:taille » séparés d'espaces : la cellule relevée au journal toutes les 50 trames")
     f.add_argument("--depuis", type=int, default=3600,
                    help="trame du premier forçage : 3600 après la sélection d'un jeu de combat, 700 en action")
     ac = sp.add_parser("action")
