@@ -114,7 +114,8 @@
 | reste ouvert. LA FENÊTRE, le 2026-10-29 : MN_VIS lignes de cheat au plus (V), et les N cheats
 | du jeu, jusqu'à CH_MAX, y défilent derrière le choix (`.Lfenetre`) ; au-delà de MN_VIS, la
 | ligne sous le titre dit lesquels sont montrés (« CHEATS 5-8/12 »). Les choix ne changent pas :
-| le cheat k est toujours à « bas » k + 2 fois depuis RESUME, et les lignes d'après à N près. Puis GAME SETTINGS (`reglages-jeu.s`) et MEMORY EDITOR (`memoire.s`), le
+| le cheat k est toujours à « bas » k + 2 fois depuis RESUME, et les lignes d'après à N près.
+| Puis GAME SETTINGS (`reglages-jeu.s`) et MEMORY EDITOR (`memoire.s`), le
 | 2026-10-23, toujours là, APRÈS les cheats : les chemins de touches des relevés d'avant
 | (RESTART à « bas », le premier cheat à « bas, bas ») restent ; depuis RESUME, « haut » mène
 | à MEMORY EDITOR, « haut, haut » à GAME SETTINGS, quel que soit le jeu. Le cadre sans cheat
@@ -205,8 +206,8 @@
         | mémoire (`memoire.s`).
 
         | Le cadre (« Fix layer » : $7000 + 32 × colonne + ligne ; lignes 2-29 et colonnes 1-38
-        | visibles, comme `dip.s`). Sans cheat : colonnes 10-29, lignes 11-20. Avec N cheats : 28
-        | colonnes (6-33), 10 + N lignes à partir de 11 − N/2 — le nom de 16 caractères et son
+        | visibles, comme `dip.s`). Sans cheat : colonnes 10-29, lignes 11-20. Avec V lignes de cheat
+        | (MN_NVIS) : 28 colonnes (6-33), 10 + V lignes à partir de 11 − V/2 — le nom de 16 caractères et son
         | état ne tiennent pas dans 20.
         .equ    COL0,     10
         .equ    NCOL,     20
@@ -783,8 +784,8 @@ _mn_entrees:
         move.w  %d4, %d0
         cmpi.w  #5, %d0
         bcs.s   8f                      | lignes fixes 0-4
-        subq.w  #5, %d0                 | k = ligne − 5, avant toute soustraction de V :
-        cmp.w   MN_NVIS, %d0            | ligne − V passerait sous zéro dès V = 6
+        subq.w  #5, %d0                 | k = ligne − 5
+        cmp.w   MN_NVIS, %d0
         bcs.s   6f                      | k < V : le cheat MN_HAUT + k
         move.w  %d4, %d0
         sub.w   MN_NVIS, %d0            | lignes fixes 5-9 (ligne − V ≥ 5 ici)
@@ -828,7 +829,8 @@ _mn_entrees:
         dbra    %d2, 5b
 9:      rts
 
-| « CHEATS a-b/N » à MN_PAD + 3 : les cheats montrés, de 1 à N. %a2 : MN_BUF + MN_PAD.
+| « CHEATS a-b/N » à MN_PAD + 3 : les cheats montrés, de 1 à N. %a2 : MN_BUF + MN_PAD. La fin de
+| `.Lconstruire`, rendue par le `rts` de `.Ldecimal`. Clobbers %d0, %d2, %a2, %a3.
 .Lrang:
         addq.l  #3, %a2
         lea     .Lcheats, %a3
