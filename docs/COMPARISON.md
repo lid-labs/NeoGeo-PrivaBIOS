@@ -10,7 +10,7 @@ that UniBIOS lacks it.
 | Topic | UniBIOS 4.0 | Sprixe BIOS |
 |---|---|---|
 | Per-game autofire | ? **Not found**. Not in any release note we read. | ✓ **Yes**. A, B, C and D set one by one, at 10, 15 or 30 shots per second, remembered for each game. It only reaches games that read the controls through the BIOS: 89 of the 164 we measured. |
-| Cheats | ✓ **Yes**. A database of more than 1,570 cheats, plus Patch Memory (v2.0). | ◐ **Smaller**. 64 cheats for 56 games, found by observing the games. Far fewer than UniBIOS. |
+| Cheats | ✓ **Yes**. A database of more than 1,570 cheats, plus Patch Memory (v2.0). | ◐ **Smaller**. 74 cheats for 62 games, found by observing the games. Far fewer than UniBIOS. |
 | Cheats and debug switched off by the operator | ? **Not found**. RetroAchievements bans UniBIOS as a whole because of cheats and debug (RetroArch #18989, April 2026). | ✓ **Yes**. CHEATS/DEBUG OFF in cabinet settings removes the cheats, the memory editor and the debug dips. |
 | Soft-DIPs during a game | ✓ **Yes**. From the in-game menu (v4.0). | ✓ **Yes**. GAME SETTINGS in the in-game menu, and the editor at boot. |
 | Soft-DIPs of a game never launched | ✕ **Known issue**. Listed by its author as a v4.0 limit: the entry gets corrupted. We only saw this page through a search snippet. | ✓ **Handled**. The editor shows the cartridge defaults and saves a clean entry. A garbled entry left by another BIOS is checked value by value before the game sees it. |
