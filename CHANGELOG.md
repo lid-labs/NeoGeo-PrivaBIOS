@@ -6,6 +6,10 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- Site: the comparison table no longer lists scores on memory card.
+
 ### Fixed
 
 - README: the status line no longer says that no release exists.

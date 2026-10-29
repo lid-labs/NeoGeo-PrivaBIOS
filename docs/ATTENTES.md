@@ -25,7 +25,7 @@ Comparaison avec les 76 fonctions de `measured/2026-10-23-parcours-couverture.ts
 | Fonction d'UniBIOS (version) | Sprixe BIOS | Ce qu'en dit la scène |
 |---|---|---|
 | Base de plus de 1 570 cheats et « Patch Memory » (2.0) | Cheats pour 35 jeux, 40 cheats trouvés en boîte noire (2026-10-25) ; option CHEATS/DEBUG qui les coupe | Les cheats sont cités comme une raison d'installer UniBIOS (wiki neogeodev, RetroRGB 2020-03-20) ; demande de les réordonner (3.2, 2014) |
-| Scores sauvés sur carte mémoire, AES compris (3.1) ; option qui coupe la remise à zéro périodique des scores sur une trentaine de jeux MVS (4.0) | Scores du jeu en backup RAM, en mode MVS et AES (mesuré, 2026-10-24) ; SCORE RESET coupe la remise à zéro (2026-10-24) ; pas de scores sur carte | **Tendance, 7 sources** : la fonction d'UniBIOS la plus citée. La plainte inverse est aussi fréquente : scores ni sauvés ni relus (3.1 à 3.3) |
+| Scores sauvés sur carte mémoire, AES compris (3.1) ; option qui coupe la remise à zéro périodique des scores sur une trentaine de jeux MVS (4.0) | Scores du jeu en backup RAM, en mode MVS et AES (mesuré, 2026-10-24) ; SCORE RESET coupe la remise à zéro (2026-10-24) ; pas de scores sur carte, décision du 2026-10-24 (`DECISIONS.md` §14.6) | **Tendance, 7 sources** : la fonction d'UniBIOS la plus citée. La plainte inverse est aussi fréquente : scores ni sauvés ni relus (3.1 à 3.3) |
 | Gestionnaire de carte mémoire accessible dans tous les modes | MEMORY CARD dans l'écran TEST (2026-10-24) : liste, blocs libres, effacer, formater ; copier une sauvegarde vers une autre carte depuis le 2026-10-27 (`DECISIONS.md` §26), sans COPY ALL ; pas d'accès hors de l'écran TEST | — |
 | Soft-DIP depuis le menu en jeu ; 1UP START remet les défauts (4.0) | Éditeur au boot, et GAME SETTINGS dans le menu en jeu (2026-10-23) | **Tendance, 3 sources** : régler le jeu sans redémarrer |
 | Visualiseur de RAM et de VRAM (1.3, 2.3), debug dips, mode développeur | Éditeur de RAM et gels dans le menu en jeu (2026-10-23) ; DEBUG DIPS dans CABINET SETTINGS (2026-10-25, effet vu sur kof94) ; VRAM absente | Sert au diagnostic d'une carte (neo-geo.com, `mv2-crosshatch`, 2026-07-09) |
@@ -44,13 +44,13 @@ free play est un réglage de Sprixe BIOS depuis le 2026-10-25 (CABINET SETTINGS)
 |---|---|---|
 | **v4.0 sur multi-slot** : écran noir ou « EXCEPTION ERROR HANDLING » au boot, son coupé sur les slots 2 et suivants. La scène conseille la 3.2 | **Tendance** : arcade-projects `threads/resolved-unibios-bug-4-slot-mvs-failure-to-boot.33132` (2025-02-22, trois participants), `ng-dev-team-mvs-carts-4-slot-issues-solved.29662` (2024-05), neo-geo.com (2024-06, 2025-01) | Multi-slot mesuré sur MV-6F : démo tournante, SELECT P1 et P2, garde de SELECT. Son du slot 2 sans cartouche au slot 1 : scène `ms-son-slot2` (2026-10-27), RMS 1,21 et key-on 1,14 du BIOS SNK sur la même machine. Sous MAME, UniBIOS 4.0 n'y est pas muet non plus : la scène fixe notre comportement, pas le défaut du matériel (`DECISIONS.md` §23) |
 | **Logo brouillé** sur les cartouches flash (Darksoft) et homebrew : UniBIOS dessine son logo avec les graphismes de la cartouche, pas encore lisibles au boot d'une carte lente | **Tendance** : arcade-projects `games-with-issues.5220` p. 3 (2018-03), itch.io (Shinobi), TCRF | Pas de logo du BIOS (décision D6, `DECISIONS.md` §11). Scène `boot-graphismes` (2026-10-27) : C ROM et S ROM de la cartouche remplacées par du bruit, VRAM et palettes bruitées à la mise sous tension, l'écran de boot ne change pas d'une trame ; le logo d'UniBIOS 4.0 se brouille sous MAME dans les mêmes conditions (`DECISIONS.md` §23) |
-| **Scores ni sauvés ni relus** sur carte, erreur à l'écran des scores (Neo Bomberman, New Turf Masters) | **Tendance** : neo-geo.com 2013, 2015, 2018 ; arcade-projects 2018-03 | Sans objet tant que nous ne sauvons pas de scores sur carte |
+| **Scores ni sauvés ni relus** sur carte, erreur à l'écran des scores (Neo Bomberman, New Turf Masters) | **Tendance** : neo-geo.com 2013, 2015, 2018 ; arcade-projects 2018-03 | Sans objet : pas de scores sur carte (`DECISIONS.md` §14.6) |
 | **Erreurs avec les cartouches Darksoft** (sprites manquants, crash de KOF98, « please wait ») | **Tendance** : `darksoft-neo-multi-help-thread.5055` p. 18, `games-with-issues.5220` (2018-2019) | Aucune flashcart sous MAME : non mesurable ici |
 | Entrer dans les soft-DIP d'un jeu jamais lancé corrompt son entrée (4.0, limite officielle) | `unibios.free.fr/knownissues.html`, d'après un extrait de moteur de recherche : page non lue | Scène `dip-vierge` (2026-10-27) : l'éditeur ouvert sur une entrée aux octets quelconques montre les défauts de la cartouche et enregistre le bloc d'une NVRAM neuve. Elle a trouvé un défaut, corrigé : les réglages inutilisés gardaient leurs octets (`DECISIONS.md` §23). Hors de l'éditeur, une entrée connue aux octets quelconques est validée à la relecture depuis le même jour (scène `dip-corrompue`) |
 | SELECT ajoute un crédit (les pièces sont reportées sur SELECT) | arcade-projects, fil Darksoft (anecdote) | Sprixe BIOS ne reporte pas les pièces sur SELECT |
 | v2.0 efface toute la backup RAM au premier lancement et à chaque mise à jour | notes de la v2.0 | Le boot ne formate la zone système que si la signature manque (`docs/tasks.md`) |
 | Soft-DIP AES perdus après un soft reboot (introduit en 3.1, corrigé en 4.0) | notes de la v4.0 | Sans objet en mode AES sur MVS : backup RAM |
-| Les tables de scores remplissent une carte SNK de 2 Ko | neo-geo.com, fil 3.1 (auteur d'UniBIOS, 2012-09) | À garder en tête si l'on sauve des scores sur carte |
+| Les tables de scores remplissent une carte SNK de 2 Ko | neo-geo.com, fil 3.1 (auteur d'UniBIOS, 2012-09) | Sans objet : pas de scores sur carte (`DECISIONS.md` §14.6) ; 65 jeux sur 161 ont une zone qui dépasse une carte vide (`docs/tasks.md`) |
 | Sur AES, pas de son en démo et texte corrompu (NAM-1975, « Winners don't use drugs ») en mode MVS | FAQ d'UniBIOS, citée sur neo-geo.com (2025-03-26) | Limite de la console. Sans objet sur MVS |
 | Banni en bloc par RetroAchievements, à cause des cheats et du debug | RetroArch #18989 (2026-04-29) | Voir §4 |
 
@@ -84,7 +84,9 @@ Ce sont des pistes, pas des décisions. Chacune ferait un lot, avec sa scène au
 (`DECISIONS.md` et la règle de `docs/tasks.md` : une fonction livrée sans scène n'est pas finie).
 
 1. **Scores sur carte mémoire en mode AES**, et un gestionnaire de carte (copier, effacer, formater).
-   C'est la demande la plus fréquente.
+   C'est la demande la plus fréquente. Gestionnaire fait le 2026-10-24, copie entre cartes le 2026-10-27
+   (`DECISIONS.md` §14 et §26). Scores sur carte écartés le 2026-10-24 (§14.6) : la backup RAM les
+   garde en MVS et en AES, et la fonction ne sert qu'à une console, sans image chez nous (D1).
 2. **Soft-DIP depuis le menu en jeu**, en reprenant l'éditeur existant.
 3. **Étendre la base de cheats** au-delà de trois jeux. Fait le 2026-10-25 : 35 jeux, 40 cheats
    (`DECISIONS.md` §16, `measured/2026-10-25-cheats-table.tsv`).
