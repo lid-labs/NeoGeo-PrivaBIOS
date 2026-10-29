@@ -245,7 +245,7 @@
 #                 rend la main au jeu.
 #   LE MENU EN JEU COMPLET, le 2026-10-23 (GAME SETTINGS, MEMORY EDITOR, les gels ; seuils dans --ref-menu). Le menu s'ouvre à
 #   2357 sur la partie d'aof (TEST 2337-2376) ; témoin : le run partie, ou l'éditeur du boot réglé de même (temps1, langue,
-#   temps-nc1, fois1). « R » : la trame du RESET de RESTART GAME, 2417 sur ncombat et sur puzzledp, mesurées et exigées.
+#   temps-nc1, fois1). « R » : la trame du RESET de RESTART GAME, 2418 sur ncombat et sur puzzledp, mesurées et exigées.
 #   gs-compte     ROUND TIME 60 → 65 en partie, RESUME : au round suivant, au moins « trames_min » trames montrent un chronomètre
 #                 que seul ROUND TIME 65 montre (des images de temps1 que le témoin n'a jamais) — l'effet est pris sans relance.
 #   gs-defauts    la même chose, puis RESET TO DEFAULTS : ROUND TIME 60 à l'écran, et au plus « trames_max » de ces trames.
@@ -1453,13 +1453,15 @@ veut gs-def && lancer gs-def son.lua "$NOTRE" $MENU_TEST J_APPUIS=$VERS_GS,$CINQ
 veut gs-langue && lancer gs-langue son.lua "$NOTRE" $MENU_TEST J_APPUIS=$VERS_GS,2398:bas,2404:droite,2410:haut,2416:haut,2422:A \
   J_TEXTE=2409 J_REMISE=754 J_FIN=3500
 # ncombat (PLAY TIME 03:00 → 03:01, droite) et puzzledp (CONTINUE INFINITE → WITHOUT, A), puis
-# RESTART GAME (« haut »), A à 2410 : la relance à R = 2417 sur ncombat (2418 avant la lecture du panneau)
-# et sur puzzledp (2418 avant la fenêtre des cheats, le 2026-10-29), mesuré. Les entrées d'après sont celles
+# RESTART GAME (« haut »), A à 2410 : la relance à R = 2418 sur ncombat et sur puzzledp, mesuré le 2026-10-29
+# avec la table de 81 jeux. Cette trame suit la phase de l'attente du watchdog, donc les cycles du menu depuis
+# son ouverture, où `_cheats_trouver` parcourt toute la table pour un jeu absent : elle a bougé avec la lecture
+# du panneau, la fenêtre des cheats (2417) et la table de 81 jeux (2418). Les entrées d'après sont celles
 # de temps-nc1 et fois1, décalées de R (pièce à R + 900, START à R + 1000).
-veut gs-nc && lancer gs-nc son.lua "$MS_NC" $MENU_TEST J_APPUIS=$VERS_GS,2398:droite,2404:haut,2410:A,3317:piece:8,3417:START:8 \
-  J_TEXTE=2403 J_IMAGES=3717,4417,5417 J_FIN=5418
-veut gs-pz && lancer gs-pz son.lua "$PZ" $MENU_TEST J_APPUIS=$VERS_GS,2398:A,2404:haut,2410:A,3317:piece:8,3417:START:8 \
-  J_TEXTE=2403 J_FIN=11417
+veut gs-nc && lancer gs-nc son.lua "$MS_NC" $MENU_TEST J_APPUIS=$VERS_GS,2398:droite,2404:haut,2410:A,3318:piece:8,3418:START:8 \
+  J_TEXTE=2403 J_IMAGES=3718,4418,5418 J_FIN=5419
+veut gs-pz && lancer gs-pz son.lua "$PZ" $MENU_TEST J_APPUIS=$VERS_GS,2398:A,2404:haut,2410:A,3318:piece:8,3418:START:8 \
+  J_TEXTE=2403 J_FIN=11418
 # NO SOFT DIP DATA en partie, sur les deux fixtures (plus haut), puis START et RESUME.
 veut gs-nosd && lancer gs-nosd son.lua "aof -rompath $NOSD" $MENU_TEST J_APPUIS=$VERS_GS,2410:START,2416:bas,2422:bas,2428:A \
   J_TEXTE=2409 J_FIN=2700
@@ -2813,7 +2815,7 @@ def gs_choix():
     exiger(len(dans) >= F("gs-choix", "cases_min"), f"{len(dans)} cases dans le texte")
     exiger(len(s) <= F("gs-choix", "espagnol_max"), f"{len(s)} cases diffèrent de l'espagnol posé au boot")
 
-def relance(run, apres, attendu=2417):
+def relance(run, apres, attendu=2418):
     rs = [n for n, r in run.ev if r == "RESET" and n > apres]
     exiger(rs, f"{run.nom} : pas de RESET après RESTART GAME")
     exiger(rs[0] == attendu, f"{run.nom} : RESET à {rs[0]}, les entrées d'après sont prévues pour {attendu}")
@@ -2822,7 +2824,7 @@ def relance(run, apres, attendu=2417):
 def gs_mmss():
     g, a, b = sain("gs-nc", "temps-nc0", "temps-nc1")
     exiger(re.search(r"PLAY TIME +03:01", g.texte(2403)), "GAME SETTINGS ne montre pas PLAY TIME 03:01")
-    R = relance(g, 2410, 2417)
+    R = relance(g, 2410)
     for k in (1300, 2000, 3000):
         ig = g.img(R + k)
         # Le TIME du HUD de ncombat : colonnes 10-15 de la ligne 26 (y 208-215), comme dip-mmss.
