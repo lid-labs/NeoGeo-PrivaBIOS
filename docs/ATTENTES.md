@@ -76,7 +76,7 @@ mise à jour du BIOS ou les save states.
 
 ## 4. Ce que cela suggère pour Sprixe BIOS
 
-Ce sont des pistes, pas des décisions. Chacune ferait un lot, avec sa scène au parcours
+Pistes du 2026-10-23, pas des décisions. Chacune ferait un lot, avec sa scène au parcours
 (`DECISIONS.md` et la règle de `docs/tasks.md` : une fonction livrée sans scène n'est pas finie).
 
 1. **Scores sur carte mémoire en mode AES**, et un gestionnaire de carte (copier, effacer, formater).
