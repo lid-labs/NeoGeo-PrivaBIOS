@@ -17,19 +17,18 @@
 #          distinctes : un KO, ou le décor que laissent voir certains cadres, en ajoutent sous cheat
 #          comme au témoin. En complément, la cellule vaut la valeur de la table, ou une de moins
 #          (le jeu a décompté depuis le dernier appel du moteur), sur au moins RAM_MIN des relevés.
-#   compteur  un nombre du HUD qui ne bouge plus : INFINITE BOMBS, ou un temps de mission qui ne perd
+#   compteur  un nombre du HUD qui ne bouge plus : un temps de mission qui ne perd
 #          1 que toutes les ~256 trames (le 2026-10-29). Comme temps, sur le rectangle des chiffres,
 #          mais de T + 200 à FIN, et d'autres seuils : le compte du témoin ne change que quelques
 #          fois. Sous cheat, la même image sur au moins COMPTEUR_ON_MIN des relevés ; au témoin, deux
-#          images au moins, la plus fréquente sur moins de COMPTEUR_ON_MIN. Avec les entrées « b »,
-#          P1 lance une bombe toutes les 300 trames.
+#          images au moins, la plus fréquente sur moins de COMPTEUR_ON_MIN.
 # Dans tous les genres, le tap du mode menu de `cheats.lua` exige que le moteur du BIOS n'ait écrit
 # que l'adresse du cheat, et qu'il n'ait rien écrit au témoin.
 #
 # LES ENTRÉES. « k » et « l » : P2 seul (pièce de P2 à 400, son START à 500), « x » et « j » joués par P2 ;
 # le menu reste aux commandes de P1. « x » : le scénario action de `cheats-recherche.py` (A toutes les 6 trames, droite, B et C).
 # « j » (sauter pour mourir) : pièce, START, puis droite tenue et B toutes les 20 trames,
-# sans tirer : P1 fonce en sautant dans les ennemis. « b » (bombes) : « s », et B toutes les 300 trames à partir de 1700.
+# sans tirer : P1 fonce en sautant dans les ennemis.
 # « f » (combat) : pièce à 400, START à 500, A toutes les 60 trames de 600 à 3500,
 # droite tenue à partir de 2000 ; « s » (tir, action) : pièce, START, A toutes les 60 trames, droite
 # tenue à partir de 1000, C toutes les 400 trames à partir de 1500. Le joueur ne joue pas : il meurt,
@@ -37,8 +36,8 @@
 #
 # LA CADENCE. --jobs runs MAME à la fois (défaut : le nombre de cœurs moins deux ; un MAME n'occupe
 # qu'un cœur, et chaque run a son dossier, donc leur nombre ne change aucun verdict). Les runs
-# partent les plus longs d'abord (FIN décroissante) : les « vies » à 12 000 trames, en fin de table,
-# partaient en dernier et faisaient attendre tout le monde à la fin. Pas de cache ici : le témoin ouvre et ferme le
+# partent les plus longs d'abord (FIN décroissante) : les « vies », de 12 000 à 20 000 trames, auraient
+# fait attendre tout le monde à la fin. Pas de cache ici : le témoin ouvre et ferme le
 # menu de NOTRE BIOS, il dépend de l'image comme le run du cheat.
 #
 # Salle blanche : aucune base de cheats tierce, aucun code de jeu lu ni tracé ; le PC ne sert qu'à
@@ -244,14 +243,13 @@ pixels() {
     rouge) echo "C_COULEUR=180,255,0,80,0,80" ;;
   esac
 }
-# entrees <f|s> <T> : le plan, coupé de T − 10 à T + 150.
+# entrees <T> <f|s|j|x|k|l> : le plan, coupé de T − 10 à T + 150.
 entrees() {
   local T=$1 a=$(( $1 - 10 )) b=$(( $1 + 150 )) out="400-407:piece,500-507:START" x
   case "$2" in k|l) out="400-407:pieceDeux,500-507:startDeux" ;; esac
   case "$2" in
     f) x="600-3500%60:A 2000-40000:droite" ;;
     s) x="600-40000%60:A 1000-40000:droite 1500-40000%400:C" ;;
-    b) x="600-40000%60:A 1000-40000:droite 1500-40000%400:C 1700-40000%300:B" ;;
     j) x="1000-40000:droite 1000-40000%20:B" ;;
     x) x="600-40000%6:A 1000-40000:droite 1500-40000%300:B 1650-40000%400:C" ;;
     k) x="600-40000%6:aDeux 1000-40000:droiteDeux 1500-40000%300:bDeux 1650-40000%400:cDeux" ;;

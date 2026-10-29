@@ -3,10 +3,16 @@
 # Copyright (C) 2026 Thibaut Lion
 """La recherche des cheats sous MAME (`src/c0/cheats.s`) : relevés de RAM filtrés, puis forçages.
 
-    bench/cheats-recherche.py releve [--jeux "<romsets>"] [--jobs n] <roms> <travail>
-    bench/cheats-recherche.py action [--scenario s] [--jeux "<romsets>"] [--fin n] <roms> <travail>
-    bench/cheats-recherche.py forcer <forcages.tsv> [--depuis n] [--fin n] [--images l] [--suivre l] <roms> <travail>
-    bench/cheats-recherche.py bisecter <candidats.tsv> --categorie c [--scenario s] [--depuis n] <roms> <travail>
+    python3 -I -B bench/cheats-recherche.py releve [--jeux "<romsets>"] [--garder] [--jobs n] <roms> <travail>
+    python3 -I -B bench/cheats-recherche.py action [--scenario s] [--jeux "<romsets>"] [--fin n] [--garder] <roms> <travail>
+    python3 -I -B bench/cheats-recherche.py forcer <forcages.tsv> [--depuis n] [--fin n] [--images l] [--suivre l] <roms> <travail>
+    python3 -I -B bench/cheats-recherche.py bisecter <candidats.tsv> --categorie c [--scenario s] [--depuis n] [--fin n]
+        [--max n] [--jeux "<romsets>"] <roms> <travail>
+
+BISECTER. Les candidats d'une catégorie forcés tous ensemble, puis le groupe qui tient coupé en deux.
+Les défauts (scénario actif, --depuis 3600) sont ceux du combat ; en action, --depuis 700. Forcer à
+plusieurs cellules casse parfois le jeu et masque la bonne (le 2026-10-29) : `forcer`, une à une, est
+plus sûr.
 
 ACTION. Un run par jeu dans un scénario (action, saut, immobile ; saut2 et action2 pour P2 seul,
 voir SCENARIOS), puis le filtre de suite attendue (`filtre_suite`) : vies, bombes, temps, dans
@@ -110,6 +116,15 @@ def mame(jeu, rompath, sortie, env):
                              "-autoboot_script", os.path.join(ICI, "cheats.lua")],
                             cwd=sortie, env=e, stdout=log, stderr=subprocess.STDOUT).returncode
     return rc
+
+
+def effacer(sortie):
+    """Le relevé de RAM d'un run (~55 Mo) ôté, présent ou non."""
+    for x in ("ram.bin", "ram.idx"):
+        try:
+            os.remove(os.path.join(sortie, x))
+        except FileNotFoundError:
+            pass
 
 
 def journal(sortie):
@@ -265,38 +280,38 @@ def cmd_releve(a):
     for jeu in jeux:
         o = {s: os.path.join(travail, "runs", f"{jeu}-{s}") for s in COMBAT_SC}
         try:
-            Rp, Ra = releve(o["passif"]), releve(o["actif"])
-        except (FileNotFoundError, ValueError):
-            print(f"{jeu} : relevé absent")
-            continue
-        try:
-            ngh, emp, up = journal(o["passif"])
-            _, _, ua = journal(o["actif"])
-        except FileNotFoundError:
-            print(f"{jeu} : relevé absent")
-            continue
-        base = f"{jeu}\t{ngh}\t{emp}"
-        f = f"\t{fin_de_partie(up)}\t{fin_de_partie(ua)}"
-        for adr, sc, m in filtre_temps(Rp)[:6]:
-            lignes.append(f"{base}\ttemps\t{0x100000 + adr:06X}\t{sc}\t{m:02X}{f}")
-        vp, va = filtre_vie(Rp), filtre_vie(Ra)
-        rang = lambda d: sorted(d.items(), key=lambda x: (-x[1][0][0], -x[1][0][1]))
-        for (adr, t, sens), ((ko, nv), pleine, vide) in rang(vp)[:10]:
-            lignes.append(f"{base}\tvie_p1\t{0x100000 + adr:06X}\t{ko}/{nv}\t{t}:{pleine:X}:{vide:X}:{sens}{f}")
-        constant = lambda adr, t: len(np.unique(Rp[:, adr])) <= 2 and (t == 1 or len(np.unique(Rp[:, adr + 1])) <= 2)
-        p2 = {k: v for k, v in va.items() if k not in vp and constant(k[0], k[1])}
-        for (adr, t, sens), ((ko, nv), pleine, vide) in rang(p2)[:8]:
-            lignes.append(f"{base}\tvie_p2\t{0x100000 + adr:06X}\t{ko}/{nv}\t{t}:{pleine:X}:{vide:X}:{sens}{f}")
-        for adr, h, m in filtre_jauge(Ra, Rp)[:8]:
-            lignes.append(f"{base}\tjauge\t{0x100000 + adr:06X}\t{h}\t{m:02X}{f}")
-        for s in COMBAT_SC if not a.garder else ():
-            for x in ("ram.bin", "ram.idx"):
-                try:
-                    os.remove(os.path.join(o[s], x))
-                except FileNotFoundError:
-                    pass
+            filtrer_combat(jeu, o, lignes)
+        finally:
+            if not a.garder:
+                for s in COMBAT_SC:
+                    effacer(o[s])
     open(os.path.join(travail, "candidats.tsv"), "w").write("\n".join(lignes) + "\n")
     print(f"{len(lignes) - 1} candidats : {os.path.join(travail, 'candidats.tsv')}")
+
+
+def filtrer_combat(jeu, o, lignes):
+    """Les candidats d'un jeu de combat (voir l'en-tête), à la suite de `lignes`."""
+    try:
+        Rp, Ra = releve(o["passif"]), releve(o["actif"])
+        ngh, emp, up = journal(o["passif"])
+        _, _, ua = journal(o["actif"])
+    except (FileNotFoundError, ValueError):
+        print(f"{jeu} : relevé absent")
+        return
+    base = f"{jeu}\t{ngh}\t{emp}"
+    f = f"\t{fin_de_partie(up)}\t{fin_de_partie(ua)}"
+    for adr, sc, m in filtre_temps(Rp)[:6]:
+        lignes.append(f"{base}\ttemps\t{0x100000 + adr:06X}\t{sc}\t{m:02X}{f}")
+    vp, va = filtre_vie(Rp), filtre_vie(Ra)
+    rang = lambda d: sorted(d.items(), key=lambda x: (-x[1][0][0], -x[1][0][1]))
+    for (adr, t, sens), ((ko, nv), pleine, vide) in rang(vp)[:10]:
+        lignes.append(f"{base}\tvie_p1\t{0x100000 + adr:06X}\t{ko}/{nv}\t{t}:{pleine:X}:{vide:X}:{sens}{f}")
+    constant = lambda adr, t: len(np.unique(Rp[:, adr])) <= 2 and (t == 1 or len(np.unique(Rp[:, adr + 1])) <= 2)
+    p2 = {k: v for k, v in va.items() if k not in vp and constant(k[0], k[1])}
+    for (adr, t, sens), ((ko, nv), pleine, vide) in rang(p2)[:8]:
+        lignes.append(f"{base}\tvie_p2\t{0x100000 + adr:06X}\t{ko}/{nv}\t{t}:{pleine:X}:{vide:X}:{sens}{f}")
+    for adr, h, m in filtre_jauge(Ra, Rp)[:8]:
+        lignes.append(f"{base}\tjauge\t{0x100000 + adr:06X}\t{h}\t{m:02X}{f}")
 
 
 def cmd_forcer(a):
@@ -305,7 +320,7 @@ def cmd_forcer(a):
     jobs, temoins = [], set()
     for l in open(a.candidats):
         c = l.rstrip("\n").split("\t")
-        if not c or c[0] in ("", "jeu") or c[0].startswith("#"):
+        if len(c) < 6 or c[0] == "jeu" or c[0].startswith("#"):
             continue
         jeu, cat, adr, taille, val, sc = c[:6]
         jobs.append((jeu, sc, f"{cat}-{adr}", f"{adr}:{taille}:{val}"))
@@ -323,11 +338,7 @@ def cmd_forcer(a):
                "C_PAS": "50", "C_DEPUIS": str(a.depuis), "C_FORCER": f, "C_IMAGES": images,
                "C_SUIVRE": a.suivre.get(jeu, "")}
         rc = mame(jeu, rp, o, env)
-        for x in ("ram.bin", "ram.idx"):
-            try:
-                os.remove(os.path.join(o, x))
-            except FileNotFoundError:
-                pass
+        effacer(o)
         # Figé : trois images identiques (un forçage qui bloque le jeu ne perd pas la partie non plus,
         # mais il ne prouve rien). Moins de trois images, on ne conclut pas : une seule est toujours
         # « identique » à elle-même (le 2026-10-29, un passage à une image a tout déclaré figé).
@@ -361,8 +372,8 @@ def filtre_suite(R, departs, remise, min_baisses, max_baisses=60, ecart=(1, 40),
     """Les octets qui suivent EXACTEMENT la suite attendue d'un compteur : v0, v0 − 1, v0 − 2…
     (l'idée de l'utilisateur, le 2026-10-29 : chercher les 3 au départ, garder ceux qui passent à 2
     après la mort, puis à 1…). La suite est lue sur les valeurs successives distinctes de l'octet,
-    à partir de sa première valeur v0, et, sans remise, jusqu'à 0 (ou $FF) : ce qui suit appartient à
-    la démo ou à la partie suivante. Chaque pas doit être − 1, ou 0 → $FF (la dernière vie), ou,
+    à partir de sa première valeur v0, et, sans remise, jusqu'à 0 : ce qui suit appartient à la démo
+    ou à la partie suivante. Chaque pas doit être − 1, ou, avec remise, 0 → $FF ou
     si `remise`, un retour à v0 (une vie, un round, une bombe rechargée). Chaque départ de `departs`
     est essayé en binaire et en BCD. `ecart` : l'écart médian entre deux baisses, en relevés (un
     compteur d'animation change à chaque relevé). `fin_k` : le relevé de la fin de partie ; un pas
@@ -370,7 +381,7 @@ def filtre_suite(R, departs, remise, min_baisses, max_baisses=60, ecart=(1, 40),
     relevés des baisses), les plus longues suites d'abord."""
     out = {}
     for v0 in departs:
-        for f in ({lambda v: v} if v0 < 10 else {lambda v: v, lambda v: (v // 10) * 16 + v % 10}):
+        for f in ((lambda v: v,) if v0 < 10 else (lambda v: v, lambda v: (v // 10) * 16 + v % 10)):
             for a in np.nonzero((R == f(v0)).any(axis=0))[0]:
                 s = R[:, a]
                 k = int(np.argmax(s == f(v0)))
@@ -425,6 +436,7 @@ def cmd_action(a):
             R = releve(o)
             idx = [int(x) for x in open(os.path.join(o, "ram.idx"))][: len(R)]
         except (FileNotFoundError, ValueError):
+            effacer(o)
             return jeu, [f"{jeu}\t{ngh}\t{emp}\t-\t-\t-\t-\t{fin}"]
         base = f"{jeu}\t{ngh}\t{emp}"
         # La fenêtre de la partie : de 700 (les vies posées après START) à 1 000 trames après la fin
@@ -448,8 +460,7 @@ def cmd_action(a):
             for adr, v, b, _ in cands[:8]:
                 lignes.append(f"{base}\t{cat}\t{0x100000 + adr:06X}\t{b}\t1:{v:X}:0:+\t{fin}")
         if not a.garder:
-            for x in ("ram.bin", "ram.idx"):
-                os.remove(os.path.join(o, x))
+            effacer(o)
         return jeu, lignes
 
     out = ["jeu\tngh\tempreinte\tcategorie\tadresse\tscore\tvaleurs\tfin"]
@@ -486,11 +497,7 @@ def cmd_bisecter(a):
         env = {"C_MODE": "forcer" if f else "releve", "C_ENTREES": SCENARIOS[sc], "C_FIN": str(a.fin),
                "C_PAS": "50", "C_DEPUIS": str(a.depuis), "C_FORCER": f, "C_IMAGES": "4600,5600,6600"}
         mame(jeu, rp, o, env)
-        for x in ("ram.bin", "ram.idx"):
-            try:
-                os.remove(os.path.join(o, x))
-            except FileNotFoundError:
-                pass
+        effacer(o)
         imgs = [os.path.join(o, f"f{x}.bin") for x in ("04600", "05600", "06600")]
         imgs = [x for x in imgs if os.path.exists(x)]
         h = {hashlib.sha256(open(x, "rb").read()).hexdigest() for x in imgs}

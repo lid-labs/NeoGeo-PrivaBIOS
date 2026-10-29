@@ -28,7 +28,7 @@
 | registers »), et dans la P-ROM fixe : lue telle que le jeu la voit. SUPPOSÉ : qu'une autre
 | révision du même NGH déplace au moins un de ces pointeurs ; aucune n'est dans le corpus, et
 | mesuré seulement que les 21 jeux qui bootent ont des couples NGH/EMPREINTE distincts, puis les
-| 32 du catalogue du 2026-10-25, dont les NGH le sont déjà (`measured/2026-10-25-cheats-table.tsv`).
+| 81 jeux de la table le 2026-10-29, aux NGH tous distincts (`measured/2026-10-2[59]-cheats-table.tsv`).
 |
 | LES ÉTATS, $10FB00-$10FB07 : CH_ENTREE (.l, la première fiche du jeu, 0 sans entrée), CH_NB
 | (.w), CH_ETATS (.w, un bit par cheat, bit 0 = la première fiche). Zone mesurée libre : des taps
@@ -544,8 +544,8 @@ _cheats_table:
         CHEAT   "P1 INFINITE LIFE", 0x1023E6, 1, 0x10
         CHEAT   "INFINITE TIME",   0x106B11, 1, 0x3C
         | LES CHRONOMÈTRES DE JEUX DE COMBAT, le 2026-10-29, par valeur connue : le TIME du HUD lu à
-        | trois trames, puis les octets de la RAM qui valent ces nombres aux mêmes trames (1 à 4
-        | candidats par jeu), chacun forcé seul ; la zone du chronomètre calculée sur les images (les
+        | trois trames, puis les octets de la RAM qui valent ces nombres aux mêmes trames, chacun
+        | forcé seul ; la zone du chronomètre calculée sur les images (les
         | pixels figés sous cheat, changeants au témoin). Valeur : la plus haute du relevé.
         | FIGHT FEVER : les secondes, BCD.
         JEU     0x0060, 0x06A2, 1
@@ -566,31 +566,31 @@ _cheats_table:
         JEU     0x0039, 0x9C61, 1
         CHEAT   "INFINITE TIME",   0x1013D2, 1, 0x70
         | LES TEMPS DE JEUX D'ACTION PAR SUITE ATTENDUE, le 2026-10-29 : l'octet qui suit exactement
-        | v0, v0 − 1… depuis 30, 50, 60, 90 ou 99 (`bench/cheats-recherche.py`, filtre_suite), forcé
+        | v0, v0 − 1… depuis 30, 50, 59, 60, 90 ou 99 (`bench/cheats-recherche.py`, filtre_suite), forcé
         | seul ; la zone des chiffres calculée sur les images du forçage.
-        | BURNING FIGHT : le temps, BCD, 60 ; il ne perd 1 que toutes les ~200 trames (genre compteur).
+        | BURNING FIGHT : le temps, BCD, 60 ; lent, jugé dans le genre compteur.
         JEU     0x0018, 0xA9E4, 1
         CHEAT   "INFINITE TIME",   0x10D002, 1, 0x60
         | LES VIES PAR SUITE ATTENDUE EN SCÉNARIO SAUT, le 2026-10-29 : P1 avance en sautant sans tirer
         | (l'idée de l'utilisateur, pour mourir vite) ; l'octet qui suit exactement 3, 2, 1… (ou depuis
         | 1 à 5), forcé seul dès la trame 700 : plus de fin de partie, le témoin perd la sienne.
-        | ALPHA MISSION II : les vies, 2 au départ ; le témoin perd la partie à la trame 6710.
+        | ALPHA MISSION II : les vies, 2 au départ.
         JEU     0x0007, 0x799C, 2
         CHEAT   "INFINITE LIVES",  0x1010F2, 1, 0x02
         CHEAT   "P2 INF. LIVES",   0x1011F2, 1, 0x02
-        | CROSSED SWORDS : les vies, 5 au départ ; le témoin perd la partie à la trame 9020.
+        | CROSSED SWORDS : les vies, 5 au départ.
         JEU     0x0037, 0xB3BC, 2
         CHEAT   "INFINITE LIVES",  0x10405C, 1, 0x05
         CHEAT   "P2 INF. LIVES",   0x1040DC, 1, 0x05
-        | EIGHT MAN : les vies, 3 au départ ; le témoin perd la partie à la trame 4344.
+        | EIGHT MAN : les vies, 3 au départ.
         JEU     0x0025, 0xBDFA, 2
         CHEAT   "INFINITE LIVES",  0x100CF7, 1, 0x03
         CHEAT   "P2 INF. LIVES",   0x10131B, 1, 0x02
-        | NIGHTMARE IN THE DARK : les vies, 3 au départ ; le témoin perd la partie à la trame 6144.
+        | NIGHTMARE IN THE DARK : les vies, 3 au départ.
         JEU     0x0260, 0x3085, 2
         CHEAT   "INFINITE LIVES",  0x100055, 1, 0x03
         CHEAT   "P2 INF. LIVES",   0x10028B, 1, 0x03
-        | ROBO ARMY : les vies, 2 au départ ; le témoin perd la partie à la trame 6216.
+        | ROBO ARMY : les vies, 2 au départ.
         JEU     0x0032, 0x95B5, 1
         CHEAT   "INFINITE LIVES",  0x1000D2, 1, 0x02
         | CYBER-LIP : les vies, 2 au départ (suite attendue, scénario action).
@@ -610,7 +610,7 @@ _cheats_table:
         | LES AUTRES FAMILLES (puzzle, quiz, sport), le 2026-10-29 : relevé du scénario action, filtre de
         | suite attendue, chaque candidat forcé seul dès la trame 700. NO GAME OVER : la cellule dont le
         | forçage ôte la fin de partie ; SUPPOSÉ, ce qu'elle compte (des vies, une ligne de bulles, des
-        | continues) : seul l'effet est prouvé, d'où ce nom.
+        | continues) : seul l'effet est prouvé, d'où ce nom. Et INFINITE TIME, par la suite du temps.
         | CHIBI MARUKO-CHAN DELUXE QUIZ.
         JEU     0x0206, 0x88FB, 1
         CHEAT   "NO GAME OVER",     0x101303, 1, 0x03

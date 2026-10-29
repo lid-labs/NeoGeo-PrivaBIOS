@@ -86,7 +86,7 @@ Ce sont des pistes, pas des décisions. Chacune ferait un lot, avec sa scène au
 1. **Scores sur carte mémoire en mode AES**, et un gestionnaire de carte (copier, effacer, formater).
    C'est la demande la plus fréquente.
 2. **Soft-DIP depuis le menu en jeu**, en reprenant l'éditeur existant.
-3. **Étendre la base de cheats** au-delà de trois jeux. Fait le 2026-10-25 : 35 jeux, 40 cheats
+3. **Étendre la base de cheats** au-delà de trois jeux. Fait le 2026-10-25 : 35 jeux, 40 cheats ; 81 jeux, 117 cheats le 2026-10-29
    (`DECISIONS.md` §16, `measured/2026-10-25-cheats-table.tsv`).
 4. **Réglages de borne communs** : free play, 1cc, démo muette. Fait le 2026-10-25 : FREE PLAY,
    NO CONTINUE et DEMO SOUND dans l'écran TEST (`DECISIONS.md` §15) ; le commutateur 7 de la carte

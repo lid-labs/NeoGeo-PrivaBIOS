@@ -1,28 +1,28 @@
-# Le catalogue des cheats joué par le BIOS lui-même (bench/cheats-catalogue.sh, --jobs 12), le 2026-10-29, sur les 18 vies
-# des jeux d'action de ce lot, puis 5 vies de P1 de jeux de combat (genre vies, scénario f, FIN 15 000 ; samsh5sp
-# $10854E écarté, fin de partie sous cheat à 10150, témoin 6750) ; et INFINITE TIME de ganryu (genre temps, zone
-# 147,32,175,39, pixels clairs). cyberlip $107E25 et eightman $100482, figés au HUD sous forçage, échouent au jig
-# (0,31 et 0,54 des relevés : le décor passe derrière les chiffres) : à reprendre avec une zone réglée sur images denses.
-# Puis INFINITE TIME de mslug2 et mslug4, genre compteur (le TIME de mission ne perd 1 que toutes les ~256 trames ;
-# zone 145,8,175,31, pixels jaunes, de T + 200 à FIN). Trouvés par valeur connue mais non jugés ici : les bombes de
-# mslug2 ($10127C) et de mslug5 ($100A46), le temps de mslug5 ($10D67E) — BOMB et TIME restent figés au HUD sous
-# forçage, mais la scène du jig ne départage pas (témoin qui ne lance presque pas de bombe, zone qui prend le décor).
-# Puis 8 chronomètres de jeux de combat par valeur connue (genre temps, entrées f, T 1900, FIN 3200, zone calculée
-# sur les images du forçage, pixels bruts). Échoués et à reprendre : aof3, fatfury2, savagere (le chronomètre du témoin
-# ne bouge pas dans la fenêtre : T à recaler), breakers, kof98, garou, whp, ninjamas, lastbld2, gowcaizr (l'image
-# sous cheat ne reste pas assez fixe). Puis INFINITE TIME de burningf, trouvé par suite attendue (filtre_suite), genre
-# compteur, zone calculée ; eightman $100482, figé au forçage, ne l'est pas par le menu : écarté. Puis 5 vies trouvées en scénario saut (entrées j) ; crswd2bl $105B4E écarté (la
-# cellule ne vaut pas $02 dans la fenêtre du jig). Puis 11 cheats des familles puzzle, quiz et sport (entrées x) ;
-# écartés : froman2b (écriture du moteur au témoin), trally et zintrckb (pas encore en partie à la trame 800),
-# gururin et ridhero (la cellule à sa valeur sur 0,72 et 0,87 des relevés). Puis 23 vies de P2, P2 jouant seul
-# (entrées k et l) ; écartés : ncombat $1013C5, s1945p $1046C8, twinspri $100540 (fin de partie sous cheat). Puis 3 vies
-# d'action (entrées x) qu'un premier passage avait manquées : il ne gardait qu'une image par run, et une image seule
-# passait pour « figée ». MAME 0.286, -bios euro, -video none, une NVRAM et un cfg par run, romsets non-merged, seul
-# sp-s2.sp1 remplacé. Deux runs par cheat : le cheat mis à ON par le menu en jeu, et un témoin qui ouvre et ferme le même menu.
-# Critère (genre vies) : le témoin perd la partie, la partie sous cheat non, jusqu'à FIN ; la cellule à sa valeur sur 0,9 des
-# relevés au moins ; le moteur n'écrit que l'adresse du cheat, et rien au témoin. Écartés en route : mutnat ($102530 : fin de
-# partie sous cheat à 4280, témoin 4040), et les premières cellules de ncombat ($1013C5), neobombe ($10057E) et superspy
-# ($101B1F), fin de partie sous cheat ; sengoku2 jugé à FIN 20 000, son témoin ne perdant pas avant 12 000.
+# Le catalogue des cheats joué par le BIOS lui-même (bench/cheats-catalogue.sh, --jobs 12), le 2026-10-29, sur les 77 cheats
+# du lot. MAME 0.286, -bios euro, -video none, une NVRAM et un cfg par run, romsets non-merged, seul sp-s2.sp1 remplacé. Deux
+# runs par cheat : le cheat mis à ON par le menu en jeu, et un témoin qui ouvre et ferme le même menu ; le moteur n'écrit que
+# l'adresse du cheat, et rien au témoin. Les genres et leurs seuils : l'en-tête du script.
+#   vies       le témoin perd la partie, la partie sous cheat non, jusqu'à FIN ; la cellule à sa valeur sur 0,9 des relevés.
+#              Entrées s (P1 tire), f (combat), j (P1 saute), x (scénario action de la recherche), k et l (P2 seul).
+#   temps      l'image du chronomètre, de T + 200 à T + 800 ; zone calculée sur les images du forçage, ou réglée à l'œil.
+#   compteur   l'image des chiffres de T + 200 à FIN, pour un temps qui ne perd 1 qu'à quelques centaines de trames
+#              (mslug2, mslug4, burningf).
+# Écartés en route, et pourquoi :
+#   - samsh5sp $10854E (P1) : fin de partie sous cheat à 10150 (témoin 6750) ;
+#   - les premières cellules de ncombat ($1013C5), neobombe ($10057E) et superspy ($101B1F) : fin de partie sous cheat ;
+#   - mutnat $102530 : fin de partie sous cheat à 4280 sous les entrées s ; repris sous les entrées x, PASS ;
+#   - sengoku2 jugé à FIN 20 000, son témoin ne perdant pas avant 12 000 ;
+#   - cyberlip $107E25 et eightman $100482 (temps) : le décor passe derrière les chiffres ;
+#   - les bombes de mslug2 ($10127C), de mslug5 ($100A46) et le temps de mslug5 ($10D67E), figés au HUD sous forçage : la
+#     scène du jig ne départage pas ;
+#   - 10 chronomètres de combat : aof3, fatfury2, savagere (le chronomètre du témoin ne bouge pas dans la fenêtre), breakers,
+#     kof98, garou, whp, ninjamas, lastbld2, gowcaizr (l'image sous cheat ne reste pas assez fixe) ;
+#   - crswd2bl $105B4E (la cellule ne vaut pas $02 dans la fenêtre du jig) ;
+#   - froman2b (écriture du moteur au témoin), trally et zintrckb (pas encore en partie à la trame 800), gururin et
+#     ridhero (la cellule à sa valeur sur 0,72 et 0,87 des relevés) ;
+#   - P2 : ncombat $1013C5, s1945p $1046C8, twinspri $100540 (fin de partie sous cheat).
+# cyberlip, ironclad et mutnat : un passage de la suite attendue (non versionné) les avait manqués, car il ne gardait
+# qu'une image par run et qu'une image seule passait pour « figée » ; corrigé dans cheats-recherche.py, ils passent.
 jeu	cheat	verdict	ngh	empreinte	ecritures_du_moteur	nombre	mesure
 b2b	INFINITE LIVES	PASS	0071	E928	106906x10419	10419	fin de partie : témoin 5390, sous cheat aucune (FIN 12000) ; $106907 à $04 sur 1.00
 bjourney	INFINITE LIVES	PASS	0022	C32D	107000x9874	9874	fin de partie : témoin 3170, sous cheat aucune (FIN 12000) ; $107000 à $02 sur 1.00
