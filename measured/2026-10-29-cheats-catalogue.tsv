@@ -1,5 +1,6 @@
 # Le catalogue des cheats joué par le BIOS lui-même (bench/cheats-catalogue.sh, --jobs 12), le 2026-10-29, sur les 18 vies
-# des jeux d'action de ce lot. MAME 0.286, -bios euro, -video none, une NVRAM et un cfg par run, romsets non-merged, seul
+# des jeux d'action de ce lot, puis 5 vies de P1 de jeux de combat (genre vies, scénario f, FIN 15 000 ; samsh5sp
+# $10854E écarté, fin de partie sous cheat à 10150, témoin 6750). MAME 0.286, -bios euro, -video none, une NVRAM et un cfg par run, romsets non-merged, seul
 # sp-s2.sp1 remplacé. Deux runs par cheat : le cheat mis à ON par le menu en jeu, et un témoin qui ouvre et ferme le même menu.
 # Critère (genre vies) : le témoin perd la partie, la partie sous cheat non, jusqu'à FIN ; la cellule à sa valeur sur 0,9 des
 # relevés au moins ; le moteur n'écrit que l'adresse du cheat, et rien au témoin. Écartés en route : mutnat ($102530 : fin de
@@ -24,3 +25,8 @@ superspy	INFINITE LIVES	PASS	0011	B441	10181Ex10418	10418	fin de partie : témoi
 twinspri	INFINITE LIVES	PASS	0224	C6FE	103744x6922	6922	fin de partie : témoin 9790, sous cheat aucune (FIN 12000) ; $103745 à $03 sur 1.00
 viewpoin	INFINITE LIVES	PASS	0051	691F	108D98x10419	10419	fin de partie : témoin 6850, sous cheat aucune (FIN 12000) ; $108D99 à $03 sur 1.00
 zupapa	INFINITE LIVES	PASS	0070	EC13	1002C0x10420	10420	fin de partie : témoin 9620, sous cheat aucune (FIN 12000) ; $1002C1 à $03 sur 1.00
+kof99	P1 INFINITE LIFE	PASS	0251	B157	108422x13308	13308	fin de partie : témoin 12460, sous cheat aucune (FIN 15000) ; $108422 à $00 sur 1.00
+karnovr	P1 INFINITE LIFE	PASS	0066	6A32	103A74x13308	13308	fin de partie : témoin 9560, sous cheat aucune (FIN 15000) ; $103A74 à $0F sur 1.00
+kof96	P1 INFINITE LIFE	PASS	0214	EB0F	108422x13320	13320	fin de partie : témoin 10950, sous cheat aucune (FIN 15000) ; $108422 à $00 sur 1.00
+ninjamas	P1 INFINITE LIFE	PASS	0217	4720	100050x13311	13311	fin de partie : témoin 9740, sous cheat aucune (FIN 15000) ; $100050 à $D0 sur 1.00
+rotd	P1 INFINITE LIFE	PASS	0264	8D79	1023E6x13319	13319	fin de partie : témoin 11880, sous cheat aucune (FIN 15000) ; $1023E6 à $10 sur 1.00

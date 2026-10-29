@@ -342,8 +342,10 @@ _cheats_table:
         CHEAT   "INFINITE TIME",   0x10A837, 1, 0x32
         CHEAT   "P1 INFINITE LIFE", 0x108221, 1, 0xCF
         | THE KING OF FIGHTERS '99 : le décompte de trames de la seconde, secondes en $10A7E6.
-        JEU     0x0251, 0xB157, 1
+        | Le 2026-10-29 : $108422, les dégâts subis par P1 (0 au round, montent aux coups ; forcé à 0).
+        JEU     0x0251, 0xB157, 2
         CHEAT   "INFINITE TIME",   0x10A7E7, 1, 0x32
+        CHEAT   "P1 INFINITE LIFE", 0x108422, 1, 0x00
         | THE KING OF FIGHTERS 2000 : les secondes, BCD.
         JEU     0x0257, 0xE65C, 1
         CHEAT   "INFINITE TIME",   0x10A7E6, 1, 0x60
@@ -390,8 +392,10 @@ _cheats_table:
         JEU     0x0245, 0xB255, 1
         CHEAT   "INFINITE TIME",   0x107C27, 1, 0x63
         | KARNOV'S REVENGE : les secondes, binaire, 99 au départ.
-        JEU     0x0066, 0x6A32, 1
+        | Le 2026-10-29 : $103A74, l'octet haut du mot de la vie de P1 ($0FFF au plus haut).
+        JEU     0x0066, 0x6A32, 2
         CHEAT   "INFINITE TIME",   0x103A70, 1, 0x63
+        CHEAT   "P1 INFINITE LIFE", 0x103A74, 1, 0x0F
         | DOUBLE DRAGON : les secondes, BCD, 99 au départ.
         JEU     0x0082, 0x1CB9, 1
         CHEAT   "INFINITE TIME",   0x102242, 1, 0x99
@@ -499,5 +503,17 @@ _cheats_table:
         | ZUPAPA! : les vies, 3 au plus haut ; le témoin perd la partie à la trame 6482.
         JEU     0x0070, 0xEC13, 1
         CHEAT   "INFINITE LIVES",  0x1002C1, 1, 0x03
+        | LES VIES DE P1 DE JEUX DE COMBAT, le 2026-10-29 (`bench/cheats-recherche.py` releve, puis
+        | bisecter en scénario actif ou faible : P1 tape un peu, et gagne au temps quand sa vie est
+        | forcée) ; les barres de P1 vues pleines sur les bandeaux du HUD, celle de P2 entamée.
+        | THE KING OF FIGHTERS '96 : $108422, les dégâts subis par P1, forcés à 0.
+        JEU     0x0214, 0xEB0F, 1
+        CHEAT   "P1 INFINITE LIFE", 0x108422, 1, 0x00
+        | NINJA MASTER'S : $100050, la vie de P1, $D0 au plus haut.
+        JEU     0x0217, 0x4720, 1
+        CHEAT   "P1 INFINITE LIFE", 0x100050, 1, 0xD0
+        | RAGE OF THE DRAGONS : $1023E6, la vie de P1, $10 au plus haut.
+        JEU     0x0264, 0x8D79, 1
+        CHEAT   "P1 INFINITE LIFE", 0x1023E6, 1, 0x10
         FIN_TABLE
         .balign 2
