@@ -971,6 +971,12 @@ MUTATIONS = {
           "1:      bra.s   2f                      | MUTATION : jamais de miroir\n")],
         "une P-ROM de 512 Kio vue en miroir est sommée sur 1 Mio",
     ),
+    "crc-flottant-ignore": (
+        "crc-flottant", "crc.s",
+        [("        bsr     .Lconstante\n        beq.s   .Lsans_banque\n",
+          "        nop                             | MUTATION : la fenêtre constante compte\n")],
+        "une fenêtre qui ne lit qu'un mot (pas de puce de banques) est comptée comme une banque",
+    ),
     "crc-miroir-de-banque": (
         "crc-banques bf-crc-banque", "crc.s",
         [("        beq.s   .Lb_miroir\n", "        nop                             | MUTATION : un miroir compte\n")],
