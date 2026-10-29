@@ -468,6 +468,8 @@
 #                 de `-listxml` ; DONE au plus tard à « fin_max » ; le jeu repart après les trois START.
 #   crc-miroir    aof, sa P-ROM servie en miroir par `crc-miroir.lua` (une carte qui ne décode pas A19) : FIXED 0512K et le
 #                 CRC du fichier 044-p1.p1 de `-listxml`, BANKS NONE.
+#   crc-flottant  aof, sa fenêtre des banques ne lisant que $5700 par `crc-flottant.lua` (une cartouche sans puce de
+#                 banques, mesuré sur ssideki le 2026-10-29) : FIXED et son CRC comme crc-fixe, BANKS NONE.
 #   bf-crc        aof, comme crc-fixe, sous `bus-flottant.lua`, comme les scènes bf-* : aucune lecture flottante, chaque trame
 #                 égale au témoin libre, le CRC attendu à l'écran.
 #   bf-crc-banque mslug sur la MV-6F, de même : les banques lues sous REG_CRTFIX, FIXED et BANKS 1 X 1024K attendus.
@@ -685,6 +687,7 @@
 # (pn-menu-on, pn-valeur, pn-verrou, pn-jeu). 201 en tout. boot-sans-saut suit `_panneau_p1` dans `ecran.s`, rééprouvée et tuée le même jour.
 # Celle de la cartouche qui tarde, le 2026-10-28 : carte-lente-ignoree (flash-cart). 202 en tout.
 # Celles de l'écran ABOUT, le 2026-10-28 : ab-ligne-absente, ab-ne-s-ouvre-pas, ab-start-ignore (ab-ecran). 205 en tout.
+# Celle de la fenêtre des banques qui ne lit qu'un mot, le 2026-10-29 : crc-flottant-ignore (crc-flottant). 206 en tout.
 #
 # CE QU'IL NE COUVRE PAS : le matériel, hors du modèle de `bus-flottant.lua` ; NO SOFT DIP DATA sur un vrai jeu (aucun des 166 sets du
 # dossier n'a de bloc refusé : la scène est jouée sur une fixture) ; les commandes CARD autrement
@@ -722,7 +725,7 @@ REF_SINUS="$PAQUET/measured/2026-10-28-parcours-sinus.tsv"
 REF_PANNEAU="$PAQUET/measured/2026-10-28-parcours-panneau.tsv"
 JOBS=$(( $( (sysctl -n hw.ncpu || nproc) 2>/dev/null || echo 4) - 2 )); [ "$JOBS" -ge 1 ] || JOBS=1
 CACHE=""
-SCENES_TOUTES="boot-ecran boot-saut calendrier carte demo-son partie-credit partie-start fin-demo fin-titre scores dip-temps dip-langue region autotests jukebox menu-hud menu-reprise menu-son cheats restart ms-demo ms-select ms-garde aes-bascule aes-demo aes-start aes-menu aes-piece aes-retour dip-defauts dip-mmss dip-fois region-europe region-japon region-usa autotests-palette autotests-vram autotests-backup tests-entrees tests-barres tests-grille jukebox-pas jukebox-stop cheats-off partie-p2 carte-sauve ms-select-p2 aes-ms-select aes-pause aes-logo aes-fin aes-texte depart-force piece-son ms-seule jukebox-repete partie-p2-joint carte-chercher carte-supprimer carte-nom tests-p2 tests-dip dip-sans-donnees gs-compte gs-defauts gs-choix gs-mmss gs-fois gs-sans-donnees gs-banque me-ecran me-goto me-octet me-ligne me-page me-repete me-poke me-gel me-liste me-degel me-borne bf-editeur bf-banque bf-tests bf-jukebox sans-cartouche flash-cart cm-liste cm-libres cm-effacer cm-annuler cm-formater cm-non-formatee cm-sans-carte cm-protegee cm-insertion bf-carte aes-scores scores-gel bo-ecran ab-ecran bo-free-play bo-fp-p2 bo-fp-joint bo-no-continue bo-demo-muette bo-aes bf-borne cheats-vies bo-cd-menu bo-cd-gel dip-free-play dip-fp-p2 dip-fp-refus dip-fp-chaud dip-fp-reglage dip-fp-cabinet dip-setting geste-boot geste-jeu geste-partie demo-ssideki japon-intitules gs-japon gs-japon-garde crc-fixe crc-banques crc-miroir bf-crc bf-crc-banque dd-effet dd-off dip-gel dip-gel-off dip-gel-boot dip-mahjong dip-mj-off dip-4p dip-4p-off af-tir af-sauve af-off af-mahjong boot-graphismes ms-son-slot2 dip-vierge dip-corrompue tests-mahjong jukebox-veille cm-copier alpha-trajectoire howto-preisle2 tests-sauvegarde dd-connu pn-menu-on pn-menu-off pn-valeur pn-verrou pn-jeu"
+SCENES_TOUTES="boot-ecran boot-saut calendrier carte demo-son partie-credit partie-start fin-demo fin-titre scores dip-temps dip-langue region autotests jukebox menu-hud menu-reprise menu-son cheats restart ms-demo ms-select ms-garde aes-bascule aes-demo aes-start aes-menu aes-piece aes-retour dip-defauts dip-mmss dip-fois region-europe region-japon region-usa autotests-palette autotests-vram autotests-backup tests-entrees tests-barres tests-grille jukebox-pas jukebox-stop cheats-off partie-p2 carte-sauve ms-select-p2 aes-ms-select aes-pause aes-logo aes-fin aes-texte depart-force piece-son ms-seule jukebox-repete partie-p2-joint carte-chercher carte-supprimer carte-nom tests-p2 tests-dip dip-sans-donnees gs-compte gs-defauts gs-choix gs-mmss gs-fois gs-sans-donnees gs-banque me-ecran me-goto me-octet me-ligne me-page me-repete me-poke me-gel me-liste me-degel me-borne bf-editeur bf-banque bf-tests bf-jukebox sans-cartouche flash-cart cm-liste cm-libres cm-effacer cm-annuler cm-formater cm-non-formatee cm-sans-carte cm-protegee cm-insertion bf-carte aes-scores scores-gel bo-ecran ab-ecran bo-free-play bo-fp-p2 bo-fp-joint bo-no-continue bo-demo-muette bo-aes bf-borne cheats-vies bo-cd-menu bo-cd-gel dip-free-play dip-fp-p2 dip-fp-refus dip-fp-chaud dip-fp-reglage dip-fp-cabinet dip-setting geste-boot geste-jeu geste-partie demo-ssideki japon-intitules gs-japon gs-japon-garde crc-fixe crc-banques crc-miroir crc-flottant bf-crc bf-crc-banque dd-effet dd-off dip-gel dip-gel-off dip-gel-boot dip-mahjong dip-mj-off dip-4p dip-4p-off af-tir af-sauve af-off af-mahjong boot-graphismes ms-son-slot2 dip-vierge dip-corrompue tests-mahjong jukebox-veille cm-copier alpha-trajectoire howto-preisle2 tests-sauvegarde dd-connu pn-menu-on pn-menu-off pn-valeur pn-verrou pn-jeu"
 SCENES="$SCENES_TOUTES"
 HASHPATH="${BIOS_HASHPATH:-}"
 while [ $# -gt 0 ]; do
@@ -1238,6 +1241,7 @@ runs_de() {
     crc-fixe) echo crc-aof ;;
     crc-banques) echo crc-ms2 ;;
     crc-miroir) echo crc-miroir ;;
+    crc-flottant) echo crc-flottant ;;
     bf-crc) echo "bf-crc bf-crc-libre" ;;
     bf-crc-banque) echo "bf-crc-ms bf-crc-ms-libre" ;;
     dd-effet) echo "dd-1 dd-0" ;;
@@ -1781,6 +1785,8 @@ VERS_CRC="$VERS_TESTS,330:haut,336:haut,342:A"
 veut crc-aof && lancer crc-aof son.lua "$NOTRE" $EDIT J_APPUIS=$VERS_CRC,950:START,980:START,1000:START \
   J_TEXTE=340,400,$(seq -s, 500 10 940),960,990 J_FIN=1300
 veut crc-miroir && lancer crc-miroir son.lua "$NOTRE" $EDIT J_AUSSI=$ICI/crc-miroir.lua J_APPUIS=$VERS_CRC,950:START,980:START,1000:START \
+  J_TEXTE=400,940,960,990 J_FIN=1300
+veut crc-flottant && lancer crc-flottant son.lua "$NOTRE" $EDIT J_AUSSI=$ICI/crc-flottant.lua J_APPUIS=$VERS_CRC,950:START,980:START,1000:START \
   J_TEXTE=400,940,960,990 J_FIN=1300
 veut crc-ms2 && lancer crc-ms2 son.lua "mslug2 -rompath $R" $EDIT J_APPUIS=$VERS_CRC,1900:START,1930:START,1960:START \
   J_TEXTE=400,1100,$(seq -s, 1500 10 1890),1910,1940 J_FIN=2400
@@ -3487,6 +3493,10 @@ def crc_miroir():
     exiger(p1, "044-p1.p1 absent de -listxml")
     crc_juge(a, "aof", 940, "crc-miroir", fixe=("0512", p1[0].split(":")[-1].upper()))
 
+def crc_flottant():
+    (a,) = sain("crc-flottant")
+    crc_juge(a, "aof", 940, "crc-flottant")
+
 def bf_crc():
     c = crc_attendu("aof")
     bf_juge("bf-crc", [(400, r"READING FIXED"), (900, "FIXED %sK +%s" % (c[1], c[2])), (900, "BANKS NONE"), (990, "ART OF FIGHTING")])
@@ -3581,7 +3591,7 @@ JUGES = {"aes-bascule": aes_bascule, "aes-demo": aes_demo, "aes-start": aes_star
          "bo-no-continue": bo_no_continue, "bo-demo-muette": bo_demo_muette, "bo-aes": bo_aes, "bf-borne": bf_borne,
          "cheats-vies": cheats_vies, "bo-cd-menu": bo_cd_menu, "bo-cd-gel": bo_cd_gel,
          "demo-ssideki": demo_ssideki,
-         "crc-fixe": crc_fixe, "crc-banques": crc_banques, "crc-miroir": crc_miroir, "bf-crc": bf_crc,
+         "crc-fixe": crc_fixe, "crc-banques": crc_banques, "crc-miroir": crc_miroir, "crc-flottant": crc_flottant, "bf-crc": bf_crc,
          "bf-crc-banque": bf_crc_banque, "dd-effet": dd_effet, "dd-off": dd_off}
 # ---- les commutateurs de la carte et le geste sans bouton TEST (relevé --ref-dip) ----
 def mode_a(run, n0, n1):
