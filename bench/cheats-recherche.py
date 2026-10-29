@@ -395,7 +395,10 @@ def cmd_action(a):
     def run(jeu):
         o = os.path.join(travail, "runs", f"{jeu}-{a.scenario}")
         mame(jeu, rp, o, {"C_MODE": "releve", "C_ENTREES": SCENARIOS[a.scenario], "C_FIN": str(a.fin), "C_PAS": str(PAS)})
-        ngh, emp, u = journal(o)
+        try:
+            ngh, emp, u = journal(o)
+        except FileNotFoundError:          # MAME n'a pas démarré le jig : le jeu est écarté, pas le balayage
+            return jeu, []
         fin = fin_de_partie(u)
         lignes = []
         try:
@@ -409,7 +412,7 @@ def cmd_action(a):
         garde = [k for k, n in enumerate(idx) if n >= 700 and (not fin or n <= fin + 1000)]
         R, idx = R[garde], [idx[k] for k in garde]
         # Les suites attendues : les vies de 1 à 5 au départ, sans remise ; les bombes de 2 à 10,
-        # rechargées ; le temps à 30, 50, 60, 90 ou 99, remis à chaque vie ou stage.
+        # rechargées ; le temps à 30, 50, 59 (minutes:secondes), 60, 90 ou 99, remis à chaque vie ou stage.
         fk = next((k for k, n in enumerate(idx) if fin and n >= fin), None)
         vies = filtre_suite(R, range(1, 6), False, 2, 12, None, fk)
         # Les vies : celles qui baissent quand P1 meurt. Les copies d'une même cellule baissent aux
@@ -420,7 +423,7 @@ def cmd_action(a):
         vies.sort(key=lambda c: (abs(c[3][-1] - fk) if fk is not None else 0, -groupe[tuple(t // 3 for t in c[3])]))
         cats = (("vies", vies),
                 ("bombes", filtre_suite(R, range(2, 11), True, 2, 40, (1, 40), fk)),
-                ("temps", filtre_suite(R, (30, 50, 60, 90, 99), True, 6, 400, (2, 30), fk)))
+                ("temps", filtre_suite(R, (30, 50, 59, 60, 90, 99), True, 6, 400, (2, 30), fk)))
         for cat, cands in cats:
             for adr, v, b, _ in cands[:8]:
                 lignes.append(f"{base}\t{cat}\t{0x100000 + adr:06X}\t{b}\t1:{v:X}:0:+\t{fin}")

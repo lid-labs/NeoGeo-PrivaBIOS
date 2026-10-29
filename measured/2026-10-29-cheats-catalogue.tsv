@@ -12,7 +12,9 @@
 # ne bouge pas dans la fenêtre : T à recaler), breakers, kof98, garou, whp, ninjamas, lastbld2, gowcaizr (l'image
 # sous cheat ne reste pas assez fixe). Puis INFINITE TIME de burningf, trouvé par suite attendue (filtre_suite), genre
 # compteur, zone calculée ; eightman $100482, figé au forçage, ne l'est pas par le menu : écarté. Puis 5 vies trouvées en scénario saut (entrées j) ; crswd2bl $105B4E écarté (la
-# cellule ne vaut pas $02 dans la fenêtre du jig). MAME 0.286, -bios euro, -video none, une NVRAM et un cfg par run, romsets non-merged, seul
+# cellule ne vaut pas $02 dans la fenêtre du jig). Puis 11 cheats des familles puzzle, quiz et sport (entrées x) ;
+# écartés : froman2b (écriture du moteur au témoin), trally et zintrckb (pas encore en partie à la trame 800),
+# gururin et ridhero (la cellule à sa valeur sur 0,72 et 0,87 des relevés). MAME 0.286, -bios euro, -video none, une NVRAM et un cfg par run, romsets non-merged, seul
 # sp-s2.sp1 remplacé. Deux runs par cheat : le cheat mis à ON par le menu en jeu, et un témoin qui ouvre et ferme le même menu.
 # Critère (genre vies) : le témoin perd la partie, la partie sous cheat non, jusqu'à FIN ; la cellule à sa valeur sur 0,9 des
 # relevés au moins ; le moteur n'écrit que l'adresse du cheat, et rien au témoin. Écartés en route : mutnat ($102530 : fin de
@@ -59,3 +61,14 @@ crsword	INFINITE LIVES	PASS	0037	B3BC	10405Cx10420	10420	fin de partie : témoin
 eightman	INFINITE LIVES	PASS	0025	BDFA	100CF6x10420	10420	fin de partie : témoin 4030, sous cheat aucune (FIN 12000) ; $100CF7 à $03 sur 1.00
 nitd	INFINITE LIVES	PASS	0260	3085	100054x10416	10416	fin de partie : témoin 6180, sous cheat aucune (FIN 12000) ; $100055 à $03 sur 1.00
 roboarmy	INFINITE LIVES	PASS	0032	95B5	1000D2x10420	10420	fin de partie : témoin 6250, sous cheat aucune (FIN 12000) ; $1000D2 à $02 sur 1.00
+marukodq	NO GAME OVER	PASS	0206	88FB	101302x11120	11120	fin de partie : témoin 3350, sous cheat aucune (FIN 12000) ; $101303 à $03 sur 1.00
+pbobbl2n	NO GAME OVER	PASS	0248	5F90	1057CAx11120	11120	fin de partie : témoin 4380, sous cheat aucune (FIN 12000) ; $1057CA à $02 sur 1.00
+pbobblen	NO GAME OVER	PASS	0083	19FA	102284x11119	11119	fin de partie : témoin 1210, sous cheat aucune (FIN 12000) ; $102284 à $02 sur 1.00
+pspikes2	NO GAME OVER	PASS	0068	B80B	102D4Ax11120	11120	fin de partie : témoin 6110, sous cheat aucune (FIN 12000) ; $102D4A à $02 sur 1.00
+quizdai2	NO GAME OVER	PASS	0042	BE81	101AC4x11120	11120	fin de partie : témoin 5170, sous cheat aucune (FIN 12000) ; $101AC4 à $03 sur 1.00
+quizdais	NO GAME OVER	PASS	0023	3ECF	1022B2x11120	11120	fin de partie : témoin 3110, sous cheat aucune (FIN 12000) ; $1022B3 à $03 sur 1.00
+quizkof	NO GAME OVER	PASS	0080	7AA7	10150Ax11119	11119	fin de partie : témoin 3450, sous cheat aucune (FIN 12000) ; $10150A à $03 sur 1.00
+ssideki	INFINITE TIME	PASS	0052	FEF0	108ED2x1219	1219	chronomètre : son image la plus fréquente sur 1.00 des relevés sous cheat (1 images), 0.10 au témoin (11) ; $108ED3 à $59 sur 1.00
+strhoop	NO GAME OVER	PASS	0079	6DB5	102D20x11117	11117	fin de partie : témoin 7040, sous cheat aucune (FIN 12000) ; $102D21 à $02 sur 1.00
+strhoop	INFINITE TIME	PASS	0079	6DB5	101A52x1207	1207	chronomètre : son image la plus fréquente sur 1.00 des relevés sous cheat (1 images), 0.33 au témoin (11) ; $101A53 à $59 sur 1.00
+twsoc96	NO GAME OVER	PASS	0086	CB1D	1014D6x11120	11120	fin de partie : témoin 7710, sous cheat aucune (FIN 12000) ; $1014D7 à $05 sur 1.00

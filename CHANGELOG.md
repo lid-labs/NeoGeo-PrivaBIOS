@@ -8,9 +8,10 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 
 ### Added
 
-- Cheats for 33 more games, 40 cheats: INFINITE LIVES for 23 action games, P1 INFINITE LIFE for five
-  fighting games, INFINITE TIME for twelve more games (Ganryu, Burning Fight, Metal Slug 2 and 4, eight
-  fighting games). 68 games and 80 cheats in all.
+- Cheats for 43 more games, 51 cheats: INFINITE LIVES for 23 action games, P1 INFINITE LIFE for five
+  fighting games, INFINITE TIME for fourteen more games (Ganryu, Burning Fight, Metal Slug 2 and 4, eight
+  fighting games, Street Hoop, Super Sidekicks), NO GAME OVER for nine puzzle, quiz and sport games.
+  78 games and 91 cheats in all.
 - `bench/cheats-recherche.py`, the tool that searches for cheats under MAME.
 
 ### Changed

@@ -572,5 +572,40 @@ _cheats_table:
         | ROBO ARMY : les vies, 2 au départ ; le témoin perd la partie à la trame 6216.
         JEU     0x0032, 0x95B5, 1
         CHEAT   "INFINITE LIVES",  0x1000D2, 1, 0x02
+        | LES AUTRES FAMILLES (puzzle, quiz, sport), le 2026-10-29 : relevé du scénario action, filtre de
+        | suite attendue, chaque candidat forcé seul dès la trame 700. NO GAME OVER : la cellule dont le
+        | forçage ôte la fin de partie ; SUPPOSÉ, ce qu'elle compte (des vies, une ligne de bulles, des
+        | continues) : seul l'effet est prouvé, d'où ce nom.
+        | CHIBI MARUKO-CHAN DELUXE QUIZ.
+        JEU     0x0206, 0x88FB, 1
+        CHEAT   "NO GAME OVER",     0x101303, 1, 0x03
+        | PUZZLE BOBBLE 2.
+        JEU     0x0248, 0x5F90, 1
+        CHEAT   "NO GAME OVER",     0x1057CA, 1, 0x02
+        | PUZZLE BOBBLE.
+        JEU     0x0083, 0x19FA, 1
+        CHEAT   "NO GAME OVER",     0x102284, 1, 0x02
+        | POWER SPIKES II.
+        JEU     0x0068, 0xB80B, 1
+        CHEAT   "NO GAME OVER",     0x102D4A, 1, 0x02
+        | QUIZ MEITANTEI NEO & GEO.
+        JEU     0x0042, 0xBE81, 1
+        CHEAT   "NO GAME OVER",     0x101AC4, 1, 0x03
+        | QUIZ DAISOUSA SEN.
+        JEU     0x0023, 0x3ECF, 1
+        CHEAT   "NO GAME OVER",     0x1022B3, 1, 0x03
+        | QUIZ KING OF FIGHTERS.
+        JEU     0x0080, 0x7AA7, 1
+        CHEAT   "NO GAME OVER",     0x10150A, 1, 0x03
+        | SUPER SIDEKICKS.
+        JEU     0x0052, 0xFEF0, 1
+        CHEAT   "INFINITE TIME",    0x108ED3, 1, 0x59
+        | STREET HOOP.
+        JEU     0x0079, 0x6DB5, 2
+        CHEAT   "NO GAME OVER",     0x102D21, 1, 0x02
+        CHEAT   "INFINITE TIME",    0x101A53, 1, 0x59
+        | TECMO WORLD SOCCER 96.
+        JEU     0x0086, 0xCB1D, 1
+        CHEAT   "NO GAME OVER",     0x1014D7, 1, 0x05
         FIN_TABLE
         .balign 2

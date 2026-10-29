@@ -26,7 +26,8 @@
 # Dans tous les genres, le tap du mode menu de `cheats.lua` exige que le moteur du BIOS n'ait écrit
 # que l'adresse du cheat, et qu'il n'ait rien écrit au témoin.
 #
-# LES ENTRÉES. « j » (sauter pour mourir) : pièce, START, puis droite tenue et B toutes les 20 trames,
+# LES ENTRÉES. « x » : le scénario action de `cheats-recherche.py` (A toutes les 6 trames, droite, B et C).
+# « j » (sauter pour mourir) : pièce, START, puis droite tenue et B toutes les 20 trames,
 # sans tirer : P1 fonce en sautant dans les ennemis. « b » (bombes) : « s », et B toutes les 300 trames à partir de 1700.
 # « f » (combat) : pièce à 400, START à 500, A toutes les 60 trames de 600 à 3500,
 # droite tenue à partir de 2000 ; « s » (tir, action) : pièce, START, A toutes les 60 trames, droite
@@ -141,6 +142,17 @@ crsword	0	INFINITE LIVES	10405C	05	vies	j	1500	12000	-	-
 eightman	0	INFINITE LIVES	100CF7	03	vies	j	1500	12000	-	-
 nitd	0	INFINITE LIVES	100055	03	vies	j	1500	12000	-	-
 roboarmy	0	INFINITE LIVES	1000D2	02	vies	j	1500	12000	-	-
+marukodq	0	NO GAME OVER	101303	03	vies	x	800	12000	-	-
+pbobbl2n	0	NO GAME OVER	1057CA	02	vies	x	800	12000	-	-
+pbobblen	0	NO GAME OVER	102284	02	vies	x	800	12000	-	-
+pspikes2	0	NO GAME OVER	102D4A	02	vies	x	800	12000	-	-
+quizdai2	0	NO GAME OVER	101AC4	03	vies	x	800	12000	-	-
+quizdais	0	NO GAME OVER	1022B3	03	vies	x	800	12000	-	-
+quizkof	0	NO GAME OVER	10150A	03	vies	x	800	12000	-	-
+ssideki	0	INFINITE TIME	108ED3	59	temps	x	1500	2800	160,17,174,30	brut
+strhoop	0	NO GAME OVER	102D21	02	vies	x	800	12000	-	-
+strhoop	1	INFINITE TIME	101A53	59	temps	x	1500	2800	145,193,174,206	brut
+twsoc96	0	NO GAME OVER	1014D7	05	vies	x	800	12000	-	-
 fightfev	0	INFINITE TIME	108110	99	temps	f	1900	3200	147,24,172,36	brut
 kof96	1	INFINITE TIME	10A837	32	temps	f	1900	3200	147,14,172,32	brut
 matrim	0	INFINITE TIME	10B90B	3C	temps	f	1900	3200	145,8,174,24	brut
@@ -213,6 +225,7 @@ entrees() {
     s) x="600-40000%60:A 1000-40000:droite 1500-40000%400:C" ;;
     b) x="600-40000%60:A 1000-40000:droite 1500-40000%400:C 1700-40000%300:B" ;;
     j) x="1000-40000:droite 1000-40000%20:B" ;;
+    x) x="600-40000%6:A 1000-40000:droite 1500-40000%300:B 1650-40000%400:C" ;;
   esac
   local seg d f r bt
   for seg in $x; do
