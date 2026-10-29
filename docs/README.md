@@ -14,7 +14,7 @@ private monorepo, where Sprixe BIOS was developed until its first public release
 | [`tasks.md`](tasks.md) | The order in which the BIOS was written, and the command that judges each task |
 | [`RELECTURE-CONTRATS.md`](RELECTURE-CONTRATS.md) | What was handed to the implementation agents, and what was withheld |
 | [`COMPATIBILITE.md`](COMPATIBILITE.md) | The first comparison of free BIOSes on 17 games, failures and refuted hypotheses |
-| [`ATTENTES.md`](ATTENTES.md) | What Sprixe BIOS lacks, and what the scene asks of a BIOS |
+| [`ATTENTES.md`](ATTENTES.md) | What the scene asked of a Neo Geo BIOS, and UniBIOS's known issues (research of 2026-10-23, frozen) |
 | [`AUTOFIRE.md`](AUTOFIRE.md) | Which games autofire reaches |
 | [`ESSAI-MATERIEL.md`](ESSAI-MATERIEL.md) | Images run on a real board, and what they showed |
 | [`AUDIT-2026-10-21.md`](AUDIT-2026-10-21.md) | An audit of 21 October 2026 and what became of it |
