@@ -400,8 +400,11 @@ _cheats_table:
         JEU     0x0082, 0x1CB9, 1
         CHEAT   "INFINITE TIME",   0x102242, 1, 0x99
         | METAL SLUG 2 : les vies, 2 au départ de la partie (HUD 1UP=2).
-        JEU     0x0241, 0xBE57, 1
+        | Le 2026-10-29, par valeur connue (le HUD lu à deux trames, puis les octets qui valent ce qu'il
+        | affiche) : le temps de mission $1013B4, binaire, 60.
+        JEU     0x0241, 0xBE57, 2
         CHEAT   "INFINITE LIVES",  0x101276, 1, 0x02
+        CHEAT   "INFINITE TIME",   0x1013B4, 1, 0x3C
         | METAL SLUG X : les vies, 2 au départ.
         JEU     0x0250, 0x92D4, 1
         CHEAT   "INFINITE LIVES",  0x101288, 1, 0x02
@@ -409,8 +412,10 @@ _cheats_table:
         JEU     0x0256, 0xE095, 1
         CHEAT   "INFINITE LIVES",  0x1002BB, 1, 0x02
         | METAL SLUG 4 : les vies, 2 au départ.
-        JEU     0x0263, 0xD875, 1
+        | Le 2026-10-29, par valeur connue : le temps de mission $10ED5C, BCD, 60.
+        JEU     0x0263, 0xD875, 2
         CHEAT   "INFINITE LIVES",  0x100A89, 1, 0x02
+        CHEAT   "INFINITE TIME",   0x10ED5C, 1, 0x60
         | METAL SLUG 5 : les vies, 2 au départ.
         JEU     0x0268, 0x1581, 1
         CHEAT   "INFINITE LIVES",  0x100A41, 1, 0x02

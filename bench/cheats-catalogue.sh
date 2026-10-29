@@ -17,10 +17,17 @@
 #          distinctes : un KO, ou le décor que laissent voir certains cadres, en ajoutent sous cheat
 #          comme au témoin. En complément, la cellule vaut la valeur de la table, ou une de moins
 #          (le jeu a décompté depuis le dernier appel du moteur), sur au moins RAM_MIN des relevés.
-# Dans les deux genres, le tap du mode menu de `cheats.lua` exige que le moteur du BIOS n'ait écrit
+#   compteur  un nombre du HUD qui ne bouge plus : INFINITE BOMBS, ou un temps de mission qui ne perd
+#          1 que toutes les ~256 trames (le 2026-10-29). Comme temps, sur le rectangle des chiffres,
+#          mais de T + 200 à FIN, et d'autres seuils : le compte du témoin ne change que quelques
+#          fois. Sous cheat, la même image sur au moins COMPTEUR_ON_MIN des relevés ; au témoin, deux
+#          images au moins, la plus fréquente sur moins de COMPTEUR_ON_MIN. Avec les entrées « b »,
+#          P1 lance une bombe toutes les 300 trames.
+# Dans tous les genres, le tap du mode menu de `cheats.lua` exige que le moteur du BIOS n'ait écrit
 # que l'adresse du cheat, et qu'il n'ait rien écrit au témoin.
 #
-# LES ENTRÉES. « f » (combat) : pièce à 400, START à 500, A toutes les 60 trames de 600 à 3500,
+# LES ENTRÉES. « b » (bombes) : « s », et B toutes les 300 trames à partir de 1700.
+# « f » (combat) : pièce à 400, START à 500, A toutes les 60 trames de 600 à 3500,
 # droite tenue à partir de 2000 ; « s » (tir, action) : pièce, START, A toutes les 60 trames, droite
 # tenue à partir de 1000, C toutes les 400 trames à partir de 1500. Le joueur ne joue pas : il meurt,
 # il perd ses rounds. Aucune entrée planifiée de T − 10 à T + 150 : le menu reçoit les siennes.
@@ -63,6 +70,7 @@ mkdir -p "$WORK"; ROMS="$(cd "$ROMS" && pwd)"; WORK="$(cd "$WORK" && pwd)"
 TEMPS_ON_MIN=0.6
 TEMPS_TEMOIN_MAX=0.35
 RAM_MIN=0.9
+COMPTEUR_ON_MIN=0.9
 
 # jeu  k  nom  adr  valeur  genre  entrées  T  FIN  zone(x0,y0,x1,y1)  pixels de la zone
 # Les pixels : « brut », toutes les couleurs (un chronomètre dans un cadre opaque) ; « clair »,
@@ -124,6 +132,8 @@ superspy	0	INFINITE LIVES	10181F	08	vies	s	1500	12000	-	-
 twinspri	0	INFINITE LIVES	103745	03	vies	s	1500	12000	-	-
 viewpoin	0	INFINITE LIVES	108D99	03	vies	s	1500	12000	-	-
 zupapa	0	INFINITE LIVES	1002C1	03	vies	s	1500	12000	-	-
+mslug2	1	INFINITE TIME	1013B4	3C	compteur	s	1500	4000	145,8,175,31	jaune
+mslug4	1	INFINITE TIME	10ED5C	60	compteur	s	1500	4000	145,8,175,31	jaune
 kof99	1	P1 INFINITE LIFE	108422	00	vies	f	1600	15000	-	-
 karnovr	1	P1 INFINITE LIFE	103A74	0F	vies	f	1600	15000	-	-
 kof96	0	P1 INFINITE LIFE	108422	00	vies	f	1600	15000	-	-
@@ -186,6 +196,7 @@ entrees() {
   case "$2" in
     f) x="600-3500%60:A 2000-40000:droite" ;;
     s) x="600-40000%60:A 1000-40000:droite 1500-40000%400:C" ;;
+    b) x="600-40000%60:A 1000-40000:droite 1500-40000%400:C 1700-40000%300:B" ;;
   esac
   local seg d f r bt
   for seg in $x; do
@@ -228,10 +239,11 @@ echo "runs : $(( $(date +%s) - T0 )) s"
 
 # ---- Le juge ----
 printf '%s\n' "$TABLE" > "$WORK/table.tsv"
-python3 -I -B - "$WORK/runs" "$JEUX" "$TEMPS_ON_MIN" "$TEMPS_TEMOIN_MAX" "$RAM_MIN" "$WORK/table.tsv" > "$WORK/catalogue.txt" <<'PY'
+python3 -I -B - "$WORK/runs" "$JEUX" "$TEMPS_ON_MIN" "$TEMPS_TEMOIN_MAX" "$RAM_MIN" "$WORK/table.tsv" "$COMPTEUR_ON_MIN" > "$WORK/catalogue.txt" <<'PY'
 import os, re, sys
 RUNS, JEUX = sys.argv[1], sys.argv[2].split()
 ON_MIN, TEM_MAX, RAM_MIN = float(sys.argv[3]), float(sys.argv[4]), float(sys.argv[5])
+CPT_ON = float(sys.argv[7])
 def lire(nom):
     d = os.path.join(RUNS, nom)
     rc = open(os.path.join(d, "rc")).read().strip()
@@ -272,14 +284,16 @@ for l in open(sys.argv[6], encoding="utf-8"):
         # Relue en fin de trame, une cellule forcée peut porter ce que le jeu vient d'en ôter (un
         # décompte d'une trame) avant que le moteur la rétablisse au SYSTEM_IO suivant.
         ram = sum(1 for v in vals if val - 1 <= v <= val) / max(1, len(vals))
-        if genre == "temps":
+        if genre in ("temps", "compteur"):
+            zf = fen if genre == "temps" else range(T + 200, FIN + 1)
             def dominante(x):
-                z = [x["zone"][n] for n in fen if n in x["zone"]]
+                z = [x["zone"][n] for n in zf if n in x["zone"]]
                 return max(z.count(v) for v in set(z)) / len(z), len(set(z))
             (fo, no), (ft, nt) = dominante(on), dominante(te)
-            dit.append(f"chronomètre : son image la plus fréquente sur {fo:.2f} des relevés sous cheat ({no} images), {ft:.2f} au témoin ({nt}) ; ${adr} à ${val:02X} sur {ram:.2f}")
-            if fo < ON_MIN: raison.append(f"le chronomètre sous cheat n'a son image la plus fréquente que sur {fo:.2f} des relevés")
-            if ft > TEM_MAX: raison.append(f"le témoin garde la même image sur {ft:.2f} des relevés : la scène ne prouve rien")
+            dit.append(f"{'chronomètre' if genre == 'temps' else 'compteur'} : son image la plus fréquente sur {fo:.2f} des relevés sous cheat ({no} images), {ft:.2f} au témoin ({nt}) ; ${adr} à ${val:02X} sur {ram:.2f}")
+            on_min, tem_max = (ON_MIN, TEM_MAX) if genre == "temps" else (CPT_ON, CPT_ON)
+            if fo < on_min: raison.append(f"sous cheat, l'image la plus fréquente n'est que sur {fo:.2f} des relevés")
+            if ft >= tem_max or nt < 2: raison.append(f"le témoin garde la même image sur {ft:.2f} des relevés ({nt} images) : la scène ne prouve rien")
         else:
             fin_t = [n for n in sorted(te["user"]) if n > T and te["user"][n] != 2]
             fin_o = [n for n in sorted(on["user"]) if n > T and on["user"][n] != 2]

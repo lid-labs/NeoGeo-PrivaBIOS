@@ -2,7 +2,11 @@
 # des jeux d'action de ce lot, puis 5 vies de P1 de jeux de combat (genre vies, scénario f, FIN 15 000 ; samsh5sp
 # $10854E écarté, fin de partie sous cheat à 10150, témoin 6750) ; et INFINITE TIME de ganryu (genre temps, zone
 # 147,32,175,39, pixels clairs). cyberlip $107E25 et eightman $100482, figés au HUD sous forçage, échouent au jig
-# (0,31 et 0,54 des relevés : le décor passe derrière les chiffres) : à reprendre avec une zone réglée sur images denses. MAME 0.286, -bios euro, -video none, une NVRAM et un cfg par run, romsets non-merged, seul
+# (0,31 et 0,54 des relevés : le décor passe derrière les chiffres) : à reprendre avec une zone réglée sur images denses.
+# Puis INFINITE TIME de mslug2 et mslug4, genre compteur (le TIME de mission ne perd 1 que toutes les ~256 trames ;
+# zone 145,8,175,31, pixels jaunes, de T + 200 à FIN). Trouvés par valeur connue mais non jugés ici : les bombes de
+# mslug2 ($10127C) et de mslug5 ($100A46), le temps de mslug5 ($10D67E) — BOMB et TIME restent figés au HUD sous
+# forçage, mais la scène du jig ne départage pas (témoin qui ne lance presque pas de bombe, zone qui prend le décor). MAME 0.286, -bios euro, -video none, une NVRAM et un cfg par run, romsets non-merged, seul
 # sp-s2.sp1 remplacé. Deux runs par cheat : le cheat mis à ON par le menu en jeu, et un témoin qui ouvre et ferme le même menu.
 # Critère (genre vies) : le témoin perd la partie, la partie sous cheat non, jusqu'à FIN ; la cellule à sa valeur sur 0,9 des
 # relevés au moins ; le moteur n'écrit que l'adresse du cheat, et rien au témoin. Écartés en route : mutnat ($102530 : fin de
@@ -33,3 +37,5 @@ kof96	P1 INFINITE LIFE	PASS	0214	EB0F	108422x13320	13320	fin de partie : témoin
 ninjamas	P1 INFINITE LIFE	PASS	0217	4720	100050x13311	13311	fin de partie : témoin 9740, sous cheat aucune (FIN 15000) ; $100050 à $D0 sur 1.00
 rotd	P1 INFINITE LIFE	PASS	0264	8D79	1023E6x13319	13319	fin de partie : témoin 11880, sous cheat aucune (FIN 15000) ; $1023E6 à $10 sur 1.00
 ganryu	INFINITE TIME	PASS	0252	0111	100452x1182	1182	chronomètre : son image la plus fréquente sur 0.82 des relevés sous cheat (3 images), 0.25 au témoin (6) ; $100453 à $63 sur 1.00
+mslug2	INFINITE TIME	PASS	0241	BE57	1013B4x2396	2396	compteur : son image la plus fréquente sur 1.00 des relevés sous cheat (1 images), 0.75 au témoin (2) ; $1013B4 à $3C sur 1.00
+mslug4	INFINITE TIME	PASS	0263	D875	10ED5Cx2408	2408	compteur : son image la plus fréquente sur 1.00 des relevés sous cheat (1 images), 0.77 au témoin (3) ; $10ED5C à $60 sur 1.00
