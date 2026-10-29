@@ -434,5 +434,70 @@ _cheats_table:
         | ZED BLADE : les vies, 3 au départ.
         JEU     0x0076, 0x9553, 1
         CHEAT   "INFINITE LIVES",  0x100229, 1, 0x03
+        | LES VIES DES JEUX D'ACTION, le 2026-10-29 (`bench/cheats-recherche.py`, sous-commande action :
+        | un relevé du scénario action filtré, puis chaque candidat forcé seul dès la trame 700,
+        | contre
+        | un témoin). Retenue : la cellule dont le forçage ôte toute fin de partie en 12 000 trames
+        | sans
+        | figer l'image, quand le témoin perd la sienne ; la valeur est la plus haute du relevé.
+        | Relevés
+        | et autres candidats : `measured/2026-10-29-cheats-action-recherche.tsv`.
+        | BANG BANG BUSTERS : les vies, 4 au plus haut ; le témoin perd la partie à la trame 4860.
+        JEU     0x0071, 0xE928, 1
+        CHEAT   "INFINITE LIVES",  0x106907, 1, 0x04
+        | BLUE'S JOURNEY : les vies, 2 au plus haut ; le témoin perd la partie à la trame 3846.
+        JEU     0x0022, 0xC32D, 1
+        CHEAT   "INFINITE LIVES",  0x107000, 1, 0x02
+        | CAPTAIN TOMADAY : les vies, 2 au plus haut ; le témoin perd la partie à la trame 3831.
+        JEU     0x0249, 0xE6CD, 1
+        CHEAT   "INFINITE LIVES",  0x104026, 1, 0x02
+        | GANRYU : les vies, 3 au plus haut ; le témoin perd la partie à la trame 4912.
+        JEU     0x0252, 0x0111, 1
+        CHEAT   "INFINITE LIVES",  0x1004A1, 1, 0x03
+        | NINJA COMBAT : les vies, 3 au plus haut ; le témoin perd la partie à la trame 5956.
+        JEU     0x0009, 0x8C0D, 1
+        CHEAT   "INFINITE LIVES",  0x102402, 1, 0x03
+        | NEO BOMBERMAN : les vies, 2 au plus haut ; le témoin perd la partie à la trame 2500.
+        JEU     0x0093, 0x5602, 1
+        CHEAT   "INFINITE LIVES",  0x101658, 1, 0x02
+        | NEO MR. DO! : les vies, 2 au plus haut ; le témoin perd la partie à la trame 5227.
+        JEU     0x0207, 0x94A1, 1
+        CHEAT   "INFINITE LIVES",  0x10465B, 1, 0x02
+        | PREHISTORIC ISLE 2 : les vies, 3 au plus haut ; le témoin perd la partie à la trame 5119.
+        JEU     0x0255, 0x8E0D, 1
+        CHEAT   "INFINITE LIVES",  0x105055, 1, 0x03
+        | SENGOKU 2 : les vies, 3 au plus haut ; le témoin perd la partie à la trame 4646.
+        JEU     0x0040, 0xCEF6, 1
+        CHEAT   "INFINITE LIVES",  0x1001AF, 1, 0x03
+        | SENGOKU 3 : les vies, 2 au plus haut ; le témoin perd la partie à la trame 7669.
+        JEU     0x0261, 0x83B6, 1
+        CHEAT   "INFINITE LIVES",  0x1083E1, 1, 0x02
+        | SHOCK TROOPERS 2ND SQUAD : les vies, 3 au plus haut ; le témoin perd la partie à la trame
+        | 4699.
+        JEU     0x0246, 0x5240, 1
+        CHEAT   "INFINITE LIVES",  0x10905B, 1, 0x03
+        | AERO FIGHTERS 2 : les vies, 2 au plus haut ; le témoin perd la partie à la trame 6646.
+        JEU     0x0075, 0xECD1, 1
+        CHEAT   "INFINITE LIVES",  0x100615, 1, 0x02
+        | AERO FIGHTERS 3 : les vies, 2 au plus haut ; le témoin perd la partie à la trame 2517.
+        JEU     0x0097, 0x63E9, 1
+        CHEAT   "INFINITE LIVES",  0x10E89B, 1, 0x02
+        | SPIN MASTER : les vies, 2 au plus haut ; le témoin perd la partie à la trame 9562.
+        JEU     0x0062, 0x915F, 1
+        CHEAT   "INFINITE LIVES",  0x105015, 1, 0x02
+        | THE SUPER SPY : 8 au plus haut ; SUPPOSÉ des vies, peut-être l'énergie (le cheat ôte la
+        | fin de partie) ; le témoin perd la partie à la trame 9666.
+        JEU     0x0011, 0xB441, 1
+        CHEAT   "INFINITE LIVES",  0x10181F, 1, 0x08
+        | TWINKLE STAR SPRITES : les vies, 3 au plus haut ; le témoin perd la partie à la trame
+        | 9296.
+        JEU     0x0224, 0xC6FE, 1
+        CHEAT   "INFINITE LIVES",  0x103745, 1, 0x03
+        | VIEWPOINT : les vies, 3 au plus haut ; le témoin perd la partie à la trame 5989.
+        JEU     0x0051, 0x691F, 1
+        CHEAT   "INFINITE LIVES",  0x108D99, 1, 0x03
+        | ZUPAPA! : les vies, 3 au plus haut ; le témoin perd la partie à la trame 6482.
+        JEU     0x0070, 0xEC13, 1
+        CHEAT   "INFINITE LIVES",  0x1002C1, 1, 0x03
         FIN_TABLE
         .balign 2
