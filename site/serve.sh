@@ -1,5 +1,6 @@
 #!/bin/bash
 # SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Thibaut Lion
 # Local preview of the site: assembles site/ and docs/screenshots/ the way the Pages workflow does
 # (.github/workflows/pages.yml), in .site-preview/ (ignored by git), then serves it.
 #

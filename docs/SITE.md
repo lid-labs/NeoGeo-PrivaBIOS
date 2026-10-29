@@ -56,5 +56,5 @@ To be done once, by a maintainer, in this order. None of it has been done.
    Optionally, verify `sprixe.dev` for the `lid-labs` organisation (Organisation settings → Pages →
    Add a domain, a `TXT` record), so that no other GitHub account can claim the subdomain.
 5. **Run the workflow** once (Actions → pages → Run workflow), or push a change to `site/`.
-6. **Redirect the old page**: in the Sprixe site (repository `lid-labs/sprixe`), add a redirect
+6. **Redirect the old page**: in the Sprixe site, add a redirect
    from `sprixe.dev/bios` to `https://bios.sprixe.dev/`, then remove the old page.
