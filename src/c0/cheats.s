@@ -513,14 +513,40 @@ _cheats_table:
         | LES VIES DE P1 DE JEUX DE COMBAT, le 2026-10-29 (`bench/cheats-recherche.py` releve, puis
         | bisecter en scénario actif ou faible : P1 tape un peu, et gagne au temps quand sa vie est
         | forcée) ; les barres de P1 vues pleines sur les bandeaux du HUD, celle de P2 entamée.
-        | THE KING OF FIGHTERS '96 : $108422, les dégâts subis par P1, forcés à 0.
-        JEU     0x0214, 0xEB0F, 1
+        | THE KING OF FIGHTERS '96 : $108422, les dégâts subis par P1, forcés à 0. Le temps, par valeur
+        | connue : $10A837, le décompte de trames (forcer les secondes bloque la fin du round).
+        JEU     0x0214, 0xEB0F, 2
         CHEAT   "P1 INFINITE LIFE", 0x108422, 1, 0x00
+        CHEAT   "INFINITE TIME",   0x10A837, 1, 0x32
         | NINJA MASTER'S : $100050, la vie de P1, $D0 au plus haut.
         JEU     0x0217, 0x4720, 1
         CHEAT   "P1 INFINITE LIFE", 0x100050, 1, 0xD0
-        | RAGE OF THE DRAGONS : $1023E6, la vie de P1, $10 au plus haut.
-        JEU     0x0264, 0x8D79, 1
+        | RAGE OF THE DRAGONS : $1023E6, la vie de P1, $10 au plus haut. Le temps, par valeur connue :
+        | $106B11, les secondes, binaire.
+        JEU     0x0264, 0x8D79, 2
         CHEAT   "P1 INFINITE LIFE", 0x1023E6, 1, 0x10
+        CHEAT   "INFINITE TIME",   0x106B11, 1, 0x3C
+        | LES CHRONOMÈTRES DE JEUX DE COMBAT, le 2026-10-29, par valeur connue : le TIME du HUD lu à
+        | trois trames, puis les octets de la RAM qui valent ces nombres aux mêmes trames (1 à 4
+        | candidats par jeu), chacun forcé seul ; la zone du chronomètre calculée sur les images (les
+        | pixels figés sous cheat, changeants au témoin). Valeur : la plus haute du relevé.
+        | FIGHT FEVER : les secondes, BCD.
+        JEU     0x0060, 0x06A2, 1
+        CHEAT   "INFINITE TIME",   0x108110, 1, 0x99
+        | MATRIMELEE : les secondes, binaire.
+        JEU     0x0266, 0x5F99, 1
+        CHEAT   "INFINITE TIME",   0x10B90B, 1, 0x3C
+        | REAL BOUT FATAL FURY 2 : les secondes, BCD.
+        JEU     0x0240, 0x7F97, 1
+        CHEAT   "INFINITE TIME",   0x107C28, 1, 0x60
+        | SAMURAI SHODOWN III : les secondes, BCD.
+        JEU     0x0087, 0xE4CB, 1
+        CHEAT   "INFINITE TIME",   0x10849E, 1, 0x99
+        | WORLD HEROES 2 JET : les secondes, BCD.
+        JEU     0x0064, 0x8B26, 1
+        CHEAT   "INFINITE TIME",   0x10C109, 1, 0x99
+        | KING OF THE MONSTERS 2 : les secondes, BCD.
+        JEU     0x0039, 0x9C61, 1
+        CHEAT   "INFINITE TIME",   0x1013D2, 1, 0x70
         FIN_TABLE
         .balign 2
