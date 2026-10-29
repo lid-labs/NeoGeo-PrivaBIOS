@@ -878,6 +878,21 @@ de boot, GAME NGH 0000, un slot vide.
    (`measured/2026-10-28-carte-lente.tsv`). **Non couvert** : un flash cart lent à côté d'une
    cartouche prompte, que le premier parcours trouve sans lui.
 
+## 32. Jusqu'à 16 cheats par jeu, dans une fenêtre qui défile
+
+**Décidé le 2026-10-29 avec l'utilisateur** : agrandir la base des cheats sans plafond de 4 par jeu,
+toujours trouvés sous MAME, sans base tierce.
+
+1. **16, pas plus** : un bit par cheat dans CH_ETATS, qui reste un mot contigu à GL_MASQUE. Le
+   crochet garde ainsi son seul `tst.l` sans cheat ni gel, dont les cycles comptent (`cheats.s`).
+2. **Une fenêtre dans le menu, pas un sous-écran** : 4 lignes de cheat au plus, qui défilent
+   derrière le choix. Les chemins de touches restent ceux d'avant : le cheat k à « bas » k + 2
+   fois, AUTOFIRE, GAME SETTINGS et MEMORY EDITOR à « haut » 3, 2 et 1 fois.
+3. **La table au bout de la zone haute** (`build/bios.ld`, section `.cheats`) : au milieu du code,
+   elle repoussait `_mess_out` hors de portée du `bsr.w` de `int1.s`.
+4. **Le format des fiches ne change pas** (32 octets). Mesuré le 2026-10-29 : la zone haute finit
+   à $C0B416, soit environ 83 Kio libres, de quoi loger plus de 2 000 fiches.
+
 ## Ce qui reste à trancher
 
 - **Le verrou du save state** : existe-t-il une voie d'écriture vers une cartouche flash ? Aucun

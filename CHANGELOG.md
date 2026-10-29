@@ -6,6 +6,11 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- In-game menu: a game can have up to 16 cheats (4 before). The menu shows 4 at a time and scrolls,
+  with "CHEATS 5-8/12" under the title when some are hidden.
+
 ## [0.1.0-beta.1] - 2026-10-28
 
 First public pre-release. Development history before it (October 2026) is summarised in `docs/`
