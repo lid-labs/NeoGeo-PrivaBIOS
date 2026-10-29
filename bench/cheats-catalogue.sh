@@ -37,14 +37,14 @@
 #
 # LA CADENCE. --jobs runs MAME à la fois (défaut : le nombre de cœurs moins deux ; un MAME n'occupe
 # qu'un cœur, et chaque run a son dossier, donc leur nombre ne change aucun verdict). Les runs
-# partent les plus longs d'abord (FIN décroissante) : douze des treize « vies » à 12 000 trames,
-# en fin de table, partaient en dernier et faisaient attendre tout le monde à la fin. Pas de cache ici : le témoin ouvre et ferme le
+# partent les plus longs d'abord (FIN décroissante) : les « vies » à 12 000 trames, en fin de table,
+# partaient en dernier et faisaient attendre tout le monde à la fin. Pas de cache ici : le témoin ouvre et ferme le
 # menu de NOTRE BIOS, il dépend de l'image comme le run du cheat.
 #
 # Salle blanche : aucune base de cheats tierce, aucun code de jeu lu ni tracé ; le PC ne sert qu'à
 # dire si une écriture vient du BIOS. MAME sans fenêtre, un dossier de cfg et de NVRAM par run.
-# Mesures et seuils : measured/2026-10-25-cheats-table.tsv (une ligne par cheat) et
-# measured/2026-10-25-cheats-catalogue.tsv (les verdicts de ce script).
+# Mesures et seuils : measured/2026-10-25-cheats-table.tsv et 2026-10-29-cheats-table.tsv (une ligne
+# par cheat), 2026-10-25-cheats-catalogue.tsv et 2026-10-29-cheats-catalogue.tsv (les verdicts).
 set -u
 
 ICI="$(cd "$(dirname "$0")" && pwd)"
@@ -143,6 +143,9 @@ crsword	0	INFINITE LIVES	10405C	05	vies	j	1500	12000	-	-
 eightman	0	INFINITE LIVES	100CF7	03	vies	j	1500	12000	-	-
 nitd	0	INFINITE LIVES	100055	03	vies	j	1500	12000	-	-
 roboarmy	0	INFINITE LIVES	1000D2	02	vies	j	1500	12000	-	-
+cyberlip	0	INFINITE LIVES	10209D	02	vies	x	1500	12000	-	-
+ironclad	0	INFINITE LIVES	10B113	05	vies	x	1500	12000	-	-
+mutnat	0	INFINITE LIVES	102530	03	vies	x	1500	12000	-	-
 marukodq	0	NO GAME OVER	101303	03	vies	x	800	12000	-	-
 pbobbl2n	0	NO GAME OVER	1057CA	02	vies	x	800	12000	-	-
 pbobblen	0	NO GAME OVER	102284	02	vies	x	800	12000	-	-

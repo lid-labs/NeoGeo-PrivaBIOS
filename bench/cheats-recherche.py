@@ -4,7 +4,13 @@
 """La recherche des cheats sous MAME (`src/c0/cheats.s`) : relevés de RAM filtrés, puis forçages.
 
     bench/cheats-recherche.py releve [--jeux "<romsets>"] [--jobs n] <roms> <travail>
-    bench/cheats-recherche.py forcer <candidats.tsv> [--jobs n] <roms> <travail>
+    bench/cheats-recherche.py action [--scenario s] [--jeux "<romsets>"] [--fin n] <roms> <travail>
+    bench/cheats-recherche.py forcer <forcages.tsv> [--depuis n] [--fin n] [--images l] [--suivre l] <roms> <travail>
+    bench/cheats-recherche.py bisecter <candidats.tsv> --categorie c [--scenario s] [--depuis n] <roms> <travail>
+
+ACTION. Un run par jeu dans un scénario (action, saut, immobile ; saut2 et action2 pour P2 seul,
+voir SCENARIOS), puis le filtre de suite attendue (`filtre_suite`) : vies, bombes, temps, dans
+<travail>/candidats-action.tsv.
 
 RELEVE. Chaque jeu joue deux scénarios sous `bench/cheats.lua` (mode releve, RAM $100000-$10F2FF
 toutes les PAS trames), notre image en sp-s2.sp1 :
@@ -13,18 +19,18 @@ toutes les PAS trames), notre image en sp-s2.sp1 :
   actif   le même, puis à partir de 3600 A, B et C martelés en avançant : P2 en prend aussi.
 Le relevé est filtré dès la fin du run, puis effacé (`candidats.tsv` reste). Les filtres :
   temps   un octet qui perd 1 (binaire ou BCD) à des intervalles de 20 à 200 trames, 6 fois de suite
-          au moins, et ne remonte que d'un coup (un nouveau round) ;
+          au moins (une hausse, un nouveau round, remet la suite à zéro) ;
   vie     un octet qui ne baisse que par pas, ne remonte qu'à son maximum (un nouveau round, par
           paliers ou d'un coup), 3 baisses au moins, 4 valeurs distinctes, et descend sous la
-          moitié de ce maximum ; rangés par valeurs distinctes ; relevé dans les
+          moitié de ce maximum ; rangés par KO, puis par valeurs distinctes ; relevé dans les
           deux scénarios : vie de P1 s'il baisse en passif, vie de P2 s'il ne baisse qu'en actif ;
   jauge   en actif, un octet qui monte par pas (5 hausses au moins, 4 valeurs distinctes), ne
           redescend que rarement (une jauge vidée par une super), et ne bouge pas en passif — ou
           moins : P1 n'y frappe pas.
 Les filtres ne lisent que les relevés ; ils rangent, ils ne prouvent rien.
 
-FORCER. Pour chaque ligne de <candidats.tsv> (jeu, catégorie, adresse hex, taille, valeur hex,
-scénario), un run `forcer` (la cellule écrite par lua à chaque trame dès --depuis, 3600) et le
+FORCER. Pour chaque ligne de <forcages.tsv>, écrit à la main ou tiré des candidats (jeu, catégorie,
+adresse hex, taille, valeur hex, scénario), un run `forcer` (la cellule écrite par lua à chaque trame dès --depuis, 3600) et le
 témoin du même scénario, jusqu'à --fin (12 000) ; au journal, les changements de BIOS_USER_MODE
 ($10FDAF) donnent la fin de partie, et les images (--images, 4600, 5600, 6600 par défaut) servent
 aux planches et au juge du HUD (`hud`).
@@ -158,8 +164,6 @@ def filtre_temps(R):
                 suite += 1
             elif moins:
                 suite = 1
-            elif y > x:
-                suite = 0
             else:
                 suite = 0
             best = max(best, suite)
@@ -215,11 +219,13 @@ def filtre_vie(R):
                 if taille == 2 and int(X[:, a].max()) < 0x100:
                     continue                # un octet, déjà vu à l'adresse impaire
                 pleine, vide = (m, mn) if sens == "+" else (plein - m, plein - mn)
-                out[(a * taille + (taille == 1) * 0, taille, sens)] = ((ko, nv), pleine, vide)
+                out[(a * taille, taille, sens)] = ((ko, nv), pleine, vide)
     return out
 
 
 def filtre_jauge(R, Rp):
+    """(adresse, hausses, max) : en actif, un octet qui monte par pas et ne bouge pas, ou moins, en
+    passif (voir l'en-tête)."""
     out = []
     d = np.diff(R.astype(np.int16), axis=0)
     for a in np.nonzero((d > 0).sum(axis=0) >= 5)[0]:
@@ -263,11 +269,14 @@ def cmd_releve(a):
         except (FileNotFoundError, ValueError):
             print(f"{jeu} : relevé absent")
             continue
-        ngh, emp, up = journal(o["passif"])
-        _, _, ua = journal(o["actif"])
-        fin = fin_de_partie
+        try:
+            ngh, emp, up = journal(o["passif"])
+            _, _, ua = journal(o["actif"])
+        except FileNotFoundError:
+            print(f"{jeu} : relevé absent")
+            continue
         base = f"{jeu}\t{ngh}\t{emp}"
-        f = f"\t{fin(up)}\t{fin(ua)}"
+        f = f"\t{fin_de_partie(up)}\t{fin_de_partie(ua)}"
         for adr, sc, m in filtre_temps(Rp)[:6]:
             lignes.append(f"{base}\ttemps\t{0x100000 + adr:06X}\t{sc}\t{m:02X}{f}")
         vp, va = filtre_vie(Rp), filtre_vie(Ra)
@@ -319,11 +328,17 @@ def cmd_forcer(a):
                 os.remove(os.path.join(o, x))
             except FileNotFoundError:
                 pass
-        # Figé : les trois images identiques (un forçage qui bloque le jeu ne perd pas la partie non
-        # plus, mais il ne prouve rien).
+        # Figé : trois images identiques (un forçage qui bloque le jeu ne perd pas la partie non plus,
+        # mais il ne prouve rien). Moins de trois images, on ne conclut pas : une seule est toujours
+        # « identique » à elle-même (le 2026-10-29, un passage à une image a tout déclaré figé).
         imgs = [os.path.join(o, f"f{int(x):05d}.bin") for x in images.split(",")[:3]]
-        h = {hashlib.sha256(open(x, "rb").read()).hexdigest() for x in imgs if os.path.exists(x)}
-        return jeu, sc, nom, rc, journal(o)[2], "fige" if len(h) == 1 else ""
+        imgs = [x for x in imgs if os.path.exists(x)]
+        h = {hashlib.sha256(open(x, "rb").read()).hexdigest() for x in imgs}
+        try:
+            u = journal(o)[2]
+        except FileNotFoundError:          # MAME n'a pas démarré le jig
+            u = []
+        return jeu, sc, nom, rc, u, "fige" if len(imgs) >= 3 and len(h) == 1 else ""
 
     jobs.sort(key=lambda j: j[0])
     with cf.ThreadPoolExecutor(a.jobs) as ex:
@@ -469,16 +484,21 @@ def cmd_bisecter(a):
         jeu, nom, f = job
         o = os.path.join(travail, "bisecter", f"{jeu}-{sc}-{nom}")
         env = {"C_MODE": "forcer" if f else "releve", "C_ENTREES": SCENARIOS[sc], "C_FIN": str(a.fin),
-               "C_PAS": "50", "C_DEPUIS": "3600", "C_FORCER": f, "C_IMAGES": "4600,5600,6600"}
+               "C_PAS": "50", "C_DEPUIS": str(a.depuis), "C_FORCER": f, "C_IMAGES": "4600,5600,6600"}
         mame(jeu, rp, o, env)
         for x in ("ram.bin", "ram.idx"):
             try:
                 os.remove(os.path.join(o, x))
             except FileNotFoundError:
                 pass
-        h = {hashlib.sha256(open(os.path.join(o, f"f{x}.bin"), "rb").read()).hexdigest()
-             for x in ("04600", "05600", "06600") if os.path.exists(os.path.join(o, f"f{x}.bin"))}
-        return jeu, nom, fin_de_partie(journal(o)[2]), len(h) == 1
+        imgs = [os.path.join(o, f"f{x}.bin") for x in ("04600", "05600", "06600")]
+        imgs = [x for x in imgs if os.path.exists(x)]
+        h = {hashlib.sha256(open(x, "rb").read()).hexdigest() for x in imgs}
+        try:
+            u = journal(o)[2]
+        except FileNotFoundError:
+            u = []
+        return jeu, nom, fin_de_partie(u), len(imgs) == 3 and len(h) == 1
 
     with cf.ThreadPoolExecutor(a.jobs) as ex:
         temoin = {j: fin for j, _, fin, _ in ex.map(run, [(j, "temoin", "") for j in cand])}
@@ -514,7 +534,7 @@ def main():
     r.add_argument("--jeux", default="")
     r.add_argument("--garder", action="store_true", help="garder les relevés (ram.bin), pour regarder une série")
     f = sp.add_parser("forcer")
-    f.add_argument("candidats")
+    f.add_argument("candidats", metavar="forcages.tsv")
     f.add_argument("--fin", type=int, default=12000)
     f.add_argument("--images", default="4600,5600,6600", help="trames des images, virgules")
     f.add_argument("--suivre", default="", type=lambda x: dict(y.split("=") for y in x.split() if y),
@@ -533,6 +553,7 @@ def main():
     bi.add_argument("--jeux", default="")
     bi.add_argument("--max", type=int, default=24, help="candidats par jeu, au plus")
     bi.add_argument("--fin", type=int, default=15000)
+    bi.add_argument("--depuis", type=int, default=3600, help="trame du premier forçage (700 en action)")
     for x in (r, f, bi, ac):
         x.add_argument("--jobs", type=int, default=12)
         x.add_argument("roms")

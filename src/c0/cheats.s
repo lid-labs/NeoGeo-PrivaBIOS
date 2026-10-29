@@ -452,13 +452,11 @@ _cheats_table:
         CHEAT   "INFINITE LIVES",  0x100229, 1, 0x03
         CHEAT   "P2 INF. LIVES",   0x100029, 1, 0x03
         | LES VIES DES JEUX D'ACTION, le 2026-10-29 (`bench/cheats-recherche.py`, sous-commande action :
-        | un relevé du scénario action filtré, puis chaque candidat forcé seul dès la trame 700,
-        | contre
-        | un témoin). Retenue : la cellule dont le forçage ôte toute fin de partie en 12 000 trames
-        | sans
-        | figer l'image, quand le témoin perd la sienne ; la valeur est la plus haute du relevé.
-        | Relevés
-        | et autres candidats : `measured/2026-10-29-cheats-action-recherche.tsv`.
+        | un relevé du scénario action filtré, puis chaque candidat forcé seul dès la trame 700, contre
+        | un témoin). Retenue : la cellule dont le forçage ôte toute fin de partie en 12 000 trames sans
+        | figer l'image, quand le témoin perd la sienne ; la valeur est la plus haute du relevé. Relevés
+        | et autres candidats : `measured/2026-10-29-cheats-action-recherche.tsv`. Les trames du
+        | témoin citées ci-dessous sont celles du forçage par lua, pas celles du menu.
         | BANG BANG BUSTERS : les vies, 4 au plus haut ; le témoin perd la partie à la trame 4860.
         JEU     0x0071, 0xE928, 2
         CHEAT   "INFINITE LIVES",  0x106907, 1, 0x04
@@ -595,6 +593,15 @@ _cheats_table:
         | ROBO ARMY : les vies, 2 au départ ; le témoin perd la partie à la trame 6216.
         JEU     0x0032, 0x95B5, 1
         CHEAT   "INFINITE LIVES",  0x1000D2, 1, 0x02
+        | CYBER-LIP : les vies, 2 au départ (suite attendue, scénario action).
+        JEU     0x0010, 0x6484, 1
+        CHEAT   "INFINITE LIVES",  0x10209D, 1, 0x02
+        | IRONCLAD : les vies, 5 au départ (suite attendue, scénario action).
+        JEU     0x0220, 0xD34D, 1
+        CHEAT   "INFINITE LIVES",  0x10B113, 1, 0x05
+        | MUTATION NATION : les vies, 3 au départ (suite attendue, scénario action).
+        JEU     0x0014, 0x7834, 1
+        CHEAT   "INFINITE LIVES",  0x102530, 1, 0x03
         | LES VIES DE P2, le 2026-10-29 : P2 joue seul (sa pièce, son START ; scénarios action2 et saut2
         | de `bench/cheats-recherche.py`), filtre de suite attendue, chaque candidat forcé seul : plus
         | de fin de partie. Retenue, la cellule qui n'est pas celle de P1 (qui tient aussi chez plusieurs

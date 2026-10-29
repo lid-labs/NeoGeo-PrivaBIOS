@@ -1,8 +1,9 @@
 # La recherche des vies des jeux d'action, le 2026-10-29 (bench/cheats-recherche.py action, puis forcer --depuis 700 --fin
 # 12000) : chaque candidat du filtre vies forcé seul à sa valeur la plus haute, contre le témoin du même scénario. « tient » :
 # le témoin perd la partie (BIOS_USER_MODE quitte 2), la partie forcée non, et ses images bougent. Les retenus sont prouvés
-# ensuite par le menu du BIOS (2026-10-29-cheats-catalogue.tsv). Les candidats bombes et temps du même passage ne sont pas
-# consignés ici : aucun n'est retenu dans ce lot.
+# ensuite par le menu du BIOS (2026-10-29-cheats-catalogue.tsv), un par jeu : le mieux rangé par le filtre de ceux qui
+# tiennent, quand le jeu n'avait pas déjà une cellule de vies dans la table. Les candidats bombes et temps du même passage
+# ne sont pas consignés ici ; le temps de ganryu ($100453) en vient (2026-10-29-cheats-table.tsv).
 jeu	candidat	valeur	fin_temoin	fin_forcee	fige	verdict
 alpham2	$10024D	$05	aucune	aucune	non	non
 alpham2	$1061FE	$02	aucune	6221	non	non

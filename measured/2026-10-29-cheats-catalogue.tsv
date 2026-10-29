@@ -15,7 +15,9 @@
 # cellule ne vaut pas $02 dans la fenêtre du jig). Puis 11 cheats des familles puzzle, quiz et sport (entrées x) ;
 # écartés : froman2b (écriture du moteur au témoin), trally et zintrckb (pas encore en partie à la trame 800),
 # gururin et ridhero (la cellule à sa valeur sur 0,72 et 0,87 des relevés). Puis 23 vies de P2, P2 jouant seul
-# (entrées k et l) ; écartés : ncombat $1013C5, s1945p $1046C8, twinspri $100540 (fin de partie sous cheat). MAME 0.286, -bios euro, -video none, une NVRAM et un cfg par run, romsets non-merged, seul
+# (entrées k et l) ; écartés : ncombat $1013C5, s1945p $1046C8, twinspri $100540 (fin de partie sous cheat). Puis 3 vies
+# d'action (entrées x) qu'un premier passage avait manquées : il ne gardait qu'une image par run, et une image seule
+# passait pour « figée ». MAME 0.286, -bios euro, -video none, une NVRAM et un cfg par run, romsets non-merged, seul
 # sp-s2.sp1 remplacé. Deux runs par cheat : le cheat mis à ON par le menu en jeu, et un témoin qui ouvre et ferme le même menu.
 # Critère (genre vies) : le témoin perd la partie, la partie sous cheat non, jusqu'à FIN ; la cellule à sa valeur sur 0,9 des
 # relevés au moins ; le moteur n'écrit que l'adresse du cheat, et rien au témoin. Écartés en route : mutnat ($102530 : fin de
@@ -96,3 +98,6 @@ sonicwi2	P2 INF. LIVES	PASS	0075	ECD1	100618x6388	6388	fin de partie : témoin 7
 spinmast	P2 INF. LIVES	PASS	0062	915F	10503Cx11408	11408	fin de partie : témoin 7180, sous cheat aucune (FIN 13000) ; $10503D à $02 sur 1.00
 viewpoin	P2 INF. LIVES	PASS	0051	691F	1090ECx11407	11407	fin de partie : témoin 10490, sous cheat aucune (FIN 13000) ; $1090ED à $03 sur 1.00
 zedblade	P2 INF. LIVES	PASS	0076	9553	100028x11407	11407	fin de partie : témoin 5510, sous cheat aucune (FIN 13000) ; $100029 à $03 sur 1.00
+cyberlip	INFINITE LIVES	PASS	0010	6484	10209Cx10420	10420	fin de partie : témoin 6820, sous cheat aucune (FIN 12000) ; $10209D à $02 sur 1.00
+ironclad	INFINITE LIVES	PASS	0220	D34D	10B112x8000	8000	fin de partie : témoin 6900, sous cheat aucune (FIN 12000) ; $10B113 à $05 sur 1.00
+mutnat	INFINITE LIVES	PASS	0014	7834	102530x10420	10420	fin de partie : témoin 6250, sous cheat aucune (FIN 12000) ; $102530 à $03 sur 1.00
