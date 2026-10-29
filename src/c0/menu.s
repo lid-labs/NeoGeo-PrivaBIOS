@@ -74,8 +74,8 @@
 |     que MAME tient (item `m_vram_offset`), VRAM identique à l'octet. SUPPOSÉ : que
 |     la lecture de REG_VRAMRW rende le mot de l'adresse courante même juste après une
 |     écriture de données (la page ne le dit qu'après une écriture d'adresse) ;
-|   - le plan fixe : seules les cases du cadre (20 × 10 sans cheat, 28 × (10 + N) avec N
-|     cheats, 28 × 14 pour les sous-écrans, 392 au plus), lues par
+|   - le plan fixe : seules les cases du cadre (20 × 10 sans cheat, 28 × (10 + V) avec V
+|     lignes de cheat, 28 × 14 pour les sous-écrans, 392 au plus), lues par
 |     REG_VRAMRW avant d'être écrites, rendues après ;
 |   - trois palettes de la banque en place, celles que le plan fixe n'emploie pas
 |     (`.Lchoisir_palettes` ; à défaut, des employées, le cas de kof98 au relevé) : lues, rendues (« Palettes » : « can be
@@ -111,7 +111,11 @@
 | dernier choix est GAME SETTINGS : « haut » depuis RESUME y mène. Le cadre ne change pas de taille.
 | LES CHOIX : RESUME, RESTART GAME, puis une ligne par cheat du jeu (`cheats.s`), son nom
 | et ON / OFF ; A ou START sur une ligne de cheat bascule son bit dans CH_ETATS et le menu
-| reste ouvert. Puis GAME SETTINGS (`reglages-jeu.s`) et MEMORY EDITOR (`memoire.s`), le
+| reste ouvert. LA FENÊTRE, le 2026-10-29 : MN_VIS lignes de cheat au plus (V), et les N cheats
+| du jeu, jusqu'à CH_MAX, y défilent derrière le choix (`.Lfenetre`) ; au-delà de MN_VIS, la
+| ligne sous le titre dit lesquels sont montrés (« CHEATS 5-8/12 »). Les choix ne changent pas :
+| le cheat k est toujours à « bas » k + 2 fois depuis RESUME, et les lignes d'après à N près.
+| Puis GAME SETTINGS (`reglages-jeu.s`) et MEMORY EDITOR (`memoire.s`), le
 | 2026-10-23, toujours là, APRÈS les cheats : les chemins de touches des relevés d'avant
 | (RESTART à « bas », le premier cheat à « bas, bas ») restent ; depuis RESUME, « haut » mène
 | à MEMORY EDITOR, « haut, haut » à GAME SETTINGS, quel que soit le jeu. Le cadre sans cheat
@@ -171,7 +175,7 @@
         .equ    MN_R2,    0x10F850
         .equ    MN_R3,    0x10F852
         .equ    MN_ADR2,  0x10F854      | .w A selon la seconde paire sonde
-        .equ    MN_NCH,   0x10F856      | .w cheats du jeu affichés (`cheats.s`), 0 à CH_MAX
+        .equ    MN_NCH,   0x10F856      | .w cheats du jeu (`cheats.s`), 0 à CH_MAX
         .equ    MN_NCOL,  0x10F858      | .w la mise en page du cadre (`.Lmise_en_page`)
         .equ    MN_NLIG,  0x10F85A
         .equ    MN_CASE0, 0x10F85C      | .w la case en haut à gauche
@@ -182,6 +186,8 @@
         | mesuré, deux tests de plus par tour et par ligne avançaient d'une trame la relance de
         | RESTART GAME depuis GAME SETTINGS sur ncombat (scène gs-mmss, RESET à 2417 au lieu de 2418).
         .equ    MN_DERNIER, 0x10F862
+        .equ    MN_NVIS,  0x10F864      | .w lignes de cheat du cadre : N, au plus MN_VIS
+        .equ    MN_HAUT,  0x10F866      | .w le premier cheat montré (`.Lfenetre`)
         .equ    MN_CHOIX, 0x10F870      | .w ligne choisie : 0 RESUME, 1 RESTART, 2… les cheats, puis
                                         | AUTOFIRE (2 + N), GAME SETTINGS (3 + N), MEMORY EDITOR (4 + N)
         .equ    MN_PALS,  0x10F872      | 3 .w : les palettes prises (titre, choisi, texte)
@@ -200,8 +206,8 @@
         | mémoire (`memoire.s`).
 
         | Le cadre (« Fix layer » : $7000 + 32 × colonne + ligne ; lignes 2-29 et colonnes 1-38
-        | visibles, comme `dip.s`). Sans cheat : colonnes 10-29, lignes 11-20. Avec N cheats : 28
-        | colonnes (6-33), 10 + N lignes à partir de 11 − N/2 — le nom de 16 caractères et son
+        | visibles, comme `dip.s`). Sans cheat : colonnes 10-29, lignes 11-20. Avec V lignes de cheat
+        | (MN_NVIS) : 28 colonnes (6-33), 10 + V lignes à partir de 11 − V/2 — le nom de 16 caractères et son
         | état ne tiennent pas dans 20.
         .equ    COL0,     10
         .equ    NCOL,     20
@@ -211,7 +217,8 @@
         .equ    NCOL_C,   28
         .equ    PAD_C,    4             | lignes fixes centrées dans les 28 colonnes
         | Le cadre des sous-écrans : 28 × 14 = 392 cases, ce que MN_FIX tient ; colonnes 6-33,
-        | lignes 9-22. 28 × (10 + CH_MAX) y tient aussi, d'où CH_MAX = 4 (`cheats.s`).
+        | lignes 9-22. 28 × (10 + MN_VIS) y tient aussi, d'où MN_VIS = 4 ; les autres cheats défilent.
+        .equ    MN_VIS,   4
         .equ    SOUS_NCOL, 28
         .equ    SOUS_NLIG, 14
         .equ    SOUS_CASE0, 0x7000 + 32 * 6 + 9
@@ -268,6 +275,7 @@ _menu_ouvrir:
         move.w  %d0, MN_LIGNE
         move.w  VRAMMOD, MN_MOD
         clr.w   MN_CHOIX
+        clr.w   MN_HAUT
         bsr     .Lsonder
         bsr     _cheats_trouver         | CH_ENTREE, CH_NB (`cheats.s`)
         bsr     .Lmise_en_page
@@ -658,6 +666,10 @@ _mn_entrees:
         beq.s   2f
         subq.w  #1, %d1                 | CHEATS/DEBUG OFF : GAME SETTINGS est le dernier
 2:      move.w  %d1, MN_DERNIER
+        cmpi.w  #MN_VIS, %d0
+        bls.s   3f
+        moveq   #MN_VIS, %d0            | au-delà : la fenêtre défile
+3:      move.w  %d0, MN_NVIS
         tst.w   %d0
         bne.s   1f
         move.w  #NCOL, MN_NCOL          | sans cheat : le cadre d'avant, à l'identique
@@ -674,14 +686,52 @@ _mn_entrees:
         move.w  %d1, MN_NLIG
         lsr.w   #1, %d0
         move.w  #0x7000 + 32 * COL0_C + LIG0, %d1
-        sub.w   %d0, %d1                | 11 − N/2
+        sub.w   %d0, %d1                | 11 − V/2
         move.w  %d1, MN_CASE0
         rts
+
+| LA FENÊTRE : MN_HAUT suit le choix quand c'est un cheat, juste assez pour le montrer. Ailleurs
+| (RESUME, RESTART, AUTOFIRE et après), elle ne bouge pas. Clobbers %d0, %d1.
+.Lfenetre:
+        move.w  MN_CHOIX, %d0
+        subq.w  #2, %d0                 | l'index du cheat choisi
+        bmi.s   9f                      | RESUME, RESTART
+        cmp.w   MN_NCH, %d0
+        bcc.s   9f                      | AUTOFIRE et la suite
+        cmp.w   MN_HAUT, %d0
+        bcc.s   1f
+        move.w  %d0, MN_HAUT            | au-dessus de la fenêtre : il en devient le haut
+        rts
+1:      move.w  %d0, %d1
+        sub.w   MN_NVIS, %d1
+        addq.w  #1, %d1                 | le haut qui le montre en dernière ligne
+        cmp.w   MN_HAUT, %d1
+        ble.s   9f                      | signé : négatif tant que l'index est sous MN_NVIS
+        move.w  %d1, MN_HAUT
+9:      rts
+
+| LE CHOIX DE LA LIGNE %d4 DU CADRE, dans %d0 (négatif pour les lignes 0-2) : les lignes 3 et 4,
+| puis MN_NVIS cheats à partir de MN_HAUT, puis les lignes fixes, à N cheats du début. Clobbers %d1.
+.Lchoix_de_ligne:
+        move.w  %d4, %d0
+        subq.w  #3, %d0
+        cmpi.w  #2, %d0
+        blt.s   9f                      | lignes 0-4 : la ligne moins 3
+        move.w  MN_NVIS, %d1
+        addq.w  #2, %d1
+        cmp.w   %d1, %d0
+        bge.s   1f
+        add.w   MN_HAUT, %d0            | un cheat de la fenêtre
+        rts
+1:      add.w   MN_NCH, %d0
+        sub.w   MN_NVIS, %d0            | après la fenêtre : les cheats cachés en plus
+9:      rts
 
 | LES LIGNES DU CADRE, REG_VRAMMOD à 32 : une ligne s'écrit d'une adresse, depuis MN_BUF
 | (`.Lconstruire`). MN_PALS : le titre, la ligne choisie (et son curseur), le reste.
 | Clobbers %d0-%d4, %d6, %a0, %a2, %a3 ; %d5, l'état des boutons, est intact.
 .Ldessiner:
+        bsr     .Lfenetre
         move.w  #32, VRAMMOD
         moveq   #0, %d4                 | la ligne du cadre
 1:      bsr     .Lconstruire
@@ -690,8 +740,7 @@ _mn_entrees:
         cmpi.w  #1, %d4
         bne.s   2f
         move.w  MN_PALS, %d3            | le titre
-2:      move.w  %d4, %d0
-        subq.w  #3, %d0                 | les choix à partir de la ligne 3
+2:      bsr     .Lchoix_de_ligne        | les choix à partir de la ligne 3
         cmp.w   MN_CHOIX, %d0
         bne.s   3f
         move.w  MN_PALS + 2, %d3        | la ligne choisie
@@ -723,8 +772,8 @@ _mn_entrees:
 
 | LA LIGNE %d4 DU CADRE, en caractères dans MN_BUF (NCOL_C octets, espaces au-delà de
 | MN_NCOL). Lignes 0-4 et les cinq dernières : `.Llignes` 0-9, décalées de MN_PAD ; entre
-| les deux, les N cheats : le nom à MN_PAD + 3, l'état « ON » / « OFF » à MN_PAD + 20.
-| Clobbers %d0-%d2, %a2, %a3.
+| les deux, les MN_NVIS cheats de la fenêtre : le nom à MN_PAD + 3, l'état « ON » / « OFF » à
+| MN_PAD + 20. La ligne 2, quand des cheats sont cachés : `.Lrang`. Clobbers %d0-%d2, %a2, %a3.
 .Lconstruire:
         lea     MN_BUF, %a2
         moveq   #NCOL_C - 1, %d0
@@ -734,14 +783,21 @@ _mn_entrees:
         adda.w  MN_PAD, %a2
         move.w  %d4, %d0
         cmpi.w  #5, %d0
-        bcs.s   3f                      | lignes fixes 0-4
-        subq.w  #5, %d0                 | k = ligne − 5, avant toute soustraction de N :
-        cmp.w   MN_NCH, %d0             | ligne − N passerait sous zéro dès N = 6
-        bcs.s   6f                      | k < N : le cheat k
+        bcs.s   8f                      | lignes fixes 0-4
+        subq.w  #5, %d0                 | k = ligne − 5
+        cmp.w   MN_NVIS, %d0
+        bcs.s   6f                      | k < V : le cheat MN_HAUT + k
         move.w  %d4, %d0
-        sub.w   MN_NCH, %d0             | lignes fixes 5-9 (ligne − N ≥ 5 ici)
+        sub.w   MN_NVIS, %d0            | lignes fixes 5-9 (ligne − V ≥ 5 ici)
         bra.s   3f
-6:      movea.l CH_ENTREE, %a3
+8:      cmpi.w  #2, %d0
+        bne.s   3f
+        move.w  MN_NCH, %d1
+        cmp.w   MN_NVIS, %d1
+        bhi.s   .Lrang                  | des cheats cachés
+        bra.s   3f
+6:      add.w   MN_HAUT, %d0
+        movea.l CH_ENTREE, %a3
         move.w  %d0, %d2
         lsl.w   #5, %d2                 | × FICHE (`cheats.s`)
         adda.w  %d2, %a3
@@ -772,6 +828,37 @@ _mn_entrees:
 5:      move.b  (%a3)+, (%a2)+
         dbra    %d2, 5b
 9:      rts
+
+| « CHEATS a-b/N » à MN_PAD + 3 : les cheats montrés, de 1 à N. %a2 : MN_BUF + MN_PAD. La fin de
+| `.Lconstruire`, rendue par le `rts` de `.Ldecimal`. Clobbers %d0, %d2, %a2, %a3.
+.Lrang:
+        addq.l  #3, %a2
+        lea     .Lcheats, %a3
+        moveq   #7 - 1, %d2
+1:      move.b  (%a3)+, (%a2)+
+        dbra    %d2, 1b
+        move.w  MN_HAUT, %d0
+        addq.w  #1, %d0
+        bsr.s   .Ldecimal
+        move.b  #0x2D, (%a2)+           | « - »
+        move.w  MN_HAUT, %d0
+        add.w   MN_NVIS, %d0
+        bsr.s   .Ldecimal
+        move.b  #0x2F, (%a2)+           | « / »
+        move.w  MN_NCH, %d0             | puis `.Ldecimal`, juste en dessous
+
+| %d0.w (0 à 99) en décimal sans zéro de tête, à (%a2)+. Clobbers %d0.
+.Ldecimal:
+        andi.l  #0xFFFF, %d0
+        divu    #10, %d0                | les dizaines dans le mot bas, les unités dans le haut
+        tst.w   %d0
+        beq.s   1f
+        addi.b  #0x30, %d0
+        move.b  %d0, (%a2)+
+1:      swap    %d0
+        addi.b  #0x30, %d0
+        move.b  %d0, (%a2)+
+        rts
 
 | LES PALETTES DU MENU (voir l'ouverture). Un bit par palette des 1 280 cases du plan fixe,
 | lues par REG_VRAMRW au rythme de `.Lsauver_fix` ; puis de 15 vers 1, les trois premières
@@ -849,6 +936,7 @@ _mn_sync:
         .word   0x0DDD                  | le texte
 .Lon:    .ascii  "ON "
 .Loff:   .ascii  "OFF"
+.Lcheats: .ascii "CHEATS "
 .Llignes:                               | NLIG lignes de NCOL caractères
         .ascii  "                    "
         .ascii  "    IN-GAME MENU    "

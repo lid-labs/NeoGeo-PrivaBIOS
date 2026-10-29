@@ -303,7 +303,7 @@ diffère de l'éditeur du boot ou de l'état d'avant :
    en partie, mais certains octets ne sont lus qu'à la démo, au titre ou à la demande 0
    (`measured/2026-10-23-menu-en-jeu-complet.tsv`, section 1). L'écran dit donc « SOME CHANGES NEED
    RESTART », et la ligne RESTART GAME enregistre puis relance par le watchdog.
-4. **`CH_MAX` passe de 6 cheats à 4** : le cadre du menu (10 + N lignes) doit tenir dans les 392 cases
+4. **`CH_MAX` passe de 6 cheats à 4** (porté à 16 au §32, dans une fenêtre qui défile) : le cadre du menu (10 + N lignes) doit tenir dans les 392 cases
    sauvegardées. La table actuelle en a au plus 3. Le cadre sans cheat a deux lignes de plus qu'avant.
 5. **L'éditeur mémoire montre `$100000-$10FFFF`, en lecture seule à partir de `$10F300`** (la RAM du
    BIOS) : ni écriture ni gel. Le moteur des gels refuse aussi ces adresses de lui-même.
@@ -877,6 +877,21 @@ de boot, GAME NGH 0000, un slot vide.
    où une cartouche muette sur 30 trames (`bus-flottant.lua`, BF_ABSENTE) est trouvée
    (`measured/2026-10-28-carte-lente.tsv`). **Non couvert** : un flash cart lent à côté d'une
    cartouche prompte, que le premier parcours trouve sans lui.
+
+## 32. Jusqu'à 16 cheats par jeu, dans une fenêtre qui défile
+
+**Décidé le 2026-10-29 avec l'utilisateur** : agrandir la base des cheats sans plafond de 4 par jeu,
+toujours trouvés sous MAME, sans base tierce.
+
+1. **16, pas plus** : un bit par cheat dans CH_ETATS, qui reste un mot contigu à GL_MASQUE. Le
+   crochet garde ainsi son seul `tst.l` sans cheat ni gel, dont les cycles comptent (`cheats.s`).
+2. **Une fenêtre dans le menu, pas un sous-écran** : 4 lignes de cheat au plus, qui défilent
+   derrière le choix. Les chemins de touches restent ceux d'avant : le cheat k à « bas » k + 2
+   fois, AUTOFIRE, GAME SETTINGS et MEMORY EDITOR à « haut » 3, 2 et 1 fois.
+3. **La table au bout de la zone haute** (`build/bios.ld`, section `.cheats`) : au milieu du code,
+   elle repoussait `_mess_out` hors de portée du `bsr.w` de `int1.s`.
+4. **Le format des fiches ne change pas** (32 octets). Mesuré le 2026-10-29 : la zone haute finit
+   à $C0B416, soit 84 Kio libres, de quoi loger plus de 2 000 fiches.
 
 ## Ce qui reste à trancher
 
