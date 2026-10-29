@@ -455,9 +455,11 @@ _cheats_table:
         | CAPTAIN TOMADAY : les vies, 2 au plus haut ; le témoin perd la partie à la trame 3831.
         JEU     0x0249, 0xE6CD, 1
         CHEAT   "INFINITE LIVES",  0x104026, 1, 0x02
-        | GANRYU : les vies, 3 au plus haut ; le témoin perd la partie à la trame 4912.
-        JEU     0x0252, 0x0111, 1
+        | GANRYU : les vies, 3 au plus haut ; le témoin perd la partie à la trame 4912. Le temps,
+        | $100453, binaire, 99 au plus haut : forcé seul, TIME reste à 99 au HUD.
+        JEU     0x0252, 0x0111, 2
         CHEAT   "INFINITE LIVES",  0x1004A1, 1, 0x03
+        CHEAT   "INFINITE TIME",   0x100453, 1, 0x63
         | NINJA COMBAT : les vies, 3 au plus haut ; le témoin perd la partie à la trame 5956.
         JEU     0x0009, 0x8C0D, 1
         CHEAT   "INFINITE LIVES",  0x102402, 1, 0x03
