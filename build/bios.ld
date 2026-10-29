@@ -61,6 +61,9 @@ SECTIONS {
      * absolus (lu dans le code, le 2026-10-21), sauf le `bsr.w _mess_out` de `int1.s`. */
     _debut_haut = .;
     *(.haut)
+    /* LA TABLE DES CHEATS, après tout le code de la zone haute (`src/c0/cheats.s`) : elle seule
+     * grandit avec la base, et ne repousse ainsi aucun appel relatif. */
+    KEEP(*(.cheats))
     _fin_haut = .;
   } > bios =0xFF
   .data    : { *(.data*) } > bios
