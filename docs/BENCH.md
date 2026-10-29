@@ -65,7 +65,9 @@ repository.
 One MAME uses one core, and every run is deterministic in its own directory, so the number of runs
 at once changes no verdict. `parcours.sh` and `non-regression.sh` default to the number of cores
 minus two (`--jobs` overrides it); `parcours-mutations.py --eprouver` proves several mutations at
-once (`--paralleles`, default half the cores minus one), each with two runs.
+once (`--paralleles`, default half the cores minus one), each with two runs. `cheats-catalogue.sh`
+defaults to the number of cores minus two runs at once, like `parcours.sh`, and starts the longest
+first.
 
 Reference runs do not depend on the image under test: the `snk` and `unibios40` columns of the
 matrix, and the SNK witness runs of the scenes. With a cache directory (`matrice.sh`: `BIOS_CACHE`;
@@ -86,6 +88,7 @@ Measured on 28 October 2026, 14 cores, nothing else running, on the image of `ma
 | 30 scenes of `parcours.sh` | 154 s (`--jobs 2`) | 77 s (12 jobs), 75 s with the cache filled |
 | 6 mutations (`--eprouver`) | 49 s, one after the other | 30 s, six at once |
 | `non-regression.sh --rapide` | — | 30 s, then 16 s on the same work directory (matrix 19 s → 7 s) |
+| `cheats-catalogue.sh`, 32 cheats (64 runs) | 664 s (`--jobs 2`) | 191 s (12 jobs, longest runs first), 29 October |
 
 Verdicts and measured values of the 30 scenes are identical in every case (`parcours.txt`
 compared line by line). The scenes stay near 75 s with the cache, likely bound by the longest runs

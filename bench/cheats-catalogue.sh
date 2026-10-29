@@ -25,6 +25,12 @@
 # tenue à partir de 1000, C toutes les 400 trames à partir de 1500. Le joueur ne joue pas : il meurt,
 # il perd ses rounds. Aucune entrée planifiée de T − 10 à T + 150 : le menu reçoit les siennes.
 #
+# LA CADENCE. --jobs runs MAME à la fois (défaut : le nombre de cœurs moins deux ; un MAME n'occupe
+# qu'un cœur, et chaque run a son dossier, donc leur nombre ne change aucun verdict). Les runs
+# partent les plus longs d'abord (FIN décroissante) : douze des treize « vies » à 12 000 trames,
+# en fin de table, partaient en dernier et faisaient attendre tout le monde à la fin. Pas de cache ici : le témoin ouvre et ferme le
+# menu de NOTRE BIOS, il dépend de l'image comme le run du cheat.
+#
 # Salle blanche : aucune base de cheats tierce, aucun code de jeu lu ni tracé ; le PC ne sert qu'à
 # dire si une écriture vient du BIOS. MAME sans fenêtre, un dossier de cfg et de NVRAM par run.
 # Mesures et seuils : measured/2026-10-25-cheats-table.tsv (une ligne par cheat) et
@@ -35,7 +41,7 @@ ICI="$(cd "$(dirname "$0")" && pwd)"
 PAQUET="$(cd "$ICI/.." && pwd)"
 SOURCES="$PAQUET/src/c0"
 IMAGE=""
-JOBS=2
+JOBS=$(( $( (sysctl -n hw.ncpu || nproc) 2>/dev/null || echo 4) - 2 )); [ "$JOBS" -ge 1 ] || JOBS=1
 JEUX=""
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -49,6 +55,7 @@ while [ $# -gt 0 ]; do
 done
 ROMS="${1:?usage : bench/cheats-catalogue.sh [--image f | --sources d] [--jeux l] [--jobs n] <roms> <travail>}"
 WORK="${2:?dossier de travail attendu}"
+case "$JOBS" in ''|*[!0-9]*|0*) echo "--jobs refusé : $JOBS" >&2; exit 2 ;; esac
 command -v mame >/dev/null || { echo "mame introuvable" >&2; exit 2; }
 mkdir -p "$WORK"; ROMS="$(cd "$ROMS" && pwd)"; WORK="$(cd "$WORK" && pwd)"
 
@@ -191,7 +198,7 @@ while IFS=$'\t' read -r jeu k nom adr val genre ent T FIN zone seuil; do
   Z=""; [ "$zone" != "-" ] && Z="C_ZONE=$zone $(pixels "$seuil") C_IMAGES=$(images "$T")"
   lancer "$jeu-$k-on" "$jeu" C_ENTREES="$E" C_MENU="$T" C_APPUIS="$on" C_SUIVRE="$adr:1,10FDAF:1" C_FIN="$FIN" C_PAS=10 ${Z:+$Z}
   lancer "$jeu-$k-temoin" "$jeu" C_ENTREES="$E" C_MENU="$T" C_APPUIS="$(( T + 45 )):A" C_SUIVRE="$adr:1,10FDAF:1" C_FIN="$FIN" C_PAS=10 ${Z:+$Z}
-done <<< "$TABLE"
+done < <(printf '%s\n' "$TABLE" | sort -t$'\t' -k9,9nr)
 wait
 echo "runs : $(( $(date +%s) - T0 )) s"
 
