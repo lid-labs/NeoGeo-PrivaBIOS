@@ -134,13 +134,14 @@ sans rien faire d'autre (`DECISIONS.md` §25).
 boot). Le jeu se met en pause, la musique continue.
 
 **Commandes** : HAUT/BAS choisit, A ou START valide. Sur une ligne de cheat, A ou START bascule ON/OFF
-et le menu reste ouvert.
+et le menu reste ouvert. Un jeu a jusqu'à 16 cheats ; le cadre en montre 4, et la liste défile derrière
+le curseur. Au-delà de 4, la ligne sous le titre dit lesquels sont montrés (« CHEATS 5-8/12 »).
 
 | Depuis RESUME | Ligne | Ce qu'elle fait |
 |---|---|---|
 | — | RESUME | rend le jeu là où il était |
 | « bas » × 1 | RESTART GAME | relance la machine |
-| « bas » × 2 et suivants | un cheat par ligne | seulement pour les 35 jeux de la table (`measured/2026-10-25-cheats-table.tsv`) |
+| « bas » × 2 et suivants | un cheat par ligne, jusqu'à 16 | seulement pour les jeux de la table (`measured/2026-10-25-cheats-table.tsv`) |
 | « haut » × 3 | AUTOFIRE | le tir automatique de A, B, C et D, gardé pour ce jeu |
 | « haut » × 2 | GAME SETTINGS | les soft-DIP du jeu, en partie |
 | « haut » × 1 | MEMORY EDITOR | la RAM du jeu |

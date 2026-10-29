@@ -79,7 +79,9 @@
         .equ    CH_NB,     0x10FB04     | .w nombre de cheats du jeu
         .equ    CH_ETATS,  0x10FB06     | .w un bit par cheat actif
         .equ    FICHE,     32
-        .equ    CH_MAX,    4            | le cadre du menu en tient quatre (`menu.s`)
+        | CH_MAX : un bit de CH_ETATS par cheat, donc 16. Le menu en montre MN_VIS à la fois et fait
+        | défiler les autres (`menu.s`) ; CH_ETATS reste un mot, contigu à GL_MASQUE pour le `tst.l`.
+        .equ    CH_MAX,    16
         .equ    GL_MASQUE, 0x10FB08     | .w un bit par gel actif ; CONTIGU à CH_ETATS (le `tst.l`)
         .equ    GL_TABLE,  0x10FB0A     | GL_MAX × (.w décalage, .b valeur, .b libre)
         .equ    GL_MAX,    4
@@ -124,7 +126,7 @@ _cheats_appliquer:
         adda.w  %d2, %a0
         bra.s   6b
 7:      moveq   #1, %d0                 | %d0 : CH_ETATS & (2^nombre - 1)
-        lsl.w   %d2, %d0
+        lsl.w   %d2, %d0                | 16 : le mot passe à 0, et le masque à $FFFF
         subq.w  #1, %d0
         and.w   CH_ETATS, %d0
 1:      lsr.w   #1, %d0                 | le bit de cette fiche dans X/C
@@ -296,6 +298,11 @@ _cheats_oublier:
 | trouvée par filtrage de relevés de RAM sur une partie aux entrées planifiées, puis forcée par
 | lua à chaque trame, l'effet constaté à l'écran et sur le cours de la partie). Relevés de la
 | recherche remis à l'agent coordinateur.
+        | SA SECTION, `.cheats`, liée au bout de la zone haute (`build/bios.ld`) : au milieu du code,
+        | la table qui grandit repoussait `_mess_out` hors de portée du `bsr.w` de `int1.s` (mesuré
+        | le 2026-10-29, « relocation truncated to fit » avec neuf cheats de plus). Lue par `lea`
+        | absolu et par CH_ENTREE, elle peut être n'importe où dans l'image.
+        .section .cheats, "a"
         .balign 2
 _cheats_table:
         | METAL SLUG. Mesuré : vies $100377 (−1 à chaque mort ; forcé à 3, aucune fin de partie
