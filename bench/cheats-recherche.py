@@ -54,6 +54,11 @@ SCENARIOS = {
     # les ennemis (B, le saut de la plupart des jeux d'action), ou rester sur place.
     "saut": "400-407:piece,500-507:START,1000-40000:droite,1000-40000%20:B",
     "immobile": "400-407:piece,500-507:START",
+    # P2 seul (le 2026-10-29) : sa pièce, son START, et il avance en sautant ; P1 ne joue pas. Ses
+    # vies, ses bombes et sa fin de partie se lisent alors comme celles de P1.
+    "saut2": "400-407:pieceDeux,500-507:startDeux,1000-40000:droiteDeux,1000-40000%20:bDeux",
+    "action2": "400-407:pieceDeux,500-507:startDeux,600-40000%6:aDeux,1000-40000:droiteDeux,"
+               "1500-40000%300:bDeux,1650-40000%400:cDeux",
 }
 COMBAT_SC = ("passif", "actif")
 COMBAT = ("aof aof2 aof3 breakers breakrev doubledr fatfursp fatfury1 fatfury2 fatfury3 fightfev "
@@ -519,7 +524,7 @@ def main():
     ac = sp.add_parser("action")
     ac.add_argument("--jeux", default="")
     ac.add_argument("--garder", action="store_true")
-    ac.add_argument("--scenario", default="action", choices=("action", "saut", "immobile"))
+    ac.add_argument("--scenario", default="action", choices=("action", "saut", "immobile", "saut2", "action2"))
     ac.add_argument("--fin", type=int, default=FIN)
     bi = sp.add_parser("bisecter")
     bi.add_argument("candidats")

@@ -24,7 +24,7 @@ Comparaison avec les 76 fonctions de `measured/2026-10-23-parcours-couverture.ts
 
 | Fonction d'UniBIOS (version) | Sprixe BIOS | Ce qu'en dit la scène |
 |---|---|---|
-| Base de plus de 1 570 cheats et « Patch Memory » (2.0) | Cheats pour 78 jeux, 91 cheats trouvés en boîte noire (2026-10-29) ; option CHEATS/DEBUG qui les coupe | Les cheats sont cités comme une raison d'installer UniBIOS (wiki neogeodev, RetroRGB 2020-03-20) ; demande de les réordonner (3.2, 2014) |
+| Base de plus de 1 570 cheats et « Patch Memory » (2.0) | Cheats pour 78 jeux, 114 cheats trouvés en boîte noire (2026-10-29) ; option CHEATS/DEBUG qui les coupe | Les cheats sont cités comme une raison d'installer UniBIOS (wiki neogeodev, RetroRGB 2020-03-20) ; demande de les réordonner (3.2, 2014) |
 | Scores sauvés sur carte mémoire, AES compris (3.1) ; option qui coupe la remise à zéro périodique des scores sur une trentaine de jeux MVS (4.0) | Scores du jeu en backup RAM, en mode MVS et AES (mesuré, 2026-10-24) ; SCORE RESET coupe la remise à zéro (2026-10-24) ; pas de scores sur carte | **Tendance, 7 sources** : la fonction d'UniBIOS la plus citée. La plainte inverse est aussi fréquente : scores ni sauvés ni relus (3.1 à 3.3) |
 | Gestionnaire de carte mémoire accessible dans tous les modes | MEMORY CARD dans l'écran TEST (2026-10-24) : liste, blocs libres, effacer, formater ; copier une sauvegarde vers une autre carte depuis le 2026-10-27 (`DECISIONS.md` §26), sans COPY ALL ; pas d'accès hors de l'écran TEST | — |
 | Soft-DIP depuis le menu en jeu ; 1UP START remet les défauts (4.0) | Éditeur au boot, et GAME SETTINGS dans le menu en jeu (2026-10-23) | **Tendance, 3 sources** : régler le jeu sans redémarrer |

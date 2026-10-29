@@ -26,7 +26,8 @@
 # Dans tous les genres, le tap du mode menu de `cheats.lua` exige que le moteur du BIOS n'ait écrit
 # que l'adresse du cheat, et qu'il n'ait rien écrit au témoin.
 #
-# LES ENTRÉES. « x » : le scénario action de `cheats-recherche.py` (A toutes les 6 trames, droite, B et C).
+# LES ENTRÉES. « k » et « l » : P2 seul (pièce de P2 à 400, son START à 500), « x » et « j » joués par P2 ;
+# le menu reste aux commandes de P1. « x » : le scénario action de `cheats-recherche.py` (A toutes les 6 trames, droite, B et C).
 # « j » (sauter pour mourir) : pièce, START, puis droite tenue et B toutes les 20 trames,
 # sans tirer : P1 fonce en sautant dans les ennemis. « b » (bombes) : « s », et B toutes les 300 trames à partir de 1700.
 # « f » (combat) : pièce à 400, START à 500, A toutes les 60 trames de 600 à 3500,
@@ -153,6 +154,29 @@ ssideki	0	INFINITE TIME	108ED3	59	temps	x	1500	2800	160,17,174,30	brut
 strhoop	0	NO GAME OVER	102D21	02	vies	x	800	12000	-	-
 strhoop	1	INFINITE TIME	101A53	59	temps	x	1500	2800	145,193,174,206	brut
 twsoc96	0	NO GAME OVER	1014D7	05	vies	x	800	12000	-	-
+alpham2	1	P2 INF. LIVES	1011F2	02	vies	k	1500	13000	-	-
+b2b	1	P2 INF. LIVES	106967	04	vies	k	1500	13000	-	-
+bjourney	1	P2 INF. LIVES	107400	02	vies	k	1500	13000	-	-
+blazstar	1	P2 INF. LIVES	101BA3	02	vies	k	1500	13000	-	-
+crsword	1	P2 INF. LIVES	1040DC	05	vies	l	1500	13000	-	-
+ctomaday	1	P2 INF. LIVES	101399	02	vies	k	1500	13000	-	-
+eightman	1	P2 INF. LIVES	10131B	02	vies	l	1500	13000	-	-
+gpilots	1	P2 INF. LIVES	103FB7	03	vies	k	1500	13000	-	-
+lresort	1	P2 INF. LIVES	107596	02	vies	l	1500	13000	-	-
+maglord	1	P2 INF. LIVES	103C00	02	vies	k	1500	13000	-	-
+mslug4	2	P2 INF. LIVES	100CFC	02	vies	l	1500	13000	-	-
+mslug5	1	P2 INF. LIVES	1050C2	05	vies	k	1500	13000	-	-
+neomrdo	1	P2 INF. LIVES	10465D	02	vies	k	1500	13000	-	-
+nitd	1	P2 INF. LIVES	10028B	03	vies	l	1500	13000	-	-
+preisle2	1	P2 INF. LIVES	1062D5	03	vies	k	1500	13000	-	-
+pulstar	1	P2 INF. LIVES	10132B	02	vies	k	1500	13000	-	-
+sengoku2	1	P2 INF. LIVES	1001B1	03	vies	k	1500	13000	-	-
+sengoku3	1	P2 INF. LIVES	1083FF	02	vies	k	1500	13000	-	-
+shocktr2	1	P2 INF. LIVES	10915B	03	vies	l	1500	13000	-	-
+sonicwi2	1	P2 INF. LIVES	100619	02	vies	k	1500	13000	-	-
+spinmast	1	P2 INF. LIVES	10503D	02	vies	l	1500	13000	-	-
+viewpoin	1	P2 INF. LIVES	1090ED	03	vies	k	1500	13000	-	-
+zedblade	1	P2 INF. LIVES	100029	03	vies	k	1500	13000	-	-
 fightfev	0	INFINITE TIME	108110	99	temps	f	1900	3200	147,24,172,36	brut
 kof96	1	INFINITE TIME	10A837	32	temps	f	1900	3200	147,14,172,32	brut
 matrim	0	INFINITE TIME	10B90B	3C	temps	f	1900	3200	145,8,174,24	brut
@@ -220,12 +244,15 @@ pixels() {
 # entrees <f|s> <T> : le plan, coupé de T − 10 à T + 150.
 entrees() {
   local T=$1 a=$(( $1 - 10 )) b=$(( $1 + 150 )) out="400-407:piece,500-507:START" x
+  case "$2" in k|l) out="400-407:pieceDeux,500-507:startDeux" ;; esac
   case "$2" in
     f) x="600-3500%60:A 2000-40000:droite" ;;
     s) x="600-40000%60:A 1000-40000:droite 1500-40000%400:C" ;;
     b) x="600-40000%60:A 1000-40000:droite 1500-40000%400:C 1700-40000%300:B" ;;
     j) x="1000-40000:droite 1000-40000%20:B" ;;
     x) x="600-40000%6:A 1000-40000:droite 1500-40000%300:B 1650-40000%400:C" ;;
+    k) x="600-40000%6:aDeux 1000-40000:droiteDeux 1500-40000%300:bDeux 1650-40000%400:cDeux" ;;
+    l) x="1000-40000:droiteDeux 1000-40000%20:bDeux" ;;
   esac
   local seg d f r bt
   for seg in $x; do

@@ -14,7 +14,8 @@
 # compteur, zone calculée ; eightman $100482, figé au forçage, ne l'est pas par le menu : écarté. Puis 5 vies trouvées en scénario saut (entrées j) ; crswd2bl $105B4E écarté (la
 # cellule ne vaut pas $02 dans la fenêtre du jig). Puis 11 cheats des familles puzzle, quiz et sport (entrées x) ;
 # écartés : froman2b (écriture du moteur au témoin), trally et zintrckb (pas encore en partie à la trame 800),
-# gururin et ridhero (la cellule à sa valeur sur 0,72 et 0,87 des relevés). MAME 0.286, -bios euro, -video none, une NVRAM et un cfg par run, romsets non-merged, seul
+# gururin et ridhero (la cellule à sa valeur sur 0,72 et 0,87 des relevés). Puis 23 vies de P2, P2 jouant seul
+# (entrées k et l) ; écartés : ncombat $1013C5, s1945p $1046C8, twinspri $100540 (fin de partie sous cheat). MAME 0.286, -bios euro, -video none, une NVRAM et un cfg par run, romsets non-merged, seul
 # sp-s2.sp1 remplacé. Deux runs par cheat : le cheat mis à ON par le menu en jeu, et un témoin qui ouvre et ferme le même menu.
 # Critère (genre vies) : le témoin perd la partie, la partie sous cheat non, jusqu'à FIN ; la cellule à sa valeur sur 0,9 des
 # relevés au moins ; le moteur n'écrit que l'adresse du cheat, et rien au témoin. Écartés en route : mutnat ($102530 : fin de
@@ -72,3 +73,26 @@ ssideki	INFINITE TIME	PASS	0052	FEF0	108ED2x1219	1219	chronomètre : son image l
 strhoop	NO GAME OVER	PASS	0079	6DB5	102D20x11117	11117	fin de partie : témoin 7040, sous cheat aucune (FIN 12000) ; $102D21 à $02 sur 1.00
 strhoop	INFINITE TIME	PASS	0079	6DB5	101A52x1207	1207	chronomètre : son image la plus fréquente sur 1.00 des relevés sous cheat (1 images), 0.33 au témoin (11) ; $101A53 à $59 sur 1.00
 twsoc96	NO GAME OVER	PASS	0086	CB1D	1014D6x11120	11120	fin de partie : témoin 7710, sous cheat aucune (FIN 12000) ; $1014D7 à $05 sur 1.00
+alpham2	P2 INF. LIVES	PASS	0007	799C	1011F2x11408	11408	fin de partie : témoin 6840, sous cheat aucune (FIN 13000) ; $1011F2 à $02 sur 1.00
+b2b	P2 INF. LIVES	PASS	0071	E928	106966x11407	11407	fin de partie : témoin 5490, sous cheat aucune (FIN 13000) ; $106967 à $04 sur 1.00
+bjourney	P2 INF. LIVES	PASS	0022	C32D	107400x11394	11394	fin de partie : témoin 8070, sous cheat aucune (FIN 13000) ; $107400 à $02 sur 1.00
+blazstar	P2 INF. LIVES	PASS	0239	A454	101BA2x11392	11392	fin de partie : témoin 6310, sous cheat aucune (FIN 13000) ; $101BA3 à $02 sur 1.00
+crsword	P2 INF. LIVES	PASS	0037	B3BC	1040DCx11408	11408	fin de partie : témoin 9560, sous cheat aucune (FIN 13000) ; $1040DC à $05 sur 1.00
+ctomaday	P2 INF. LIVES	PASS	0249	E6CD	101398x11407	11407	fin de partie : témoin 4190, sous cheat aucune (FIN 13000) ; $101399 à $02 sur 1.00
+eightman	P2 INF. LIVES	PASS	0025	BDFA	10131Ax11408	11408	fin de partie : témoin 8200, sous cheat aucune (FIN 13000) ; $10131B à $02 sur 1.00
+gpilots	P2 INF. LIVES	PASS	0020	A0C5	103FB6x11408	11408	fin de partie : témoin 5090, sous cheat aucune (FIN 13000) ; $103FB7 à $03 sur 1.00
+lresort	P2 INF. LIVES	PASS	0024	03A4	107596x11407	11407	fin de partie : témoin 3980, sous cheat aucune (FIN 13000) ; $107596 à $02 sur 1.00
+maglord	P2 INF. LIVES	PASS	0005	9330	103C00x11151	11151	fin de partie : témoin 9850, sous cheat aucune (FIN 13000) ; $103C00 à $02 sur 1.00
+mslug4	P2 INF. LIVES	PASS	0263	D875	100CFCx11395	11395	fin de partie : témoin 7720, sous cheat aucune (FIN 13000) ; $100CFC à $02 sur 1.00
+mslug5	P2 INF. LIVES	PASS	0268	1581	1050C2x11408	11408	fin de partie : témoin 7260, sous cheat aucune (FIN 13000) ; $1050C2 à $05 sur 1.00
+neomrdo	P2 INF. LIVES	PASS	0207	94A1	10465Cx11407	11407	fin de partie : témoin 8390, sous cheat aucune (FIN 13000) ; $10465D à $02 sur 1.00
+nitd	P2 INF. LIVES	PASS	0260	3085	10028Ax11404	11404	fin de partie : témoin 9600, sous cheat aucune (FIN 13000) ; $10028B à $03 sur 1.00
+preisle2	P2 INF. LIVES	PASS	0255	8E0D	1062D4x11407	11407	fin de partie : témoin 7850, sous cheat aucune (FIN 13000) ; $1062D5 à $03 sur 1.00
+pulstar	P2 INF. LIVES	PASS	0089	A232	10132Ax11366	11366	fin de partie : témoin 10230, sous cheat aucune (FIN 13000) ; $10132B à $02 sur 1.00
+sengoku2	P2 INF. LIVES	PASS	0040	CEF6	1001B0x11408	11408	fin de partie : témoin 6220, sous cheat aucune (FIN 13000) ; $1001B1 à $03 sur 1.00
+sengoku3	P2 INF. LIVES	PASS	0261	83B6	1083FEx11407	11407	fin de partie : témoin 11000, sous cheat aucune (FIN 13000) ; $1083FF à $02 sur 1.00
+shocktr2	P2 INF. LIVES	PASS	0246	5240	10915Ax11407	11407	fin de partie : témoin 8900, sous cheat aucune (FIN 13000) ; $10915B à $03 sur 1.00
+sonicwi2	P2 INF. LIVES	PASS	0075	ECD1	100618x6388	6388	fin de partie : témoin 7050, sous cheat aucune (FIN 13000) ; $100619 à $02 sur 1.00
+spinmast	P2 INF. LIVES	PASS	0062	915F	10503Cx11408	11408	fin de partie : témoin 7180, sous cheat aucune (FIN 13000) ; $10503D à $02 sur 1.00
+viewpoin	P2 INF. LIVES	PASS	0051	691F	1090ECx11407	11407	fin de partie : témoin 10490, sous cheat aucune (FIN 13000) ; $1090ED à $03 sur 1.00
+zedblade	P2 INF. LIVES	PASS	0076	9553	100028x11407	11407	fin de partie : témoin 5510, sous cheat aucune (FIN 13000) ; $100029 à $03 sur 1.00
