@@ -15,6 +15,9 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 ### Fixed
 
 - README: the status line no longer says that no release exists.
+- Cartridge CRC32: a cartridge without bank chips no longer shows a bank. On a real Super Sidekicks
+  cartridge, the bank window read the same word everywhere and the screen showed BANKS 1 X 1024K;
+  it now shows BANKS NONE (`measured/2026-10-29-crc-ssideki-materiel.tsv`).
 
 ## [0.1.0-beta.1] - 2026-10-28
 
