@@ -32,7 +32,7 @@ aux planches et au juge du HUD (`hud`).
 Salle blanche : aucune base de cheats tierce. Le débogueur de MAME (watchpoints, `bench/cheats.lua`
 mode watch) peut dire QUI écrit une cellule ; aucun code de jeu n'est copié.
 """
-import argparse, concurrent.futures as cf, hashlib, os, shutil, subprocess, sys
+import argparse, collections, concurrent.futures as cf, hashlib, os, shutil, subprocess, sys
 import numpy as np
 
 ICI = os.path.dirname(os.path.abspath(__file__))
@@ -333,29 +333,49 @@ ACTION = ("alpham2 b2b bjourney blazstar burningf crswd2bl crsword ctomaday cybe
           "viewpoin zedblade zupapa").split()
 
 
-def filtre_compteur(R, idx, fin):
-    """Les compteurs d'un jeu d'action : un octet petit (≤ $20) qui ne baisse que de 1 à la fois.
-      vies    2 à 13 baisses, 2 remontées au plus (une vie gagnée, ou la remise d'après la partie),
-              2 vies au moins au départ, et 2 de moins au plus bas ; rangées par l'écart entre la
-              dernière baisse et la fin de partie (la dernière vie perdue la précède de peu) ;
-      bombes  2 baisses au moins et 1 remontée (la recharge), 15 au plus."""
-    vies, bombes = [], []
-    d = np.diff(R.astype(np.int16), axis=0)
-    d[d == 255] = -1                    # 0 → $FF : la dernière vie perdue (relevé du 2026-10-25)
-    d[(R[:-1] == 0xFF) & (d < 0)] = 1   # depuis $FF : le compteur remis pour la démo qui suit
-    sans_ff = np.where(R == 0xFF, 0, R)
-    cand = np.nonzero(((d == -1).sum(axis=0) >= 1) & ((d < -1).sum(axis=0) == 0) & (sans_ff.max(axis=0) <= 0x20))[0]
-    for a in cand:
-        dd = d[:, a]
-        b, h = int((dd == -1).sum()), int((dd > 0).sum())
-        m = int(sans_ff[:, a].max())
-        bas = -1 if (R[:, a] == 0xFF).any() else int(R[:, a].min())
-        if 2 <= b <= 13 and h <= 2 and m >= 2 and bas <= m - 2:
-            der = idx[int(np.nonzero(dd == -1)[0][-1]) + 1]
-            vies.append((a, abs(fin - der) if fin else 99999, m))
-        if b >= 2 and h >= 1 and m <= 15:
-            bombes.append((a, -b, m))
-    return sorted(vies, key=lambda x: x[1]), sorted(bombes, key=lambda x: x[1])
+def filtre_suite(R, departs, remise, min_baisses, max_baisses=60, ecart=(1, 40), fin_k=None):
+    """Les octets qui suivent EXACTEMENT la suite attendue d'un compteur : v0, v0 − 1, v0 − 2…
+    (l'idée de l'utilisateur, le 2026-10-29 : chercher les 3 au départ, garder ceux qui passent à 2
+    après la mort, puis à 1…). La suite est lue sur les valeurs successives distinctes de l'octet,
+    à partir de sa première valeur v0, et, sans remise, jusqu'à 0 (ou $FF) : ce qui suit appartient à
+    la démo ou à la partie suivante. Chaque pas doit être − 1, ou 0 → $FF (la dernière vie), ou,
+    si `remise`, un retour à v0 (une vie, un round, une bombe rechargée). Chaque départ de `departs`
+    est essayé en binaire et en BCD. `ecart` : l'écart médian entre deux baisses, en relevés (un
+    compteur d'animation change à chaque relevé). `fin_k` : le relevé de la fin de partie ; un pas
+    hors suite au-delà clôt la suite au lieu de l'écarter. Rend (adresse, départ codé, baisses,
+    relevés des baisses), les plus longues suites d'abord."""
+    out = {}
+    for v0 in departs:
+        for f in ({lambda v: v} if v0 < 10 else {lambda v: v, lambda v: (v // 10) * 16 + v % 10}):
+            for a in np.nonzero((R == f(v0)).any(axis=0))[0]:
+                s = R[:, a]
+                k = int(np.argmax(s == f(v0)))
+                if k > len(s) // 2:
+                    continue
+                e, baisses, quand, ok = v0, 0, [], True
+                prec = int(s[k])
+                for t in range(k + 1, len(s)):
+                    x = int(s[t])
+                    if x == prec:
+                        continue
+                    if e >= 1 and x == f(e - 1) or e == 0 and x == 0xFF:
+                        e, baisses = e - 1, baisses + 1
+                        quand.append(t)
+                        if e <= 0 and not remise:
+                            break               # la dernière vie : la suite s'arrête, la démo remet le compteur
+                    elif remise and x == f(v0):
+                        e = v0
+                    else:
+                        ok = fin_k is not None and t > fin_k
+                        break
+                    prec = x
+                if not ok or not min_baisses <= baisses <= max_baisses:
+                    continue
+                if ecart and len(quand) >= 2 and not ecart[0] <= np.median(np.diff(quand)) <= ecart[1]:
+                    continue
+                if a not in out or out[a][1] < baisses:
+                    out[a] = (f(v0), baisses, tuple(quand))
+    return sorted(((a, v, b, q) for a, (v, b, q) in out.items()), key=lambda x: -x[2])
 
 
 def cmd_action(a):
@@ -384,13 +404,22 @@ def cmd_action(a):
         # de partie, où la démo et la partie suivante remettent les compteurs (relevés du 2026-10-29).
         garde = [k for k, n in enumerate(idx) if n >= 700 and (not fin or n <= fin + 1000)]
         R, idx = R[garde], [idx[k] for k in garde]
-        vies, bombes = filtre_compteur(R, idx, fin or None)
-        for adr, sc, m in vies[:24]:
-            lignes.append(f"{base}\tvies\t{0x100000 + adr:06X}\t{sc}\t1:{m:X}:0:+\t{fin}")
-        for adr, sc, m in bombes[:6]:
-            lignes.append(f"{base}\tbombes\t{0x100000 + adr:06X}\t{-sc}\t1:{m:X}:0:+\t{fin}")
-        for adr, sc, m in filtre_temps(R)[:3]:
-            lignes.append(f"{base}\ttemps\t{0x100000 + adr:06X}\t{sc}\t1:{m:X}:0:+\t{fin}")
+        # Les suites attendues : les vies de 1 à 5 au départ, sans remise ; les bombes de 2 à 10,
+        # rechargées ; le temps à 30, 50, 60, 90 ou 99, remis à chaque vie ou stage.
+        fk = next((k for k, n in enumerate(idx) if fin and n >= fin), None)
+        vies = filtre_suite(R, range(1, 6), False, 2, 12, None, fk)
+        # Les vies : celles qui baissent quand P1 meurt. Les copies d'une même cellule baissent aux
+        # mêmes relevés ; la dernière vie se perd peu avant la fin de partie. Rangées par l'écart
+        # entre la dernière baisse et la fin de partie, puis par la taille du groupe de baisses
+        # simultanées (la cellule et ses copies d'affichage).
+        groupe = collections.Counter(tuple(t // 3 for t in q) for _, _, _, q in vies)
+        vies.sort(key=lambda c: (abs(c[3][-1] - fk) if fk is not None else 0, -groupe[tuple(t // 3 for t in c[3])]))
+        cats = (("vies", vies),
+                ("bombes", filtre_suite(R, range(2, 11), True, 2, 40, (1, 40), fk)),
+                ("temps", filtre_suite(R, (30, 50, 60, 90, 99), True, 6, 400, (2, 30), fk)))
+        for cat, cands in cats:
+            for adr, v, b, _ in cands[:8]:
+                lignes.append(f"{base}\t{cat}\t{0x100000 + adr:06X}\t{b}\t1:{v:X}:0:+\t{fin}")
         if not a.garder:
             for x in ("ram.bin", "ram.idx"):
                 os.remove(os.path.join(o, x))

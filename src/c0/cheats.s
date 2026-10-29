@@ -548,5 +548,11 @@ _cheats_table:
         | KING OF THE MONSTERS 2 : les secondes, BCD.
         JEU     0x0039, 0x9C61, 1
         CHEAT   "INFINITE TIME",   0x1013D2, 1, 0x70
+        | LES TEMPS DE JEUX D'ACTION PAR SUITE ATTENDUE, le 2026-10-29 : l'octet qui suit exactement
+        | v0, v0 − 1… depuis 30, 50, 60, 90 ou 99 (`bench/cheats-recherche.py`, filtre_suite), forcé
+        | seul ; la zone des chiffres calculée sur les images du forçage.
+        | BURNING FIGHT : le temps, BCD, 60 ; il ne perd 1 que toutes les ~200 trames (genre compteur).
+        JEU     0x0018, 0xA9E4, 1
+        CHEAT   "INFINITE TIME",   0x10D002, 1, 0x60
         FIN_TABLE
         .balign 2
