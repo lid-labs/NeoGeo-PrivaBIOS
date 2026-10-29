@@ -6,6 +6,10 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- README: the status line no longer says that no release exists.
+
 ## [0.1.0-beta.1] - 2026-10-28
 
 First public pre-release. Development history before it (October 2026) is summarised in `docs/`
