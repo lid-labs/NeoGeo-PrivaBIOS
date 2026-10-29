@@ -50,6 +50,10 @@ SCENARIOS = {
     # il meurt, et perd ses vies une à une.
     "action": "400-407:piece,500-507:START,600-40000%6:A,1000-40000:droite,"
               "1500-40000%300:B,1650-40000%400:C",
+    # Mourir vite, sans tirer (l'idée de l'utilisateur, le 2026-10-29) : avancer en sautant dans
+    # les ennemis (B, le saut de la plupart des jeux d'action), ou rester sur place.
+    "saut": "400-407:piece,500-507:START,1000-40000:droite,1000-40000%20:B",
+    "immobile": "400-407:piece,500-507:START",
 }
 COMBAT_SC = ("passif", "actif")
 COMBAT = ("aof aof2 aof3 breakers breakrev doubledr fatfursp fatfury1 fatfury2 fatfury3 fightfev "
@@ -379,7 +383,7 @@ def filtre_suite(R, departs, remise, min_baisses, max_baisses=60, ecart=(1, 40),
 
 
 def cmd_action(a):
-    """Le relevé des jeux d'action : un run par jeu (scénario action), filtré puis effacé."""
+    """Le relevé des jeux d'action : un run par jeu (--scenario, action par défaut), filtré puis effacé."""
     travail = os.path.abspath(a.travail)
     os.makedirs(travail, exist_ok=True)
     img = image(travail)
@@ -389,8 +393,8 @@ def cmd_action(a):
         rp = romset(os.path.abspath(a.roms), travail, j, img)
 
     def run(jeu):
-        o = os.path.join(travail, "runs", f"{jeu}-action")
-        mame(jeu, rp, o, {"C_MODE": "releve", "C_ENTREES": SCENARIOS["action"], "C_FIN": str(FIN), "C_PAS": str(PAS)})
+        o = os.path.join(travail, "runs", f"{jeu}-{a.scenario}")
+        mame(jeu, rp, o, {"C_MODE": "releve", "C_ENTREES": SCENARIOS[a.scenario], "C_FIN": str(a.fin), "C_PAS": str(PAS)})
         ngh, emp, u = journal(o)
         fin = fin_de_partie(u)
         lignes = []
@@ -512,6 +516,8 @@ def main():
     ac = sp.add_parser("action")
     ac.add_argument("--jeux", default="")
     ac.add_argument("--garder", action="store_true")
+    ac.add_argument("--scenario", default="action", choices=("action", "saut", "immobile"))
+    ac.add_argument("--fin", type=int, default=FIN)
     bi = sp.add_parser("bisecter")
     bi.add_argument("candidats")
     bi.add_argument("--categorie", required=True, choices=("vie_p1", "vie_p2", "vies"))

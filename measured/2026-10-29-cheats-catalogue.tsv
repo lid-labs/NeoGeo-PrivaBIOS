@@ -11,7 +11,8 @@
 # sur les images du forçage, pixels bruts). Échoués et à reprendre : aof3, fatfury2, savagere (le chronomètre du témoin
 # ne bouge pas dans la fenêtre : T à recaler), breakers, kof98, garou, whp, ninjamas, lastbld2, gowcaizr (l'image
 # sous cheat ne reste pas assez fixe). Puis INFINITE TIME de burningf, trouvé par suite attendue (filtre_suite), genre
-# compteur, zone calculée ; eightman $100482, figé au forçage, ne l'est pas par le menu : écarté. MAME 0.286, -bios euro, -video none, une NVRAM et un cfg par run, romsets non-merged, seul
+# compteur, zone calculée ; eightman $100482, figé au forçage, ne l'est pas par le menu : écarté. Puis 5 vies trouvées en scénario saut (entrées j) ; crswd2bl $105B4E écarté (la
+# cellule ne vaut pas $02 dans la fenêtre du jig). MAME 0.286, -bios euro, -video none, une NVRAM et un cfg par run, romsets non-merged, seul
 # sp-s2.sp1 remplacé. Deux runs par cheat : le cheat mis à ON par le menu en jeu, et un témoin qui ouvre et ferme le même menu.
 # Critère (genre vies) : le témoin perd la partie, la partie sous cheat non, jusqu'à FIN ; la cellule à sa valeur sur 0,9 des
 # relevés au moins ; le moteur n'écrit que l'adresse du cheat, et rien au témoin. Écartés en route : mutnat ($102530 : fin de
@@ -53,3 +54,8 @@ samsho3	INFINITE TIME	PASS	0087	E4CB	10849Ex1220	1220	chronomètre : son image l
 wh2j	INFINITE TIME	PASS	0064	8B26	10C108x1219	1219	chronomètre : son image la plus fréquente sur 0.98 des relevés sous cheat (2 images), 0.13 au témoin (39) ; $10C109 à $99 sur 1.00
 kotm2	INFINITE TIME	PASS	0039	9C61	1013D2x1220	1220	chronomètre : son image la plus fréquente sur 0.93 des relevés sous cheat (5 images), 0.13 au témoin (27) ; $1013D2 à $70 sur 1.00
 burningf	INFINITE TIME	PASS	0018	A9E4	10D002x2420	2420	compteur : son image la plus fréquente sur 0.99 des relevés sous cheat (2 images), 0.13 au témoin (9) ; $10D002 à $60 sur 1.00
+alpham2	INFINITE LIVES	PASS	0007	799C	1010F2x10420	10420	fin de partie : témoin 6740, sous cheat aucune (FIN 12000) ; $1010F2 à $02 sur 1.00
+crsword	INFINITE LIVES	PASS	0037	B3BC	10405Cx10420	10420	fin de partie : témoin 9050, sous cheat aucune (FIN 12000) ; $10405C à $05 sur 1.00
+eightman	INFINITE LIVES	PASS	0025	BDFA	100CF6x10420	10420	fin de partie : témoin 4030, sous cheat aucune (FIN 12000) ; $100CF7 à $03 sur 1.00
+nitd	INFINITE LIVES	PASS	0260	3085	100054x10416	10416	fin de partie : témoin 6180, sous cheat aucune (FIN 12000) ; $100055 à $03 sur 1.00
+roboarmy	INFINITE LIVES	PASS	0032	95B5	1000D2x10420	10420	fin de partie : témoin 6250, sous cheat aucune (FIN 12000) ; $1000D2 à $02 sur 1.00

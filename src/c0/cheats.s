@@ -554,5 +554,23 @@ _cheats_table:
         | BURNING FIGHT : le temps, BCD, 60 ; il ne perd 1 que toutes les ~200 trames (genre compteur).
         JEU     0x0018, 0xA9E4, 1
         CHEAT   "INFINITE TIME",   0x10D002, 1, 0x60
+        | LES VIES PAR SUITE ATTENDUE EN SCÉNARIO SAUT, le 2026-10-29 : P1 avance en sautant sans tirer
+        | (l'idée de l'utilisateur, pour mourir vite) ; l'octet qui suit exactement 3, 2, 1… (ou depuis
+        | 1 à 5), forcé seul dès la trame 700 : plus de fin de partie, le témoin perd la sienne.
+        | ALPHA MISSION II : les vies, 2 au départ ; le témoin perd la partie à la trame 6710.
+        JEU     0x0007, 0x799C, 1
+        CHEAT   "INFINITE LIVES",  0x1010F2, 1, 0x02
+        | CROSSED SWORDS : les vies, 5 au départ ; le témoin perd la partie à la trame 9020.
+        JEU     0x0037, 0xB3BC, 1
+        CHEAT   "INFINITE LIVES",  0x10405C, 1, 0x05
+        | EIGHT MAN : les vies, 3 au départ ; le témoin perd la partie à la trame 4344.
+        JEU     0x0025, 0xBDFA, 1
+        CHEAT   "INFINITE LIVES",  0x100CF7, 1, 0x03
+        | NIGHTMARE IN THE DARK : les vies, 3 au départ ; le témoin perd la partie à la trame 6144.
+        JEU     0x0260, 0x3085, 1
+        CHEAT   "INFINITE LIVES",  0x100055, 1, 0x03
+        | ROBO ARMY : les vies, 2 au départ ; le témoin perd la partie à la trame 6216.
+        JEU     0x0032, 0x95B5, 1
+        CHEAT   "INFINITE LIVES",  0x1000D2, 1, 0x02
         FIN_TABLE
         .balign 2

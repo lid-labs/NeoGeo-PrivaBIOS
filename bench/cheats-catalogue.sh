@@ -26,7 +26,8 @@
 # Dans tous les genres, le tap du mode menu de `cheats.lua` exige que le moteur du BIOS n'ait écrit
 # que l'adresse du cheat, et qu'il n'ait rien écrit au témoin.
 #
-# LES ENTRÉES. « b » (bombes) : « s », et B toutes les 300 trames à partir de 1700.
+# LES ENTRÉES. « j » (sauter pour mourir) : pièce, START, puis droite tenue et B toutes les 20 trames,
+# sans tirer : P1 fonce en sautant dans les ennemis. « b » (bombes) : « s », et B toutes les 300 trames à partir de 1700.
 # « f » (combat) : pièce à 400, START à 500, A toutes les 60 trames de 600 à 3500,
 # droite tenue à partir de 2000 ; « s » (tir, action) : pièce, START, A toutes les 60 trames, droite
 # tenue à partir de 1000, C toutes les 400 trames à partir de 1500. Le joueur ne joue pas : il meurt,
@@ -135,6 +136,11 @@ zupapa	0	INFINITE LIVES	1002C1	03	vies	s	1500	12000	-	-
 mslug2	1	INFINITE TIME	1013B4	3C	compteur	s	1500	4000	145,8,175,31	jaune
 mslug4	1	INFINITE TIME	10ED5C	60	compteur	s	1500	4000	145,8,175,31	jaune
 burningf	0	INFINITE TIME	10D002	60	compteur	s	1500	4000	145,33,174,47	brut
+alpham2	0	INFINITE LIVES	1010F2	02	vies	j	1500	12000	-	-
+crsword	0	INFINITE LIVES	10405C	05	vies	j	1500	12000	-	-
+eightman	0	INFINITE LIVES	100CF7	03	vies	j	1500	12000	-	-
+nitd	0	INFINITE LIVES	100055	03	vies	j	1500	12000	-	-
+roboarmy	0	INFINITE LIVES	1000D2	02	vies	j	1500	12000	-	-
 fightfev	0	INFINITE TIME	108110	99	temps	f	1900	3200	147,24,172,36	brut
 kof96	1	INFINITE TIME	10A837	32	temps	f	1900	3200	147,14,172,32	brut
 matrim	0	INFINITE TIME	10B90B	3C	temps	f	1900	3200	145,8,174,24	brut
@@ -206,6 +212,7 @@ entrees() {
     f) x="600-3500%60:A 2000-40000:droite" ;;
     s) x="600-40000%60:A 1000-40000:droite 1500-40000%400:C" ;;
     b) x="600-40000%60:A 1000-40000:droite 1500-40000%400:C 1700-40000%300:B" ;;
+    j) x="1000-40000:droite 1000-40000%20:B" ;;
   esac
   local seg d f r bt
   for seg in $x; do
