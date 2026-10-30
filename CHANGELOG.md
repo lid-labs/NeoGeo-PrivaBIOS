@@ -30,6 +30,7 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 
 ### Fixed
 
+- `bench/cheats-catalogue.sh`: the samsho2 timer zone leaves out the bar above the digits (#16).
 - `bench/parcours-mutations.py`: the `cat-mslug2-perdu` mutation no longer depends on the number of
   Metal Slug 2 cheats; it had stopped applying when that number changed.
 - README: the status line no longer says that no release exists.
