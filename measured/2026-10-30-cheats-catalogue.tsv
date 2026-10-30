@@ -2,6 +2,9 @@
 # 2026-10-30-cheats-table.tsv (#21), image 2853e7d1… ; ninjamas garde aussi son P1 INFINITE LIFE. Même banc et mêmes seuils
 # que 2026-10-29-cheats-catalogue.tsv (genre temps : l'image du chronomètre de T + 200 à T + 800). Le catalogue complet n'a pas
 # été rejoué : les autres cheats et leur moteur ne changent pas, et la non-régression passe sur la même image.
+# Puis INFINITE BOMBS pour mslug2 à mslug5 (#22), image dc4a0382… : genre compteur, entrées b (le scénario bombe),
+# l'image des chiffres BOMB (zone 114,13,128,20) de T + 200 à 2700, avant les écrans CONTINUE ; les autres cheats des quatre
+# jeux rejoués au même passage, tous PASS.
 jeu	cheat	verdict	ngh	empreinte	ecritures_du_moteur	nombre	mesure
 aof3	INFINITE TIME	PASS	0096	C5DF	10DF0Ex1220	1220	chronomètre : son image la plus fréquente sur 1.00 des relevés sous cheat (1 images), 0.10 au témoin (11) ; $10DF0F à $3C sur 1.00
 breakers	INFINITE TIME	PASS	0230	9C95	107C0Ax1219	1219	chronomètre : son image la plus fréquente sur 0.93 des relevés sous cheat (3 images), 0.07 au témoin (23) ; $107C0B à $63 sur 1.00
@@ -14,3 +17,7 @@ lastbld2	INFINITE TIME	PASS	0243	B546	10E594x1220	1220	chronomètre : son image 
 gowcaizr	INFINITE TIME	PASS	0094	4B34	1062E0x1220	1220	chronomètre : son image la plus fréquente sur 0.97 des relevés sous cheat (3 images), 0.10 au témoin (11) ; $1062E1 à $3C sur 1.00
 ninjamas	INFINITE TIME	PASS	0217	4720	10C020x1208	1208	chronomètre : son image la plus fréquente sur 1.00 des relevés sous cheat (1 images), 0.07 au témoin (18) ; $10C021 à $99 sur 1.00
 ninjamas	P1 INFINITE LIFE	PASS	0217	4720	100050x13311	13311	fin de partie : témoin 9740, sous cheat aucune (FIN 15000) ; $100050 à $D0 sur 1.00
+mslug2	INFINITE BOMBS	PASS	0241	BE57	10C348x1095	1095	compteur : son image la plus fréquente sur 0.99 des relevés sous cheat (2 images), 0.48 au témoin (7) ; $10C348 à $0A sur 1.00
+mslug3	INFINITE BOMBS	PASS	0256	E095	10EAF4x1108	1108	compteur : son image la plus fréquente sur 0.99 des relevés sous cheat (2 images), 0.44 au témoin (5) ; $10EAF5 à $0A sur 1.00
+mslug4	INFINITE BOMBS	PASS	0263	D875	10EDECx1084	1084	compteur : son image la plus fréquente sur 0.99 des relevés sous cheat (2 images), 0.54 au témoin (4) ; $10EDED à $0A sur 1.00
+mslug5	INFINITE BOMBS	PASS	0268	1581	10D456x1095	1095	compteur : son image la plus fréquente sur 0.99 des relevés sous cheat (2 images), 0.42 au témoin (7) ; $10D457 à $0A sur 1.00

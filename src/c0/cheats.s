@@ -401,26 +401,32 @@ _cheats_table:
         CHEAT   "INFINITE TIME",   0x102242, 1, 0x99
         | METAL SLUG 2 : les vies, 2 au départ de la partie (HUD 1UP=2).
         | Le 2026-10-29, par valeur connue (le HUD lu à deux trames, puis les octets qui valent ce qu'il
-        | affiche) : le temps de mission $1013B4, binaire, 60.
-        JEU     0x0241, 0xBE57, 2
+        | affiche) : le temps de mission $1013B4, binaire, 60. Le 2026-10-30, par suite attendue en
+        | scénario bombe : les bombes $10C348, 10 au départ ($10127C n'en est qu'une copie).
+        JEU     0x0241, 0xBE57, 3
         CHEAT   "INFINITE LIVES",  0x101276, 1, 0x02
         CHEAT   "INFINITE TIME",   0x1013B4, 1, 0x3C
+        CHEAT   "INFINITE BOMBS",  0x10C348, 1, 0x0A
         | METAL SLUG X : les vies, 2 au départ.
         JEU     0x0250, 0x92D4, 1
         CHEAT   "INFINITE LIVES",  0x101288, 1, 0x02
-        | METAL SLUG 3 : les vies, 2 au départ.
-        JEU     0x0256, 0xE095, 1
+        | METAL SLUG 3 : les vies, 2 au départ. Les bombes (2026-10-30, scénario bombe) : $10EAF5, 10.
+        JEU     0x0256, 0xE095, 2
         CHEAT   "INFINITE LIVES",  0x1002BB, 1, 0x02
+        CHEAT   "INFINITE BOMBS",  0x10EAF5, 1, 0x0A
         | METAL SLUG 4 : les vies, 2 au départ.
-        | Le 2026-10-29, par valeur connue : le temps de mission $10ED5C, BCD, 60.
-        JEU     0x0263, 0xD875, 3
+        | Le 2026-10-29, par valeur connue : le temps de mission $10ED5C, BCD, 60. Les bombes
+        | (2026-10-30, scénario bombe) : $10EDED, 10.
+        JEU     0x0263, 0xD875, 4
         CHEAT   "INFINITE LIVES",  0x100A89, 1, 0x02
         CHEAT   "INFINITE TIME",   0x10ED5C, 1, 0x60
         CHEAT   "P2 INF. LIVES",   0x100CFC, 1, 0x02
-        | METAL SLUG 5 : les vies, 2 au départ.
-        JEU     0x0268, 0x1581, 2
+        CHEAT   "INFINITE BOMBS",  0x10EDED, 1, 0x0A
+        | METAL SLUG 5 : les vies, 2 au départ. Les bombes (2026-10-30, scénario bombe) : $10D457, 10.
+        JEU     0x0268, 0x1581, 3
         CHEAT   "INFINITE LIVES",  0x100A41, 1, 0x02
         CHEAT   "P2 INF. LIVES",   0x1050C2, 1, 0x05
+        CHEAT   "INFINITE BOMBS",  0x10D457, 1, 0x0A
         | PULSTAR : les vies, 2 au départ.
         JEU     0x0089, 0xA232, 2
         CHEAT   "INFINITE LIVES",  0x10132A, 1, 0x02
