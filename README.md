@@ -9,7 +9,8 @@
 
 The test scene, mutation and catalogue figures are measured locally under MAME, with our own ROM
 sets ([`docs/BENCH.md`](docs/BENCH.md), [`measured/HISTORIQUE.md`](measured/HISTORIQUE.md)). The CI
-builds the image, checks its SHA-256 and runs the generators' tests; it does not run MAME.
+checks tracked files for private data, builds the image, checks its SHA-256 and runs the
+generators' tests; it does not run MAME.
 
 ![The Sprixe BIOS boot screen](docs/screenshots/boot.gif)
 

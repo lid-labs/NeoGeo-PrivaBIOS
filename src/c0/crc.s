@@ -463,7 +463,7 @@ _crc_cartouche:
         move.w  #0x7000, VRAMADDR
         move.w  #(PAL_VIDE << 12) + 0x020, %d0
         move.w  #40 * 32 - 1, %d1
-1:      move.w  %d0, VRAMRW             | 18 cycles per loop: above the 12 ("VRAM")
+1:      move.w  %d0, VRAMRW             | 26 cycles per loop: above the 12 ("VRAM")
         dbra    %d1, 1b
         rts
 

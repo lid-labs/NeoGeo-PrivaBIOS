@@ -42,6 +42,11 @@ jobs:
           read -r attendu < build/expected-sha256.txt
           echo "$attendu  sprixe-bios.sp1" | sha256sum -c -
 
+      - name: The slot diagnostic image and the harness still link
+        run: |
+          BIOS_OBJ=obj-diag ./build/construire.sh diag/slots diag-slots.sp1
+          BIOS_OBJ=obj-harnais ./build/construire.sh build/harnais harnais.sp1
+
       - uses: actions/upload-artifact@v4
         with:
           name: sprixe-bios

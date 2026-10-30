@@ -232,7 +232,7 @@ _reset:
 | out of reach of a `jsr $C00xxx` coming from the table — and a round offset is
 | recognisable in a trace, which matters when looking for where the 68000 went.
 |
-| THE FIRST VERSION OF THIS LAYER PUT THE CODE AT $C00600, i.e. inside the table: 23
+| THE FIRST VERSION OF THIS LAYER PUT THE CODE AT $C00600, i.e. inside the table: 43
 | slots of the range $C0059A-$C006FC fell in it, and a game that had called one would
 | jump into `_demarrage` — REG_SWPROM rewritten and power-on relaunched in the middle of
 | a game. `puzzledp` does not call them, so the bench showed nothing of it: it was the
@@ -348,7 +348,7 @@ _demarrage:
         |                            names it SOUND_STOP
         |   $D00047     02           SLOT NUMBER, "2 for slot1"
         |   $D0004C     3B           measured; PLAY_TIME_FRAME_TIMER, which the page starts
-        |                            at $3C — `io.s` reloads it at $3C, it does not rely on 3B
+        |                            at $3C — `io.s` reloads it at $3B, like this value
         |   $D00058     FF           measured; "First slot number with a boot logo flag to 0"
         |   $D0005A-5D  00 00 00 3C  the HHMMSSFF timer. ASSUMED: the page gives the ranges
         |                            (FF counts down from $3C to $00), not the formatting
@@ -1222,7 +1222,7 @@ _passer_au_slot_gare:                   | the Z80 already parked: the boot, afte
         jmp     _cheats_oublier         | its `rts` hands control back to the caller
 
 | THE Z80 PARKED AT BOOT, QUICKLY: $01, the echo watched for continuously
-| (`.Lsync_ou_echo`), resent at every frame, 60 at most; then ~3,000 rounds (~2.5 ms) for
+| (`.Lsync_ou_echo`), resent at every frame, 60 at most; then ~3,000 rounds (~6.5 ms) for
 | the driver to enter its RAM loop — ASSUMED sufficient, no page puts a figure on this
 | delay. Clobbers %d0, %d4.
 _garer_z80_vite:
@@ -1235,8 +1235,8 @@ _garer_z80_vite:
         dbra    %d4, 2b
         rts
 
-| THE Z80 PARKED IN RAM: $01 and its echo, then one frame. For the slot passage above and
-| for the slot detection, at boot. Clobbers %d0, %d4.
+| THE Z80 PARKED IN RAM: $01 and its echo, then one frame. For the slot passage above (the
+| slot detection, at boot, uses `_garer_z80_vite`). Clobbers %d0, %d4.
 _garer_z80:
         moveq   #60-1, %d4              | at most 60 sends of $01
 _son_envoi:
@@ -1757,7 +1757,7 @@ _retour_piece:
 | exception frame — our vector table does not lead IRQ 1 to SYSTEM_INT1 (`plantage.s`).
 | ASSUMED: that a game that does not go through $C00438 under BIOS_SYSTEM_MODE at $02
 | exits through the bound anyway.
-| The wait until 0.47: 3,560 rounds of ~26 cycles (see `_sysret_piece`).
+| The wait until 0.47: 3,560 rounds of ~26 cycles (see `_remettre_a_user`).
 | ----------------------------------------------------------------------------------
         .global _retour_demo_end
 _retour_demo_end:
@@ -1853,7 +1853,7 @@ _commutateurs:
         rts
 
 | THE WAIT FROM ≈ 0.02 TO ≈ 0.47 OF THE FRAME, after REG_SWPBIOS: 3,560 rounds of ~26
-| cycles in all (see `_sysret_piece`), and REG_POUTPUT ← $00 around 0.11. MEASURED under
+| cycles in all (see `_remettre_a_user`), and REG_POUTPUT ← $00 around 0.11. MEASURED under
 | MAME on 2026-10-23 (-bios euro, puzzledp and nam1975;
 | `measured/2026-10-23-led-et-remises.tsv`, section 1): the reference writes $00 into
 | REG_POUTPUT ($380001, "Joypad ports outputs", "Memory mapped registers") at 0.113 of
@@ -2099,10 +2099,10 @@ _remettre_a_user:
         | acknowledging the three IRQs ($3C000C ← 7) before the `jmp`, and the hand-over falls
         | at 0.003, no more errors over 2000 frames; the acknowledgement alone changes
         | nothing. REG_LSPCMODE ($3C0006) reads back as a line counter in its bits 15-7 (same
-        | record). The wait lasts at most one frame, under the watchdog — and it is BOUNDED
-        | like `.Lsync` (below, same count): SYNC_TOURS rounds of 70 cycles, ≈ 2 frames, then
-        | control goes anyway if the line has not been seen. A kick at each round. Under MAME
-        | the line is seen: the bound is not used.
+        | record). The wait lasts at most one frame when the line is seen, under the watchdog —
+        | and it is BOUNDED like `.Lsync` (below, same count): SYNC_TOURS rounds of 70 cycles,
+        | ≈ 2 frames, then control goes anyway if the line has not been seen. A kick at each
+        | round. Under MAME the line is seen: the bound is not used.
         move.w  #SYNC_TOURS - 1, %d5
 1:      move.b  %d0, 0x300001           | watchdog
         move.w  0x3C0006, %d0
