@@ -53,7 +53,7 @@
 #         that of a real MV-2F, 2026-10-24); measured/2026-10-24-slot-crtfix.tsv.
 #   In --rapide, stage 3 keeps only 3a (adr), 3b and 3c.
 #   4  In full mode only: `bench/parcours.sh` on the same image, the script's --jobs — the
-#      player's path, 161 scenes judged on picture and sound (`-wavwrite`) against a witness run or a
+#      player's path, 162 scenes judged on picture and sound (`-wavwrite`) against a witness run or a
 #      fingerprint, thresholds in measured/2026-10-23-parcours.tsv, for the six of the AES mode
 #      measured/2026-10-23-parcours-aes.tsv, for the 34 of the coverage
 #      measured/2026-10-23-parcours-couverture-scenes.tsv, for the 18 of the full in-game menu
@@ -67,7 +67,7 @@
 #      carries "bug_connu" at 1 would come out "CONNU" without failing the stage; none carries it
 #      since the fix of CREDIT_CHECK in AES mode (aes-texte). Its header carries the
 #      criteria; `bench/parcours-mutations.py --eprouver` proves that each one can fail
-#      (207 mutations). Eight scenes, bf-*, replay the TEST screen under `bus-flottant.lua`;
+#      (208 mutations). Eight scenes, bf-*, replay the TEST screen under `bus-flottant.lua`;
 #      sans-cartouche plays ng_mv1 without a cartridge under the same model (ng_mv1.zip is needed), flash-cart
 #      aof muted over its first 30 frames, and
 #      scores-gel plays wh2 on the MV-6F (wh2.zip is needed), cheats-vies and crc-banques play mslug2 (mslug2.zip is needed),

@@ -51,6 +51,11 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 
 ### Fixed
 
+- Formatting now clears the whole backup RAM, like the SNK BIOS. It stopped at `$D0007F`: on a board
+  whose backup RAM held other data, samsho4 showed its anti-copy WARNING, and so did the SNK BIOS
+  afterwards. A board already in that state needs its backup RAM cleared once.
+- `bench/parcours-mutations.py --verifier`, run by the CI: an edited source comment can no longer
+  break a mutation unnoticed. Two had been broken that way.
 - Source comments that contradicted the code next to them (cycle counts, menu line numbers, the
   Z80 parking, the calendar call), and the CI's description in CONTRIBUTING and README.
 - AES mode: kof98's boot animation (request 1) no longer comes back after a game over. Its

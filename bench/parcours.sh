@@ -660,6 +660,9 @@
 #                 editor open, just before INPUT TEST: the menus, opened at OFF, stay on the
 #                 joystick there (DECISIONS §30). The panel itself in INPUT TEST is proven only by
 #                 dip-mahjong (§24 pt 3).
+#   bram-sale     samsho4 on a backup RAM full of bytes, without a signature, as a board can have
+#                 after a dead battery or another use: the game starts, without its WARNING
+#                 (the word $D00100 must not be left non-zero; measured/2026-10-30-bram-sale.tsv).
 #   dip-corrompue the NVRAM of vierge-c (aof known, its soft-DIP block arbitrary) relaunched
 #                 WITHOUT the editor, coin and START like temps0: GAME_DIP at frame 300 is that of
 #                 the witness (the same story without the bytes set), and at least "egales_min" of
@@ -815,6 +818,7 @@
 # That of the bank window that reads only one word, on 2026-10-29: crc-flottant-ignore
 # (crc-flottant). 206 in all.
 # That of BIOS_LOGO under GL_MASQUE, on 2026-10-30: logo-sous-les-gels (aes-logo-fin). 207 in all.
+# That of the formatting cut short, on 2026-10-30: bram-formatee-en-partie (bram-sale). 208 in all.
 #
 # WHAT IT DOES NOT COVER: the hardware, outside the model of `bus-flottant.lua`; NO SOFT DIP DATA
 # on a real game (none of the 166 sets of the directory has a refused block: the scene is played
@@ -853,7 +857,7 @@ REF_SINUS="$PAQUET/measured/2026-10-28-parcours-sinus.tsv"
 REF_PANNEAU="$PAQUET/measured/2026-10-28-parcours-panneau.tsv"
 JOBS=$(( $( (sysctl -n hw.ncpu || nproc) 2>/dev/null || echo 4) - 2 )); [ "$JOBS" -ge 1 ] || JOBS=1
 CACHE=""
-SCENES_TOUTES="boot-ecran boot-saut calendrier carte demo-son partie-credit partie-start fin-demo fin-titre scores dip-temps dip-langue region autotests jukebox menu-hud menu-reprise menu-son cheats restart ms-demo ms-select ms-garde aes-bascule aes-demo aes-start aes-menu aes-piece aes-retour dip-defauts dip-mmss dip-fois region-europe region-japon region-usa autotests-palette autotests-vram autotests-backup tests-entrees tests-barres tests-grille jukebox-pas jukebox-stop cheats-off partie-p2 carte-sauve ms-select-p2 aes-ms-select aes-pause aes-logo aes-logo-fin aes-fin aes-texte depart-force piece-son ms-seule jukebox-repete partie-p2-joint carte-chercher carte-supprimer carte-nom tests-p2 tests-dip dip-sans-donnees gs-compte gs-defauts gs-choix gs-mmss gs-fois gs-sans-donnees gs-banque me-ecran me-goto me-octet me-ligne me-page me-repete me-poke me-gel me-liste me-degel me-borne bf-editeur bf-banque bf-tests bf-jukebox sans-cartouche flash-cart cm-liste cm-libres cm-effacer cm-annuler cm-formater cm-non-formatee cm-sans-carte cm-protegee cm-insertion bf-carte aes-scores scores-gel bo-ecran ab-ecran bo-free-play bo-fp-p2 bo-fp-joint bo-no-continue bo-demo-muette bo-aes bf-borne cheats-vies bo-cd-menu bo-cd-gel dip-free-play dip-fp-p2 dip-fp-refus dip-fp-chaud dip-fp-reglage dip-fp-cabinet dip-setting geste-boot geste-jeu geste-partie demo-ssideki japon-intitules gs-japon gs-japon-garde crc-fixe crc-banques crc-miroir crc-flottant bf-crc bf-crc-banque dd-effet dd-off dip-gel dip-gel-off dip-gel-boot dip-mahjong dip-mj-off dip-4p dip-4p-off af-tir af-sauve af-off af-mahjong boot-graphismes ms-son-slot2 dip-vierge dip-corrompue tests-mahjong jukebox-veille cm-copier alpha-trajectoire howto-preisle2 tests-sauvegarde dd-connu pn-menu-on pn-menu-off pn-valeur pn-verrou pn-jeu"
+SCENES_TOUTES="boot-ecran boot-saut calendrier carte demo-son partie-credit partie-start fin-demo fin-titre scores dip-temps dip-langue region autotests jukebox menu-hud menu-reprise menu-son cheats restart ms-demo ms-select ms-garde aes-bascule aes-demo aes-start aes-menu aes-piece aes-retour dip-defauts dip-mmss dip-fois region-europe region-japon region-usa autotests-palette autotests-vram autotests-backup tests-entrees tests-barres tests-grille jukebox-pas jukebox-stop cheats-off partie-p2 carte-sauve ms-select-p2 aes-ms-select aes-pause aes-logo aes-logo-fin aes-fin aes-texte depart-force piece-son ms-seule jukebox-repete partie-p2-joint carte-chercher carte-supprimer carte-nom tests-p2 tests-dip dip-sans-donnees gs-compte gs-defauts gs-choix gs-mmss gs-fois gs-sans-donnees gs-banque me-ecran me-goto me-octet me-ligne me-page me-repete me-poke me-gel me-liste me-degel me-borne bf-editeur bf-banque bf-tests bf-jukebox sans-cartouche flash-cart cm-liste cm-libres cm-effacer cm-annuler cm-formater cm-non-formatee cm-sans-carte cm-protegee cm-insertion bf-carte aes-scores scores-gel bo-ecran ab-ecran bo-free-play bo-fp-p2 bo-fp-joint bo-no-continue bo-demo-muette bo-aes bf-borne cheats-vies bo-cd-menu bo-cd-gel dip-free-play dip-fp-p2 dip-fp-refus dip-fp-chaud dip-fp-reglage dip-fp-cabinet dip-setting geste-boot geste-jeu geste-partie demo-ssideki japon-intitules gs-japon gs-japon-garde crc-fixe crc-banques crc-miroir crc-flottant bf-crc bf-crc-banque dd-effet dd-off dip-gel dip-gel-off dip-gel-boot dip-mahjong dip-mj-off dip-4p dip-4p-off af-tir af-sauve af-off af-mahjong boot-graphismes ms-son-slot2 dip-vierge dip-corrompue tests-mahjong jukebox-veille cm-copier alpha-trajectoire howto-preisle2 tests-sauvegarde dd-connu pn-menu-on pn-menu-off pn-valeur pn-verrou pn-jeu bram-sale"
 SCENES="$SCENES_TOUTES"
 HASHPATH="${BIOS_HASHPATH:-}"
 while [ $# -gt 0 ]; do
@@ -951,6 +955,7 @@ echo "$EMP" > "$R/.image-sha256"
 # kof98 and ncombat are only used on the MV-6F (`neogeo -cart1`): their romset is read as is
 # in <roms-dir>, our image coming from neogeo.zip; none is copied.
 for j in kof98 ncombat; do [ -s "$ROMS/$j.zip" ] || { echo "set introuvable : $ROMS/$j.zip" >&2; exit 2; }; done
+case " $SCENES " in *" bram-sale "*) [ -s "$ROMS/samsho4.zip" ] || { echo "set introuvable : $ROMS/samsho4.zip" >&2; exit 2; } ;; esac
 case " $SCENES " in *" bf-banque "*|*" dip-vierge "*) [ -s "$ROMS/mslug.zip" ] || { echo "set introuvable : $ROMS/mslug.zip" >&2; exit 2; } ;; esac
 # ssideki (demo-ssideki scene): on the MV-6F, like kof98; the SNK witness reads the same romset.
 case " $SCENES " in *" demo-ssideki "*) [ -s "$ROMS/ssideki.zip" ] || { echo "set introuvable : $ROMS/ssideki.zip" >&2; exit 2; } ;; esac
@@ -1400,6 +1405,7 @@ runs_de() {
     ms-son-slot2) echo "s2-son s2-son-snk" ;;
     dip-vierge) echo "vierge-set-n vierge-set-c vierge-0 vierge-n vierge-c vierge-set-m vierge-m0 vierge-m" ;;
     dip-corrompue) echo "vierge-set-c vierge-set-0 corrompue corrompue-0" ;;
+    bram-sale) echo "bram-sale" ;;
     tests-mahjong) echo "tests-mj" ;;
     pn-menu-on) echo "pn-on" ;;
     pn-menu-off) echo "pn-off" ;;
@@ -1890,6 +1896,13 @@ veut vierge-0 && lancer vierge-0 son.lua "$NOTRE" $VIERGE_EDIT
 VIERGE_EDIT_M="$EDIT J_TEXTE=250,330 J_APPUIS=270:bas,280:bas,290:A,340:START $VIERGE_SUIV J_FIN=400"
 veut vierge-set-m && lancer vierge-set-m son.lua "$MS_MSLUG" J_PIECE=0 J_START=0 J_BRAM=390@D00220=$VIERGE J_FIN=400
 veut vierge-m0 && lancer vierge-m0 son.lua "$MS_MSLUG" $VIERGE_EDIT_M
+# bram-sale: a saved backup RAM of 64 KiB of arbitrary bytes, without the signature.
+if veut bram-sale; then
+  mkdir -p "$WORK/runs/bram-pleine/nvram/neogeo"
+  python3 -I -B -c 'import sys; open(sys.argv[1], "wb").write(bytes((i * 167 + (i >> 8) * 13 + 0x5B) & 0xFF for i in range(65536)))' \
+    "$WORK/runs/bram-pleine/nvram/neogeo/saveram"
+  NV_DE=bram-pleine; lancer bram-sale son.lua "neogeo -hashpath $HASHPATH -rompath $R;$ROMS -cart1 samsho4" J_PIECE=2500 J_START=2700 J_TEXTE=2750,2800 J_FIN=2850
+fi
 # dip-corrompue: the same story as vierge-set-c, without the bytes set (the witness).
 veut vierge-set-0 && lancer vierge-set-0 son.lua "$NOTRE" J_PIECE=0 J_START=0 J_FIN=400
 veut gj-adapt && lancer gj-adapt son.lua "$MV2" J_DSW=1:40 J_PIECE=0 J_START=1000 J_APPUIS=$ADAPT_GJ J_TEXTE=1800 J_HACHES=1500-2000 J_SUIVRE=10F800:2 J_FIN=2000
@@ -2444,7 +2457,9 @@ def restart():
     rs = [n for n, r in s.ev if r == "RESET" and n > 2337]
     exiger(rs, "pas de RESET après RESTART GAME")
     k0 = rs[0]
-    eg = sum(1 for k in range(1, 381) if s.h(k0 + k) is not None and s.h(k0 + k) == b.h(k))
+    # The power-on of `boot` formats a new NVRAM, ~41 ms: its picture comes 2 frames later than
+    # that of a reset, which does not format (measured on 2026-10-30: 208 at 2, 140 at 0).
+    eg = sum(1 for k in range(1, 381) if s.h(k0 + k) is not None and s.h(k0 + k) == b.h(k + 2))
     dit(f"RESET à {k0} ; {eg}/380 trames égales à une mise sous tension")
     exiger(eg >= F("restart", "egales_min"), f"{eg} trames égales")
 
@@ -2774,6 +2789,14 @@ def aes_logo():
     D, n = meilleur_decalage(l, k, d[0], d[0] + 1500)
     dit(f"demande 1 à {d[0]} : {n}/1500 trames du BIOS AES de SNK (décalage {D})")
     exiger(D is not None and n >= F("aes-logo", "snk_min"), f"{n} trames du témoin")
+
+def bram_sale():
+    (r,) = sain("bram-sale")
+    for n in (2750, 2800):
+        exiger("WARNING" not in r.texte(n), f"samsho4 montre son WARNING à la trame {n}")
+    jeu = [n for n, e in r.ev if e.startswith("user=02/")]
+    exiger(jeu, "samsho4 : la partie ne commence pas")
+    dit(f"partie à {jeu[0]}, pas de WARNING")
 
 def aes_logo_fin():
     (l,) = sain("aes-logo-fin")
@@ -3773,7 +3796,7 @@ JUGES = {"aes-bascule": aes_bascule, "aes-demo": aes_demo, "aes-start": aes_star
          "autotests-vram": autotests_vram, "autotests-backup": autotests_backup, "tests-entrees": tests_entrees,
          "tests-barres": tests_barres, "tests-grille": tests_grille, "jukebox-pas": jukebox_pas,
          "jukebox-stop": jukebox_stop, "cheats-off": cheats_off, "partie-p2": partie_p2, "carte-sauve": carte_sauve,
-         "ms-select-p2": ms_select_p2, "aes-ms-select": aes_ms_select, "aes-pause": aes_pause, "aes-logo": aes_logo, "aes-logo-fin": aes_logo_fin,
+         "ms-select-p2": ms_select_p2, "aes-ms-select": aes_ms_select, "aes-pause": aes_pause, "aes-logo": aes_logo, "aes-logo-fin": aes_logo_fin, "bram-sale": bram_sale,
          "aes-fin": aes_fin, "aes-texte": aes_texte, "depart-force": depart_force, "piece-son": piece_son,
          "ms-seule": ms_seule, "jukebox-repete": jukebox_repete, "partie-p2-joint": partie_p2_joint,
          "carte-chercher": carte_chercher, "carte-supprimer": carte_supprimer, "carte-nom": carte_nom,

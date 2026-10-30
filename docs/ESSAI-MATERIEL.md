@@ -196,3 +196,19 @@ mahjong panel (§30), the Sprixe BIOS name and the `v0.1 BETA` boot screen.
 Checked on this exact image: 12 targeted scenes PASS (sans-cartouche, flash-cart, boot, multi-slot,
 floating bus, AES mode). Neither the full regression nor the catalogue was run. No feedback from
 the board yet.
+
+## samsho4's WARNING — 2026-10-29 and 2026-10-30
+
+**What the board showed.** On 2026-10-29, on the tester's board with a BackBit flash cart: samsho4
+shows "WARNING / THIS ROM CARTRIDGE IS FOR USE WITH ORIGINAL SNK BOARDS ONLY" at the start of a game.
+The original BIOS then shows it too; clearing the backup RAM makes it go away (tester's report).
+
+**What was measured.** Under MAME on 2026-10-30 (`measured/2026-10-30-bram-sale.tsv`), the screen is
+reproduced from a backup RAM that holds other data and has no valid signature: our formatting
+stopped at `$D0007F`, left the word `$D00100` non-zero and signed the RAM, and the SNK BIOS, which
+clears everything, then trusted the signature. Fixed (`src/c0/c0.s`, scene `bram-sale`).
+
+**ASSUMED**: that this is what happened on the tester's board. The state of its backup RAM before
+our first boot is not known, and the fix has not run on a board. It does not repair a board already
+signed with a non-zero `$D00100`: that backup RAM must be cleared once.
+

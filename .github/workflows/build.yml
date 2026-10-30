@@ -32,6 +32,9 @@ jobs:
       - name: Sine table matches its generator
         run: python3 -I -B bench/generer-sinus.py --verifier
 
+      - name: Mutation passages match the sources
+        run: python3 -I -B bench/parcours-mutations.py --verifier
+
       - name: Build the image
         run: |
           BIOS_OBJ=obj ./build/construire.sh src/c0 sprixe-bios.sp1

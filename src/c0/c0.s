@@ -325,13 +325,14 @@ _demarrage:
         | (measured, frames 38-62 of `puzzledp`: $5555, $AAAA, then a value derived from the
         | address). This boot tests no RAM; only the validation is, and the formatting.
         |
-        | THE EXTENT: $D00000-$D0007F. The page does not bound a "system area"; it describes
-        | cells up to the bookkeeping at $D08320. We stop at the last byte the reference's
-        | dumps cover: beyond, the date ($D00104), the slot tables ($D00124, "$0000 as NGH
-        | and $FFFF as game name ID" when the slot is empty) and the game blocks would
-        | require values neither measured nor all written by the page — zeros there would
-        | contradict the $FFFF of empty slots. ASSUMED therefore, that nothing a game reads
-        | at its init falls higher. The slot table has its own check and its own
+        | THE EXTENT: ALL OF IT, $D00000-$D0FFFF, like the reference (measured under MAME on
+        | 2026-10-30, `measured/2026-10-30-bram-sale.tsv`: from an NVRAM filled with random
+        | bytes, it leaves only what it and the game then write). Until that date we stopped at
+        | $D0007F, ASSUMING that nothing a game reads at its init falls higher: refuted by
+        | samsho4, which shows its anti-copy WARNING if the word $D00100 is not zero, and the
+        | reference then trusted our signature, so it showed it too. All zeros is also the state of
+        | a new NVRAM, the path the bench runs most. About 41 ms (30 cycles × 16,384), under the
+        | watchdog's 8 frames. The slot table has its own check and its own
         | formatting, at the end of the boot.
         |
         | THE VALUES. Zero everywhere except what follows, measured after the reference's
@@ -373,7 +374,7 @@ _bram_verifier:
 
         move.b  %d0, 0x3A001D           | REG_SRAMUNLOCK
         lea     0xD00000, %a0
-        moveq   #(0x80 / 4) - 1, %d1
+        move.w  #(0x10000 / 4) - 1, %d1
 _bram_vider:
         clr.l   (%a0)+
         dbra    %d1, _bram_vider
