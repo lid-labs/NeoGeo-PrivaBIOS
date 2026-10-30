@@ -47,7 +47,7 @@ cartridge. The in-game menu and autofire screens are over Metal Slug (© SNK).
 - Per-game autofire: buttons A to D set one by one, at 10, 15 or 30 shots per second, remembered
   for each game. It only reaches games that read the controls through the BIOS
   (see [Compatibility](#compatibility)).
-- Cheats for 94 games (136 cheats), found by observing the games under MAME.
+- Cheats for 97 games (139 cheats), found by observing the games under MAME.
 - Soft-DIPs during a game (GAME SETTINGS in the in-game menu), and the soft-DIP editor at boot.
 - Soft-DIPs of a game never launched: the editor shows the cartridge defaults and saves a clean
   entry. A garbled entry left by another BIOS is checked value by value before the game sees it.
@@ -77,7 +77,8 @@ cartridge. The in-game menu and autofire screens are over Metal Slug (© SNK).
 **Extras**
 - Jukebox, with a screen saver: black screen after about two minutes, music keeps playing.
 
-Not included: menu colours, US-style credit display, 4-player adapter, PC-2-NEO, PICKnMIX. There is no image
+Not included: menu colours, US-style credit display, 4-player adapter, PC-2-NEO, PICKnMIX,
+overclock detection, coin and select remapping for joypads. There is no image
 for the AES console itself.
 
 The menus, and the keys and board switches that lead to them, are mapped in

@@ -1,0 +1,14 @@
+# INFINITE TIME pour 3 jeux de combat de plus, le 2026-10-30 : les 15 jeux de combat de bench/cheats-recherche.py (COMBAT) sans
+# chronomètre dans la table, scénario passif (action --scenario passif, 8 000 trames), filtre de suite attendue « temps » (60 ou
+# 99, remis à chaque round) ; candidats de 10 jeux, deux au plus par jeu, mis au menu du BIOS (catalogue CAT_DENSE, zone large),
+# leurs images lues : le chronomètre reste figé sous cheat pour kof2001 $10A7D2, kof2003 $107D62, rbff1 $106AA8 et kizuna
+# $10892A ; il descend comme au témoin pour fatfury1 $1042F3 (chiffres en points, illisibles), galaxyfg $1051B1, kabukikl
+# $1060DA et $102A16, kizuna $1025C0, kof2003 $104B2E, ragnagrd $1099F4, rbff1 $100489, wakuwak7 $1066D5. Zone et pixels
+# cherchés sur les images CAT_DENSE (rbff1 : la zone qui tient sur deux runs, avant et après le changement de table) ;
+# kof2001 écarté (0.61 sous cheat, 0.39 au témoin). kizuna : le combat ne commence que vers la trame 2700, menu à 2700.
+# Sans candidat : aof, kof94, kof95, kof97, kotm (30 au départ, un seul candidat), rbffspec. MAME 0.286, -bios euro, --jobs 12.
+# Verdicts du catalogue, image 757f86db… :
+jeu	cheat	verdict	moteur	mesure
+kof2003	INFINITE TIME	PASS	107D62x1220	chronomètre : son image la plus fréquente sur 0.75 des relevés sous cheat (16 images), 0.20 au témoin (16) ; $107D62 à $60 sur 0.98
+rbff1	INFINITE TIME	PASS	106AA8x1220	chronomètre : son image la plus fréquente sur 0.84 des relevés sous cheat (9 images), 0.15 au témoin (19) ; $106AA8 à $60 sur 0.98
+kizuna	INFINITE TIME	PASS	10892Ax1220	chronomètre : son image la plus fréquente sur 0.92 des relevés sous cheat (2 images), 0.20 au témoin (6) ; $10892A à $99 sur 1.00

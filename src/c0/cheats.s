@@ -699,5 +699,17 @@ _cheats_table:
         | up to frame 20,000 (the witness run loses the game around 16,400); the lives, 2 at start.
         JEU     0x0050, 0x004D, 1
         CHEAT   "INFINITE LIVES",  0x106030, 1, 0x02
+        | FIGHTING GAME TIMERS BY EXPECTED SEQUENCE, 2026-10-30: passive scenario, the byte that
+        | counts down from 60 or 99 and is reset at each round (filtre_suite), seen frozen on the
+        | images under the cheat; the digits' zone searched on the images of a CAT_DENSE run.
+        | THE KING OF FIGHTERS 2003.
+        JEU     0x0271, 0x0F9A, 1
+        CHEAT   "INFINITE TIME",   0x107D62, 1, 0x60
+        | REAL BOUT FATAL FURY.
+        JEU     0x0095, 0x8E2F, 1
+        CHEAT   "INFINITE TIME",   0x106AA8, 1, 0x60
+        | KIZUNA ENCOUNTER: the fight only starts around frame 2700.
+        JEU     0x0216, 0x073D, 1
+        CHEAT   "INFINITE TIME",   0x10892A, 1, 0x99
         FIN_TABLE
         .balign 2
