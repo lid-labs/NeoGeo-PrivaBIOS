@@ -46,7 +46,7 @@
 | THE MODE IS NOT THE MACHINE. It says what BIOS_MVS_FLAG ($10FD82) announces to the games
 | ("BIOS RAM locations": "System type. 0:AES, 0x80:MVS"); the board remains an MVS, which the
 | hardware itself says (REG_STATUS_B bit 7, read by `ecran.s` and `menu.s`). AES mode on an
-| MVS board is the intended departure of `docs/DECISIONS.md` §11.
+| MVS board is the deliberate departure of `docs/DECISIONS.md` §11.
 | ==================================================================================
 
         .section .haut, "ax"
@@ -284,7 +284,7 @@ _reglages_ecrire_borne:
 | and the game not (RMS equal to within 1%). The SNK BIOS leaves the cell at 1 throughout; here
 | it is 1 only at a DEMO hand-over (request 2) with DEMO SOUND OFF, 0 at any other: the
 | title after a coin gets its music back (aof, cell reset to 0 at the coin: RMS 2,125,
-| 88 key-ons, as without the setting). Intended departure, DECISIONS §15. The cell is written
+| 88 key-ons, as without the setting). Deliberate departure, DECISIONS §15. The cell is written
 | only if it changes: with DEMO SOUND ON and a cell at 0, one read and nothing else. Returns all
 | registers; the backup RAM is left locked.
 _borne_remise:

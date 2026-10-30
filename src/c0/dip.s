@@ -30,15 +30,15 @@
 | has just registered (%d6 = 1, `c0.s`) is: its request 0 has not yet taken place, and the next
 | boot would restore a block never saved (measured under MAME on 2026-10-23, aof, fresh
 | NVRAM: without this, the demo follows the restart without request 0). NOT UNDER REGION: the key
-| paths of the logs (ROUND TIME at "down", LANGUAGE at "down, down") stay those from before; from the
+| paths of the records (ROUND TIME at "down", LANGUAGE at "down, down") stay those from before; from the
 | first line, "up" four times leads there, whatever the game. DECISIONS §11.
-| "measured": a named log; "read in": a page of the NeoGeo Development Wiki;
+| "measured": a named record; "read in": a page of the NeoGeo Development Wiki;
 | "ASSUMED": neither one nor the other.
 |
 | THE TEST BUTTON. Read in "Memory mapped registers": REG_SYSTYPE ($300081), bit 7
 | "Test button", without an active level. Measured under MAME on 2026-10-20 (kof98, -bios euro,
 | our image, `:TEST` field "Service Mode"): $80 released, $00 held — active low.
-| WITHOUT A TEST BUTTON, since 2026-10-25 (a consolised MVS has none), two other inputs,
+| WITHOUT A TEST BUTTON, since 2026-10-25 (a consolized MVS has none), two other inputs,
 | read at the same instant, just after the boot screen:
 |   - board switch 1, "Setting Mode" (REG_DIPSW $300001 bit 0, active low:
 |     "Memory mapped registers"; mask $01, SW:1, in the MAME source) at ON. MEASURED
@@ -163,7 +163,7 @@
 | test preserves). THE JUKEBOX LINE follows it, likewise: `jukebox.s`, which returns
 | the Z80 and the fix layer in the state of this screen. THE MEMORY CARD LINE, likewise, opens
 | the memory card manager (`gestion-carte.s`); it is just before MODE, and not
-| near the two others, to keep the key paths of the logs ("up" once
+| near the two others, to keep the key paths of the records ("up" once
 | leads to the reset, twice to the jukebox, three times to the tests, four to the mode): "up" five
 | times leads there, whatever the game.
 | THE CABINET SETTINGS LINE, just before SCORE RESET ("up" seven times, 2026-10-25): right,
@@ -175,7 +175,7 @@
 | three lines: measured on 2026-10-25 over 159 games (European block, the
 | settings used counted), up to 12 cartridge settings (froman2b, pspikes2, tophuntr,
 | turfmast): 19 lines today, 22 with three more lines, when the list holds 21; 20
-| with one. Placed there, it moves no key path of the logs ("up" one to six times,
+| with one. Placed there, it moves no key path of the records ("up" one to six times,
 | "down" towards the cartridge settings). In AES mode (the MODE line at AES), the first three
 | values say MVS ONLY and do not change: they are inert in AES (`reglages.s`, `_borne_ram`).
 | CHEATS/DEBUG, for its part, holds in both modes: the in-game menu opens in AES too.
@@ -186,7 +186,7 @@
 |
 | THE ABOUT LINE, just before CABINET SETTINGS ("up" eight times, 2026-10-28): right, left
 | or A open the screen of legal notices and credits (`about.s`), which START closes. Placed
-| there, it moves no key path of the logs, like CABINET SETTINGS before it. THE
+| there, it moves no key path of the records, like CABINET SETTINGS before it. THE
 | LIST IS FULL: with the 12 cartridge settings of the measured maximum (see CABINET SETTINGS),
 | REGION and the eight BIOS lines, 21 lines out of 21 (counted, not seen on screen). One more
 | line would overflow onto the help for froman2b, pspikes2, tophuntr and turfmast.
@@ -674,7 +674,7 @@ _dip_table:
         move.b  %d0, WATCHDOG
 
         | THE REGION OR THE MODE HAS CHANGED: it is saved, then the machine restarts. The games
-        | read the region at their init (log quoted by `c0.s`), and the boot derives from it the
+        | read the region at their init (record quoted by `c0.s`), and the boot derives from it the
         | soft-DIP pointer and CARD_REGION: only a full boot brings them back into agreement.
         | THE RESTART BY THE WATCHDOG, not by a jump to the reset vector. Read in
         | "Watchdog": without a kick, it "resets the whole system", after

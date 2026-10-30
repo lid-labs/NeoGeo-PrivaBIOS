@@ -179,7 +179,7 @@ _ecran_boot:
 
         | BOARD SWITCH 8, "FREEZE", ON AT BOOT. The SNK BIOS and UniBIOS 4.0 stop on a black
         | screen just after their memory test and resume when it goes back to OFF (measured,
-        | `measured/2026-10-27-dip-2-8.tsv`, section 3). INTENDED DEPARTURE (DECISIONS §21):
+        | `measured/2026-10-27-dip-2-8.tsv`, section 3). DELIBERATE DEPARTURE (DECISIONS §21):
         | the same stop, but two lines say so, instead of a black screen one would take for
         | a fault.
         tst.b   0x300001                | REG_DIPSW, bit 7 active low: the sign

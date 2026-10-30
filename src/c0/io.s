@@ -42,7 +42,7 @@
 |     "YYMMDDdd"; without a calendar, no date, hence set aside;
 |   - $D00042 ("Game select", "1=Free", which the 2026-10-25 batch did not measure), the
 |     coin mechanism lockout ($3800E5/E7), coins 3 and 4 and the service button;
-|   - the reference BIOS's stack ($10F25E-$10F2BC, "retained (§8)"): our own return
+|   - the reference BIOS's stack ($10F25E-$10F2BC, "retenue (§8)"): our own return
 |     addresses replace it.
 | ==================================================================================
 
