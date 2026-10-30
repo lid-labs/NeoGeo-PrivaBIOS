@@ -46,7 +46,8 @@
 # Salle blanche : aucune base de cheats tierce, aucun code de jeu lu ni tracé ; le PC ne sert qu'à
 # dire si une écriture vient du BIOS. MAME sans fenêtre, un dossier de cfg et de NVRAM par run.
 # Mesures et seuils : measured/2026-10-25, 2026-10-29 et 2026-10-30-cheats-table.tsv (une ligne par
-# cheat), et les -cheats-catalogue.tsv des mêmes dates (les verdicts) ; 2026-10-30-cheats-rejetes.tsv (#23).
+# cheat), et les -cheats-catalogue.tsv des mêmes dates (les verdicts) ; 2026-10-30-cheats-rejetes.tsv (#23),
+# 2026-10-30-cheats-sans-vies.tsv (#24).
 set -u
 
 ICI="$(cd "$(dirname "$0")" && pwd)"
@@ -203,6 +204,7 @@ gururin	0	NO GAME OVER	101C17	02	vies	x	1500	13000	-	-
 trally	0	NO GAME OVER	107105	05	vies	x	2600	13000	-	-
 zintrckb	0	NO GAME OVER	100349	02	vies	x	2500	13000	-	-
 twinspri	1	P2 INF. LIVES	10D005	03	vies	k	1500	13000	-	-
+ncommand	0	INFINITE LIVES	106030	02	vies	x	1500	20000	-	-
 kof96	1	INFINITE TIME	10A837	32	temps	f	1900	3200	147,14,172,32	brut
 matrim	0	INFINITE TIME	10B90B	3C	temps	f	1900	3200	145,8,174,24	brut
 rbff2	0	INFINITE TIME	107C28	60	temps	f	1900	3200	145,16,175,31	brut
