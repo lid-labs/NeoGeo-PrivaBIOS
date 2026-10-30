@@ -14,10 +14,12 @@ All notable changes to Sprixe BIOS are listed here. The format follows
   fighting games, Street Hoop, Super Sidekicks), NO GAME OVER for nine puzzle, quiz and sport games.
 - INFINITE TIME for ten more fighting games: Art of Fighting 3, Breakers, Fatal Fury 2, Garou,
   Gowcaizer, The King of Fighters '98, The Last Blade 2, Ninja Master's, Savage Reign and World
-  Heroes Perfect (#21). 90 games and 127 cheats in all.
+  Heroes Perfect (#21).
+- INFINITE BOMBS for Metal Slug 2, 3, 4 and 5 (#22). 90 games and 131 cheats in all.
 - `bench/cheats-catalogue.sh`: a `tres-clair` pixel mode (R + G + B > 700), for white digits over a
   light background.
-- `bench/cheats-recherche.py`, the tool that searches for cheats under MAME.
+- `bench/cheats-recherche.py`, the tool that searches for cheats under MAME; a `bombe` scenario, and the
+  matching `b` entries in `bench/cheats-catalogue.sh`.
 
 ### Changed
 
