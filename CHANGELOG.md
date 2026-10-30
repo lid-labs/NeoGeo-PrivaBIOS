@@ -40,6 +40,8 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 
 ### Fixed
 
+- AES mode: kof98's boot animation (request 1) no longer comes back after a game over. Its
+  flag shared a byte with the cheat engine's freeze mask, which cleared it at the start of a game.
 - `diag/slots` and `build/harnais` link again: they lacked the grid and sine table windows that
   `build/bios.ld` requires. The CI now builds both.
 - `bench/cheats-catalogue.sh`: the samsho2 timer zone leaves out the bar above the digits (#16).

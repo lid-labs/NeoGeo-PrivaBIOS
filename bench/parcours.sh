@@ -220,6 +220,8 @@
 #                 under SNK's AES BIOS with the same SELECT.
 #   aes-logo      the AES mode, kof98 ($114 = 1): request 1, its boot animation, as under
 #                 SNK's AES BIOS.
+#   aes-logo-fin  the AES mode, kof98 played and lost: after the game over, the demo, and request 1
+#                 not again (once per power-on, decision D5).
 #   aes-fin       the AES mode, STORY MODE lost: the demo (01/02) after the game over, that of
 #                 SNK's AES BIOS after its own, not that of the MVS mode.
 #   aes-texte     same game: P2's message at the top right, "PUSH START" as under
@@ -812,6 +814,7 @@
 # (ab-ecran). 205 in all.
 # That of the bank window that reads only one word, on 2026-10-29: crc-flottant-ignore
 # (crc-flottant). 206 in all.
+# That of BIOS_LOGO under GL_MASQUE, on 2026-10-30: logo-sous-les-gels (aes-logo-fin). 207 in all.
 #
 # WHAT IT DOES NOT COVER: the hardware, outside the model of `bus-flottant.lua`; NO SOFT DIP DATA
 # on a real game (none of the 166 sets of the directory has a refused block: the scene is played
@@ -850,7 +853,7 @@ REF_SINUS="$PAQUET/measured/2026-10-28-parcours-sinus.tsv"
 REF_PANNEAU="$PAQUET/measured/2026-10-28-parcours-panneau.tsv"
 JOBS=$(( $( (sysctl -n hw.ncpu || nproc) 2>/dev/null || echo 4) - 2 )); [ "$JOBS" -ge 1 ] || JOBS=1
 CACHE=""
-SCENES_TOUTES="boot-ecran boot-saut calendrier carte demo-son partie-credit partie-start fin-demo fin-titre scores dip-temps dip-langue region autotests jukebox menu-hud menu-reprise menu-son cheats restart ms-demo ms-select ms-garde aes-bascule aes-demo aes-start aes-menu aes-piece aes-retour dip-defauts dip-mmss dip-fois region-europe region-japon region-usa autotests-palette autotests-vram autotests-backup tests-entrees tests-barres tests-grille jukebox-pas jukebox-stop cheats-off partie-p2 carte-sauve ms-select-p2 aes-ms-select aes-pause aes-logo aes-fin aes-texte depart-force piece-son ms-seule jukebox-repete partie-p2-joint carte-chercher carte-supprimer carte-nom tests-p2 tests-dip dip-sans-donnees gs-compte gs-defauts gs-choix gs-mmss gs-fois gs-sans-donnees gs-banque me-ecran me-goto me-octet me-ligne me-page me-repete me-poke me-gel me-liste me-degel me-borne bf-editeur bf-banque bf-tests bf-jukebox sans-cartouche flash-cart cm-liste cm-libres cm-effacer cm-annuler cm-formater cm-non-formatee cm-sans-carte cm-protegee cm-insertion bf-carte aes-scores scores-gel bo-ecran ab-ecran bo-free-play bo-fp-p2 bo-fp-joint bo-no-continue bo-demo-muette bo-aes bf-borne cheats-vies bo-cd-menu bo-cd-gel dip-free-play dip-fp-p2 dip-fp-refus dip-fp-chaud dip-fp-reglage dip-fp-cabinet dip-setting geste-boot geste-jeu geste-partie demo-ssideki japon-intitules gs-japon gs-japon-garde crc-fixe crc-banques crc-miroir crc-flottant bf-crc bf-crc-banque dd-effet dd-off dip-gel dip-gel-off dip-gel-boot dip-mahjong dip-mj-off dip-4p dip-4p-off af-tir af-sauve af-off af-mahjong boot-graphismes ms-son-slot2 dip-vierge dip-corrompue tests-mahjong jukebox-veille cm-copier alpha-trajectoire howto-preisle2 tests-sauvegarde dd-connu pn-menu-on pn-menu-off pn-valeur pn-verrou pn-jeu"
+SCENES_TOUTES="boot-ecran boot-saut calendrier carte demo-son partie-credit partie-start fin-demo fin-titre scores dip-temps dip-langue region autotests jukebox menu-hud menu-reprise menu-son cheats restart ms-demo ms-select ms-garde aes-bascule aes-demo aes-start aes-menu aes-piece aes-retour dip-defauts dip-mmss dip-fois region-europe region-japon region-usa autotests-palette autotests-vram autotests-backup tests-entrees tests-barres tests-grille jukebox-pas jukebox-stop cheats-off partie-p2 carte-sauve ms-select-p2 aes-ms-select aes-pause aes-logo aes-logo-fin aes-fin aes-texte depart-force piece-son ms-seule jukebox-repete partie-p2-joint carte-chercher carte-supprimer carte-nom tests-p2 tests-dip dip-sans-donnees gs-compte gs-defauts gs-choix gs-mmss gs-fois gs-sans-donnees gs-banque me-ecran me-goto me-octet me-ligne me-page me-repete me-poke me-gel me-liste me-degel me-borne bf-editeur bf-banque bf-tests bf-jukebox sans-cartouche flash-cart cm-liste cm-libres cm-effacer cm-annuler cm-formater cm-non-formatee cm-sans-carte cm-protegee cm-insertion bf-carte aes-scores scores-gel bo-ecran ab-ecran bo-free-play bo-fp-p2 bo-fp-joint bo-no-continue bo-demo-muette bo-aes bf-borne cheats-vies bo-cd-menu bo-cd-gel dip-free-play dip-fp-p2 dip-fp-refus dip-fp-chaud dip-fp-reglage dip-fp-cabinet dip-setting geste-boot geste-jeu geste-partie demo-ssideki japon-intitules gs-japon gs-japon-garde crc-fixe crc-banques crc-miroir crc-flottant bf-crc bf-crc-banque dd-effet dd-off dip-gel dip-gel-off dip-gel-boot dip-mahjong dip-mj-off dip-4p dip-4p-off af-tir af-sauve af-off af-mahjong boot-graphismes ms-son-slot2 dip-vierge dip-corrompue tests-mahjong jukebox-veille cm-copier alpha-trajectoire howto-preisle2 tests-sauvegarde dd-connu pn-menu-on pn-menu-off pn-valeur pn-verrou pn-jeu"
 SCENES="$SCENES_TOUTES"
 HASHPATH="${BIOS_HASHPATH:-}"
 while [ $# -gt 0 ]; do
@@ -1306,6 +1309,7 @@ runs_de() {
     aes-ms-select) echo "aes-ms-set aes-ms-select aes-snk-pz" ;;
     aes-pause) echo "aes-m1-set aes-pause aes-snk-pause" ;;
     aes-logo) echo "aes-k98-set aes-logo aes-snk-kof98" ;;
+    aes-logo-fin) echo "aes-k98-set aes-logo-fin" ;;
     aes-fin) echo "aes-set aes-histoire aes-snk-histoire demo" ;;
     aes-texte) echo "aes-set aes-histoire aes-snk-histoire" ;;
     depart-force|piece-son) echo "piece-seule piece-seule-snk" ;;
@@ -1951,6 +1955,9 @@ for x in "bo-aes|bo-set-aes" "bo-aes-cont|aes-set"; do
     J_HACHES=1-8800 J_TEXTE=100 J_SUIVRE=10FDB6:1,10FB20:1 J_FIN=8800; fi
 done
 if veut aes-logo; then NV_DE=aes-k98-set; lancer aes-logo son.lua "$MS_K98" J_PIECE=0 J_START=0 J_HACHES=1-2000 J_FIN=2000; fi
+# kof98 played: START, then A every 60 frames through the selection screens; it loses without input,
+# game over near frame 14,056 (measured/2026-10-30-aes-logo-fin.tsv).
+if veut aes-logo-fin; then NV_DE=aes-k98-set; lancer aes-logo-fin son.lua "$MS_K98" J_PIECE=0 J_START=2500 J_TIRS=2600-7000:60:A J_FIN=16000; fi
 # ---- The cartridge CRC32 (record --ref-crc): HARDWARE TESTS, "up" twice, A; three STARTs.
 VERS_CRC="$VERS_TESTS,330:haut,336:haut,342:A"
 veut crc-aof && lancer crc-aof son.lua "$NOTRE" $EDIT J_APPUIS=$VERS_CRC,950:START,980:START,1000:START \
@@ -2767,6 +2774,17 @@ def aes_logo():
     D, n = meilleur_decalage(l, k, d[0], d[0] + 1500)
     dit(f"demande 1 à {d[0]} : {n}/1500 trames du BIOS AES de SNK (décalage {D})")
     exiger(D is not None and n >= F("aes-logo", "snk_min"), f"{n} trames du témoin")
+
+def aes_logo_fin():
+    (l,) = sain("aes-logo-fin")
+    u = [(n, e) for n, e in l.ev if e.startswith("user=")]
+    jeu = [n for n, e in u if e == "user=02/02"]
+    exiger(jeu, "kof98 : la partie ne commence pas")
+    fin = [n for n, e in u if n > jeu[0] and e == "user=01/02"]
+    exiger(fin, "kof98 : pas de démo après la partie")
+    redonnee = [n for n, e in u if n > jeu[0] and e == "user=00/01"]
+    dit(f"partie à {jeu[0]}, démo à {fin[0]} ; demande 1 après la partie : {redonnee or 'aucune'}")
+    exiger(not redonnee, f"la demande 1 redonnée après la partie, trame {redonnee[:1]}")
 
 def aes_fin():
     h, k, m = sain("aes-histoire", "aes-snk-histoire", "demo")
@@ -3755,7 +3773,7 @@ JUGES = {"aes-bascule": aes_bascule, "aes-demo": aes_demo, "aes-start": aes_star
          "autotests-vram": autotests_vram, "autotests-backup": autotests_backup, "tests-entrees": tests_entrees,
          "tests-barres": tests_barres, "tests-grille": tests_grille, "jukebox-pas": jukebox_pas,
          "jukebox-stop": jukebox_stop, "cheats-off": cheats_off, "partie-p2": partie_p2, "carte-sauve": carte_sauve,
-         "ms-select-p2": ms_select_p2, "aes-ms-select": aes_ms_select, "aes-pause": aes_pause, "aes-logo": aes_logo,
+         "ms-select-p2": ms_select_p2, "aes-ms-select": aes_ms_select, "aes-pause": aes_pause, "aes-logo": aes_logo, "aes-logo-fin": aes_logo_fin,
          "aes-fin": aes_fin, "aes-texte": aes_texte, "depart-force": depart_force, "piece-son": piece_son,
          "ms-seule": ms_seule, "jukebox-repete": jukebox_repete, "partie-p2-joint": partie_p2_joint,
          "carte-chercher": carte_chercher, "carte-supprimer": carte_supprimer, "carte-nom": carte_nom,
