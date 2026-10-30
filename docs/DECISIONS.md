@@ -464,7 +464,7 @@ thresholds: `measured/2026-10-25-parcours-ssideki.tsv`.
    after the stadium intro, at the tester's as under MAME.
 2. **The bytes are ours**: a 16-bit congruential generator draws them from 0 to 3 for the upper
    plane, from 1 to 63 for the lower plane. No reference byte is recorded or copied.
-3. **These ranges are the only ones tried that play the demo and five games without blocking.**
+3. **These ranges are the only ones tried that play the demo and five sessions without blocking.**
    Lower plane at 0, or drawn from 1 to 254, or other upper planes: a game blocks, or the demo loses
    half of its pictures.
 4. **The link holds the address**: `build/bios.ld` refuses the link if the code reaches `$C02000`.
@@ -674,7 +674,7 @@ Measurement it rests on: `measured/2026-10-27-autofire.tsv` (164 games); player'
 9. **The game is the NGH of the served slot's entry** (`$D00124`), written at boot from the header:
    the cheats' NGH, without reading the cartridge (§13). Loaded at every hand-over to the game,
    before waiting for line $1F0. **In RAM, `$10FB40-$10FB51`**, in the menu's area measured as free;
-   the prototype read `$10FB40-$10FB41` back unchanged during the 158 games measured.
+   the prototype read `$10FB40-$10FB41` back unchanged during the 158 sessions measured.
 10. **Proof**: 4 scenes (`af-tir` against A tapped with the same pattern, `af-sauve` after a
     restart, `af-off`, `af-mahjong`) and 7 mutations written. On the batch's image (8a328fb6…), run
     alone with twenty-one existing scenes that the code touches (in-game menu, cheats, GAME SETTINGS,
