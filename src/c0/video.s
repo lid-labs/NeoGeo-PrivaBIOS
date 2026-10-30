@@ -1,150 +1,150 @@
 | SPDX-License-Identifier: GPL-3.0-or-later
 | Copyright (C) 2026 Thibaut Lion
 | ==================================================================================
-| FIX_CLEAR ($C004C2) ET LSP_1st ($C004C8) — deux entrées du tableau d'appels, la vidéo.
+| FIX_CLEAR ($C004C2) AND LSP_1st ($C004C8) — two entries of the call table, the video.
 |
-| Les créneaux de six octets de `c0.s` ne portent qu'un `jmp` : le code vit ici, dans
-| `.text`, que `build/bios.ld` lie après `.vectors`, donc au-delà de $C00800.
+| The six-byte slots of `c0.s` carry only a `jmp`: the code lives here, in
+| `.text`, which `build/bios.ld` links after `.vectors`, hence beyond $C00800.
 |
-| TROIS SORTES D'AFFIRMATIONS, et chacune le dit :
-|   « mesuré »  : un contrat de `specs/traces/`, nommé — `appel_C004C2.md` (8 appels),
-|                 `appel_C004C8.md` (4 appels) ;
-|   « lu dans » : une page du NeoGeo Development Wiki, nommée ;
-|   « SUPPOSÉ » : ni l'un ni l'autre, et c'est dit.
+| THREE KINDS OF CLAIMS, and each one says so:
+|   "measured":  a contract of `specs/traces/`, named — `appel_C004C2.md` (8 calls),
+|                `appel_C004C8.md` (4 calls);
+|   "read in":   a page of the NeoGeo Development Wiki, named;
+|   "ASSUMED":   neither one nor the other, and it is said.
 |
-| LA VRAM NE SE VOIT QUE PAR TROIS REGISTRES. Lu dans « VRAM » : REG_VRAMADDR ($3C0000)
-| pose l'adresse, REG_VRAMRW ($3C0002) porte la donnée, REG_VRAMMOD ($3C0004) est le pas
-| ajouté à l'adresse après chaque écriture. Ces deux appels n'écrivent rien d'autre.
+| THE VRAM IS SEEN ONLY THROUGH THREE REGISTERS. Read in "VRAM": REG_VRAMADDR ($3C0000)
+| sets the address, REG_VRAMRW ($3C0002) carries the data, REG_VRAMMOD ($3C0004) is the step
+| added to the address after each write. These two calls write nothing else.
 |
-| LE RYTHME DES ÉCRITURES. Lu dans « VRAM », Access timing : 12 cycles CPU au moins
-| entre deux données, 16 entre une donnée et l'adresse qui suit. La boucle
-| `move.w %d0,(%a0)` (8 cycles) + `dbra` pris (10) en met 18 entre deux données ; après
-| la sortie de boucle, `dbra` non pris (14) précède l'écriture d'adresse suivante.
+| THE PACE OF THE WRITES. Read in "VRAM", Access timing: 12 CPU cycles at least
+| between two data, 16 between a data and the address that follows. The loop
+| `move.w %d0,(%a0)` (8 cycles) + `dbra` taken (10) puts 18 between two data; after
+| the loop exit, `dbra` not taken (14) precedes the next address write.
 |
-| CE QUE CES ROUTINES NE FONT PAS, délibérément : les écritures « d'une partie des
-| appels seulement » des deux contrats ($10F2xx, $10FD9x-$10FEFx, $3800xx, $3A00xx,
-| backup RAM). La pile $10F2xx est celle de la référence ; le reste, une SYSTEM_INT1
-| tombée pendant l'appel chez elle. Les IRQ ne sont pas masquées ici, ET NOTRE INT1 ÉCRIT LES
-| REGISTRES VRAM : `int1.s` appelle MESS_OUT (`mess.s`), qui pose REG_VRAMADDR, REG_VRAMMOD et
-| écrit REG_VRAMRW dès que le tampon BIOS_MESS_BUFFER n'est pas vide et que BIOS_MESS_BUSY
-| ($10FDC2) n'est pas levé (lu dans le code). Un FIX_CLEAR ou un LSP_1st appelé IRQ ouvertes
-| avec un tampon non vide peut donc être coupé par une INT1 : la suite du remplissage repart
-| de l'adresse et du pas que MESS_OUT a laissés, des cases visées restent sans écriture et
-| d'autres en reçoivent une à tort. Rien ici ne s'en garde ; c'est à l'appelant de masquer
-| les IRQ ou de vider le tampon avant l'appel. Le BIOS lui-même les appelle IRQ masquées.
+| WHAT THESE ROUTINES DO NOT DO, deliberately: the writes "d'une partie des
+| appels seulement" of the two contracts ($10F2xx, $10FD9x-$10FEFx, $3800xx, $3A00xx,
+| backup RAM). The $10F2xx stack is the reference's; the rest, a SYSTEM_INT1
+| that fell during the call in its case. IRQs are not masked here, AND OUR INT1 WRITES THE
+| VRAM REGISTERS: `int1.s` calls MESS_OUT (`mess.s`), which sets REG_VRAMADDR, REG_VRAMMOD and
+| writes REG_VRAMRW as soon as the BIOS_MESS_BUFFER buffer is not empty and BIOS_MESS_BUSY
+| ($10FDC2) is not raised (read in the code). A FIX_CLEAR or an LSP_1st called with IRQs open
+| with a non-empty buffer can therefore be cut by an INT1: the rest of the fill restarts
+| from the address and the step that MESS_OUT left, some targeted cells stay unwritten and
+| others wrongly receive a write. Nothing here guards against it; it is up to the caller to mask
+| the IRQs or empty the buffer before the call. The BIOS itself calls them with IRQs masked.
 | ==================================================================================
 
-        | En zone haute depuis le 2026-10-25 : $C02000-$C03FFF est la grille (`grille.s`).
+        | In the high zone since 2026-10-25: $C02000-$C03FFF is the grid (`grille.s`).
         .section .haut, "ax"
         .global _fix_clear
         .global _lsp_1st
 
 | ----------------------------------------------------------------------------------
-| FIX_CLEAR — atteinte par `jmp` depuis $C004C2 ; le jeu y entre par `jsr` et en
-| repart par notre `rts`.
+| FIX_CLEAR — reached by `jmp` from $C004C2; the game enters it by `jsr` and
+| leaves by our `rts`.
 |
-| Lu dans « FIX_CLEAR » : « Clears all the fix layer with tile # $FF, palette 0. The
-| leftmost and rightmost columns are cleared with tile # $20, palette 0. » Lu dans
-| « Fix layer » : la carte est en VRAM à $7000, 40 × 32 = 1 280 mots, un mot par case
-| (palette dans les 4 bits hauts, tuile dans les 12 bas), rangés « top to bottom, and
-| left to right » — une colonne fait donc 32 mots consécutifs. D'où, avec un pas de 1 :
-|   $7000-$701F  colonne 0   ← $0020, 32 mots
-|   $7020-$74DF  colonnes 1 à 38 ← $00FF, 38 × 32 = 1 216 mots
-|   $74E0-$74FF  colonne 39  ← $0020, 32 mots
-| Mesuré (`appel_C004C2.md`, noyau) : $3C0000 ← $7000 et $7020, $3C0002 ← $0020 et
-| $00FF, $3C0004 ← $0001 — ces valeurs, et aucune autre. Les 5 173 à 6 279 accès par
-| appel sont l'ordre de grandeur des 1 280 écritures et de leur boucle.
+| Read in "FIX_CLEAR": "Clears all the fix layer with tile # $FF, palette 0. The
+| leftmost and rightmost columns are cleared with tile # $20, palette 0." Read in
+| "Fix layer": the map is in VRAM at $7000, 40 × 32 = 1,280 words, one word per cell
+| (palette in the 4 high bits, tile in the 12 low ones), stored "top to bottom, and
+| left to right" — a column is therefore 32 consecutive words. Hence, with a step of 1:
+|   $7000-$701F  column 0   ← $0020, 32 words
+|   $7020-$74DF  columns 1 to 38 ← $00FF, 38 × 32 = 1,216 words
+|   $74E0-$74FF  column 39  ← $0020, 32 words
+| Measured (`appel_C004C2.md`, core): $3C0000 ← $7000 and $7020, $3C0002 ← $0020 and
+| $00FF, $3C0004 ← $0001 — these values, and no other. The 5,173 to 6,279 accesses per
+| call are the order of magnitude of the 1,280 writes and their loop.
 |
-| L'ADRESSE $7020 EST REDONDANTE : l'auto-incrément y est déjà au bout de la colonne 0.
-| On l'écrit parce que le contrat la montre à chaque appel. L'ordre des trois zones,
-| que le contrat ne donne pas (ses listes sont triées), est SUPPOSÉ : celui des adresses.
-| La colonne 39 suit la 38 sans nouvelle adresse, ce qui explique que $74E0 n'apparaisse
-| pas au contrat.
+| THE ADDRESS $7020 IS REDUNDANT: the auto-increment is already at the end of column 0 there.
+| It is written because the contract shows it at each call. The order of the three zones,
+| which the contract does not give (its lists are sorted), is ASSUMED: that of the addresses.
+| Column 39 follows 38 without a new address, which explains why $74E0 does not appear
+| in the contract.
 |
-| REGISTRES. Lu dans « FIX_CLEAR » : « register contents aren't preserved ! (Uses D0, D1,
-| and A0) ». On n'use que de ces trois-là ; les autres sont rendus intacts.
-| En sortie, REG_VRAMMOD vaut $0001, la seule valeur que le contrat montre.
+| REGISTERS. Read in "FIX_CLEAR": "register contents aren't preserved ! (Uses D0, D1,
+| and A0)". Only these three are used; the others are returned intact.
+| On exit, REG_VRAMMOD is $0001, the only value the contract shows.
 | ----------------------------------------------------------------------------------
 _fix_clear:
         lea     0x3C0002, %a0           | REG_VRAMRW
-        move.w  #0x0001, 0x3C0004       | REG_VRAMMOD  : pas de 1
-        move.w  #0x7000, 0x3C0000       | REG_VRAMADDR : colonne 0
+        move.w  #0x0001, 0x3C0004       | REG_VRAMMOD:  step of 1
+        move.w  #0x7000, 0x3C0000       | REG_VRAMADDR: column 0
 
-        move.w  #0x0020, %d0            | tuile $20, palette 0 : le masque des bords
+        move.w  #0x0020, %d0            | tile $20, palette 0: the edge mask
         moveq   #32-1, %d1
 1:      move.w  %d0, (%a0)
         dbra    %d1, 1b
 
-        move.w  #0x7020, 0x3C0000       | REG_VRAMADDR : colonne 1
-        move.w  #0x00FF, %d0            | tuile $FF, palette 0 : l'espace
+        move.w  #0x7020, 0x3C0000       | REG_VRAMADDR: column 1
+        move.w  #0x00FF, %d0            | tile $FF, palette 0: the space
         move.w  #(38*32)-1, %d1
 2:      move.w  %d0, (%a0)
         dbra    %d1, 2b
 
-        move.w  #0x0020, %d0            | colonne 39, à la suite : $74E0-$74FF
+        move.w  #0x0020, %d0            | column 39, following on: $74E0-$74FF
         moveq   #32-1, %d1
 3:      move.w  %d0, (%a0)
         dbra    %d1, 3b
         rts
 
 | ----------------------------------------------------------------------------------
-| LSP_1st — atteinte par `jmp` depuis $C004C8 ; le jeu y entre par `jsr` et en repart
-| par notre `rts`.
+| LSP_1st — reached by `jmp` from $C004C8; the game enters it by `jsr` and leaves
+| by our `rts`.
 |
-| Lu dans « LSP_1st » (« LSP_1ST ($C004C8): Clear sprites ») :
-|   - « all SCB2 is set to $0FFF » (réduction au maximum) ;
-|   - « all SCB3 is set to $0000 » (hauteur 0, Y = 496) ;
-|   - « all SCB4 is set to $BE00 » (X = 380) ;
-|   - « The map of sprite #0 is set to tiles # $FF (SCB1 $0000~$0040 to $00FF,$0000) ».
-| Lu dans « Sprites » : SCB2, SCB3 et SCB4 commencent à $8000, $8200 et $8400 et font
-| $200 mots chacun — contigus, donc 1 536 mots d'un seul tenant depuis $8000. Lu dans
-| « VRAM » : passer de la zone basse ($0000-$7FFF) à la haute exige de reposer
-| l'adresse, pas de compter sur l'auto-incrément — d'où les deux adresses du contrat.
+| Read in "LSP_1st" ("LSP_1ST ($C004C8): Clear sprites"):
+|   - "all SCB2 is set to $0FFF" (maximum shrink);
+|   - "all SCB3 is set to $0000" (height 0, Y = 496);
+|   - "all SCB4 is set to $BE00" (X = 380);
+|   - "The map of sprite #0 is set to tiles # $FF (SCB1 $0000~$0040 to $00FF,$0000)".
+| Read in "Sprites": SCB2, SCB3 and SCB4 start at $8000, $8200 and $8400 and are
+| $200 words each — contiguous, hence 1,536 words in one piece from $8000. Read in
+| "VRAM": going from the low zone ($0000-$7FFF) to the high one requires setting the
+| address again, not counting on the auto-increment — hence the contract's two addresses.
 |
-| Mesuré (`appel_C004C8.md`, noyau) : $3C0000 ← $0000 et $8000, $3C0002 ← $0000, $00FF,
-| $0FFF, $BE00, $3C0004 ← $0001 et $0002. 6 344 accès par appel.
+| Measured (`appel_C004C8.md`, core): $3C0000 ← $0000 and $8000, $3C0002 ← $0000, $00FF,
+| $0FFF, $BE00, $3C0004 ← $0001 and $0002. 6,344 accesses per call.
 |
-| SCB1 PAR UN PAS DE 2 — SUPPOSÉ, et c'est le choix qui pèse. Le contrat montre $0002 sur
-| REG_VRAMMOD à chaque appel, et seulement deux adresses, $0000 et $8000. Un pas de 2
-| depuis $0000 touche les mots pairs de la carte du sprite 0 — ses 32 numéros de tuile
-| (« Sprites », SCB1 : un mot de tuile puis un mot d'attributs par tuile) — et finit à
-| $0040, la borne qu'écrit la page. Les mots d'attributs (impairs) ne sont alors PAS
-| écrits : les atteindre demanderait l'adresse $0001, absente du contrat. La page dit
-| « $00FF,$0000 » ; je lis le « $0000 » comme l'attribut constaté, pas comme une écriture
-| — lecture contestable. Sans conséquence à l'écran : SCB3 à $0000 donne au sprite 0 une
-| hauteur nulle. L'autre lecture — pas de 1, paires $00FF/$0000 sur 64 mots — tient
-| aussi dans le contrat, mais n'y donne aucun rôle à la valeur $0002.
+| SCB1 WITH A STEP OF 2 — ASSUMED, and it is the choice that weighs. The contract shows $0002 on
+| REG_VRAMMOD at each call, and only two addresses, $0000 and $8000. A step of 2
+| from $0000 touches the even words of sprite 0's map — its 32 tile numbers
+| ("Sprites", SCB1: one tile word then one attribute word per tile) — and ends at
+| $0040, the bound the page writes. The attribute words (odd) are then NOT
+| written: reaching them would require address $0001, absent from the contract. The page says
+| "$00FF,$0000"; I read the "$0000" as the observed attribute, not as a write
+| — a debatable reading. No consequence on screen: SCB3 at $0000 gives sprite 0 a
+| zero height. The other reading — step of 1, $00FF/$0000 pairs over 64 words — also
+| fits the contract, but gives no role there to the value $0002.
 |
-| L'ORDRE — SUPPOSÉ. Le contrat trie ses listes, la page énumère sans ordonner. SCB1
-| d'abord, la zone haute ensuite : REG_VRAMMOD sort à $0001, la valeur que FIX_CLEAR
-| laisse aussi, ce qui sert un jeu qui enchaîne les deux et écrit ensuite sans reposer
-| le pas. REG_VRAMADDR sort à $8600 : « VRAM address is modified », dit la page.
+| THE ORDER — ASSUMED. The contract sorts its lists, the page enumerates without ordering. SCB1
+| first, the high zone next: REG_VRAMMOD ends at $0001, the value FIX_CLEAR
+| also leaves, which serves a game that chains the two and then writes without setting
+| the step again. REG_VRAMADDR ends at $8600: "VRAM address is modified", says the page.
 |
-| REGISTRES. Lu dans « LSP_1st » : « Uses D0, D1, and A0 ». Comme FIX_CLEAR.
+| REGISTERS. Read in "LSP_1st": "Uses D0, D1, and A0". Like FIX_CLEAR.
 | ----------------------------------------------------------------------------------
 _lsp_1st:
         lea     0x3C0002, %a0           | REG_VRAMRW
 
-        | SCB1 du sprite 0 : 32 numéros de tuile, pas de 2.
-        move.w  #0x0002, 0x3C0004       | REG_VRAMMOD  : pas de 2
-        move.w  #0x0000, 0x3C0000       | REG_VRAMADDR : SCB1, sprite 0
-        move.w  #0x00FF, %d0            | tuile $FF
+        | SCB1 of sprite 0: 32 tile numbers, step of 2.
+        move.w  #0x0002, 0x3C0004       | REG_VRAMMOD:  step of 2
+        move.w  #0x0000, 0x3C0000       | REG_VRAMADDR: SCB1, sprite 0
+        move.w  #0x00FF, %d0            | tile $FF
         moveq   #32-1, %d1
 1:      move.w  %d0, (%a0)
         dbra    %d1, 1b
 
-        | SCB2, SCB3, SCB4 : 3 × 512 mots à la suite, pas de 1.
-        move.w  #0x0001, 0x3C0004       | REG_VRAMMOD  : pas de 1
-        move.w  #0x8000, 0x3C0000       | REG_VRAMADDR : SCB2
-        move.w  #0x0FFF, %d0            | SCB2 : réduction maximale
+        | SCB2, SCB3, SCB4: 3 × 512 words in a row, step of 1.
+        move.w  #0x0001, 0x3C0004       | REG_VRAMMOD:  step of 1
+        move.w  #0x8000, 0x3C0000       | REG_VRAMADDR: SCB2
+        move.w  #0x0FFF, %d0            | SCB2: maximum shrink
         move.w  #512-1, %d1
 2:      move.w  %d0, (%a0)
         dbra    %d1, 2b
-        moveq   #0, %d0                 | SCB3 ($8200) : hauteur 0, Y = 496
+        moveq   #0, %d0                 | SCB3 ($8200): height 0, Y = 496
         move.w  #512-1, %d1
 3:      move.w  %d0, (%a0)
         dbra    %d1, 3b
-        move.w  #0xBE00, %d0            | SCB4 ($8400) : X = 380
+        move.w  #0xBE00, %d0            | SCB4 ($8400): X = 380
         move.w  #512-1, %d1
 4:      move.w  %d0, (%a0)
         dbra    %d1, 4b

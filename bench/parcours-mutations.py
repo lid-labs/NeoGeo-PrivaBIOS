@@ -42,14 +42,15 @@ MUTATIONS = {
     ),
     "boot-sans-saut": (
         "boot-saut", "ecran.s",
-        [("        bsr.s   .Lsync\n        jsr     _panneau_p1             | %d0 : P1, manette ou panneau traduit (`panneau.s`)\n",
-          "        bsr.s   .Lsync\n        rts                     | MUTATION : aucun bouton lu\n"
-          "        jsr     _panneau_p1             | %d0 : P1, manette ou panneau traduit (`panneau.s`)\n")],
+        [
+         ('        bsr.s   .Lsync\n        jsr     _panneau_p1             | %d0: P1, joystick or translated panel (`panneau.s`)\n',
+          '        bsr.s   .Lsync\n        rts                     | MUTATION : aucun bouton lu\n        jsr     _panneau_p1             | %d0: P1, joystick or translated panel (`panneau.s`)\n')],
         "l'écran de boot ne lit plus les boutons : A ne le saute plus",
     ),
     "calendrier-sans-jour": (
         "calendrier", "cal.s",
-        [("        move.b  %d2, 0x10FDD4           | jour\n",
+        [
+         ('        move.b  %d2, 0x10FDD4           | day\n',
           "        nop                             | MUTATION : le jour n'est plus écrit\n")],
         "READ_CALENDAR n'écrit plus le jour du mois",
     ),
@@ -61,28 +62,30 @@ MUTATIONS = {
     ),
     "demo-muette": (
         "demo-son", "c0.s",
-        [("        move.b  %d0, 0x3A001B           | REG_CRTFIX : S ROM et M1 de la cartouche\n",
-          "        nop                             | MUTATION : pas de REG_CRTFIX\n")],
+        [
+         ("        move.b  %d0, 0x3A001B           | REG_CRTFIX: the cartridge's S ROM and M1\n",
+          '        nop                             | MUTATION : pas de REG_CRTFIX\n')],
         "le passage de slot ne rend plus la M1 de la cartouche au Z80",
     ),
     "credit-sans-piece": (
         "partie-credit partie-start", "io.s",
-        [("        addq.b  #1, (%a0, %d1.w)        | une pièce de plus\n",
+        [
+         ('        addq.b  #1, (%a0, %d1.w)        | one more coin\n',
           "        nop                             | MUTATION : la pièce n'est pas comptée\n")],
         "une pièce ne fait plus de crédit",
     ),
     "fin-sans-demo": (
         "fin-demo", "c0.s",
-        [("        moveq   #2, %d2                 | BIOS_USER_REQUEST = démo\n"
-          "        tst.w   0xD00034                | crédits P1 et P2, BCD\n",
-          "        moveq   #3, %d2                 | MUTATION : le titre même sans crédit\n"
-          "        tst.w   0xD00034                | crédits P1 et P2, BCD\n")],
+        [
+         ('        moveq   #2, %d2                 | BIOS_USER_REQUEST = demo\n        tst.w   0xD00034                | P1 and P2 credits, BCD\n',
+          '        moveq   #3, %d2                 | MUTATION : le titre même sans crédit\n        tst.w   0xD00034                | P1 and P2 credits, BCD\n')],
         "après un game over sans crédit, le titre au lieu de la démo",
     ),
     "fin-sans-titre": (
         "fin-titre", "c0.s",
-        [("        moveq   #3, %d2                 | BIOS_USER_REQUEST = titre\n1:      move.w  #0x1DB, %d1",
-          "        moveq   #2, %d2                 | MUTATION : la démo même avec un crédit\n1:      move.w  #0x1DB, %d1")],
+        [
+         ('        moveq   #3, %d2                 | BIOS_USER_REQUEST = title\n1:      move.w  #0x1DB, %d1             | ≈ 0.92 of R+1 (see `_attendre_ligne`)\n',
+          '        moveq   #2, %d2                 | MUTATION : la démo même avec un crédit\n1:      move.w  #0x1DB, %d1             | ≈ 0.92 of R+1 (see `_attendre_ligne`)\n')],
         "après un game over avec un crédit, la démo au lieu du titre",
     ),
     "scores-sans-sauvegarde": (
@@ -163,16 +166,16 @@ MUTATIONS = {
     ),
     "select-ignore": (
         "ms-select", "io.s",
-        [("        moveq   #4, %d6                 | SELECT P1 : code 4, le suivant\n        btst    #1, %d0\n        bne.s   1f\n",
-          "        moveq   #4, %d6                 | SELECT P1 : code 4, le suivant\n        btst    #1, %d0\n        nop                     | MUTATION\n")],
+        [
+         ('        moveq   #4, %d6                 | SELECT P1: code 4, the next\n        btst    #1, %d0\n        bne.s   1f\n',
+          '        moveq   #4, %d6                 | SELECT P1: code 4, the next\n        btst    #1, %d0\n        nop                     | MUTATION\n')],
         "SELECT P1 n'est plus pris au titre",
     ),
     "garde-retiree": (
         "ms-garde", "io.s",
-        [("        cmpi.b  #4, 0x10FD81            | un SELECT en cours (DEMO_END du jeu) : ignoré\n"
-          "        beq.s   _io_fin_demo\n"
-          "        cmpi.b  #5, 0x10FD81\n"
-          "        beq.s   _io_fin_demo\n", "")],
+        [
+         ("        cmpi.b  #4, 0x10FD81            | a SELECT in progress (the game's DEMO_END): ignored\n        beq.s   _io_fin_demo\n        cmpi.b  #5, 0x10FD81\n        beq.s   _io_fin_demo\n",
+          '')],
         "la garde de SELECT retirée (DECISIONS §10)",
     ),
     # Le mode AES (DECISIONS §11).
@@ -191,8 +194,9 @@ MUTATIONS = {
     ),
     "start-refuse": (
         "aes-start aes-menu", "io.s",
-        [("        bne.s   _io_libre               | MVS : refusé, sauf FREE PLAY\n        tst.b   0x10FDAF\n",
-          "        bra     _io_libre               | MUTATION : START sans crédit refusé en AES aussi\n        tst.b   0x10FDAF\n")],
+        [
+         ('        bne.s   _io_libre               | MVS: refused, except FREE PLAY\n        tst.b   0x10FDAF\n',
+          '        bra     _io_libre               | MUTATION : START sans crédit refusé en AES aussi\n        tst.b   0x10FDAF\n')],
         "en mode AES, START sans crédit est refusé comme en MVS",
     ),
     "piece-comptee": (
@@ -233,8 +237,9 @@ MUTATIONS = {
     ),
     "europe-perdue": (
         "region-europe", "c0.s",
-        [("        move.b  0xC00401, 0x10FD83      | BIOS_COUNTRY_CODE ← nationalité\n",
-          "        move.b  #1, 0x10FD83            | MUTATION : USA au lieu de la nationalité\n")],
+        [
+         ('        move.b  0xC00401, 0x10FD83      | BIOS_COUNTRY_CODE ← nationality\n',
+          '        move.b  #1, 0x10FD83            | MUTATION : USA au lieu de la nationalité\n')],
         "sans réglage, la région est USA au lieu de celle du descripteur (Europe)",
     ),
     "japon-en-usa": (
@@ -273,7 +278,8 @@ MUTATIONS = {
     ),
     "entrees-eteintes": (
         "tests-entrees", "tests.s",
-        [("        move.w  #0x5000, %d3            | appuyé\n",
+        [
+         ('        move.w  #0x5000, %d3            | pressed\n',
           "        move.w  #0x4000, %d3            | MUTATION : un appui n'allume rien\n")],
         "INPUT TEST n'allume plus une entrée appuyée",
     ),
@@ -285,14 +291,16 @@ MUTATIONS = {
     ),
     "grille-noire": (
         "tests-grille", "tests.s",
-        [("        move.w  #0x0FFF, PALETTES + 32 + 4      | palette 1, entrée 2\n",
-          "        nop                                     | MUTATION : les traits restent noirs\n")],
+        [
+         ('        move.w  #0x0FFF, PALETTES + 32 + 4      | palette 1, entry 2\n',
+          '        nop                                     | MUTATION : les traits restent noirs\n')],
         "CROSSHATCH n'écrit plus la couleur des traits",
     ),
     "jukebox-pas-de-16": (
         "jukebox-pas", "jukebox.s",
-        [("        moveq   #16, %d1                | droite\n",
-          "        moveq   #1, %d1                 | MUTATION : droite fait +1\n")],
+        [
+         ('        moveq   #16, %d1                | right\n',
+          '        moveq   #1, %d1                 | MUTATION : droite fait +1\n')],
         "droite avance le code de 1 au lieu de 16",
     ),
     "jukebox-b-inerte": (
@@ -308,9 +316,9 @@ MUTATIONS = {
     ),
     "p2-refuse": (
         "partie-p2", "io.s",
-        [("        cmpi.b  #2, %d3                 | titre : les deux joueurs, deux crédits\n        bcs.s   2f\n        moveq   #3, %d2\n",
-          "        cmpi.b  #2, %d3                 | titre : les deux joueurs, deux crédits\n        bcs.s   2f\n"
-          "        nop                             | MUTATION : START P2 refusé au titre\n")],
+        [
+         ('        cmpi.b  #2, %d3                 | title: both players, two credits\n        bcs.s   2f\n        moveq   #3, %d2\n',
+          '        cmpi.b  #2, %d3                 | title: both players, two credits\n        bcs.s   2f\n        nop                             | MUTATION : START P2 refusé au titre\n')],
         "START P2 au titre, avec deux crédits, est refusé",
     ),
     "carte-protegee": (
@@ -322,8 +330,9 @@ MUTATIONS = {
     ),
     "select-p2-suivant": (
         "ms-select-p2", "io.s",
-        [("        moveq   #5, %d6                 | SELECT P2 : code 5, le précédent\n",
-          "        moveq   #4, %d6                 | MUTATION : SELECT P2 mène au suivant\n")],
+        [
+         ('        moveq   #5, %d6                 | SELECT P2: code 5, the previous\n',
+          '        moveq   #4, %d6                 | MUTATION : SELECT P2 mène au suivant\n')],
         "SELECT P2 passe au slot suivant au lieu du précédent",
     ),
     "select-aes-ignore": (
@@ -341,16 +350,16 @@ MUTATIONS = {
     ),
     "logo-jamais": (
         "aes-logo", "c0.s",
-        [("        tst.b   BIOS_LOGO\n        bne.s   9f                      | déjà faite à ce boot\n",
-          "        tst.b   BIOS_LOGO\n        bra.s   9f                      | MUTATION : jamais de demande 1\n")],
+        [
+         ('        tst.b   BIOS_LOGO\n        bne.s   9f                      | already done at this boot\n',
+          '        tst.b   BIOS_LOGO\n        bra.s   9f                      | MUTATION : jamais de demande 1\n')],
         "en mode AES, la demande 1 n'est jamais donnée",
     ),
     "aes-titre-apres-partie": (
         "aes-fin", "c0.s",
-        [("        moveq   #2, %d2                 | BIOS_USER_REQUEST = démo\n        tst.w   0xD00034                | crédits P1 et P2, BCD\n",
-          "        moveq   #2, %d2                 | BIOS_USER_REQUEST = démo\n        tst.b   0x10FD82\n        bne.s   9f\n"
-          "        moveq   #3, %d2                 | MUTATION : en AES, le titre après game over\n"
-          "9:      tst.w   0xD00034                | crédits P1 et P2, BCD\n")],
+        [
+         ('        moveq   #2, %d2                 | BIOS_USER_REQUEST = demo\n        tst.w   0xD00034                | P1 and P2 credits, BCD\n',
+          '        moveq   #2, %d2                 | BIOS_USER_REQUEST = demo\n        tst.b   0x10FD82\n        bne.s   9f\n        moveq   #3, %d2                 | MUTATION : en AES, le titre après game over\n9:      tst.w   0xD00034                | crédits P1 et P2, BCD\n')],
         "en mode AES, le game over mène au titre au lieu de la démo",
     ),
     "piece-muette": (
@@ -361,14 +370,16 @@ MUTATIONS = {
     ),
     "depart-jamais": (
         "depart-force", "io.s",
-        [("        moveq   #1, %d4                 | 00/00 atteint : START P1 forcé\n",
-          "        nop                             | MUTATION : pas de départ forcé\n")],
+        [
+         ('        moveq   #1, %d4                 | 00/00 reached: START P1 forced\n',
+          '        nop                             | MUTATION : pas de départ forcé\n')],
         "le minuteur du titre arrive à 00/00 sans faire partir le jeu",
     ),
     "select-seule-pris": (
         "ms-seule", "io.s",
-        [("        beq.s   _io_fin_demo            | aucun autre slot occupé : ignoré\n",
-          "        nop                             | MUTATION : SELECT pris sur une cartouche seule\n")],
+        [
+         ('        beq.s   _io_fin_demo            | no other occupied slot: ignored\n',
+          '        nop                             | MUTATION : SELECT pris sur une cartouche seule\n')],
         "SELECT relance le titre du même slot sur une cartouche seule (le chemin de la référence)",
     ),
     "jukebox-sans-repetition": (
@@ -385,8 +396,8 @@ MUTATIONS = {
     ),
     "aes-insert-coin": (
         "aes-texte", "io.s",
-        [("4:      tst.b   BORNE                   | AES ou FREE PLAY : la demande de P2 reste, « PUSH START » (mesuré)\n"
-          "        bmi.s   2f\n",
+        [
+         ('4:      tst.b   BORNE                   | AES or FREE PLAY: P2\'s request stays, "PUSH START" (measured)\n        bmi.s   2f\n',
           "4:      nop                             | MUTATION : le défaut d'avant, P2 refusé en AES\n")],
         "en mode AES, CREDIT_CHECK refuse de nouveau la demande de P2 : aof affiche « INSERT COIN »",
     ),
@@ -417,16 +428,18 @@ MUTATIONS = {
     ),
     "soft-dip-sans-garde": (
         "dip-sans-donnees", "dip.s",
-        [("        blo.s   2f                      | déborde la P-ROM fixe, ou entre les zones\n",
-          "        nop                             | MUTATION : un bloc entre les zones est accepté\n")],
+        [
+         ('        blo.s   2f                      | overflows the fixed P-ROM, or between the areas\n',
+          '        nop                             | MUTATION : un bloc entre les zones est accepté\n')],
         "l'éditeur lit un bloc soft-DIP refusé, entre la P-ROM fixe et la zone banquée",
     ),
     # Le menu en jeu complet, le 2026-10-23 (relevé --ref-menu, en-tête) : une par scène, et une par
     # fonction que sa scène juge avec d'autres (la relance et l'enregistrement de GAME SETTINGS).
     "gs-droite-inerte": (
         "gs-compte gs-mmss", "reglages-jeu.s",
-        [("2:      moveq   #1, %d2                 | droite\n",
-          "2:      moveq   #0, %d2                 | MUTATION : droite ne change rien\n")],
+        [
+         ('2:      moveq   #1, %d2                 | right\n',
+          '2:      moveq   #0, %d2                 | MUTATION : droite ne change rien\n')],
         "GAME SETTINGS : droite ne change plus la valeur",
     ),
     "gs-defauts-inertes": (
@@ -458,15 +471,16 @@ MUTATIONS = {
     ),
     "gs-banque-acceptee": (
         "gs-banque", "reglages-jeu.s",
-        [("        bcs.s   1f\n        suba.l  %a3, %a3                | la zone banquée : refusée (voir l'en-tête)\n",
-          "        bra.s   1f                      | MUTATION : la zone banquée acceptée\n"
-          "        suba.l  %a3, %a3                | la zone banquée : refusée (voir l'en-tête)\n")],
+        [
+         ('        bcs.s   1f\n        suba.l  %a3, %a3                | the banked area: refused (see the header)\n',
+          '        bra.s   1f                      | MUTATION : la zone banquée acceptée\n        suba.l  %a3, %a3                | the banked area: refused (see the header)\n')],
         "GAME SETTINGS lit un bloc soft-DIP de la zone banquée, en partie",
     ),
     "me-octet-voisin": (
         "me-ecran", "memoire.s",
-        [("        moveq   #0, %d2\n        move.b  (%a0,%d1.l), %d2\n        moveq   #0, %d3                 | le rôle\n",
-          "        moveq   #0, %d2\n        move.b  1(%a0,%d1.l), %d2       | MUTATION : l'octet suivant\n        moveq   #0, %d3                 | le rôle\n")],
+        [
+         ('        moveq   #0, %d2\n        move.b  (%a0,%d1.l), %d2\n        moveq   #0, %d3                 | the role\n',
+          "        moveq   #0, %d2\n        move.b  1(%a0,%d1.l), %d2       | MUTATION : l'octet suivant\n        moveq   #0, %d3                 | the role\n")],
         "l'éditeur mémoire affiche l'octet voisin de celui de l'adresse",
     ),
     "me-goto-inerte": (
@@ -477,14 +491,16 @@ MUTATIONS = {
     ),
     "me-droite-inerte": (
         "me-octet", "memoire.s",
-        [("2:      btst    #3, %d0                 | droite\n        beq.s   2f\n        addq.w  #1, %d1\n",
-          "2:      btst    #3, %d0                 | droite\n        beq.s   2f\n        nop                             | MUTATION\n")],
+        [
+         ('2:      btst    #3, %d0                 | right\n        beq.s   2f\n        addq.w  #1, %d1\n',
+          '2:      btst    #3, %d0                 | right\n        beq.s   2f\n        nop                             | MUTATION\n')],
         "droite ne passe plus à l'octet suivant",
     ),
     "me-gauche-inerte": (
         "me-octet", "memoire.s",
-        [("2:      btst    #2, %d0                 | gauche\n        beq.s   2f\n        subq.w  #1, %d1\n",
-          "2:      btst    #2, %d0                 | gauche\n        beq.s   2f\n        nop                             | MUTATION\n")],
+        [
+         ('2:      btst    #2, %d0                 | left\n        beq.s   2f\n        subq.w  #1, %d1\n',
+          '2:      btst    #2, %d0                 | left\n        beq.s   2f\n        nop                             | MUTATION\n')],
         "gauche ne revient plus à l'octet précédent",
     ),
     "me-haut-court": (
@@ -505,8 +521,9 @@ MUTATIONS = {
     ),
     "goto-b-va": (
         "me-goto", "memoire.s",
-        [("3:      btst    #5, %d0                 | B : rien\n        bne.s   8f\n",
-          "3:      nop                             | MUTATION : B ne renonce pas\n        nop\n")],
+        [
+         ('3:      btst    #5, %d0                 | B: nothing\n        bne.s   8f\n',
+          '3:      nop                             | MUTATION : B ne renonce pas\n        nop\n')],
         "GOTO : B ne quitte plus le mode",
     ),
     "valeur-haut-inerte": (
@@ -519,8 +536,9 @@ MUTATIONS = {
     # sort sans écrire. Celle-ci retire la sortie par B.
     "annuler-inerte": (
         "me-poke", "memoire.s",
-        [("        btst    #5, %d0                 | B : rien d'écrit\n        bne.s   8f\n",
-          "        nop                             | MUTATION : B ne renonce plus\n")],
+        [
+         ('        btst    #5, %d0                 | B: nothing written\n        bne.s   8f\n',
+          '        nop                             | MUTATION : B ne renonce plus\n')],
         "SET VALUE : B ne quitte plus la saisie",
     ),
     "me-ligne-courte": (
@@ -545,8 +563,9 @@ MUTATIONS = {
     ),
     "gels-inertes": (
         "me-gel", "cheats.s",
-        [("1:      cmpi.b  #2, 0x10FDAF            | en partie seulement\n",
-          "1:      rts                     | MUTATION : aucun gel appliqué\n        cmpi.b  #2, 0x10FDAF            | en partie seulement\n")],
+        [
+         ('1:      cmpi.b  #2, 0x10FDAF            | in play only\n',
+          '1:      rts                     | MUTATION : aucun gel appliqué\n        cmpi.b  #2, 0x10FDAF            | en partie seulement\n')],
         "les gels ne sont plus réécrits",
     ),
     "gels-non-listes": (
@@ -556,13 +575,16 @@ MUTATIONS = {
     ),
     "degel-inerte": (
         "me-degel", "memoire.s",
-        [("        bclr    %d3, GL_MASQUE + 1      | dégelé\n", "        nop                             | MUTATION : D ne dégèle pas\n")],
+        [
+         ('        bclr    %d3, GL_MASQUE + 1      | unfrozen\n',
+          '        nop                             | MUTATION : D ne dégèle pas\n')],
         "D sur un octet gelé ne le dégèle plus",
     ),
     "borne-retiree": (
         "me-borne", "memoire.s",
-        [("2:      cmpi.w  #BORNE, %d1\n        bcc     .Lboucle                | la zone du BIOS : ni A ni D\n",
-          "2:      nop                             | MUTATION : la zone du BIOS modifiable\n")],
+        [
+         ('2:      cmpi.w  #BORNE, %d1\n        bcc     .Lboucle                | the BIOS area: neither A nor D\n',
+          '2:      nop                             | MUTATION : la zone du BIOS modifiable\n')],
         "A et D agissent dans la zone du BIOS",
     ),
     # Le bus flottant (le 2026-10-24) : la copie du bloc soft-DIP défaite, l'écran TEST relit la
@@ -610,8 +632,9 @@ MUTATIONS = {
     ),
     "cm-sans-defilement": (
         "cm-liste", "gestion-carte.s",
-        [("        move.w  %d0, %d6                | au-dessous\n",
-          "        nop                             | MUTATION : la fenêtre ne descend pas\n")],
+        [
+         ('        move.w  %d0, %d6                | below\n',
+          '        nop                             | MUTATION : la fenêtre ne descend pas\n')],
         "la liste ne défile pas vers le bas",
     ),
     "cm-libres-faux": (
@@ -633,7 +656,8 @@ MUTATIONS = {
     ),
     "cm-formater-inerte": (
         "cm-formater cm-non-formatee", "gestion-carte.s",
-        [("2:      move.b  #0x00, CMD              | formater\n",
+        [
+         ('2:      move.b  #0x00, CMD              | format\n',
           "2:      move.b  #0x07, CMD              | MUTATION : rien n'est formaté\n")],
         "FORMAT CARD, A, A ne formate pas",
     ),
@@ -650,8 +674,9 @@ MUTATIONS = {
     ),
     "cm-protection-ignoree": (
         "cm-protegee", "gestion-carte.s",
-        [("        | Une sauvegarde : DELETE ?\n        btst    #6, STATUS_B\n        bne.s   .Lprotegee\n",
-          "        | Une sauvegarde : DELETE ?\n        nop                             | MUTATION : la protection n'est pas lue\n")],
+        [
+         ('        | A save: DELETE ?\n        btst    #6, STATUS_B\n        bne.s   .Lprotegee\n',
+          "        | A save: DELETE ?\n        nop                             | MUTATION : la protection n'est pas lue\n")],
         "une carte protégée propose l'effacement",
     ),
     "cm-insertion-ignoree": (
@@ -662,8 +687,9 @@ MUTATIONS = {
     ),
     "cm-confirmation-survit": (
         "cm-insertion", "gestion-carte.s",
-        [("6:      clr.b   V_CONF                  | une confirmation visait l'ancienne carte : abandonnée\n",
-          "6:      nop                             | MUTATION : la confirmation survit\n")],
+        [
+         ('6:      clr.b   V_CONF                  | a confirmation targeted the old card: abandoned\n',
+          '6:      nop                             | MUTATION : la confirmation survit\n')],
         "une confirmation en attente survit au changement de carte : A efface la sauvegarde de la nouvelle",
     ),
     "aes-sans-restauration": (
@@ -703,14 +729,16 @@ MUTATIONS = {
     ),
     "bo-libre-inerte": (
         "bo-free-play bo-fp-p2 bo-fp-joint dip-fp-reglage", "io.s",
-        [("        btst    #0, BORNE\n        bne.s   8f                      | FREE PLAY de CABINET SETTINGS\n",
-          "        btst    #0, BORNE\n        nop                             | MUTATION : FREE PLAY ignoré\n")],
+        [
+         ('        btst    #0, BORNE\n        bne.s   8f                      | FREE PLAY from CABINET SETTINGS\n',
+          '        btst    #0, BORNE\n        nop                             | MUTATION : FREE PLAY ignoré\n')],
         "FREE PLAY ON (commutateur 7 à OFF) : START sans crédit reste refusé",
     ),
     "bo-p2-seul": (
         "bo-fp-p2 dip-fp-p2", "io.s",
-        [("        moveq   #3, %d1                 | titre ou démo, START P2 : les deux joueurs\n",
-          "        nop                             | MUTATION : START P2 ne fait partir que P2\n")],
+        [
+         ('        moveq   #3, %d1                 | title or demo, START P2: both players\n',
+          '        nop                             | MUTATION : START P2 ne fait partir que P2\n')],
         "en free play, START P2 en démo ne fait plus partir les deux joueurs",
     ),
     "bo-credit-refuse": (
@@ -720,12 +748,16 @@ MUTATIONS = {
     ),
     "bo-continue-pris": (
         "bo-no-continue", "io.s",
-        [("        btst    #1, BORNE               | NO CONTINUE : voir `_io_sans_continue`\n        bne     _io_sans_continue\n", "")],
+        [
+         ('        btst    #1, BORNE               | NO CONTINUE: see `_io_sans_continue`\n        bne     _io_sans_continue\n',
+          '')],
         "NO CONTINUE ON : le continue est pris quand même",
     ),
     "bo-aes-non-masque": (
         "bo-aes", "reglages.s",
-        [("        andi.b  #0x08, %d0              | mode AES : les trois inertes, CHEATS/DEBUG gardé\n", "        nop                             | MUTATION : rien de masqué en mode AES\n")],
+        [
+         ('        andi.b  #0x08, %d0              | AES mode: the three inert, CHEATS/DEBUG kept\n',
+          '        nop                             | MUTATION : rien de masqué en mode AES\n')],
         "en mode AES, les réglages de la borne agissent : NO CONTINUE refuse le continue",
     ),
     "bo-aes-affiche": (
@@ -736,13 +768,16 @@ MUTATIONS = {
     ),
     "bo-demo-sonore": (
         "bo-demo-muette", "reglages.s",
-        [("        btst    #2, BORNE\n        beq.s   1f                      | DEMO SOUND ON (ou mode AES)\n",
-          "        btst    #2, BORNE\n        bra.s   1f                      | MUTATION : DEMO SOUND OFF ignoré\n")],
+        [
+         ('        btst    #2, BORNE\n        beq.s   1f                      | DEMO SOUND ON (or AES mode)\n',
+          '        btst    #2, BORNE\n        bra.s   1f                      | MUTATION : DEMO SOUND OFF ignoré\n')],
         "DEMO SOUND OFF : la démo garde son son",
     ),
     "bo-demo-toujours-muette": (
         "bo-demo-muette", "reglages.s",
-        [("        cmpi.b  #2, %d2\n        bne.s   1f                      | pas une démo : le son\n", "")],
+        [
+         ('        cmpi.b  #2, %d2\n        bne.s   1f                      | not a demo: the sound\n',
+          '')],
         "DEMO SOUND OFF coupe aussi le titre après la pièce (le comportement du BIOS SNK)",
     ),
     # Le catalogue des cheats et CHEATS/DEBUG, le 2026-10-25 (relevé --ref-cheats de bench/parcours.sh).
@@ -759,19 +794,23 @@ MUTATIONS = {
     ),
     "cd-editeur-garde": (
         "bo-cd-menu", "menu.s",
-        [("3:      cmpi.w  #7, %d0                 | MEMORY EDITOR, CHEATS/DEBUG OFF : la ligne en blanc\n        bne.s   7f\n"
-          "        btst    #3, BORNE_RAM\n        bne.s   9f\n", "3:\n")],
+        [
+         ('3:      cmpi.w  #7, %d0                 | MEMORY EDITOR, CHEATS/DEBUG OFF: the line blank\n        bne.s   7f\n        btst    #3, BORNE_RAM\n        bne.s   9f\n',
+          '3:\n')],
         "CHEATS/DEBUG OFF : la ligne MEMORY EDITOR reste affichée",
     ),
     "cd-dernier-choix": (
         "bo-cd-menu", "menu.s",
-        [("        subq.w  #1, %d1                 | CHEATS/DEBUG OFF : GAME SETTINGS est le dernier\n",
-          "        nop                             | MUTATION : la ligne en blanc reste choisissable\n")],
+        [
+         ('        subq.w  #1, %d1                 | CHEATS/DEBUG OFF: GAME SETTINGS is the last\n',
+          '        nop                             | MUTATION : la ligne en blanc reste choisissable\n')],
         "CHEATS/DEBUG OFF : « haut » depuis RESUME mène à la ligne en blanc de MEMORY EDITOR, qui l'ouvre",
     ),
     "cd-moteur-ignore": (
         "bo-cd-gel", "cheats.s",
-        [("        btst    #3, BORNE_RAM           | CHEATS/DEBUG OFF : tout éteint, rien d'écrit\n        bne.w   .Lcoupes\n", "")],
+        [
+         ('        btst    #3, BORNE_RAM           | CHEATS/DEBUG OFF: everything cleared, nothing written\n        bne.w   .Lcoupes\n',
+          '')],
         "CHEATS/DEBUG OFF : un gel déjà actif s'applique encore",
     ),
     "cd-bit-perdu": (
@@ -781,7 +820,9 @@ MUTATIONS = {
     ),
     "cd-aes-masque": (
         "bo-aes", "dip.s",
-        [("        cmpi.b  #15, %d0\n        beq.s   1f                      | CHEATS/DEBUG : dans les deux modes\n", "")],
+        [
+         ('        cmpi.b  #15, %d0\n        beq.s   1f                      | CHEATS/DEBUG: in both modes\n',
+          '')],
         "en mode AES, CHEATS/DEBUG dit MVS ONLY comme les trois autres",
     ),
     "cd-ligne-absente": (
@@ -802,20 +843,25 @@ MUTATIONS = {
     ),
     "dfp-ignore": (
         "dip-free-play dip-fp-p2 dip-fp-chaud", "io.s",
-        [("        btst    #6, DIPSW\n        bne     9b                      | ni l'un ni le commutateur : refusé\n",
-          "        btst    #6, DIPSW\n        bra     9b                      | MUTATION : le commutateur 7 ignoré\n")],
+        [
+         ('        btst    #6, DIPSW\n        bne     9b                      | neither one nor the switch: refused\n',
+          '        btst    #6, DIPSW\n        bra     9b                      | MUTATION : le commutateur 7 ignoré\n')],
         "le commutateur Free Play de la carte à ON : START sans crédit reste refusé",
     ),
     "dfp-bit-faux": (
         "dip-free-play dip-fp-p2", "io.s",
-        [("        btst    #6, DIPSW\n        bne     9b                      | ni l'un ni le commutateur : refusé\n",
-          "        btst    #7, DIPSW               | MUTATION : le bit du commutateur 8\n        bne     9b\n")],
+        [
+         ('        btst    #6, DIPSW\n        bne     9b                      | neither one nor the switch: refused\n',
+          '        btst    #7, DIPSW               | MUTATION : le bit du commutateur 8\n        bne     9b\n')],
         "START lit le commutateur 8 (« Freeze ») au lieu du 7",
     ),
     "dfp-credit-check": (
         "dip-free-play dip-fp-chaud", "io.s",
-        [("        btst    #6, DIPSW               | le commutateur 7 à ON (bit à 0) : de même\n        beq.s   1f\n", ""),
-         ("        btst    #6, DIPSW               | le commutateur 7 de même\n        beq.s   2f\n", "")],
+        [
+         ('        btst    #6, DIPSW               | switch 7 at ON (bit at 0): likewise\n        beq.s   1f\n',
+          ''),
+         ('        btst    #6, DIPSW               | switch 7 likewise\n        beq.s   2f\n',
+          '')],
         "CREDIT_CHECK ignore le commutateur : la démo dit INSERT COIN en free play",
     ),
     "dfp-cabinet-off": (
@@ -825,19 +871,23 @@ MUTATIONS = {
     ),
     "dfp-cabinet-libre": (
         "dip-fp-cabinet", "dip.s",
-        [("        btst    #6, DIPSW               | « Freeplay », bit 6 à 0 : ON\n        beq     .Lch_fin\n",
-          "        btst    #6, DIPSW               | MUTATION : le verrou retiré\n        nop\n")],
+        [
+         ('        btst    #6, DIPSW               | "Freeplay", bit 6 at 0: ON\n        beq     .Lch_fin\n',
+          '        btst    #6, DIPSW               | MUTATION : le verrou retiré\n        nop\n')],
         "FREE PLAY se change sous le commutateur : le réglage enregistré bouge",
     ),
     "setting-ignore": (
         "dip-setting", "dip.s",
-        [("        btst    #0, DIPSW               | le commutateur 1, « Setting Mode », à ON\n        beq.s   1f\n", "")],
+        [
+         ('        btst    #0, DIPSW               | switch 1, "Setting Mode", at ON\n        beq.s   1f\n',
+          '')],
         "le commutateur 1 de la carte n'ouvre plus l'écran TEST",
     ),
     "setting-bit-faux": (
         "dip-setting", "dip.s",
-        [("        btst    #0, DIPSW               | le commutateur 1, « Setting Mode », à ON\n",
-          "        btst    #1, DIPSW               | MUTATION : le commutateur 2\n")],
+        [
+         ('        btst    #0, DIPSW               | switch 1, "Setting Mode", at ON\n',
+          '        btst    #1, DIPSW               | MUTATION : le commutateur 2\n')],
         "l'écran TEST lit le commutateur 2 au lieu du 1",
     ),
     "geste-boot-ignore": (
@@ -863,14 +913,16 @@ MUTATIONS = {
     ),
     "setting-toujours": (
         "dip-setting", "dip.s",
-        [("        btst    #0, DIPSW               | le commutateur 1, « Setting Mode », à ON\n        beq.s   1f\n",
-          "        btst    #0, DIPSW               | le commutateur 1, « Setting Mode », à ON\n        bra.s   1f                      | MUTATION\n")],
+        [
+         ('        btst    #0, DIPSW               | switch 1, "Setting Mode", at ON\n        beq.s   1f\n',
+          '        btst    #0, DIPSW               | switch 1, "Setting Mode", at ON\n        bra.s   1f                      | MUTATION\n')],
         "l'écran TEST s'ouvre à chaque boot, commutateur 1 à OFF compris",
     ),
     "geste-boot-select-seul": (
         "geste-boot", "dip.s",
-        [("        btst    #0, STATUS_B            | START et SELECT de P1 tenus (voir l'en-tête)\n        bne.s   2f\n",
-          "        nop                             | MUTATION : START oublié\n")],
+        [
+         ('        btst    #0, STATUS_B            | START and SELECT of P1 held (see the header)\n        bne.s   2f\n',
+          '        nop                             | MUTATION : START oublié\n')],
         "SELECT seul tenu au boot ouvre l'écran TEST",
     ),
     "geste-jeu-select-seul": (
@@ -891,14 +943,16 @@ MUTATIONS = {
     ),
     "avertissement-toujours": (
         "dip-setting", "dip.s",
-        [("        btst    #0, DIPSW               | « Setting Mode » : bit 0 à 0, ON\n        bne.s   1f\n        bsr     .Lavertir\n",
-          "        btst    #0, DIPSW               | « Setting Mode » : bit 0 à 0, ON\n        nop                             | MUTATION\n        bsr     .Lavertir\n")],
+        [
+         ('        btst    #0, DIPSW               | "Setting Mode": bit 0 at 0, ON\n        bne.s   1f\n        bsr     .Lavertir\n',
+          '        btst    #0, DIPSW               | "Setting Mode": bit 0 at 0, ON\n        nop                             | MUTATION\n        bsr     .Lavertir\n')],
         "l'avertissement même commutateur 1 rebasculé à OFF",
     ),
     "geste-boot-adaptateur": (
         "geste-boot", "dip.s",
-        [("        bcs.s   2b                      | les quatre tenus : le geste est refusé\n",
-          "        nop                             | MUTATION : A, B, C et D non vérifiés\n")],
+        [
+         ('        bcs.s   2b                      | all four held: the gesture is refused\n',
+          '        nop                             | MUTATION : A, B, C et D non vérifiés\n')],
         "l'adaptateur BlueRetro (START, SELECT, A, B, C et D tenus) ouvre l'écran TEST au boot",
     ),
     "geste-boot-un-bouton": (
@@ -908,8 +962,9 @@ MUTATIONS = {
     ),
     "geste-jeu-adaptateur": (
         "geste-jeu", "menu.s",
-        [("        bra.s   1b                      | les quatre tenus : refusé\n",
-          "        bra.s   3b                      | MUTATION : A, B, C et D non vérifiés\n")],
+        [
+         ('        bra.s   1b                      | all four held: refused\n',
+          '        bra.s   3b                      | MUTATION : A, B, C et D non vérifiés\n')],
         "l'adaptateur BlueRetro (START, SELECT, A, B, C et D tenus) ouvre le menu en jeu",
     ),
     "geste-jeu-un-bouton": (
@@ -951,14 +1006,16 @@ MUTATIONS = {
     # Le CRC32 de la cartouche et les debug dips, le 2026-10-25 (relevé --ref-crc).
     "crc-ordre-cpu": (
         "crc-fixe crc-banques crc-miroir", "crc.s",
-        [("        moveq   #0, %d2\n        move.b  %d1, %d2                | l'octet bas, le premier du fichier\n",
+        [
+         ("        moveq   #0, %d2\n        move.b  %d1, %d2                | the low byte, the file's first\n",
           "        rol.w   #8, %d1                 | MUTATION : l'octet haut d'abord\n        moveq   #0, %d2\n        move.b  %d1, %d2\n")],
         "le CRC somme les octets dans l'ordre du 68000, plus dans celui des fichiers de MAME",
     ),
     "crc-sans-crtfix": (
         "bf-crc bf-crc-banque", "crc.s",
-        [("        move.b  %d0, CRTFIX             | la cartouche répond, sa S ROM au plan fixe\n",
-          "        nop                             | MUTATION : la P-ROM lue sous REG_BRDFIX\n")],
+        [
+         ('        move.b  %d0, CRTFIX             | the cartridge answers, its S ROM on the fix layer\n',
+          '        nop                             | MUTATION : la P-ROM lue sous REG_BRDFIX\n')],
         "le CRC lit la P-ROM sous REG_BRDFIX : du bus flottant sur le matériel",
     ),
     "crc-banques-ignorees": (
@@ -968,8 +1025,9 @@ MUTATIONS = {
     ),
     "crc-miroir-ignore": (
         "crc-miroir", "crc.s",
-        [("1:      cmpi.l  #0x10000, %d6           | 64 Kio au moins\n        bls.s   2f\n",
-          "1:      bra.s   2f                      | MUTATION : jamais de miroir\n")],
+        [
+         ('1:      cmpi.l  #0x10000, %d6           | 64 KiB at least\n        bls.s   2f\n',
+          '1:      bra.s   2f                      | MUTATION : jamais de miroir\n')],
         "une P-ROM de 512 Kio vue en miroir est sommée sur 1 Mio",
     ),
     "crc-flottant-ignore": (
@@ -985,7 +1043,9 @@ MUTATIONS = {
     ),
     "dd-jamais-pose": (
         "dd-effet", "debug.s",
-        [("        bset    #7, GL_MASQUE           | le bit 15 du mot\n", "        nop                             | MUTATION\n")],
+        [
+         ('        bset    #7, GL_MASQUE           | bit 15 of the word\n',
+          '        nop                             | MUTATION\n')],
         "le moteur ne pose jamais les debug dips : une seule écriture, que kof94 efface",
     ),
     "dd-ecran-inerte": (
@@ -1000,13 +1060,16 @@ MUTATIONS = {
     ),
     "dd-sauve": (
         "dd-effet", "c0.s",
-        [("        jsr     _dd_retirer             | registres rendus\n", "        nop                             | MUTATION : le masque sauvé\n")],
+        [
+         ('        jsr     _dd_retirer             | registers preserved\n',
+          '        nop                             | MUTATION : le masque sauvé\n')],
         "les debug dips partent en backup RAM avec la sauvegarde du jeu",
     ),
     "dd-ouvert-a-off": (
         "dd-off", "dip.s",
-        [("        btst    #3, F_BORNE(%a6)\n        bne     .Lch_fin\n        jsr     _debug_dips             | registres rendus\n",
-          "        jsr     _debug_dips             | MUTATION : ouvert sous CHEATS/DEBUG OFF\n")],
+        [
+         ('        btst    #3, F_BORNE(%a6)\n        bne     .Lch_fin\n        jsr     _debug_dips             | registers returned\n',
+          '        jsr     _debug_dips             | MUTATION : ouvert sous CHEATS/DEBUG OFF\n')],
         "sous CHEATS/DEBUG OFF, la ligne DEBUG DIPS s'ouvre encore",
     ),
     "dd-off-ignore": (
@@ -1024,21 +1087,23 @@ MUTATIONS = {
     # L'écran ABOUT (`about.s`), le 2026-10-28.
     "ab-ligne-absente": (
         "ab-ecran", "dip.s",
-        [("        move.b  #17, (%a2)              | ABOUT, avant CABINET SETTINGS\n        clr.b   1(%a2)\n"
-          "        move.l  #.Ltxt_apropos, 6(%a2)\n        lea     T_ENTREE(%a2), %a2\n        addq.w  #1, %d6\n",
-          "                                        | MUTATION : pas de ligne ABOUT\n")],
+        [
+         ('        move.b  #17, (%a2)              | ABOUT, before CABINET SETTINGS\n        clr.b   1(%a2)\n        move.l  #.Ltxt_apropos, 6(%a2)\n        lea     T_ENTREE(%a2), %a2\n        addq.w  #1, %d6\n',
+          '                                        | MUTATION : pas de ligne ABOUT\n')],
         "l'écran TEST n'a plus de ligne ABOUT",
     ),
     "ab-ne-s-ouvre-pas": (
         "ab-ecran", "dip.s",
-        [("        jsr     _a_propos               | registres rendus\n",
+        [
+         ('        jsr     _a_propos               | registers returned\n',
           "        nop                             | MUTATION : ABOUT ne s'ouvre pas\n")],
         "A sur la ligne ABOUT n'ouvre pas l'écran",
     ),
     "ab-start-ignore": (
         "ab-ecran", "about.s",
-        [("        btst    #5, %d0                 | START : retour\n        beq.s   .Lboucle\n",
-          "        bra.s   .Lboucle                | MUTATION : START ignoré\n")],
+        [
+         ('        btst    #5, %d0                 | START: back\n        beq.s   .Lboucle\n',
+          '        bra.s   .Lboucle                | MUTATION : START ignoré\n')],
         "START ne referme plus l'écran ABOUT",
     ),
     # Les commutateurs 2, 3 et 8 de la carte (DECISIONS §21).
@@ -1076,14 +1141,16 @@ MUTATIONS = {
     ),
     "mj-sans-front": (
         "dip-mahjong", "io.s",
-        [("        move.b  %d2, 0x10FDA1           | les fronts\n",
-          "        clr.b   0x10FDA1                | MUTATION : pas de front pour la rangée A-G\n")],
+        [
+         ('        move.b  %d2, 0x10FDA1           | the edges\n',
+          '        clr.b   0x10FDA1                | MUTATION : pas de front pour la rangée A-G\n')],
         "le front de la rangée A-G n'est plus écrit",
     ),
     "mj-boot-seul": (
         "dip-mahjong dip-4p", "c0.s",
-        [("        bsr     _commutateurs           | BIOS_P1STATUS et $10FEF8, comme `_remettre_a_user`\n",
-          "        nop                             | MUTATION : pas relus à la pièce\n")],
+        [
+         ('        bsr     _commutateurs           | BIOS_P1STATUS and $10FEF8, like `_remettre_a_user`\n',
+          '        nop                             | MUTATION : pas relus à la pièce\n')],
         "les commutateurs 2 et 3 ne sont plus relus à la pièce",
     ),
     "mj-toujours": (
@@ -1094,8 +1161,9 @@ MUTATIONS = {
     ),
     "mj-off-sourd": (
         "dip-mj-off", "io.s",
-        [("        move.b  #0x1B, 0x380001\n        | COMMUTATEUR 3 À ON",
-          "        nop                             | MUTATION : la sortie $00 de la trame d'avant\n        | COMMUTATEUR 3 À ON")],
+        [
+         ('        move.b  #0x1B, 0x380001\n        | SWITCH 3 AT ON (BIOS_P1STATUS at 3, set at the hand-over: `_commutateurs`, `c0.s`):\n',
+          "        nop                             | MUTATION : la sortie $00 de la trame d'avant\n        | SWITCH 3 AT ON (BIOS_P1STATUS at 3, set at the hand-over: `_commutateurs`, `c0.s`):\n")],
         "commutateur 3 à OFF, le panneau n'est plus lu (le défaut d'avant le correctif)",
     ),
     "4p-jamais": (
@@ -1113,10 +1181,9 @@ MUTATIONS = {
     # L'autofire, 7, le 2026-10-27 (relevé --ref-af).
     "af-inerte": (
         "af-tir", "io.s",
-        [("        move.b  AF_PH1, %d1\n        move.b  0(%a0,%d1.w), %d3       | les boutons vus relâchés à cette phase\n"
-          "        and.b   %d0, %d3\n        eor.b   %d3, %d0\n",
-          "        move.b  AF_PH1, %d1\n        move.b  0(%a0,%d1.w), %d3       | les boutons vus relâchés à cette phase\n"
-          "        and.b   %d0, %d3\n        nop                             | MUTATION : rien de relâché\n")],
+        [
+         ('        move.b  AF_PH1, %d1\n        move.b  0(%a0,%d1.w), %d3       | the buttons seen released at this phase\n        and.b   %d0, %d3\n        eor.b   %d3, %d0\n',
+          '        move.b  AF_PH1, %d1\n        move.b  0(%a0,%d1.w), %d3       | the buttons seen released at this phase\n        and.b   %d0, %d3\n        nop                             | MUTATION : rien de relâché\n')],
         "le turbo de P1 ne relâche jamais le bouton tenu",
     ),
     "af-cadence": (
@@ -1132,20 +1199,18 @@ MUTATIONS = {
     ),
     "af-charge-jamais": (
         "af-sauve", "c0.s",
-        [("        jsr     _af_charger             | l'autofire du jeu servi (`autofire.s`), registres rendus\n"
-          "        move.b  #0x03, 0x320000         | REG_SOUND : le reset du Z80",
-          "        nop                             | MUTATION : pas chargé à la remise\n"
-          "        move.b  #0x03, 0x320000         | REG_SOUND : le reset du Z80"),
-         ("        bsr     _commutateurs           | BIOS_P1STATUS et $10FEF8 (plus bas)\n"
-          "        jsr     _af_charger             | l'autofire du jeu servi (`autofire.s`), registres rendus\n",
-          "        bsr     _commutateurs           | BIOS_P1STATUS et $10FEF8 (plus bas)\n"
-          "        nop                             | MUTATION : pas chargé à la remise\n")],
+        [
+         ("        jsr     _af_charger             | the served game's autofire (`autofire.s`), registers preserved\n        move.b  #0x03, 0x320000         | REG_SOUND: the Z80 reset (see `_sysret_piece`)\n",
+          '        nop                             | MUTATION : pas chargé à la remise\n        move.b  #0x03, 0x320000         | REG_SOUND: the Z80 reset (see `_sysret_piece`)\n'),
+         ("        bsr     _commutateurs           | BIOS_P1STATUS and $10FEF8 (below)\n        jsr     _af_charger             | the served game's autofire (`autofire.s`), registers preserved\n",
+          '        bsr     _commutateurs           | BIOS_P1STATUS and $10FEF8 (below)\n        nop                             | MUTATION : pas chargé à la remise\n')],
         "la fiche du jeu n'est plus chargée à la remise de la main",
     ),
     "af-off-ignore": (
         "af-off", "autofire.s",
-        [("        bchg    %d1, %d0                | A : bascule\n",
-          "        bset    %d1, %d0                | MUTATION : A met à ON, jamais à OFF\n")],
+        [
+         ('        bchg    %d1, %d0                | A: toggle\n',
+          '        bset    %d1, %d0                | MUTATION : A met à ON, jamais à OFF\n')],
         "A sur une ligne de bouton ne repasse plus à OFF",
     ),
     "af-off-non-retire": (
@@ -1163,15 +1228,16 @@ MUTATIONS = {
     # Les garanties sur les défauts d'UniBIOS (DECISIONS §23).
     "boot-police-cartouche": (
         "boot-graphismes", "ecran.s",
-        [("        jsr     _fix_clear\n        | L'heure",
-          "        jsr     _fix_clear\n        move.b  %d0, 0x3A001B           | MUTATION : REG_CRTFIX, la S ROM de la cartouche\n"
-          "        | L'heure")],
+        [
+         ('        jsr     _fix_clear\n        | The time, once: READ_CALENDAR stores the date in BCD at $10FDD2-$10FDD8 (`cal.s`).\n',
+          '        jsr     _fix_clear\n        move.b  %d0, 0x3A001B           | MUTATION : REG_CRTFIX, la S ROM de la cartouche\n        | The time, once: READ_CALENDAR stores the date in BCD at $10FDD2-$10FDD8 (`cal.s`).\n')],
         "l'écran de boot s'écrit avec la police de la cartouche",
     ),
     "boot-sans-lsp": (
         "boot-graphismes", "ecran.s",
-        [("        jsr     _lsp_1st\n        jsr     _fix_clear\n        | L'heure",
-          "        jsr     _fix_clear              | MUTATION : les sprites de la mise sous tension laissés\n        | L'heure")],
+        [
+         ('        jsr     _lsp_1st\n        jsr     _fix_clear\n        | The time, once: READ_CALENDAR stores the date in BCD at $10FDD2-$10FDD8 (`cal.s`).\n',
+          '        jsr     _fix_clear              | MUTATION : les sprites de la mise sous tension laissés\n        | The time, once: READ_CALENDAR stores the date in BCD at $10FDD2-$10FDD8 (`cal.s`).\n')],
         "l'écran de boot laisse affichés les sprites que la VRAM porte à la mise sous tension",
     ),
     "vierge-inutilises": (
@@ -1188,8 +1254,9 @@ MUTATIONS = {
     ),
     "relecture-sans-validation": (
         "dip-corrompue", "c0.s",
-        [("        jsr     _dip_valider            | registres rendus\n",
-          "        nop                             | MUTATION : GAME_DIP relu sans validation\n        nop\n        nop\n")],
+        [
+         ('        jsr     _dip_valider            | registers preserved\n',
+          '        nop                             | MUTATION : GAME_DIP relu sans validation\n        nop\n        nop\n')],
         "un bloc soft-DIP quelconque d'un jeu connu est servi tel quel au jeu",
     ),
     "mj-page-absente": (
@@ -1200,8 +1267,9 @@ MUTATIONS = {
     ),
     "mj-touche-muette": (
         "tests-mahjong", "tests.s",
-        [("        move.b  #0x12, 0x380001         | rangée H-N\n        move.b  P1CNT, %d4\n",
-          "        move.b  #0x12, 0x380001         | rangée H-N\n        move.b  #0xFF, %d4              | MUTATION : rangée H-N jamais lue\n")],
+        [
+         ('        move.b  #0x12, 0x380001         | row H-N\n        move.b  P1CNT, %d4\n',
+          '        move.b  #0x12, 0x380001         | row H-N\n        move.b  #0xFF, %d4              | MUTATION : rangée H-N jamais lue\n')],
         "la rangée H-N de la page du panneau reste à 0",
     ),
     "veille-jamais": (
@@ -1217,8 +1285,9 @@ MUTATIONS = {
     ),
     "cp-sans-ecrasement": (
         "cm-copier", "gestion-carte.s",
-        [("        move.b  #4, V_CONF              | déjà là : écraser ?\n        bsr     .Lmsg_ecraser\n        bra     .Lboucle\n",
-          "        bra.s   4f                      | MUTATION : écrasé sans demander\n        bsr     .Lmsg_ecraser\n        bra     .Lboucle\n")],
+        [
+         ('        move.b  #4, V_CONF              | already there: overwrite?\n        bsr     .Lmsg_ecraser\n        bra     .Lboucle\n',
+          '        bra.s   4f                      | MUTATION : écrasé sans demander\n        bsr     .Lmsg_ecraser\n        bra     .Lboucle\n')],
         "la copie écrase une sauvegarde de la carte cible sans demander",
     ),
     "cp-ram-perdue": (
@@ -1244,8 +1313,9 @@ MUTATIONS = {
     ),
     "cp-inerte": (
         "cm-copier", "gestion-carte.s",
-        [("4:      btst    #7, %d0                 | C : copier la sauvegarde de la ligne\n        bne     .Lcopier\n",
-          "4:      btst    #7, %d0                 | C : copier la sauvegarde de la ligne\n        nop                             | MUTATION\n        nop\n")],
+        [
+         ("4:      btst    #7, %d0                 | C: copy the line's save\n        bne     .Lcopier\n",
+          "4:      btst    #7, %d0                 | C: copy the line's save\n        nop                             | MUTATION\n        nop\n")],
         "C ne copie pas",
     ),
     # Les menus au panneau de mahjong (DECISIONS §30).
@@ -1257,8 +1327,9 @@ MUTATIONS = {
     ),
     "pn-sans-1b": (
         "pn-menu-off pn-verrou", "panneau.s",
-        [("        move.b  #0x1B, POUTPUT          | OFF : les rangées A-G et H-N confondues\n",
-          "        nop                             | MUTATION : REG_POUTPUT laissé tel quel à OFF\n        nop\n        nop\n")],
+        [
+         ('        move.b  #0x1B, POUTPUT          | OFF: the A-G and H-N rows merged\n',
+          '        nop                             | MUTATION : REG_POUTPUT laissé tel quel à OFF\n        nop\n        nop\n')],
         "commutateur 3 à OFF, P1 lu sous la sortie qu'un autre a laissée",
     ),
     "pn-verrou-relu": (
@@ -1269,30 +1340,25 @@ MUTATIONS = {
     ),
     "pn-e-f-echangees": (
         "pn-menu-on pn-valeur pn-verrou pn-jeu", "panneau.s",
-        [("        rol.b   #4, %d0                 | A-D aux bits 4-7 (boutons), E, F, G aux bits 0-2\n",
-          "        rol.b   #4, %d0                 | A-D aux bits 4-7 (boutons), E, F, G aux bits 0-2\n"
-          "        move.l  %d1, -(%sp)             | MUTATION : E et F échangés (bits 0 et 1)\n"
-          "        move.b  %d0, %d1\n        andi.b  #0xFC, %d0\n"
-          "        lsr.b   #1, %d1\n        bcc.s   8f\n        bset    #1, %d0\n"
-          "8:      lsr.b   #1, %d1\n        bcc.s   9f\n        bset    #0, %d0\n"
-          "9:      move.l  (%sp)+, %d1\n")],
+        [
+         ('        rol.b   #4, %d0                 | A-D at bits 4-7 (buttons), E, F, G at bits 0-2\n',
+          '        rol.b   #4, %d0                 | A-D at bits 4-7 (buttons), E, F, G at bits 0-2\n        move.l  %d1, -(%sp)             | MUTATION : E et F échangés (bits 0 et 1)\n        move.b  %d0, %d1\n        andi.b  #0xFC, %d0\n        lsr.b   #1, %d1\n        bcc.s   8f\n        bset    #1, %d0\n8:      lsr.b   #1, %d1\n        bcc.s   9f\n        bset    #0, %d0\n9:      move.l  (%sp)+, %d1\n')],
         "E descend et F monte",
     ),
     "restauration-avant-editeur": (
         "tests-sauvegarde", "c0.s",
-        [("_slot_present:\n        bsr     _relire_dip\n",
-          "_slot_present:\n        movea.l %a0, %a4                | MUTATION : restauré avant l'éditeur\n"
-          "        moveq   #0, %d1\n        move.b  0xD00108, %d1\n        bsr     _restaurer_jeu\n"
-          "        movea.l %a4, %a0\n        bsr     _relire_dip\n"),
-         ("        moveq   #0, %d1\n        move.b  0xD00108, %d1\n        bsr     _restaurer_jeu\n"
-          "        jsr     _dd_poser               | registres rendus\n",
-          "        jsr     _dd_poser               | registres rendus\n")],
+        [
+         ('_slot_present:\n        bsr     _relire_dip\n',
+          "_slot_present:\n        movea.l %a0, %a4                | MUTATION : restauré avant l'éditeur\n        moveq   #0, %d1\n        move.b  0xD00108, %d1\n        bsr     _restaurer_jeu\n        movea.l %a4, %a0\n        bsr     _relire_dip\n"),
+         ('        moveq   #0, %d1\n        move.b  0xD00108, %d1\n        bsr     _restaurer_jeu\n        jsr     _dd_poser               | registers preserved\n',
+          '        jsr     _dd_poser               | registers preserved\n')],
         "la sauvegarde d'un jeu déjà inscrit restaurée avant l'écran TEST : WORK RAM la détruit",
     ),
     "dd-ecrase-a-la-restauration": (
         "dd-connu", "c0.s",
-        [("        bsr     _restaurer_jeu\n        jsr     _dd_poser               | registres rendus\n",
-          "        bsr     _restaurer_jeu\n        nop                             | MUTATION : masque non reposé\n")],
+        [
+         ('        bsr     _restaurer_jeu\n        jsr     _dd_poser               | registers preserved\n',
+          '        bsr     _restaurer_jeu\n        nop                             | MUTATION : masque non reposé\n')],
         "la restauration d'un jeu déjà inscrit écrase les debug dips posés par l'écran TEST",
     ),
 }

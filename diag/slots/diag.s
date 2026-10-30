@@ -1,39 +1,39 @@
 | SPDX-License-Identifier: GPL-3.0-or-later
 | Copyright (C) 2026 Thibaut Lion
 | ==================================================================================
-| IMAGE DE DIAGNOSTIC DES SLOTS — un sp1 autonome, pour UN essai sur une vraie carte.
+| SLOT DIAGNOSTIC IMAGE — a standalone sp1, for ONE trial on a real board.
 |
-| Ce n'est pas ReBIOS : aucune cartouche n'est lancée. Au reset, l'image lit les registres
-| système, puis, pour chaque slot 0 à 7 et pour six façons d'y accéder, les 16 octets de
-| $000100-$00010F (le début de l'en-tête, « 68k program header » : « NEO-GEO » puis le
-| NGH). Elle les affiche en hexadécimal avec la police de la carte (SFIX, plan fixe), et
-| tient l'écran indéfiniment en donnant ses coups de pied au watchdog.
+| This is not ReBIOS: no cartridge is launched. At reset, the image reads the system
+| registers, then, for each slot 0 to 7 and for six ways of accessing it, the 16 bytes of
+| $000100-$00010F (the start of the header, "68k program header": "NEO-GEO" then the
+| NGH). It displays them in hexadecimal with the board's font (SFIX, fix layer), and
+| holds the screen indefinitely while kicking the watchdog.
 |
-| POURQUOI, et ce que chaque variante teste (docs/ESSAI-MATERIEL.md, retour du 2026-10-24) :
-| l'image n°8 lisait l'en-tête sous REG_BRDFIX et trouvait le bus flottant sur une MV-2F.
-| Hypothèse principale (SLOTCS gaté par SYSTEMB, wiki « NEO-F0 », « MVS cartridge pinout »,
-| « Signals ») : la cartouche ne répond que sous REG_CRTFIX. Les variantes :
-|   A  REG_BRDFIX, vecteurs du BIOS, REG_SLOT octet à $380021, lectures en mots — l'image n°8 ;
-|   B  REG_CRTFIX, sinon comme A — la correction, et l'ordre mesuré de la référence ;
-|   C  B plus REG_SWPROM pendant la lecture ;
-|   D  B, mais REG_SLOT écrit en mot à $380020 (le numéro dans l'octet bas) ;
-|   E  B, puis 8 trames d'attente entre le choix du slot et la lecture ;
-|   F  B, lectures en octets (16 `move.b`), comme la référence.
-| A est mesuré en premier, pour tous les slots, avant toute écriture de REG_CRTFIX.
+| WHY, and what each variant tests (docs/ESSAI-MATERIEL.md, feedback of 2026-10-24):
+| image no. 8 read the header under REG_BRDFIX and found the bus floating on an MV-2F.
+| Main hypothesis (SLOTCS gated by SYSTEMB, wiki "NEO-F0", "MVS cartridge pinout",
+| "Signals"): the cartridge only answers under REG_CRTFIX. The variants:
+|   A  REG_BRDFIX, the BIOS's vectors, REG_SLOT byte at $380021, reads as words — image no. 8;
+|   B  REG_CRTFIX, otherwise like A — the fix, and the reference's measured order;
+|   C  B plus REG_SWPROM during the read;
+|   D  B, but REG_SLOT written as a word at $380020 (the number in the low byte);
+|   E  B, then 8 frames of waiting between the choice of the slot and the read;
+|   F  B, reads as bytes (16 `move.b`), like the reference.
+| A is measured first, for all the slots, before any write of REG_CRTFIX.
 |
-| L'ÉCRAN, police 8×8 (tuile = code ASCII, palette dans les 4 bits hauts ; `src/c0/dip.s`,
-| `measured/2026-10-20-sfix-glyphes.tsv`), plan fixe $7000 + 32 × colonne + ligne, lignes 2
-| à 29 visibles (« Fix layer »). Deux pages, alternées toutes les 240 trames (~4 s) :
-| page 1 les variantes A, B, C ; page 2 D, E, F. Une ligne par slot et par variante :
-|   « 0B 4E454F2D47454F00 0201xxxxxxxxxxxx Y » : slot, variante, 16 octets, et Y si les
-| sept premiers sont « NEO-GEO » — colonnes 1 à 38, la première et la dernière laissées au
-| bord de l'écran. En tête : REG_SYSTYPE ($300081), REG_STATUS_A ($320001),
-| le mot de $380000 (REG_STATUS_B dans l'octet haut, « Memory mapped registers »),
-| REG_DIPSW ($300001), et si le Z80 a répondu $01 (Z80 OK ou NO).
+| THE SCREEN, 8×8 font (tile = ASCII code, palette in the 4 high bits; `src/c0/dip.s`,
+| `measured/2026-10-20-sfix-glyphes.tsv`), fix layer $7000 + 32 × column + line, lines 2
+| to 29 visible ("Fix layer"). Two pages, alternating every 240 frames (~4 s):
+| page 1 the variants A, B, C; page 2 D, E, F. One line per slot and per variant:
+|   "0B 4E454F2D47454F00 0201xxxxxxxxxxxx Y": slot, variant, 16 bytes, and Y if the
+| first seven are "NEO-GEO" — columns 1 to 38, the first and the last left at the
+| edge of the screen. At the top: REG_SYSTYPE ($300081), REG_STATUS_A ($320001),
+| the word at $380000 (REG_STATUS_B in the high byte, "Memory mapped registers"),
+| REG_DIPSW ($300001), and whether the Z80 answered $01 (Z80 OK or NO).
 |
-| Sources : NeoGeo Development Wiki — « Memory mapped registers », « Fix layer »,
-| « Palettes », « VRAM », « Watchdog », « 68k/Z80 communication », « Sprites » (taille 0 dans
-| SCB3 : sprite non affiché). Aucun code de BIOS ni de jeu lu.
+| Sources: NeoGeo Development Wiki — "Memory mapped registers", "Fix layer",
+| "Palettes", "VRAM", "Watchdog", "68k/Z80 communication", "Sprites" (size 0 in
+| SCB3: sprite not displayed). No BIOS or game code read.
 | ==================================================================================
         .equ    WATCHDOG, 0x300001
         .equ    DIPSW,    0x300001
@@ -54,8 +54,8 @@
         .equ    IRQACK,   0x3C000C
         .equ    PALETTES, 0x400000
         .equ    FOND,     0x401FFE
-        .equ    RES,      0x100000      | 6 variantes × 8 slots × 16 octets
-        .equ    VARS,     0x100400      | registres lus au boot, 8 octets
+        .equ    RES,      0x100000      | 6 variants × 8 slots × 16 bytes
+        .equ    VARS,     0x100400      | registers read at boot, 8 bytes
         .equ    SYNC_TOURS, 5800
 
         .section .vectors, "a"
@@ -66,7 +66,7 @@
         .endr
 
         .org    0x400
-        .byte   0x80, 0x02              | MVS, Europe (« System ROM »)
+        .byte   0x80, 0x02              | MVS, Europe ("System ROM")
         .org    0x402
         .global _reset
 _reset:
@@ -83,21 +83,21 @@ _diag:
         move.w  #0x4000, LSPCMODE
         move.w  #7, IRQACK
 
-        | LES REGISTRES, avant tout le reste.
+        | THE REGISTERS, before everything else.
         lea     VARS, %a0
         move.b  SYSTYPE, (%a0)+
         move.b  STATUS_A, (%a0)+
         move.w  STATUS_B, %d0
         move.w  %d0, (%a0)+
         move.b  DIPSW, (%a0)+
-        clr.b   (%a0)+                  | Z80 : 0 pas de réponse
+        clr.b   (%a0)+                  | Z80: 0 no reply
 
-        | A : sous REG_BRDFIX, comme au reset, tous les slots d'abord.
-        moveq   #0, %d6                 | variante
+        | A: under REG_BRDFIX, as at reset, all the slots first.
+        moveq   #0, %d6                 | variant
         bsr     _variante
 
-        | LE Z80 GARÉ ($01, son écho, 60 trames au plus) avant la première bascule REG_CRTFIX,
-        | qui change sa ROM ; puis une trame.
+        | THE Z80 PARKED ($01, its echo, 60 frames at most) before the first REG_CRTFIX switch,
+        | which changes its ROM; then one frame.
         moveq   #60-1, %d4
 1:      move.b  #0x01, SOUND
         bsr     _sync
@@ -108,7 +108,7 @@ _diag:
 2:      bsr     _sync
 
         moveq   #1, %d6
-3:      bsr     _variante               | B à F
+3:      bsr     _variante               | B to F
         addq.w  #1, %d6
         cmpi.w  #6, %d6
         blo.s   3b
@@ -117,20 +117,20 @@ _diag:
         move.b  %d0, SWPBIOS
 
         bsr     _ecran_init
-        moveq   #0, %d7                 | trames
+        moveq   #0, %d7                 | frames
 _boucle:
         bsr     _sync
         moveq   #0, %d0
         move.w  %d7, %d0
         divu    #240, %d0
-        andi.w  #1, %d0                 | la page, 0 ou 1
+        andi.w  #1, %d0                 | the page, 0 or 1
         bsr     _page
         addq.w  #1, %d7
         bra.s   _boucle
 
 | ----------------------------------------------------------------------------------
-| UNE VARIANTE %d6 (0-5) sur les huit slots. Résultat à RES + 128 × %d6 + 16 × slot.
-| Revient sous REG_BRDFIX et REG_SWPBIOS, REG_SLOT à 0.
+| ONE VARIANT %d6 (0-5) over the eight slots. Result at RES + 128 × %d6 + 16 × slot.
+| Returns under REG_BRDFIX and REG_SWPBIOS, REG_SLOT at 0.
 _variante:
         moveq   #0, %d5                 | slot
         move.w  %d6, %d0
@@ -139,22 +139,22 @@ _variante:
         adda.w  %d0, %a1
 1:      move.b  %d0, WATCHDOG
         tst.w   %d6
-        beq.s   2f                      | A : REG_BRDFIX
-        bsr.s   _choisir                | REG_SLOT, REG_CRTFIX, REG_SLOT : l'ordre de la référence
+        beq.s   2f                      | A: REG_BRDFIX
+        bsr.s   _choisir                | REG_SLOT, REG_CRTFIX, REG_SLOT: the reference's order
         move.b  %d0, CRTFIX
 2:      bsr.s   _choisir
         cmpi.w  #4, %d6
         bne.s   5f
-        moveq   #8-1, %d4               | E : 8 trames
+        moveq   #8-1, %d4               | E: 8 frames
 6:      bsr     _sync
         dbra    %d4, 6b
 5:      cmpi.w  #2, %d6
         bne.s   7f
-        move.b  %d0, SWPROM             | C : les vecteurs de la cartouche
+        move.b  %d0, SWPROM             | C: the cartridge's vectors
 7:      lea     0x100, %a0
         cmpi.w  #5, %d6
         beq.s   8f
-        move.w  (%a0)+, (%a1)+          | en mots
+        move.w  (%a0)+, (%a1)+          | as words
         move.w  (%a0)+, (%a1)+
         move.w  (%a0)+, (%a1)+
         move.w  (%a0)+, (%a1)+
@@ -163,7 +163,7 @@ _variante:
         move.w  (%a0)+, (%a1)+
         move.w  (%a0)+, (%a1)+
         bra.s   9f
-8:      moveq   #16-1, %d4              | F : en octets
+8:      moveq   #16-1, %d4              | F: as bytes
 10:     move.b  (%a0)+, (%a1)+
         dbra    %d4, 10b
 9:      move.b  %d0, SWPBIOS
@@ -174,18 +174,18 @@ _variante:
         move.b  #0, REGSLOT
         rts
 
-| LE SLOT %d5 dans REG_SLOT : en octet à $380021, ou en mot à $380020 pour la variante D.
+| THE SLOT %d5 in REG_SLOT: as a byte at $380021, or as a word at $380020 for variant D.
 _choisir:
         cmpi.w  #3, %d6
         bne.s   1f
-        move.w  %d5, 0x380020           | D : REG_SLOT en mot
+        move.w  %d5, 0x380020           | D: REG_SLOT as a word
         rts
 1:      move.b  %d5, REGSLOT
         rts
 
 | ----------------------------------------------------------------------------------
-| LE PASSAGE DE LA LIGNE $1F0 (« LSPC » : le compteur de ligne dans REG_LSPCMODE, bits 7-15),
-| borné, watchdog à chaque tour — la même attente que `src/c0/c0.s`. Clobbers %d0.
+| THE PASSING OF LINE $1F0 ("LSPC": the line counter in REG_LSPCMODE, bits 7-15),
+| bounded, watchdog at each turn — the same wait as `src/c0/c0.s`. Clobbers %d0.
 _sync:
         move.l  %d1, -(%sp)
         move.w  #SYNC_TOURS - 1, %d1
@@ -204,20 +204,20 @@ _sync:
         rts
 
 | ----------------------------------------------------------------------------------
-| L'ÉCRAN : palettes, fond noir, sprites cachés (SCB3 à zéro : taille 0), plan fixe vidé.
+| THE SCREEN: palettes, black background, sprites hidden (SCB3 at zero: size 0), fix layer cleared.
 _ecran_init:
         bsr     _sync
         lea     PALETTES, %a0
-        move.w  #0x100 - 1, %d1         | palettes 0 à 15, 16 entrées
+        move.w  #0x100 - 1, %d1         | palettes 0 to 15, 16 entries
 1:      clr.w   (%a0)+
         dbra    %d1, 1b
         clr.w   FOND
-        move.w  #0x7FFF, PALETTES + 0x20 + 2    | palette 1, entrée 1 : blanc
-        move.w  #0x6FF0, PALETTES + 0x40 + 2    | palette 2, entrée 1 : jaune
-        move.w  #0x60F0, PALETTES + 0x60 + 2    | palette 3, entrée 1 : vert
+        move.w  #0x7FFF, PALETTES + 0x20 + 2    | palette 1, entry 1: white
+        move.w  #0x6FF0, PALETTES + 0x40 + 2    | palette 2, entry 1: yellow
+        move.w  #0x60F0, PALETTES + 0x60 + 2    | palette 3, entry 1: green
         lea     VRAMRW, %a0
         move.w  #1, VRAMMOD
-        move.w  #0x8200, VRAMADDR       | SCB3 : 512 mots à zéro
+        move.w  #0x8200, VRAMADDR       | SCB3: 512 words at zero
         nop
         nop
         move.w  #0x200 - 1, %d1
@@ -226,7 +226,7 @@ _ecran_init:
         dbra    %d1, 2b
         nop
         nop
-        move.w  #0x7000, VRAMADDR       | plan fixe : 40 × 32, tuile $020 palette 0
+        move.w  #0x7000, VRAMADDR       | fix layer: 40 × 32, tile $020 palette 0
         nop
         nop
         move.w  #0x500 - 1, %d1
@@ -235,27 +235,27 @@ _ecran_init:
         dbra    %d1, 3b
         nop
         nop
-        move.w  #32, VRAMMOD            | une écriture : une colonne à droite
+        move.w  #32, VRAMMOD            | one write: one column to the right
         rts
 
 | ----------------------------------------------------------------------------------
-| UNE PAGE (%d0 = 0 ou 1), redessinée à chaque trame : en-tête, légende, 24 lignes de
-| résultats, pied avec le compteur de trames %d7.
+| ONE PAGE (%d0 = 0 or 1), redrawn at each frame: header, legend, 24 lines of
+| results, footer with the frame counter %d7.
 _page:
         movem.l %d0-%d7/%a0-%a3, -(%sp)
-        move.w  %d0, %d6                | la page
-        | ligne 2 : le titre
+        move.w  %d0, %d6                | the page
+        | line 2: the title
         moveq   #2, %d1
         moveq   #1, %d2
         move.w  #0x2000, %d3
         lea     .Ltitre, %a2
         bsr     _texte
-        | ligne 3 : les registres
+        | line 3: the registers
         moveq   #3, %d1
         moveq   #1, %d2
         move.w  #0x1000, %d3
         lea     .Lsys, %a2
-        bsr     _texte                  | %d2 : la colonne suivante
+        bsr     _texte                  | %d2: the next column
         move.b  VARS, %d4
         bsr     _hex2
         lea     .Lsta, %a2
@@ -277,7 +277,7 @@ _page:
         bne.s   1f
         lea     .Lz80no, %a2
 1:      bsr     _texte
-        | ligne 4 : la légende de la page
+        | line 4: the page's legend
         moveq   #4, %d1
         moveq   #1, %d2
         move.w  #0x2000, %d3
@@ -286,22 +286,22 @@ _page:
         beq.s   2f
         lea     .Lleg2, %a2
 2:      bsr     _texte
-        | lignes 5 à 28 : slot-major, trois variantes par slot
+        | lines 5 to 28: slot-major, three variants per slot
         moveq   #5, %d1
         moveq   #0, %d5                 | slot
 3:      moveq   #0, %d4
         move.w  %d6, %d0
-        mulu    #3, %d0                 | première variante de la page
+        mulu    #3, %d0                 | the page's first variant
         move.w  %d0, %d7
         moveq   #3-1, %d0
-4:      bsr     _resultat               | slot %d5, variante %d7, ligne %d1
+4:      bsr     _resultat               | slot %d5, variant %d7, line %d1
         addq.w  #1, %d1
         addq.w  #1, %d7
         dbra    %d0, 4b
         addq.w  #1, %d5
         cmpi.w  #8, %d5
         blo.s   3b
-        | ligne 29 : la page et le compteur
+        | line 29: the page and the counter
         movem.l (%sp)+, %d0-%d7/%a0-%a3
         movem.l %d0-%d7/%a0-%a3, -(%sp)
         moveq   #29, %d1
@@ -320,7 +320,7 @@ _page:
         movem.l (%sp)+, %d0-%d7/%a0-%a3
         rts
 
-| UNE LIGNE DE RÉSULTAT : slot %d5, variante %d7 (0-5), ligne %d1. Préserve %d0, %d1, %d5-%d7.
+| ONE RESULT LINE: slot %d5, variant %d7 (0-5), line %d1. Preserves %d0, %d1, %d5-%d7.
 _resultat:
         movem.l %d0/%d5-%d7, -(%sp)
         moveq   #1, %d2
@@ -328,7 +328,7 @@ _resultat:
         move.w  %d5, %d4
         bsr     _chiffre
         move.w  %d7, %d4
-        addi.w  #0x41, %d4              | « A » + variante
+        addi.w  #0x41, %d4              | "A" + variant
         bsr     _car
         moveq   #0x20, %d4
         bsr     _car
@@ -338,37 +338,37 @@ _resultat:
         lsl.w   #4, %d4
         add.w   %d4, %d0
         lea     RES, %a3
-        adda.w  %d0, %a3                | les 16 octets
+        adda.w  %d0, %a3                | the 16 bytes
         moveq   #16-1, %d5
 1:      move.b  (%a3)+, %d4
         bsr     _hex2
         cmpi.w  #8, %d5
         bne.s   2f
-        moveq   #0x20, %d4              | une espace après le 8e octet
+        moveq   #0x20, %d4              | a space after the 8th byte
         bsr     _car
 2:      dbra    %d5, 1b
         moveq   #0x20, %d4
         bsr     _car
-        | « NEO-GEO » aux sept premiers octets ?
+        | "NEO-GEO" in the first seven bytes?
         suba.w  #16, %a3
         lea     .Lneogeo, %a2
         moveq   #7-1, %d5
 3:      cmpm.b  (%a2)+, (%a3)+
         dbne    %d5, 3b
         bne.s   4f
-        move.w  #0x3000, %d3            | vert
-        moveq   #0x59, %d4              | « Y »
+        move.w  #0x3000, %d3            | green
+        moveq   #0x59, %d4              | "Y"
         bra.s   5f
-4:      moveq   #0x2D, %d4              | « - »
+4:      moveq   #0x2D, %d4              | "-"
 5:      bsr     _car
         movem.l (%sp)+, %d0/%d5-%d7
         rts
 
 | ----------------------------------------------------------------------------------
-| L'ÉCRITURE DANS LE PLAN FIXE : ligne %d1, colonne %d2, palette %d3 (déjà décalée de 12).
-| _texte : la chaîne %a2 (terminée par 0) ; _hex2 : l'octet %d4 en deux chiffres ;
-| _chiffre : le quartet bas de %d4 ; _car : le caractère %d4. Chacune avance %d2.
-| Clobbers %d4 (et %a2 pour _texte).
+| WRITING IN THE FIX LAYER: line %d1, column %d2, palette %d3 (already shifted by 12).
+| _texte: the string %a2 (terminated by 0); _hex2: the byte %d4 as two digits;
+| _chiffre: the low nibble of %d4; _car: the character %d4. Each one advances %d2.
+| Clobbers %d4 (and %a2 for _texte).
 _texte:
         moveq   #0, %d4
         move.b  (%a2)+, %d4
@@ -405,8 +405,8 @@ _car:
         rts
 
 | ----------------------------------------------------------------------------------
-| UNE EXCEPTION : la ligne 30 cachée ne se voit pas, donc ligne 29, et l'on reste là, le
-| watchdog servi — l'écran ne redémarre jamais.
+| AN EXCEPTION: hidden line 30 cannot be seen, hence line 29, and we stay there, the
+| watchdog served — the screen never restarts.
 _exception:
         move.w  #0x2700, %sr
         move.l  #0x10F300, %sp

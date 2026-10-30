@@ -1,53 +1,53 @@
 | SPDX-License-Identifier: GPL-3.0-or-later
 | Copyright (C) 2026 Thibaut Lion
 | ==================================================================================
-| LES DEBUG DIPS — seize interrupteurs que des jeux lisent pour ouvrir leurs outils de mise au
-| point. Un écran de l'écran TEST : CABINET SETTINGS (`dip.s`), cinquième ligne, DEBUG DIPS.
+| THE DEBUG DIPS — sixteen switches that games read to open their debugging tools. A screen of
+| the TEST screen: CABINET SETTINGS (`dip.s`), fifth line, DEBUG DIPS.
 |
-| AUCUN ORACLE : ni le BIOS de référence ni un BIOS tiers ne sont lus, ni le code d'un jeu.
-| « mesuré » : un relevé nommé ; « lu dans » : une page du NeoGeo Development Wiki ; « SUPPOSÉ » :
-| ni l'un ni l'autre.
+| NO ORACLE: neither the reference BIOS nor a third-party BIOS is read, nor the code of a game.
+| "measured": a named record; "read in": a page of the NeoGeo Development Wiki; "ASSUMED":
+| neither one nor the other.
 |
-| CE QUE SONT LES DEBUG DIPS, lu dans « Debug DIPs » et « 68k program header » : deux octets
-| de la RAM de travail du jeu, « usually » les deux premiers de la zone que pointe le long de
-| $10E de l'en-tête — la zone que le BIOS sauve en backup RAM (`c0.s`, `_sauver_jeu`). « The
-| Unibios, a debug BIOS, and some emulators allow them to be set ». MESURÉ
-| (`measured/2026-10-25-debug-dips.tsv`) : sur kof94, DIP 1 bit 0 ouvre DEBUG OBJE, un visualiseur
-| de sprites, DIP 2 bits 1, 4, 5 et 7 quatre outils ; sur 36 des 128 jeux relevés, ces deux octets
-| quittent zéro en jeu sans qu'on y touche : ce sont alors des données du jeu.
+| WHAT THE DEBUG DIPS ARE, read in "Debug DIPs" and "68k program header": two bytes
+| of the game's work RAM, "usually" the first two of the area that the long at
+| $10E of the header points to — the area the BIOS saves to backup RAM (`c0.s`, `_sauver_jeu`). "The
+| Unibios, a debug BIOS, and some emulators allow them to be set". MEASURED
+| (`measured/2026-10-25-debug-dips.tsv`): on kof94, DIP 1 bit 0 opens DEBUG OBJE, a sprite
+| viewer, DIP 2 bits 1, 4, 5 and 7 four tools; on 36 of the 128 games recorded, these two bytes
+| leave zero in game without anyone touching them: they are then the game's data.
 |
-| D'OÙ LE MODÈLE : UN MASQUE, PAS UNE VALEUR. Le BIOS tient DD_MASQUE (DIP 1 à l'octet haut,
-| DIP 2 au bas), en RAM seulement, comme les cheats (remis à zéro au boot et à chaque passage de
-| slot, `_cheats_oublier`) : il met ces bits à 1 dans les deux premiers octets de la zone du jeu,
-| et ne touche à aucun autre. À CHAQUE APPEL DE SYSTEM_IO, par le moteur des cheats (`cheats.s`,
-| bit 15 de GL_MASQUE), en démo comme en partie : MESURÉ, kof94 remet $100000 à zéro à chaque
-| départ de démo (même relevé, section 4), une pose unique n'y tenait pas cinq trames.
-| Le BIOS ne les laisse jamais partir en backup RAM : `_sauver_jeu` (`c0.s`) les retire de la zone
-| le temps de la copie, puis les remet. Une mise hors tension les efface donc, et un jeu dont ces
-| octets sont des données ne garde en sauvegarde que ses propres bits. Ce que ça coûte : un bit que
-| le jeu aurait posé lui-même, au même endroit que le masque, part à zéro en sauvegarde ; et tant
-| que le masque est posé, ces bits restent à 1 dans ses données.
-| LA ZONE : le long de $10E et la taille de $112, comme `_bloc_jeu` (`c0.s`, mêmes bornes), lus à
-| la pose ; deux octets au moins, sinon le masque est oublié.
+| HENCE THE MODEL: A MASK, NOT A VALUE. The BIOS holds DD_MASQUE (DIP 1 in the high byte,
+| DIP 2 in the low one), in RAM only, like the cheats (reset to zero at boot and at each slot
+| switch, `_cheats_oublier`): it sets these bits to 1 in the first two bytes of the game's area,
+| and touches no other. AT EACH CALL OF SYSTEM_IO, through the cheat engine (`cheats.s`,
+| bit 15 of GL_MASQUE), in demo as in a game: MEASURED, kof94 resets $100000 to zero at each
+| demo start (same record, section 4), a single set did not hold there five frames.
+| The BIOS never lets them go to backup RAM: `_sauver_jeu` (`c0.s`) removes them from the area
+| for the time of the copy, then puts them back. A power-off therefore erases them, and a game whose
+| bytes these are data keeps in its save only its own bits. What it costs: a bit that
+| the game would have set itself, at the same place as the mask, goes to zero in the save; and as long
+| as the mask is set, these bits stay at 1 in its data.
+| THE AREA: the long at $10E and the size at $112, like `_bloc_jeu` (`c0.s`, same bounds), read at
+| the set; two bytes at least, otherwise the mask is forgotten.
 |
-| CHEATS/DEBUG OFF (DECISIONS §16) : la ligne DEBUG DIPS dit OFF et ne s'ouvre plus, et
-| `_dd_poser` remet le masque à zéro à la sortie de l'écran TEST : le BIOS n'écrit plus aucun bit.
-| Ce qu'un autre BIOS aurait laissé dans la sauvegarde du jeu n'est pas effacé : rien ne le
-| distingue d'une donnée du jeu.
+| CHEATS/DEBUG OFF (DECISIONS §16): the DEBUG DIPS line says OFF and no longer opens, and
+| `_dd_poser` resets the mask to zero at the exit of the TEST screen: the BIOS no longer writes any bit.
+| What another BIOS would have left in the game's save is not erased: nothing distinguishes it
+| from a game's data.
 |
-| POURQUOI L'ÉCRAN TEST, et pas le menu en jeu : une ligne de plus au menu en jeu y déplaçait les
-| chemins de touches des relevés (« haut » depuis RESUME mène à MEMORY EDITOR, « haut » deux fois à
-| GAME SETTINGS) et changeait le dessin de sa boucle, dont les cycles décident d'une trame de
-| RESTART (DECISIONS §16, point 7) ; la cinquième ligne de CABINET SETTINGS ne déplace aucun
-| chemin. Et le masque est posé avant que le jeu ne parte : un outil que le jeu n'ouvre qu'à son
-| démarrage le voit (SUPPOSÉ pour d'autres jeux que kof94, qui lit ses bits en continu).
+| WHY THE TEST SCREEN, and not the in-game menu: one more line in the in-game menu moved the
+| key paths of the records there ("up" from RESUME leads to MEMORY EDITOR, "up" twice to
+| GAME SETTINGS) and changed the drawing of its loop, whose cycles decide a frame of
+| RESTART (DECISIONS §16, point 7); the fifth line of CABINET SETTINGS moves no
+| path. And the mask is set before the game starts: a tool the game only opens at its
+| start-up sees it (ASSUMED for games other than kof94, which reads its bits continuously).
 |
-| L'ÉCRAN, `_debug_dips` : appelé par `jsr` depuis `dip.s`, dans son état (REG_BRDFIX, palettes
-| 1-4 de `dip.s` : 1 le texte, 2 le choisi, 3 le titre, 4 l'aide ; IRQ masquées). Tous les
-| registres rendus ; `dip.s` redessine son écran au retour. Deux rangées de huit bits, 0 ou 1.
-| Gauche / droite : le bit ; haut / bas : la rangée ; A : le bit basculé, dans DD_MASQUE aussitôt.
-| START : retour. Plan fixe seul, $7000 + 32 × colonne + ligne, REG_VRAMMOD à 32, police 8×8 du
-| SFIX (tuile = ASCII).
+| THE SCREEN, `_debug_dips`: called by `jsr` from `dip.s`, in its state (REG_BRDFIX, palettes
+| 1-4 of `dip.s`: 1 the text, 2 the chosen one, 3 the title, 4 the help; IRQs masked). All
+| registers returned; `dip.s` redraws its screen on return. Two rows of eight bits, 0 or 1.
+| Left / right: the bit; up / down: the row; A: the bit toggled, in DD_MASQUE at once.
+| START: back. Fix layer only, $7000 + 32 × column + line, REG_VRAMMOD at 32, 8×8 font of the
+| SFIX (tile = ASCII).
 | ==================================================================================
 
         .section .haut, "ax"
@@ -61,24 +61,24 @@
         .equ    WATCHDOG, 0x300001
         .equ    STATUS_B, 0x380000
 
-        | Dans la zone mesurée libre de `menu.s` ($10F4B4-$10FBFF), au-dessus de la borne ($10FB20) ;
-        | remis à zéro par le vidage du boot (`c0.s`, $10F300-$10FFFF).
-        .equ    DD_MASQUE, 0x10FB22     | .w DIP 1 à l'octet haut ($10FB22), DIP 2 au bas
-        .equ    DD_ZONE,   0x10FB24     | .l les deux octets dans la RAM du jeu
-        .equ    BORNE_RAM, 0x10FB20     | bit 3 : CHEATS/DEBUG OFF (`reglages.s`)
+        | In the area of `menu.s` measured free ($10F4B4-$10FBFF), above the bound ($10FB20);
+        | reset to zero by the boot clearing (`c0.s`, $10F300-$10FFFF).
+        .equ    DD_MASQUE, 0x10FB22     | .w DIP 1 in the high byte ($10FB22), DIP 2 in the low one
+        .equ    DD_ZONE,   0x10FB24     | .l the two bytes in the game's RAM
+        .equ    BORNE_RAM, 0x10FB20     | bit 3: CHEATS/DEBUG OFF (`reglages.s`)
 
-        .equ    CASE_TITRE, 0x7000 + 15 * 32 + 3       | 8×16, lignes 3-4
+        .equ    CASE_TITRE, 0x7000 + 15 * 32 + 3       | 8×16, lines 3-4
         .equ    CASE_NGH,   0x7000 + 15 * 32 + 6
-        .equ    CASE_BITS,  0x7000 + 12 * 32 + 9       | « 0 1 2 … 7 », colonnes 12-26
+        .equ    CASE_BITS,  0x7000 + 12 * 32 + 9       | "0 1 2 … 7", columns 12-26
         .equ    CASE_DIP1,  0x7000 +  3 * 32 + 11
         .equ    CASE_DIP2,  0x7000 +  3 * 32 + 13
         .equ    CASE_NOTE,  0x7000 +  3 * 32 + 17
         .equ    CASE_AIDE1, 0x7000 +  3 * 32 + 28
         .equ    CASE_AIDE2, 0x7000 +  3 * 32 + 29
-        .equ    COL_BIT0,   12          | le bit 0 en colonne 12, un bit toutes les deux colonnes
+        .equ    COL_BIT0,   12          | bit 0 in column 12, one bit every two columns
 
 | ----------------------------------------------------------------------------------
-| L'ÉCRAN. %d6 : la rangée (0 DIP 1, 1 DIP 2) ; %d7 : le bit ; %d5 : les boutons d'avant.
+| THE SCREEN. %d6: the row (0 DIP 1, 1 DIP 2); %d7: the bit; %d5: the previous buttons.
 _debug_dips:
         movem.l %d0-%d7/%a0-%a6, -(%sp)
         bsr     .Lsync
@@ -92,8 +92,8 @@ _debug_dips:
         move.w  #0x3200, %d3
         lea     .Ltxt_titre, %a2
         bsr     .Lchaine_en
-        move.w  #CASE_NGH, %d1          | le jeu : son NGH, lu dans l'en-tête sous REG_CRTFIX
-        move.w  #0x3000, %d3            | par `c0.s`, recopié en $D00124 (« Backup RAM »)
+        move.w  #CASE_NGH, %d1          | the game: its NGH, read from the header under REG_CRTFIX
+        move.w  #0x3000, %d3            | by `c0.s`, copied to $D00124 ("Backup RAM")
         lea     .Ltxt_ngh, %a2
         bsr     .Lchaine_en
         moveq   #0, %d0
@@ -128,35 +128,35 @@ _debug_dips:
         moveq   #0, %d7
         bsr     .Lrangees
         moveq   #0, %d5
-        bsr     .Lentrees               | un bouton déjà tenu ne compte pas
+        bsr     .Lentrees               | a button already held does not count
 
 .Lboucle:
         bsr     .Lsync
         bsr     .Lentrees
-        btst    #5, %d0                 | START : retour
+        btst    #5, %d0                 | START: back
         bne.s   .Lsortie
-        btst    #0, %d0                 | haut, bas : l'autre rangée
+        btst    #0, %d0                 | up, down: the other row
         bne.s   1f
         btst    #1, %d0
         beq.s   2f
 1:      eori.w  #1, %d6
         bra.s   8f
-2:      btst    #2, %d0                 | gauche
+2:      btst    #2, %d0                 | left
         beq.s   3f
         subq.w  #1, %d7
         andi.w  #7, %d7
         bra.s   8f
-3:      btst    #3, %d0                 | droite
+3:      btst    #3, %d0                 | right
         beq.s   4f
         addq.w  #1, %d7
         andi.w  #7, %d7
         bra.s   8f
-4:      btst    #4, %d0                 | A : le bit basculé
+4:      btst    #4, %d0                 | A: the bit toggled
         beq.s   .Lboucle
         move.w  %d7, %d0
         tst.w   %d6
         bne.s   5f
-        addq.w  #8, %d0                 | DIP 1 : l'octet haut
+        addq.w  #8, %d0                 | DIP 1: the high byte
 5:      move.w  DD_MASQUE, %d1
         bchg    %d0, %d1
         move.w  %d1, DD_MASQUE
@@ -167,10 +167,10 @@ _debug_dips:
         movem.l (%sp)+, %d0-%d7/%a0-%a6
         rts
 
-| LES DEUX RANGÉES, les bits de DD_MASQUE en 0 / 1, le choisi sous la palette 2.
+| THE TWO ROWS, the bits of DD_MASQUE as 0 / 1, the chosen one under palette 2.
 | Clobbers %d0-%d4, %a2.
 .Lrangees:
-        moveq   #0, %d4                 | la rangée
+        moveq   #0, %d4                 | the row
 1:      move.w  #CASE_DIP1 + COL_BIT0 * 32, %d1
         tst.w   %d4
         beq.s   2f
@@ -180,20 +180,20 @@ _debug_dips:
         tst.w   %d4
         bne.s   3f
         move.b  DD_MASQUE, %d0          | DIP 1
-3:      moveq   #0, %d2                 | le bit
+3:      moveq   #0, %d2                 | the bit
 4:      move.w  #0x1000, %d3
         cmp.w   %d6, %d4
         bne.s   5f
         cmp.w   %d7, %d2
         bne.s   5f
-        move.w  #0x2000, %d3            | le choisi
-5:      moveq   #0x30, %d1              | « 0 »
+        move.w  #0x2000, %d3            | the chosen one
+5:      moveq   #0x30, %d1              | "0"
         btst    %d2, %d0
         beq.s   6f
-        moveq   #0x31, %d1              | « 1 »
+        moveq   #0x31, %d1              | "1"
 6:      add.w   %d3, %d1
         move.w  %d1, VRAMRW
-        move.w  #0x1020, VRAMRW         | une espace : > 12 cycles après l'écriture d'avant
+        move.w  #0x1020, VRAMRW         | a space: > 12 cycles after the previous write
         addq.w  #1, %d2
         cmpi.w  #8, %d2
         bcs.s   4b
@@ -203,9 +203,9 @@ _debug_dips:
         rts
 
 | ----------------------------------------------------------------------------------
-| LA POSE, à la sortie de l'écran TEST (`dip.s`), REG_CRTFIX en place : CHEATS/DEBUG OFF, un
-| masque nul, ou une zone refusée : le masque oublié, le moteur arrêté ; sinon DD_ZONE notée, le
-| bit 15 de GL_MASQUE allumé, et les bits posés une première fois. Rend tous les registres.
+| THE SET, at the exit of the TEST screen (`dip.s`), REG_CRTFIX in place: CHEATS/DEBUG OFF, a
+| zero mask, or a refused area: the mask forgotten, the engine stopped; otherwise DD_ZONE noted,
+| bit 15 of GL_MASQUE lit, and the bits set a first time. Returns all registers.
 _dd_poser:
         movem.l %d2/%a0, -(%sp)
         btst    #3, BORNE_RAM
@@ -215,7 +215,7 @@ _dd_poser:
         bsr.s   .Lzone
         bmi.s   8f
         move.l  %a0, DD_ZONE
-        bset    #7, GL_MASQUE           | le bit 15 du mot
+        bset    #7, GL_MASQUE           | bit 15 of the word
         bsr.s   _dd_appliquer
         bra.s   9f
 8:      clr.w   DD_MASQUE
@@ -223,8 +223,8 @@ _dd_poser:
 9:      movem.l (%sp)+, %d2/%a0
         rts
 
-| LA ZONE DU JEU, comme `_bloc_jeu` (`c0.s`, mêmes bornes) mais sans bloc, et deux octets au moins :
-| %a0 ; N si refusée. Clobbers %d2, %a0.
+| THE GAME'S AREA, like `_bloc_jeu` (`c0.s`, same bounds) but without block, and two bytes at least:
+| %a0; N if refused. Clobbers %d2, %a0.
 .Lzone:
         movea.l 0x10E, %a0
         moveq   #0, %d2
@@ -241,13 +241,13 @@ _dd_poser:
         add.l   %d2, (%sp)
         cmpi.l  #0x10F200, (%sp)+
         bhi.s   9f
-        moveq   #0, %d2                 | N à 0
+        moveq   #0, %d2                 | N at 0
         rts
 9:      moveq   #-1, %d2
         rts
 
-| LE MOTEUR : les bits du masque mis à 1 dans la zone. Appelé par `cheats.s` à chaque SYSTEM_IO, le
-| bit 15 de GL_MASQUE allumé. Rend tous les registres.
+| THE ENGINE: the mask's bits set to 1 in the area. Called by `cheats.s` at each SYSTEM_IO, with
+| bit 15 of GL_MASQUE lit. Returns all registers.
 _dd_appliquer:
         move.l  %a0, -(%sp)
         movea.l DD_ZONE, %a0
@@ -260,9 +260,9 @@ _dd_appliquer:
         movea.l (%sp)+, %a0
         rts
 
-| RETIRER / REMETTRE LE MASQUE dans la zone %a0, %d2 le compte de `dbra` de `_bloc_jeu` (0 : un
-| seul octet). Appelés par `_sauver_jeu` (`c0.s`) autour de sa copie, le masque vu non nul ; le
-| passage de slot l'ayant remis à zéro, c'est la zone du jeu de la pose. Rendent tous les registres.
+| REMOVE / PUT BACK THE MASK in area %a0, %d2 the `dbra` count of `_bloc_jeu` (0: a
+| single byte). Called by `_sauver_jeu` (`c0.s`) around its copy, the mask seen non-zero; the
+| slot switch having reset it to zero, it is the game's area of the set. Return all registers.
 _dd_retirer:
         movem.l %d0-%d1, -(%sp)
         move.w  DD_MASQUE, %d0
@@ -288,7 +288,7 @@ _dd_remettre:
         rts
 
 | ----------------------------------------------------------------------------------
-| LES OUTILS, comme `tests.s`.
+| THE TOOLS, like `tests.s`.
 .Lchaine_en:
         move.w  %d1, VRAMADDR
 .Lchaine:
@@ -302,7 +302,7 @@ _dd_remettre:
         add.w   %d3, %d2
         move.w  %d2, VRAMRW
         rts
-| %d0 CHIFFRES HEXADÉCIMAUX, les hauts de %d4 d'abord. Clobbers %d0, %d2, %d4.
+| %d0 HEXADECIMAL DIGITS, the high ones of %d4 first. Clobbers %d0, %d2, %d4.
 .Lhex:
         subq.w  #1, %d0
 1:      rol.l   #4, %d4
@@ -316,10 +316,10 @@ _dd_remettre:
         dbra    %d0, 1b
         rts
 
-| LES BOUTONS DE P1, comme `tests.s`. %d5 : l'état d'avant ; %d0 : les fronts. Bits : 0 haut,
-| 1 bas, 2 gauche, 3 droite, 4 A, 5 START. Clobbers %d1, %d2.
+| P1'S BUTTONS, like `tests.s`. %d5: the previous state; %d0: the edges. Bits: 0 up,
+| 1 down, 2 left, 3 right, 4 A, 5 START. Clobbers %d1, %d2.
 .Lentrees:
-        jsr     _panneau_p1             | %d0 : P1, manette ou panneau traduit (`panneau.s`)
+        jsr     _panneau_p1             | %d0: P1, joystick or translated panel (`panneau.s`)
         move.b  %d0, %d2
         not.b   %d2
         andi.b  #0x1F, %d2
@@ -334,7 +334,7 @@ _dd_remettre:
         move.b  %d2, %d5
         rts
 
-| LE PASSAGE DE LA LIGNE $1F0, copie de celle de `tests.s`. Clobbers %d0.
+| THE PASSING OF LINE $1F0, copy of the one in `tests.s`. Clobbers %d0.
         .equ    SYNC_TOURS, 5800
 .Lsync:
         move.l  %d1, -(%sp)

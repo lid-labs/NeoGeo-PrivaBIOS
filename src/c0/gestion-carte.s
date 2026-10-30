@@ -1,70 +1,70 @@
 | SPDX-License-Identifier: GPL-3.0-or-later
 | Copyright (C) 2026 Thibaut Lion
 | ==================================================================================
-| LE GESTIONNAIRE DE LA CARTE MÉMOIRE — ouvert depuis l'écran TEST (`dip.s`, ligne MEMORY
-| CARD) : la liste des sauvegardes de la carte, les blocs libres, l'effacement d'une
-| sauvegarde et le formatage, chacun avec une confirmation.
+| THE MEMORY CARD MANAGER — opened from the TEST screen (`dip.s`, MEMORY CARD line): the list
+| of the card's saves, the free blocks, deleting a save and formatting, each with a
+| confirmation.
 |
-| AUCUN ORACLE : ni le gestionnaire d'un autre BIOS ni le code d'un jeu ne sont lus. Écrit sous le
-| mandat du lot 2 de la carte mémoire, le 2026-10-24 ; scènes cm-* et bf-carte de `bench/parcours.sh`.
-| « mesuré » : un relevé nommé ; « lu dans » : une page du NeoGeo Development Wiki ;
-| « SUPPOSÉ » : ni l'un ni l'autre.
+| NO ORACLE: neither another BIOS's manager nor a game's code is read. Written under the
+| mandate of memory card batch 2, on 2026-10-24; scenes cm-* and bf-carte of `bench/parcours.sh`.
+| "measured": a named record; "read in": a page of the NeoGeo Development Wiki;
+| "ASSUMED": neither one nor the other.
 |
-| APPEL : `jsr _gestion_carte` depuis `dip.s`. Tous les registres rendus. L'état à l'appel est
-| celui de l'écran TEST : REG_BRDFIX (la police de la carte), palettes 1-4 de `dip.s` dans la
-| banque 0, IRQ masquées, backup RAM déverrouillée. Au retour, le même, la palette 5 à zéro
-| (comme `jukebox.s`) ; `dip.s` redessine son écran.
+| CALL: `jsr _gestion_carte` from `dip.s`. All registers returned. The state at the call is
+| that of the TEST screen: REG_BRDFIX (the board's font), palettes 1-4 of `dip.s` in
+| bank 0, IRQs masked, backup RAM unlocked. On return, the same, palette 5 at zero
+| (like `jukebox.s`); `dip.s` redraws its screen.
 |
-| CE QUI EST LU, et ce qui ne l'est pas. La carte par `card.s` : `_carte_releve` pour la liste
-| (aucune écriture), CARD lui-même pour effacer ($04) et formater ($00), par l'interface que
-| les jeux emploient (« CARD » : BIOS_CARD_COMMAND $10FDC4, BIOS_CARD_FCB $10FDCE, BIOS_CARD_SUB
-| $10FDD0, la réponse à $10FDC6). Rien de la cartouche : sous REG_BRDFIX, la P-ROM ne répond
-| pas sur le matériel (DECISIONS §13). LE NOM DU JEU vient donc de la backup RAM : la table des
-| slots ($D00124, NGH et bloc de chaque slot) et le nom que le boot y recopie au premier lancement
-| de chaque jeu ($D002A0 + 16 × bloc, `c0.s`, `_inscrire_slot`). Une sauvegarde dont le NGH n'est
-| celui d'aucun jeu inscrit n'a pas de nom ; une cartouche jamais lancée sur cette carte non plus.
+| WHAT IS READ, and what is not. The card through `card.s`: `_carte_releve` for the list
+| (no write), CARD itself to delete ($04) and format ($00), through the interface that
+| games use ("CARD": BIOS_CARD_COMMAND $10FDC4, BIOS_CARD_FCB $10FDCE, BIOS_CARD_SUB
+| $10FDD0, the answer at $10FDC6). Nothing from the cartridge: under REG_BRDFIX, the P-ROM does
+| not answer on the hardware (DECISIONS §13). THE GAME'S NAME therefore comes from backup RAM: the
+| slot table ($D00124, NGH and block of each slot) and the name the boot copies there on the first
+| launch of each game ($D002A0 + 16 × block, `c0.s`, `_inscrire_slot`). A save whose NGH is
+| that of no registered game has no name; nor does a cartridge never launched on this board.
 |
-| LA LISTE, une ligne par entrée prise du répertoire de la carte (son premier octet n'est pas
-| $FF, lu dans « Memory card »), dans l'ordre du répertoire : le NGH en hexadécimal, la
-| sous-sauvegarde en décimal, le nombre de blocs de sa chaîne dans la FAT 1, le nom. Puis deux
-| lignes : FORMAT CARD et EXIT. Treize lignes visibles ; la liste défile avec le curseur.
-| LES BLOCS LIBRES : les entrées $00 de la FAT 1, blocs 5 à 31 (les blocs 0 à 4 portent
-| l'en-tête, le répertoire et les FAT : 27 blocs de données sur une carte de 2 Kio).
-| LES ÉTATS, une ligne : NO CARD, CARD NOT FORMATTED, UNSUPPORTED CARD (une autre géométrie,
-| que CARD refuse aussi), ou FREE BLOCKS ; et WRITE PROTECTED en dessous quand le bit 6 de
-| REG_STATUS_B le dit, carte présente (lu dans « Memory card »).
-| LA CARTE CHANGÉE pendant l'écran : REG_STATUS_B (bits 4-6) relu à chaque trame ; un changement
-| relit la carte et redessine tout.
+| THE LIST, one line per entry taken from the card's directory (its first byte is not
+| $FF, read in "Memory card"), in directory order: the NGH in hexadecimal, the
+| sub-save in decimal, the number of blocks of its chain in FAT 1, the name. Then two
+| lines: FORMAT CARD and EXIT. Thirteen visible lines; the list scrolls with the cursor.
+| THE FREE BLOCKS: the $00 entries of FAT 1, blocks 5 to 31 (blocks 0 to 4 hold
+| the header, the directory and the FATs: 27 data blocks on a 2 KiB card).
+| THE STATES, one line: NO CARD, CARD NOT FORMATTED, UNSUPPORTED CARD (another geometry,
+| which CARD refuses too), or FREE BLOCKS; and WRITE PROTECTED below when bit 6 of
+| REG_STATUS_B says so, card present (read in "Memory card").
+| THE CARD CHANGED during the screen: REG_STATUS_B (bits 4-6) read again every frame; a change
+| reads the card again and redraws everything.
 |
-| LES COMMANDES, P1, sur front (REG_P1CNT, REG_STATUS_B bit 0, actifs à l'état bas). Haut/bas :
-| la ligne, en boucle. A : sur une sauvegarde, DELETE ? ; sur FORMAT CARD, FORMAT ? ; sur EXIT, la
-| sortie. LA CONFIRMATION : A une seconde fois agit, B ou START renoncent. START hors
-| confirmation : la sortie. Carte protégée, ou sans carte : le message, rien d'écrit.
+| THE CONTROLS, P1, on edge (REG_P1CNT, REG_STATUS_B bit 0, active low). Up/down:
+| the line, wrapping. A: on a save, DELETE ?; on FORMAT CARD, FORMAT ?; on EXIT, the
+| exit. THE CONFIRMATION: A a second time acts, B or START cancel. START outside
+| confirmation: the exit. Card protected, or no card: the message, nothing written.
 |
-| LA COPIE, le 2026-10-27 (DECISIONS §26, décision de l'utilisateur : une sauvegarde à la
-| fois, comme UniBIOS 4.0 sans son COPY ALL). C sur une sauvegarde la lit par CARD ($02, la taille de
-| sa chaîne : blocs × 64) dans un tampon, puis « CHANGE CARD AND PRESS A ». A l'écrit par CARD ($03)
-| sur la carte en place ; si cette carte porte déjà le même NGH et la même sous-sauvegarde, « OVERWRITE
-| nnnn-ss? » d'abord, A écrit, B ou START renoncent. B ou START renoncent aussi en attendant la carte.
-| La carte changée pendant l'attente ne l'abandonne pas (c'est le but), elle redessine la liste.
-| Carte protégée ou absente au A : le message, l'attente continue. MESURÉ chez UniBIOS 4.0
-| (`measured/2026-10-27-attentes-reference.tsv`) : « DATA IS COPIED / CHANGE CARD AND PRESS A
-| BUTTON », puis « GAME IS ALREADY ON THIS CARD / DO YOU WANT TO DELETE OLD DATA ? ».
-| LA PLACE DU TAMPON : 27 blocs de 64 octets au plus, 1 728 octets (une carte de 2 Kio, seule
-| géométrie servie, `card.s`), quand la RAM du gestionnaire n'en a que 256 et que celle de l'écran TEST
-| ($10F464-$10FAFF) tient la copie du bloc soft-DIP de `dip.s`. Le tampon est donc la RAM de travail du
-| jeu, $100000-$1006BF, que le jeu n'emploie pas pendant l'écran TEST ; ses 1 728 octets sont mis de
-| côté en VRAM, $0000-$035F (la carte des tuiles des sprites 0 à 13, masqués par LSP_1st au boot et
-| jamais affichés par l'écran TEST), avant la lecture, et rendus après l'écriture ou le renoncement :
-| la RAM que le boot a restaurée pour le jeu ressort intacte. Écritures VRAM au rythme de `tests.s`.
+| THE COPY, on 2026-10-27 (DECISIONS §26, the user's decision: one save at a
+| time, like UniBIOS 4.0 without its COPY ALL). C on a save reads it through CARD ($02, the size of
+| its chain: blocks × 64) into a buffer, then "CHANGE CARD AND PRESS A". A writes it through CARD ($03)
+| onto the card in place; if that card already holds the same NGH and the same sub-save, "OVERWRITE
+| nnnn-ss?" first, A writes, B or START cancel. B or START also cancel while waiting for the card.
+| The card changed during the wait does not abandon it (that is the point), it redraws the list.
+| Card protected or absent at the A: the message, the wait goes on. MEASURED on UniBIOS 4.0
+| (`measured/2026-10-27-attentes-reference.tsv`): "DATA IS COPIED / CHANGE CARD AND PRESS A
+| BUTTON", then "GAME IS ALREADY ON THIS CARD / DO YOU WANT TO DELETE OLD DATA ?".
+| THE BUFFER'S ROOM: 27 blocks of 64 bytes at most, 1,728 bytes (a 2 KiB card, the only
+| geometry served, `card.s`), when the manager's RAM has only 256 and that of the TEST screen
+| ($10F464-$10FAFF) holds the copy of the soft-DIP block from `dip.s`. The buffer is therefore the
+| game's work RAM, $100000-$1006BF, which the game does not use during the TEST screen; its 1,728
+| bytes are set aside in VRAM, $0000-$035F (the tile map of sprites 0 to 13, hidden by LSP_1st at
+| boot and never displayed by the TEST screen), before the read, and returned after the write or the
+| cancel: the RAM the boot restored for the game comes out intact. VRAM writes at the pace of `tests.s`.
 |
-| L'INTERFACE DE CARD est gardée à l'entrée et rendue à la sortie ($10FCF4, $10FD00-$10FD17,
-| $10FDC4-$10FDD1) : un jeu ne trouve pas, au lancement, les traces d'un appel qu'il n'a pas
-| fait. SUPPOSÉ sans effet ; elle est à zéro au boot, le vidage de `c0.s` l'y ayant mise.
+| CARD'S INTERFACE is kept on entry and returned on exit ($10FCF4, $10FD00-$10FD17,
+| $10FDC4-$10FDD1): a game does not find, at launch, the traces of a call it did not
+| make. ASSUMED without effect; it is at zero at boot, the clearing in `c0.s` having put it there.
 |
-| LA RAM : $10F300-$10F3FF, au-dessus de la pile du BIOS (posée à $10F300, elle descend) et sous
-| la sauvegarde de `plantage.s` ($10F400) — 192 octets du relevé, l'interface gardée, quatre
-| variables ; remise à zéro à la sortie, comme le boot l'avait laissée.
+| THE RAM: $10F300-$10F3FF, above the BIOS stack (set at $10F300, it grows down) and below
+| the save area of `plantage.s` ($10F400) — 192 bytes of the record, the kept interface, four
+| variables; reset to zero on exit, as the boot had left it.
 | ==================================================================================
 
         .section .haut, "ax"
@@ -78,51 +78,51 @@
         .equ    STATUS_B, 0x380000
         .equ    PALETTES, 0x400000
 
-        .equ    TAMPON,   0x10F300      | 192 octets : la carte de $40 à $FF
-        .equ    T_FAT,    TAMPON + 0x80 | la FAT 1 (octet $C0 de la carte)
-        .equ    GARDE,    0x10F3C0      | 39 octets : l'interface de CARD
-        .equ    V_N,      0x10F3E8      | .w les lignes : sauvegardes + 2
-        .equ    V_ETAT,   0x10F3EA      | .b le relevé : $00, $80, $81, $85
-        .equ    V_STB,    0x10F3EB      | .b REG_STATUS_B & $70 au relevé
-        .equ    V_CONF,   0x10F3EC      | .b 0 rien, 1 effacer, 2 formater, 3 copie lue (la carte
-                                        | cible attendue), 4 écraser : en attente de A
-        .equ    V_SUB,    0x10F3ED      | .b la copie : sa sous-sauvegarde
-        .equ    V_NGH,    0x10F3EE      | .w son NGH
-        .equ    V_TAILLE, 0x10F3F0      | .w sa taille en octets
-        .equ    COPIE_RAM, 0x100000     | le tampon de la copie (voir l'en-tête, LA COPIE)
-        .equ    COPIE_MOTS, 27 * 64 / 2 | 864 mots, la plus grande sauvegarde d'une carte de 2 Kio
+        .equ    TAMPON,   0x10F300      | 192 bytes: the card from $40 to $FF
+        .equ    T_FAT,    TAMPON + 0x80 | FAT 1 (byte $C0 of the card)
+        .equ    GARDE,    0x10F3C0      | 39 bytes: CARD's interface
+        .equ    V_N,      0x10F3E8      | .w the lines: saves + 2
+        .equ    V_ETAT,   0x10F3EA      | .b the record: $00, $80, $81, $85
+        .equ    V_STB,    0x10F3EB      | .b REG_STATUS_B & $70 at the record
+        .equ    V_CONF,   0x10F3EC      | .b 0 nothing, 1 delete, 2 format, 3 copy read (the target
+                                        | card awaited), 4 overwrite: waiting for A
+        .equ    V_SUB,    0x10F3ED      | .b the copy: its sub-save
+        .equ    V_NGH,    0x10F3EE      | .w its NGH
+        .equ    V_TAILLE, 0x10F3F0      | .w its size in bytes
+        .equ    COPIE_RAM, 0x100000     | the copy's buffer (see the header, THE COPY)
+        .equ    COPIE_MOTS, 27 * 64 / 2 | 864 words, the largest save of a 2 KiB card
         .equ    START_C,  0x10FDC8      | BIOS_CARD_START
         .equ    SIZE_C,   0x10FDCC      | BIOS_CARD_SIZE
         .equ    RAM_FIN,  0x10F400
 
         .equ    CMD,      0x10FDC4      | BIOS_CARD_COMMAND
         .equ    REPONSE,  0x10FDC6      | BIOS_CARD_ANSWER
-        .equ    FCB,      0x10FDCE      | BIOS_CARD_FCB, le NGH
+        .equ    FCB,      0x10FDCE      | BIOS_CARD_FCB, the NGH
         .equ    SUB,      0x10FDD0      | BIOS_CARD_SUB
 
         .equ    PAL_ALERTE, 5
-        .equ    C_ALERTE, 0x0F44        | choix d'aspect, celui de FAIL (`tests.s`)
+        .equ    C_ALERTE, 0x0F44        | a choice of look, that of FAIL (`tests.s`)
 
-        | La mise en page, en cases du plan fixe ($7000 + 32 × colonne + ligne).
-        .equ    CASE_TITRE,  0x7000 + 14 * 32 + 3      | 8×16, lignes 3-4
+        | The layout, in fix layer cells ($7000 + 32 × column + line).
+        .equ    CASE_TITRE,  0x7000 + 14 * 32 + 3      | 8×16, lines 3-4
         .equ    CASE_ETAT,   0x7000 +  3 * 32 + 6
         .equ    CASE_PROT,   0x7000 +  3 * 32 + 7
         .equ    CASE_ENTETE, 0x7000 +  3 * 32 + 9
-        .equ    LIGNE0,      10         | la première ligne de la liste
-        .equ    VISIBLES,    13         | lignes 10 à 22
+        .equ    LIGNE0,      10         | the first line of the list
+        .equ    VISIBLES,    13         | lines 10 to 22
         .equ    CASE_MSG,    0x7000 +  3 * 32 + 24
         .equ    CASE_AIDE1,  0x7000 +  3 * 32 + 27
         .equ    CASE_AIDE2,  0x7000 +  3 * 32 + 28
         .equ    LARGEUR,     31
 
-        .equ    F_LIGNE,  -32           | le cadre : une ligne composée
+        .equ    F_LIGNE,  -32           | the frame: a composed line
 
-| %a0 : REG_VRAMRW ; %d5 : les boutons de la trame d'avant ; %d6 : la première ligne visible ;
-| %d7 : la ligne choisie.
+| %a0: REG_VRAMRW; %d5: the buttons of the previous frame; %d6: the first visible line;
+| %d7: the chosen line.
 _gestion_carte:
         movem.l %d0-%d7/%a0-%a6, -(%sp)
         link    %a6, #F_LIGNE
-        lea     GARDE, %a1              | l'interface de CARD, gardée
+        lea     GARDE, %a1              | CARD's interface, kept
         move.b  0x10FCF4, (%a1)+
         lea     0x10FD00, %a2
         moveq   #24 - 1, %d0
@@ -138,22 +138,22 @@ _gestion_carte:
         moveq   #0, %d6
         bsr     .Lecran
         moveq   #0, %d5
-        bsr     .Lentrees               | un bouton déjà tenu (le A qui ouvre) ne compte pas
+        bsr     .Lentrees               | a button already held (the A that opens) does not count
 
-| LA BOUCLE, une trame par tour.
+| THE LOOP, one frame per turn.
 .Lboucle:
         bsr     .Lsync
-        move.b  STATUS_B, %d0           | la carte changée : relue, tout redessiné
+        move.b  STATUS_B, %d0           | the card changed: read again, everything redrawn
         andi.b  #0x70, %d0
         cmp.b   V_STB, %d0
         beq.s   1f
-        cmpi.b  #3, V_CONF              | la copie attend justement une autre carte
+        cmpi.b  #3, V_CONF              | the copy is precisely waiting for another card
         beq.s   5f
         cmpi.b  #4, V_CONF
         bne.s   6f
-        move.b  #3, V_CONF              | écraser visait l'ancienne carte : on attend de nouveau A
+        move.b  #3, V_CONF              | overwrite targeted the old card: we wait for A again
         bra.s   5f
-6:      clr.b   V_CONF                  | une confirmation visait l'ancienne carte : abandonnée
+6:      clr.b   V_CONF                  | a confirmation targeted the old card: abandoned
 5:      bsr     .Lreleve
         bsr     .Lborner
         bsr     .Lecran
@@ -161,19 +161,19 @@ _gestion_carte:
         bne.s   1f
         lea     .Ltxt_changer, %a2
         bsr     .Lmessage
-1:      bsr     .Lentrees               | %d0 les fronts : 0 haut, 1 bas, 4 A, 5 B, 6 START, 7 C
+1:      bsr     .Lentrees               | %d0 the edges: 0 up, 1 down, 4 A, 5 B, 6 START, 7 C
         tst.b   V_CONF
         bne     .Lconfirmer
         btst    #6, %d0
         bne     .Lsortie
-        btst    #0, %d0                 | haut
+        btst    #0, %d0                 | up
         beq.s   2f
         subq.w  #1, %d7
         bpl.s   3f
         move.w  V_N, %d7
         subq.w  #1, %d7
         bra.s   3f
-2:      btst    #1, %d0                 | bas
+2:      btst    #1, %d0                 | down
         beq.s   4f
         addq.w  #1, %d7
         cmp.w   V_N, %d7
@@ -182,7 +182,7 @@ _gestion_carte:
 3:      bsr     .Lborner
         bsr     .Lliste
         bra     .Lboucle
-4:      btst    #7, %d0                 | C : copier la sauvegarde de la ligne
+4:      btst    #7, %d0                 | C: copy the line's save
         bne     .Lcopier
         btst    #4, %d0                 | A
         beq     .Lboucle
@@ -193,7 +193,7 @@ _gestion_carte:
         subq.w  #1, %d0
         cmp.w   %d0, %d7
         beq.s   .Lveut_formater
-        | Une sauvegarde : DELETE ?
+        | A save: DELETE ?
         btst    #6, STATUS_B
         bne.s   .Lprotegee
         move.b  #1, V_CONF
@@ -217,7 +217,7 @@ _gestion_carte:
         bsr     .Lmessage
         bra     .Lboucle
 
-| LA CONFIRMATION : A agit, B ou START renoncent, le reste attend.
+| THE CONFIRMATION: A acts, B or START cancel, the rest waits.
 .Lconfirmer:
         cmpi.b  #3, V_CONF
         bcc     .Lc_attente
@@ -233,7 +233,7 @@ _gestion_carte:
         clr.b   V_CONF
         cmpi.b  #2, %d1
         beq.s   2f
-        move.w  %d7, %d0                | effacer la sauvegarde de la ligne
+        move.w  %d7, %d0                | delete the line's save
         bsr     .Lentree
         move.b  #0x04, CMD
         move.b  1(%a1), FCB
@@ -241,19 +241,19 @@ _gestion_carte:
         move.b  (%a1), SUB
         lea     .Ltxt_efface, %a2
         bra.s   3f
-2:      move.b  #0x00, CMD              | formater
+2:      move.b  #0x00, CMD              | format
         lea     .Ltxt_formate, %a2
 3:      jsr     _card
         moveq   #0, %d4
         move.b  REPONSE, %d4
-        movem.l %d4/%a2, -(%sp)         | la réponse et le message, que l'écran écrase
+        movem.l %d4/%a2, -(%sp)         | the answer and the message, which the screen overwrites
         bsr     .Lreleve
         bsr     .Lborner
         bsr     .Lecran
         movem.l (%sp)+, %d4/%a2
         tst.b   %d4
         beq.s   4f
-        lea     .Ltxt_erreur, %a2       | CARD ERROR et la réponse
+        lea     .Ltxt_erreur, %a2       | CARD ERROR and the answer
         lea     F_LIGNE(%a6), %a1
         moveq   #L_ERREUR - 1, %d0
 5:      move.b  (%a2)+, (%a1)+
@@ -266,30 +266,30 @@ _gestion_carte:
         bra     .Lboucle
 
 | ----------------------------------------------------------------------------------
-| LA COPIE (voir l'en-tête). C sur une ligne : une sauvegarde, la carte lisible, sinon rien.
+| THE COPY (see the header). C on a line: a save, the card readable, otherwise nothing.
 .Lcopier:
         move.w  V_N, %d1
         subq.w  #2, %d1
         cmp.w   %d1, %d7
-        bcc     .Lboucle                | FORMAT CARD, EXIT : rien
+        bcc     .Lboucle                | FORMAT CARD, EXIT: nothing
         tst.b   V_ETAT
-        bne     .Lboucle                | pas de sauvegarde lisible
+        bne     .Lboucle                | no readable save
         move.w  %d7, %d0
         bsr     .Lentree
         movea.l %a1, %a3
         move.b  (%a3), V_SUB
         move.b  1(%a3), V_NGH
         move.b  2(%a3), V_NGH + 1
-        bsr     .Lblocs                 | %d0 : les blocs de sa chaîne
+        bsr     .Lblocs                 | %d0: the blocks of its chain
         lsl.w   #6, %d0
         move.w  %d0, V_TAILLE
         bsr     .Lmettre_de_cote
-        move.b  #0x02, CMD              | CHARGER
+        move.b  #0x02, CMD              | LOAD
         bsr     .Lc_interface
         jsr     _card
         tst.b   REPONSE
         beq.s   1f
-        bsr     .Lrendre                | lue en erreur : rien n'attend
+        bsr     .Lrendre                | read in error: nothing waits
         moveq   #0, %d4
         move.b  REPONSE, %d4
         bra     .Lc_erreur
@@ -298,8 +298,8 @@ _gestion_carte:
         bsr     .Lmessage
         bra     .Lboucle
 
-| L'ATTENTE DE LA CARTE CIBLE (3) ET DE L'ÉCRASEMENT (4) : A écrit, ou demande d'écraser ; B ou START
-| renoncent, la RAM du jeu rendue.
+| THE WAIT FOR THE TARGET CARD (3) AND FOR THE OVERWRITE (4): A writes, or asks to overwrite; B or
+| START cancel, the game's RAM returned.
 .Lc_attente:
         btst    #4, %d0
         bne.s   2f
@@ -310,18 +310,18 @@ _gestion_carte:
         lea     .Ltxt_renonce, %a2
         bsr     .Lmessage
         bra     .Lboucle
-2:      bsr     .Lreleve                | la carte en place relue : un échange que REG_STATUS_B n'a pas
-        bsr     .Lborner                | vu (retirée et remise entre deux trames) ne trompe pas la
-        bsr     .Lecran                 | recherche qui suit
+2:      bsr     .Lreleve                | the card in place read again: a swap that REG_STATUS_B did
+        bsr     .Lborner                | not see (removed and reinserted between two frames) does not
+        bsr     .Lecran                 | fool the search that follows
         cmpi.b  #0x80, V_ETAT
-        beq     .Lsans_carte            | l'attente continue
+        beq     .Lsans_carte            | the wait goes on
         btst    #6, STATUS_B
         bne     .Lprotegee
         cmpi.b  #4, V_CONF
         beq.s   4f
-        | 3 : la carte en place porte-t-elle déjà ce NGH et cette sous-sauvegarde ?
+        | 3: does the card in place already hold this NGH and this sub-save?
         tst.b   V_ETAT
-        bne.s   4f                      | non formatée, inconnue : CARD répondra
+        bne.s   4f                      | not formatted, unknown: CARD will answer
         lea     TAMPON, %a1
         moveq   #32 - 1, %d1
 3:      move.b  (%a1), %d2
@@ -335,13 +335,13 @@ _gestion_carte:
         move.b  2(%a1), %d2
         cmp.b   V_NGH + 1, %d2
         bne.s   5f
-        move.b  #4, V_CONF              | déjà là : écraser ?
+        move.b  #4, V_CONF              | already there: overwrite?
         bsr     .Lmsg_ecraser
         bra     .Lboucle
 5:      addq.l  #4, %a1
         dbra    %d1, 3b
-4:      clr.b   V_CONF                  | écrire
-        move.b  #0x03, CMD              | SAUVEGARDER
+4:      clr.b   V_CONF                  | write
+        move.b  #0x03, CMD              | SAVE
         bsr     .Lc_interface
         jsr     _card
         bsr     .Lrendre
@@ -352,14 +352,14 @@ _gestion_carte:
 .Lc_erreur:
         lea     .Ltxt_copie, %a2
 .Lc_fin:
-        movem.l %d4/%a2, -(%sp)         | la réponse et le message, que l'écran écrase
+        movem.l %d4/%a2, -(%sp)         | the answer and the message, which the screen overwrites
         bsr     .Lreleve
         bsr     .Lborner
         bsr     .Lecran
         movem.l (%sp)+, %d4/%a2
         tst.b   %d4
         beq.s   1f
-        lea     .Ltxt_erreur, %a2       | CARD ERROR et la réponse
+        lea     .Ltxt_erreur, %a2       | CARD ERROR and the answer
         lea     F_LIGNE(%a6), %a1
         moveq   #L_ERREUR - 1, %d0
 2:      move.b  (%a2)+, (%a1)+
@@ -371,7 +371,7 @@ _gestion_carte:
 1:      bsr     .Lmessage
         bra     .Lboucle
 
-| L'interface de CARD pour la copie : NGH, sous-sauvegarde, le tampon, la taille.
+| CARD's interface for the copy: NGH, sub-save, the buffer, the size.
 .Lc_interface:
         move.b  V_NGH, FCB
         move.b  V_NGH + 1, FCB + 1
@@ -380,8 +380,8 @@ _gestion_carte:
         move.w  V_TAILLE, SIZE_C
         rts
 
-| LE TAMPON MIS DE CÔTÉ en VRAM, puis rendu (voir l'en-tête). REG_VRAMMOD à 1 pour l'écriture, rendu
-| à 32 ; une lecture par adresse, trois `nop` entre l'adresse et la donnée, comme `tests.s`.
+| THE BUFFER SET ASIDE in VRAM, then returned (see the header). REG_VRAMMOD at 1 for the write,
+| returned to 32; one read per address, three `nop` between the address and the data, like `tests.s`.
 | Clobbers %d0, %d1, %a1.
 .Lmettre_de_cote:
         lea     COPIE_RAM, %a1
@@ -419,7 +419,7 @@ _gestion_carte:
         bsr     .Lhex2
         move.b  V_NGH + 1, %d0
         bsr     .Lhex2
-        move.b  #0x2D, (%a1)+           | « - »
+        move.b  #0x2D, (%a1)+           | "-"
         move.b  V_SUB, %d0
         bsr     .Ldecimal2
         lea     .Ltxt_oui_non, %a2
@@ -428,7 +428,7 @@ _gestion_carte:
         lea     F_LIGNE(%a6), %a2
         bra     .Lmessage
 
-| LA SORTIE : l'interface de CARD rendue, la RAM du gestionnaire à zéro, la palette 5 aussi.
+| THE EXIT: CARD's interface returned, the manager's RAM at zero, palette 5 too.
 .Lsortie:
         lea     GARDE, %a1
         move.b  (%a1)+, 0x10FCF4
@@ -454,7 +454,7 @@ _gestion_carte:
         rts
 
 | ----------------------------------------------------------------------------------
-| LE RELEVÉ : la carte lue (`_carte_releve`), l'état, le nombre de lignes. Clobbers %d0-%d2,
+| THE RECORD: the card read (`_carte_releve`), the state, the number of lines. Clobbers %d0-%d2,
 | %a1.
 .Lreleve:
         move.b  STATUS_B, %d0
@@ -465,7 +465,7 @@ _gestion_carte:
         jsr     _carte_releve
         movea.l (%sp)+, %a0
         move.b  %d0, V_ETAT
-        moveq   #2, %d1                 | FORMAT CARD et EXIT
+        moveq   #2, %d1                 | FORMAT CARD and EXIT
         tst.b   %d0
         bne.s   2f
         lea     TAMPON, %a1
@@ -478,7 +478,7 @@ _gestion_carte:
 2:      move.w  %d1, V_N
         rts
 
-| LE CURSEUR DANS LA LISTE, et la fenêtre qui le montre (%d6). Clobbers %d0.
+| THE CURSOR IN THE LIST, and the window that shows it (%d6). Clobbers %d0.
 .Lborner:
         move.w  V_N, %d0
         cmp.w   %d0, %d7
@@ -487,25 +487,25 @@ _gestion_carte:
         subq.w  #1, %d7
 1:      cmp.w   %d6, %d7
         bcc.s   2f
-        move.w  %d7, %d6                | au-dessus de la fenêtre
+        move.w  %d7, %d6                | above the window
 2:      move.w  %d7, %d0
         subi.w  #VISIBLES - 1, %d0
         bls.s   3f
         cmp.w   %d6, %d0
         bls.s   3f
-        move.w  %d0, %d6                | au-dessous
+        move.w  %d0, %d6                | below
 3:      move.w  V_N, %d0
         subi.w  #VISIBLES, %d0
         bhi.s   4f
-        moveq   #0, %d6                 | tout tient
+        moveq   #0, %d6                 | everything fits
         rts
 4:      cmp.w   %d0, %d6
         bls.s   5f
-        move.w  %d0, %d6                | pas de vide en bas
+        move.w  %d0, %d6                | no gap at the bottom
 5:      rts
 
-| L'ENTRÉE DU RÉPERTOIRE de la sauvegarde de la ligne %d0 : %a1 sur ses quatre octets dans le
-| tampon (sous-sauvegarde, NGH, premier bloc). Clobbers %d0, %a1.
+| THE DIRECTORY ENTRY of the save on line %d0: %a1 on its four bytes in the
+| buffer (sub-save, NGH, first block). Clobbers %d0, %a1.
 .Lentree:
         lea     TAMPON, %a1
 1:      cmpi.b  #0xFF, (%a1)
@@ -517,8 +517,8 @@ _gestion_carte:
 3:      rts
 
 | ----------------------------------------------------------------------------------
-| L'ÉCRAN, tout entier : palettes après le passage de la ligne $1F0, FIX_CLEAR, titre, état,
-| en-tête, liste, aide. Clobbers %d0-%d4, %a1-%a3.
+| THE SCREEN, all of it: palettes after line $1F0 goes by, FIX_CLEAR, title, state,
+| header, list, help. Clobbers %d0-%d4, %a1-%a3.
 .Lecran:
         bsr     .Lsync
         lea     PALETTES + PAL_ALERTE * 32, %a1
@@ -528,7 +528,7 @@ _gestion_carte:
 1:      clr.w   (%a1)+
         dbra    %d0, 1b
         jsr     _fix_clear
-        move.w  #32, VRAMMOD            | une écriture = une colonne
+        move.w  #32, VRAMMOD            | one write = one column
         move.w  #CASE_TITRE, %d1
         lea     .Ltxt_titre, %a2
         moveq   #L_TITRE, %d4
@@ -539,7 +539,7 @@ _gestion_carte:
         moveq   #L_TITRE, %d4
         move.w  #0x3200, %d3
         bsr     .Lecrire
-        | L'ÉTAT.
+        | THE STATE.
         move.b  V_ETAT, %d0
         lea     .Ltxt_sans, %a2
         cmpi.b  #0x80, %d0
@@ -583,9 +583,9 @@ _gestion_carte:
         move.w  #CASE_AIDE2, %d1
         lea     .Ltxt_aide2, %a2
         bsr     .Lchaine
-        | puis la liste, en tombant
+        | then the list, by falling through
 
-| LES LIGNES VISIBLES de la liste. Clobbers %d0-%d4, %a1-%a3.
+| THE VISIBLE LINES of the list. Clobbers %d0-%d4, %a1-%a3.
 .Lliste:
         moveq   #0, %d4
 1:      move.w  %d4, -(%sp)
@@ -596,8 +596,8 @@ _gestion_carte:
         bcs.s   1b
         rts
 
-| LA LIGNE VISIBLE %d4 (0 à VISIBLES - 1), celle de l'élément %d6 + %d4 : composée dans le cadre,
-| puis écrite sous la palette 2 si elle est choisie, 1 sinon. Clobbers %d0-%d4, %a1-%a3.
+| VISIBLE LINE %d4 (0 to VISIBLES - 1), that of item %d6 + %d4: composed in the frame,
+| then written under palette 2 if it is chosen, 1 otherwise. Clobbers %d0-%d4, %a1-%a3.
 .Lligne:
         lea     F_LIGNE(%a6), %a1
         moveq   #LARGEUR - 1, %d0
@@ -606,15 +606,15 @@ _gestion_carte:
         clr.b   (%a1)
         move.w  %d4, %d1
         addi.w  #0x7000 + 3 * 32 + LIGNE0, %d1
-        move.w  %d1, -(%sp)             | la case
-        move.w  #0x1000, -(%sp)         | la palette
-        add.w   %d6, %d4                | l'élément
+        move.w  %d1, -(%sp)             | the cell
+        move.w  #0x1000, -(%sp)         | the palette
+        add.w   %d6, %d4                | the item
         cmp.w   V_N, %d4
-        bcc     .Ll_ecrire              | au-delà : une ligne vide
+        bcc     .Ll_ecrire              | beyond: an empty line
         lea     F_LIGNE(%a6), %a1
         cmp.w   %d7, %d4
         bne.s   2f
-        move.b  #0x3E, (%a1)            | « > »
+        move.b  #0x3E, (%a1)            | ">"
         move.w  #0x2000, (%sp)
 2:      addq.l  #2, %a1
         move.w  V_N, %d0
@@ -626,11 +626,11 @@ _gestion_carte:
         lea     .Ltxt_formater_l, %a2
         cmp.w   %d0, %d4
         beq.s   3f
-        | Une sauvegarde : NGH, sous-sauvegarde, blocs, nom.
+        | A save: NGH, sub-save, blocks, name.
         move.w  %d4, %d0
         movea.l %a1, %a3
-        bsr     .Lentree                | %a1 : l'entrée
-        exg     %a1, %a3                | %a3 : l'entrée ; %a1 : la ligne
+        bsr     .Lentree                | %a1: the entry
+        exg     %a1, %a3                | %a3: the entry; %a1: the line
         move.b  1(%a3), %d0
         bsr     .Lhex2
         move.b  2(%a3), %d0
@@ -642,10 +642,10 @@ _gestion_carte:
         bsr     .Lblocs
         bsr     .Ldecimal2
         addq.l  #2, %a1
-        move.b  1(%a3), %d0             | le NGH, octet par octet : l'entrée est en +1
+        move.b  1(%a3), %d0             | the NGH, byte by byte: the entry is at +1
         lsl.w   #8, %d0
         move.b  2(%a3), %d0
-        bsr     .Lnom                   | %a2 : le nom, ou 0
+        bsr     .Lnom                   | %a2: the name, or 0
         move.l  %a2, %d0
         beq.s   .Ll_ecrire
         moveq   #16 - 1, %d0
@@ -662,8 +662,8 @@ _gestion_carte:
         moveq   #LARGEUR, %d4
         bra     .Lecrire
 
-| LES BLOCS de la sauvegarde %a3 : sa chaîne dans la FAT 1, du premier bloc jusqu'à $01. Un
-| bloc hors de 5-31, ou plus de 27 tours (une FAT qui boucle), arrêtent le compte. → %d0.
+| THE BLOCKS of save %a3: its chain in FAT 1, from the first block up to $01. A
+| block outside 5-31, or more than 27 turns (a FAT that loops), stop the count. → %d0.
 | Clobbers %d1, %d2, %a2.
 .Lblocs:
         moveq   #0, %d0
@@ -681,7 +681,7 @@ _gestion_carte:
         dbeq    %d2, 1b
 2:      rts
 
-| LES BLOCS LIBRES : les entrées $00 de la FAT 1, blocs 5 à 31. → %d0. Clobbers %d1, %a2.
+| THE FREE BLOCKS: the $00 entries of FAT 1, blocks 5 to 31. → %d0. Clobbers %d1, %a2.
 .Llibres:
         moveq   #0, %d0
         lea     T_FAT + 5, %a2
@@ -692,8 +692,8 @@ _gestion_carte:
 2:      dbra    %d1, 1b
         rts
 
-| LE NOM DU JEU de NGH %d0.w, s'il est inscrit dans la table des slots : %a2 sur ses 16 octets
-| en backup RAM, 0 sinon. Clobbers %d1, %d2.
+| THE GAME'S NAME for NGH %d0.w, if it is registered in the slot table: %a2 on its 16 bytes
+| in backup RAM, 0 otherwise. Clobbers %d1, %d2.
 .Lnom:
         suba.l  %a2, %a2
         tst.w   %d0
@@ -715,8 +715,8 @@ _gestion_carte:
         rts
 
 | ----------------------------------------------------------------------------------
-| LES MESSAGES, ligne 24, sous la palette 5 : la chaîne %a2 (terminée par 0), la ligne
-| effacée d'abord. Clobbers %d0-%d4, %a1, %a2.
+| THE MESSAGES, line 24, under palette 5: string %a2 (terminated by 0), the line
+| cleared first. Clobbers %d0-%d4, %a1, %a2.
 .Lmessage:
         move.l  %a2, -(%sp)
         move.w  #CASE_MSG, %d1
@@ -729,7 +729,7 @@ _gestion_carte:
         move.w  #(PAL_ALERTE << 12), %d3
         bra     .Lchaine
 
-| DELETE nnnn-ss? : la sauvegarde de la ligne %d7. Clobbers %d0-%d4, %a1-%a3.
+| DELETE nnnn-ss?: the save on line %d7. Clobbers %d0-%d4, %a1-%a3.
 .Lmsg_effacer:
         move.w  %d7, %d0
         bsr     .Lentree
@@ -743,7 +743,7 @@ _gestion_carte:
         bsr     .Lhex2
         move.b  2(%a3), %d0
         bsr     .Lhex2
-        move.b  #0x2D, (%a1)+           | « - »
+        move.b  #0x2D, (%a1)+           | "-"
         move.b  (%a3), %d0
         bsr     .Ldecimal2
         lea     .Ltxt_oui_non, %a2
@@ -752,7 +752,7 @@ _gestion_carte:
         lea     F_LIGNE(%a6), %a2
         bra.s   .Lmessage
 
-| DEUX CHIFFRES HEXADÉCIMAUX de %d0.b à (%a1)+. Clobbers %d0, %d1.
+| TWO HEXADECIMAL DIGITS of %d0.b to (%a1)+. Clobbers %d0, %d1.
 .Lhex2:
         move.b  %d0, %d1
         lsr.b   #4, %d0
@@ -766,7 +766,7 @@ _gestion_carte:
 2:      move.b  %d0, (%a1)+
         rts
 
-| DEUX CHIFFRES DÉCIMAUX de %d0 (0 à 99) à (%a1)+. Clobbers %d0.
+| TWO DECIMAL DIGITS of %d0 (0 to 99) to (%a1)+. Clobbers %d0.
 .Ldecimal2:
         andi.l  #0xFF, %d0
         divu    #10, %d0
@@ -778,7 +778,7 @@ _gestion_carte:
         rts
 
 | ----------------------------------------------------------------------------------
-| UNE CHAÎNE terminée par 0 à partir de la case %d1, sous %d3, REG_VRAMMOD à 32. Clobbers %d2,
+| A STRING terminated by 0 starting at cell %d1, under %d3, REG_VRAMMOD at 32. Clobbers %d2,
 | %d4, %a1, %a2.
 .Lchaine:
         movea.l %a2, %a1
@@ -788,8 +788,8 @@ _gestion_carte:
         bne.s   1b
         tst.w   %d4
         beq.s   2f
-| ÉCRIRE %d4 caractères de %a2 à partir de la case %d1, comme `dip.s`. Hors de $20-$7E, une
-| espace. Clobbers %d2, %d4, %a2.
+| WRITE %d4 characters from %a2 starting at cell %d1, like `dip.s`. Outside $20-$7E, a
+| space. Clobbers %d2, %d4, %a2.
 .Lecrire:
         move.w  %d1, VRAMADDR
         subq.w  #1, %d4
@@ -805,15 +805,15 @@ _gestion_carte:
         dbra    %d4, 1b
 2:      rts
 
-| LES BOUTONS. Bits : 0 haut, 1 bas, 2 gauche, 3 droite, 4 A, 5 B, 6 START, 7 C (la copie). %d5
-| l'état d'avant, mis à jour ; %d0 les fronts. Clobbers %d1, %d2.
+| THE BUTTONS. Bits: 0 up, 1 down, 2 left, 3 right, 4 A, 5 B, 6 START, 7 C (the copy). %d5
+| the previous state, updated; %d0 the edges. Clobbers %d1, %d2.
 .Lentrees:
-        jsr     _panneau_p1             | %d0 : P1, manette ou panneau traduit (`panneau.s`)
+        jsr     _panneau_p1             | %d0: P1, joystick or translated panel (`panneau.s`)
         move.b  %d0, %d2
         not.b   %d2
         move.b  %d2, %d1
-        andi.b  #0x40, %d1              | C, bit 6 de REG_P1CNT
-        add.b   %d1, %d1                | au bit 7
+        andi.b  #0x40, %d1              | C, bit 6 of REG_P1CNT
+        add.b   %d1, %d1                | to bit 7
         andi.b  #0x3F, %d2
         or.b    %d1, %d2
         move.b  STATUS_B, %d1
@@ -827,9 +827,9 @@ _gestion_carte:
         move.b  %d2, %d5
         rts
 
-| LE PASSAGE DE LA LIGNE $1F0, comme `dip.s` ; watchdog à chaque tour. Clobbers %d0.
-| BORNÉE à SYNC_TOURS tours par attente, ≈ 2 trames, ligne vue ou non : le compte est dans
-| `ecran.s`, dont c'est la copie identique.
+| LINE $1F0 GOING BY, like `dip.s`; watchdog on every turn. Clobbers %d0.
+| BOUNDED at SYNC_TOURS turns per wait, ≈ 2 frames, line seen or not: the count is in
+| `ecran.s`, of which this is the identical copy.
         .equ    SYNC_TOURS, 5800
 .Lsync:
         move.l  %d1, -(%sp)
@@ -849,7 +849,7 @@ _gestion_carte:
         rts
 
 | ----------------------------------------------------------------------------------
-| LES DONNÉES.
+| THE DATA.
         .balign 2
 .Ltxt_titre:
         .ascii  "MEMORY CARD"

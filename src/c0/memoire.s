@@ -1,72 +1,72 @@
 | SPDX-License-Identifier: GPL-3.0-or-later
 | Copyright (C) 2026 Thibaut Lion
 | ==================================================================================
-| MEMORY EDITOR — la RAM de travail ($100000-$10FFFF) en hexadécimal, depuis le menu en jeu
-| (`menu.s`) : la voir, s'y déplacer, modifier un octet, en GELER jusqu'à GL_MAX (le cheat
-| personnalisé : `cheats.s` réécrit chaque gel à chaque appel de SYSTEM_IO). Le 2026-10-23.
+| MEMORY EDITOR — the work RAM ($100000-$10FFFF) in hexadecimal, from the in-game menu
+| (`menu.s`): view it, move around in it, modify a byte, FREEZE up to GL_MAX of them (the custom
+| cheat: `cheats.s` rewrites each freeze at each call of SYSTEM_IO). On 2026-10-23.
 |
-| AUCUN ORACLE : l'éditeur mémoire d'aucun BIOS n'est lu. « mesuré » : un relevé nommé ; « lu
-| dans » : une page du NeoGeo Development Wiki ; « SUPPOSÉ » : ni l'un ni l'autre.
+| NO ORACLE: the memory editor of no BIOS is read. "measured": a named record; "read
+| in": a page of the NeoGeo Development Wiki; "ASSUMED": neither one nor the other.
 |
-| CE QUI SE LIT, CE QUI S'ÉCRIT. Toute la RAM de travail se lit, la zone du BIOS comprise
-| ($10F300-$10FFFF, « BIOS RAM locations » : la page la donne au BIOS). Rien ne s'écrit ni ne
-| se gèle à partir de $10F300 : ni la RAM du BIOS, ni la sauvegarde du menu ($10F4C0-$10FB1F,
-| dans cette zone). L'écran le dit (READ ONLY), A et D n'y font rien, et le moteur des gels
-| refuse lui-même un décalage de $F300 ou plus (`cheats.s`). La lecture passe par le 68000 et
-| ne touche à aucun registre de la carte. Pendant la pause le jeu est arrêté : ce qu'on lit est
-| la RAM telle qu'il l'a laissée à son appel de SYSTEM_IO.
+| WHAT IS READ, WHAT IS WRITTEN. All of the work RAM is read, the BIOS area included
+| ($10F300-$10FFFF, "BIOS RAM locations": the page gives it to the BIOS). Nothing is written or
+| frozen from $10F300 on: neither the BIOS RAM, nor the menu's save area ($10F4C0-$10FB1F,
+| in that area). The screen says so (READ ONLY), A and D do nothing there, and the freeze engine
+| itself refuses an offset of $F300 or more (`cheats.s`). The read goes through the 68000 and
+| touches no register of the board. During the pause the game is stopped: what is read is
+| the RAM as it left it at its call of SYSTEM_IO.
 |
-| L'ÉCRAN, le cadre des sous-écrans du menu (28 × 14, `menu.s`), la police de la cartouche :
-|   0      MEMORY EDITOR (titre), et l'adresse du curseur (colonne 20) ;
-|   2-9    huit lignes de huit octets : l'adresse (colonne 2), quatre octets (colonne 9),
-|          quatre (colonne 18). L'octet du curseur sous la palette du choix, un octet gelé sous
-|          celle du titre ;
-|   10, 13 l'aide ;
-|   11-12  FROZEN, et les gels : « 10XXXX:VV », deux par ligne, ou NONE.
+| THE SCREEN, the frame of the menu's sub-screens (28 × 14, `menu.s`), the cartridge's font:
+|   0      MEMORY EDITOR (title), and the cursor's address (column 20);
+|   2-9    eight lines of eight bytes: the address (column 2), four bytes (column 9),
+|          four (column 18). The cursor's byte under the choice's palette, a frozen byte under
+|          the title's;
+|   10, 13 the help;
+|   11-12  FROZEN, and the freezes: "10XXXX:VV", two per line, or NONE.
 |
-| LES COMMANDES, P1 sur front (une direction tenue se répète : après REP_DEBUT trames, une fois
-| toutes les REP_PAS) :
-|   haut/bas une ligne (8 octets), gauche/droite un octet ; B tenu et haut/bas une page
-|   (64 octets) ; tout en boucle sur les 64 Kio ;
-|   C : GOTO, l'adresse à quatre chiffres (gauche/droite le chiffre, haut/bas sa valeur, A y
-|       va, B renonce) ;
-|   A : SET VALUE (haut/bas ±1, gauche/droite ±$10, A écrit l'octet — et la valeur du gel s'il
-|       est gelé —, B renonce) ;
-|   D : gèle l'octet à sa valeur, ou le dégèle s'il l'est ; GL_MAX pris : rien ;
-|   START : le menu.
-| Le curseur et la fenêtre (ME_ADR, ME_HAUT) restent d'une ouverture à l'autre ; vidés au boot.
+| THE CONTROLS, P1 on edge (a held direction repeats: after REP_DEBUT frames, once
+| every REP_PAS):
+|   up/down one line (8 bytes), left/right one byte; B held and up/down one page
+|   (64 bytes); all wrapping over the 64 KiB;
+|   C: GOTO, the four-digit address (left/right the digit, up/down its value, A goes
+|       there, B gives up);
+|   A: SET VALUE (up/down ±1, left/right ±$10, A writes the byte — and the freeze's value if
+|       it is frozen —, B gives up);
+|   D: freezes the byte at its value, or unfreezes it if it is frozen; GL_MAX taken: nothing;
+|   START: the menu.
+| The cursor and the window (ME_ADR, ME_HAUT) stay from one opening to the next; cleared at boot.
 | ==================================================================================
 
         .section .haut, "ax"
         .global _memoire_ecran
 
         .equ    RAM,       0x100000
-        .equ    BORNE,     0xF300       | $10F300 : la zone du BIOS (`cheats.s`, GL_BORNE)
+        .equ    BORNE,     0xF300       | $10F300: the BIOS area (`cheats.s`, GL_BORNE)
         .equ    GL_MAX,    4
-        | Dans la zone mesurée libre de `cheats.s`, après les gels : gardés entre deux ouvertures.
-        .equ    ME_ADR,    0x10FB1C     | .w le décalage du curseur
-        .equ    ME_HAUT,   0x10FB1E     | .w celui de la première ligne, multiple de 8
-        | Sous la pile du menu (`menu.s`), après GAME SETTINGS.
-        .equ    ME_MODE,   0x10F9D4     | .w 0 parcourir, 1 SET VALUE, 2 GOTO
-        .equ    ME_VAL,    0x10F9D6     | .w la valeur en cours, ou l'adresse de GOTO
-        .equ    ME_CHIF,   0x10F9D8     | .w le chiffre de GOTO, 0 le plus haut
+        | In the area of `cheats.s` measured free, after the freezes: kept between two openings.
+        .equ    ME_ADR,    0x10FB1C     | .w the cursor's offset
+        .equ    ME_HAUT,   0x10FB1E     | .w that of the first line, a multiple of 8
+        | Under the menu's stack (`menu.s`), after GAME SETTINGS.
+        .equ    ME_MODE,   0x10F9D4     | .w 0 browse, 1 SET VALUE, 2 GOTO
+        .equ    ME_VAL,    0x10F9D6     | .w the current value, or GOTO's address
+        .equ    ME_CHIF,   0x10F9D8     | .w GOTO's digit, 0 the highest
         .equ    REP_DEBUT, 20
         .equ    REP_PAS,   4
-        .equ    L_HEX,     2            | la ligne du cadre de la première ligne d'octets
+        .equ    L_HEX,     2            | the frame line of the first line of bytes
 
 _memoire_ecran:
         bsr     _mn_sous_ouvrir
         clr.w   ME_MODE
         clr.w   MN_REP
-        andi.w  #0xFFF8, ME_HAUT        | une fenêtre quelconque laissée par un jeu : recalée
+        andi.w  #0xFFF8, ME_HAUT        | any window left by a game: realigned
         bsr     .Lcaler
         bsr     .Ltout
 
 .Lboucle:
         bsr     _mn_sync
         bsr     _mn_entrees
-        | LA RÉPÉTITION : une direction tenue redonne un front, après REP_DEBUT trames, puis
-        | toutes les REP_PAS.
+        | THE REPETITION: a held direction gives an edge again, after REP_DEBUT frames, then
+        | every REP_PAS.
         move.w  %d5, %d1
         andi.w  #0x0F, %d1
         bne.s   1f
@@ -81,7 +81,7 @@ _memoire_ecran:
         or.w    %d1, %d0
 2:      tst.w   %d0
         beq.s   .Lboucle
-        btst    #8, %d0                 | START : le menu, quel que soit le mode
+        btst    #8, %d0                 | START: the menu, whatever the mode
         beq.s   1f
         rts
 1:      move.w  ME_MODE, %d1
@@ -91,65 +91,65 @@ _memoire_ecran:
         bra     .Lgoto
 
 | ----------------------------------------------------------------------------------
-| PARCOURIR. %d0 : les fronts ; %d5 : l'état (B tenu).
+| BROWSE. %d0: the edges; %d5: the state (B held).
 .Lparcourir:
         move.w  ME_ADR, %d1
-        btst    #0, %d0                 | haut
+        btst    #0, %d0                 | up
         beq.s   2f
         moveq   #-8, %d2
-        btst    #5, %d5                 | B tenu : une page
+        btst    #5, %d5                 | B held: one page
         beq.s   1f
         moveq   #-64, %d2
 1:      add.w   %d2, %d1
         btst    #5, %d5
         beq     .Lp_poser
-        add.w   %d2, ME_HAUT            | la page : la fenêtre suit, le curseur y garde sa place
+        add.w   %d2, ME_HAUT            | the page: the window follows, the cursor keeps its place in it
         bra     .Lp_poser
-2:      btst    #1, %d0                 | bas
+2:      btst    #1, %d0                 | down
         beq.s   2f
         moveq   #8, %d2
         btst    #5, %d5
         beq.s   1b
         moveq   #64, %d2
         bra.s   1b
-2:      btst    #2, %d0                 | gauche
+2:      btst    #2, %d0                 | left
         beq.s   2f
         subq.w  #1, %d1
         bra     .Lp_poser
-2:      btst    #3, %d0                 | droite
+2:      btst    #3, %d0                 | right
         beq.s   2f
         addq.w  #1, %d1
         bra     .Lp_poser
-2:      btst    #6, %d0                 | C : GOTO
+2:      btst    #6, %d0                 | C: GOTO
         beq.s   2f
         move.w  %d1, ME_VAL
         clr.w   ME_CHIF
         move.w  #2, ME_MODE
         bra     .Lp_dessin
 2:      cmpi.w  #BORNE, %d1
-        bcc     .Lboucle                | la zone du BIOS : ni A ni D
+        bcc     .Lboucle                | the BIOS area: neither A nor D
         lea     RAM, %a0
         andi.l  #0xFFFF, %d1
-        btst    #4, %d0                 | A : SET VALUE
+        btst    #4, %d0                 | A: SET VALUE
         beq.s   2f
         moveq   #0, %d2
         move.b  (%a0,%d1.l), %d2
         move.w  %d2, ME_VAL
         move.w  #1, ME_MODE
         bra.s   .Lp_dessin
-2:      btst    #7, %d0                 | D : geler, ou dégeler
+2:      btst    #7, %d0                 | D: freeze, or unfreeze
         beq     .Lboucle
-        bsr     .Lchercher_gel          | %d3 : son numéro, ou -1
+        bsr     .Lchercher_gel          | %d3: its number, or -1
         bmi.s   3f
-        bclr    %d3, GL_MASQUE + 1      | dégelé
+        bclr    %d3, GL_MASQUE + 1      | unfrozen
         bra.s   .Lp_dessin
-3:      moveq   #0, %d3                 | le premier libre
+3:      moveq   #0, %d3                 | the first free one
 4:      btst    %d3, GL_MASQUE + 1
         beq.s   5f
         addq.w  #1, %d3
         cmpi.w  #GL_MAX, %d3
         bcs.s   4b
-        bra     .Lboucle                | tous pris : rien
+        bra     .Lboucle                | all taken: nothing
 5:      lea     GL_TABLE, %a1
         move.w  %d3, %d2
         lsl.w   #2, %d2
@@ -164,24 +164,24 @@ _memoire_ecran:
         bsr     .Ltout
         bra     .Lboucle
 
-| LA FENÊTRE recalée sur le curseur (mots non signés, en boucle sur les 64 Kio). Clobbers %d1, %d2.
+| THE WINDOW realigned on the cursor (unsigned words, wrapping over the 64 KiB). Clobbers %d1, %d2.
 .Lcaler:
         move.w  ME_ADR, %d1
         move.w  %d1, %d2
         sub.w   ME_HAUT, %d2
         cmpi.w  #64, %d2
-        bcs.s   9f                      | dans la fenêtre
+        bcs.s   9f                      | in the window
         cmp.w   ME_HAUT, %d1
         bcc.s   1f
-        andi.w  #0xFFF8, %d1            | au-dessus : sa ligne en haut
+        andi.w  #0xFFF8, %d1            | above: its line at the top
         move.w  %d1, ME_HAUT
         rts
-1:      andi.w  #0xFFF8, %d1            | en dessous : sa ligne en bas
+1:      andi.w  #0xFFF8, %d1            | below: its line at the bottom
         subi.w  #56, %d1
         move.w  %d1, ME_HAUT
 9:      rts
 
-| LE GEL DE L'OCTET %d1 (décalage) : %d3 son numéro et N à 0, ou -1 et N à 1. Clobbers %d2, %a1.
+| THE FREEZE OF BYTE %d1 (offset): %d3 its number and N at 0, or -1 and N at 1. Clobbers %d2, %a1.
 .Lchercher_gel:
         lea     GL_TABLE, %a1
         moveq   #0, %d3
@@ -198,7 +198,7 @@ _memoire_ecran:
         rts
 
 | ----------------------------------------------------------------------------------
-| SET VALUE. Haut/bas ±1, gauche/droite ±$10 ; A écrit, B renonce.
+| SET VALUE. Up/down ±1, left/right ±$10; A writes, B gives up.
 .Lvaleur:
         move.w  ME_VAL, %d1
         btst    #0, %d0
@@ -215,26 +215,26 @@ _memoire_ecran:
         subi.b  #0x10, %d1
 1:      andi.w  #0xFF, %d1
         move.w  %d1, ME_VAL
-        btst    #5, %d0                 | B : rien d'écrit
+        btst    #5, %d0                 | B: nothing written
         bne.s   8f
-        btst    #4, %d0                 | A : l'octet écrit
+        btst    #4, %d0                 | A: the byte written
         beq.s   9f
         move.w  ME_ADR, %d1
-        cmpi.w  #BORNE, %d1             | gardé ici aussi : le mode ne s'ouvre pas au-delà
+        cmpi.w  #BORNE, %d1             | guarded here too: the mode does not open beyond
         bcc.s   8f
         andi.l  #0xFFFF, %d1
         lea     RAM, %a0
         move.b  ME_VAL + 1, (%a0,%d1.l)
         bsr     .Lchercher_gel
         bmi.s   8f
-        lsl.w   #2, %d3                 | gelé : sa valeur suit
+        lsl.w   #2, %d3                 | frozen: its value follows
         lea     GL_TABLE, %a1
         move.b  ME_VAL + 1, 2(%a1,%d3.w)
 8:      clr.w   ME_MODE
 9:      bsr     .Ltout
         bra     .Lboucle
 
-| GOTO. Gauche/droite le chiffre, haut/bas sa valeur ; A y va, B renonce.
+| GOTO. Left/right the digit, up/down its value; A goes there, B gives up.
 .Lgoto:
         move.w  ME_CHIF, %d2
         btst    #2, %d0
@@ -249,13 +249,13 @@ _memoire_ecran:
         bls.s   1f
         moveq   #3, %d2
 1:      move.w  %d2, ME_CHIF
-        moveq   #3, %d3                 | le décalage du chiffre : 4 × (3 − chiffre)
+        moveq   #3, %d3                 | the digit's shift: 4 × (3 − digit)
         sub.w   %d2, %d3
         lsl.w   #2, %d3
         moveq   #1, %d1
-        lsl.w   %d3, %d1                | une unité de ce chiffre
+        lsl.w   %d3, %d1                | one unit of that digit
         move.w  #0x000F, %d4
-        lsl.w   %d3, %d4                | son masque
+        lsl.w   %d3, %d4                | its mask
         move.w  ME_VAL, %d2
         btst    #0, %d0
         beq.s   1f
@@ -266,14 +266,14 @@ _memoire_ecran:
         beq.s   3f
         move.w  %d2, %d6
         sub.w   %d1, %d6
-2:      and.w   %d4, %d6                | le chiffre seul change, sans retenue
+2:      and.w   %d4, %d6                | only the digit changes, without carry
         not.w   %d4
         and.w   %d4, %d2
         or.w    %d6, %d2
         move.w  %d2, ME_VAL
-3:      btst    #5, %d0                 | B : rien
+3:      btst    #5, %d0                 | B: nothing
         bne.s   8f
-        btst    #4, %d0                 | A : le curseur y va, sa ligne en haut
+        btst    #4, %d0                 | A: the cursor goes there, its line at the top
         beq.s   9f
         move.w  ME_VAL, %d1
         move.w  %d1, ME_ADR
@@ -284,7 +284,7 @@ _memoire_ecran:
         bra     .Lboucle
 
 | ----------------------------------------------------------------------------------
-| TOUT L'ÉCRAN, ligne par ligne. Clobbers %d0-%d4, %d6, %a0-%a3.
+| THE WHOLE SCREEN, line by line. Clobbers %d0-%d4, %d6, %a0-%a3.
 .Ltout:
         moveq   #0, %d4
 .Lt_ligne:
@@ -298,7 +298,7 @@ _memoire_ecran:
         bcs.s   .Lt_ligne
         rts
 
-| LA LIGNE %d4 dans MN_BUF et MN_COUL. Clobbers %d0-%d4, %d6, %a0-%a3.
+| LINE %d4 in MN_BUF and MN_COUL. Clobbers %d0-%d4, %d6, %a0-%a3.
 .Lcomposer:
         tst.w   %d4
         bne.s   .Lc_hex
@@ -307,7 +307,7 @@ _memoire_ecran:
         moveq   #2, %d0
         moveq   #1, %d1
         bsr     _mn_texte
-        move.w  ME_ADR, %d2             | l'adresse : celle du curseur, ou celle de GOTO
+        move.w  ME_ADR, %d2             | the address: the cursor's, or GOTO's
         cmpi.w  #2, ME_MODE
         bne.s   1f
         move.w  ME_VAL, %d2
@@ -315,7 +315,7 @@ _memoire_ecran:
         bsr     .Ladresse
         cmpi.w  #2, ME_MODE
         bne.s   9f
-        lea     MN_COUL + 22, %a1       | le chiffre de GOTO, sous la palette du choix
+        lea     MN_COUL + 22, %a1       | GOTO's digit, under the choice's palette
         adda.w  ME_CHIF, %a1
         move.b  #2, (%a1)
 9:      rts
@@ -327,12 +327,12 @@ _memoire_ecran:
         cmpi.w  #8, %d6
         bcc     .Lc_aide
         lsl.w   #3, %d6
-        add.w   ME_HAUT, %d6            | %d6 : le décalage du premier octet de la ligne
+        add.w   ME_HAUT, %d6            | %d6: the offset of the line's first byte
         move.w  %d6, %d2
         lea     MN_BUF + 2, %a1
         bsr     .Ladresse
-        moveq   #0, %d4                 | l'octet de la ligne, 0 à 7
-1:      moveq   #9, %d0                 | sa colonne : 9 + 2 × k, + 1 pour le second groupe
+        moveq   #0, %d4                 | the byte of the line, 0 to 7
+1:      moveq   #9, %d0                 | its column: 9 + 2 × k, + 1 for the second group
         move.w  %d4, %d1
         add.w   %d1, %d1
         add.w   %d1, %d0
@@ -344,23 +344,23 @@ _memoire_ecran:
         lea     MN_COUL, %a2
         adda.w  %d0, %a2
         move.w  %d6, %d1
-        add.w   %d4, %d1                | le décalage de l'octet
+        add.w   %d4, %d1                | the byte's offset
         andi.l  #0xFFFF, %d1
         lea     RAM, %a0
         moveq   #0, %d2
         move.b  (%a0,%d1.l), %d2
-        moveq   #0, %d3                 | le rôle
+        moveq   #0, %d3                 | the role
         movem.l %d1-%d2/%a1, -(%sp)
         bsr     .Lchercher_gel
         movem.l (%sp)+, %d1-%d2/%a1
         bmi.s   3f
-        moveq   #1, %d3                 | gelé : le titre
+        moveq   #1, %d3                 | frozen: the title
 3:      cmp.w   ME_ADR, %d1
         bne.s   4f
-        moveq   #2, %d3                 | le curseur : le choix
+        moveq   #2, %d3                 | the cursor: the choice
         cmpi.w  #1, ME_MODE
         bne.s   4f
-        move.w  ME_VAL, %d2             | SET VALUE : la valeur en cours
+        move.w  ME_VAL, %d2             | SET VALUE: the current value
 4:      move.b  %d3, (%a2)+
         move.b  %d3, (%a2)
         bsr     .Loctet
@@ -372,7 +372,7 @@ _memoire_ecran:
 .Lc_aide:
         cmpi.w  #10, %d4
         bne.s   2f
-        lea     .Ltxt_page, %a3         | l'aide de la ligne 10, selon le mode
+        lea     .Ltxt_page, %a3         | the help of line 10, depending on the mode
         moveq   #L_PAGE, %d4
         move.w  ME_MODE, %d1
         beq.s   1f
@@ -387,13 +387,13 @@ _memoire_ecran:
         bra     _mn_texte
 2:      cmpi.w  #13, %d4
         bne.s   .Lc_gels
-        lea     .Ltxt_aide, %a3         | l'aide de la ligne 13
+        lea     .Ltxt_aide, %a3         | the help of line 13
         moveq   #L_AIDE, %d4
         move.w  ME_MODE, %d1
         bne.s   3f
         cmpi.w  #BORNE, ME_ADR
         bcs.s   1b
-        lea     .Ltxt_lecture, %a3      | la zone du BIOS
+        lea     .Ltxt_lecture, %a3      | the BIOS area
         moveq   #L_LECTURE, %d4
         bra.s   1b
 3:      lea     .Ltxt_val, %a3
@@ -404,8 +404,8 @@ _memoire_ecran:
         moveq   #L_GOTO, %d4
         bra.s   1b
 
-| LES LIGNES 11 ET 12 : FROZEN, puis les gels k et k + 1 (k = 0 à la ligne 11, 2 à la 12), ou
-| NONE s'il n'y en a aucun.
+| LINES 11 AND 12: FROZEN, then freezes k and k + 1 (k = 0 on line 11, 2 on line 12), or
+| NONE if there is none.
 .Lc_gels:
         cmpi.w  #11, %d4
         beq.s   1f
@@ -413,7 +413,7 @@ _memoire_ecran:
         bne     9f
 1:      move.w  %d4, %d6
         subi.w  #11, %d6
-        add.w   %d6, %d6                | le premier gel de la ligne
+        add.w   %d6, %d6                | the line's first freeze
         tst.w   %d6
         bne.s   2f
         lea     .Ltxt_gels, %a3
@@ -421,24 +421,24 @@ _memoire_ecran:
         moveq   #2, %d0
         moveq   #0, %d1
         bsr     _mn_texte
-        tst.b   GL_MASQUE + 1           | les gels ; le bit 15 est celui des debug dips (`debug.s`)
+        tst.b   GL_MASQUE + 1           | the freezes; bit 15 is the debug dips' one (`debug.s`)
         bne.s   2f
         lea     .Ltxt_aucun, %a3
         moveq   #4, %d4
         moveq   #9, %d0
         moveq   #0, %d1
         bra     _mn_texte
-2:      moveq   #0, %d0                 | le rang du gel affiché sur la ligne, 0 ou 1
-        moveq   #0, %d3                 | le gel, 0 à GL_MAX − 1
-        moveq   #0, %d4                 | les gels actifs déjà vus
+2:      moveq   #0, %d0                 | the rank of the freeze shown on the line, 0 or 1
+        moveq   #0, %d3                 | the freeze, 0 to GL_MAX − 1
+        moveq   #0, %d4                 | the active freezes already seen
 3:      btst    %d3, GL_MASQUE + 1
         beq.s   5f
         move.w  %d4, %d1
         sub.w   %d6, %d1
-        bcs.s   4f                      | un gel d'une ligne d'avant
+        bcs.s   4f                      | a freeze of an earlier line
         cmpi.w  #2, %d1
-        bcc.s   9f                      | la ligne est pleine
-        lea     MN_BUF + 9, %a1         | colonne 9, ou 19 pour le second
+        bcc.s   9f                      | the line is full
+        lea     MN_BUF + 9, %a1         | column 9, or 19 for the second
         tst.w   %d1
         beq.s   6f
         lea     MN_BUF + 19, %a1
@@ -449,7 +449,7 @@ _memoire_ecran:
         move.w  (%a0), %d2
         movem.l %d3-%d4, -(%sp)
         bsr.s   .Ladresse
-        move.b  #0x3A, (%a1)+           | « : »
+        move.b  #0x3A, (%a1)+           | ":"
         moveq   #0, %d2
         move.b  2(%a0), %d2
         bsr.s   .Loctet
@@ -460,16 +460,16 @@ _memoire_ecran:
         bcs.s   3b
 9:      rts
 
-| « 10XXXX » à (%a1)+, %d2.w le décalage. Clobbers %d2, %d3.
+| "10XXXX" at (%a1)+, %d2.w the offset. Clobbers %d2, %d3.
 .Ladresse:
         move.b  #0x31, (%a1)+
         move.b  #0x30, (%a1)+
         move.w  %d2, -(%sp)
         lsr.w   #8, %d2
         bsr.s   .Loctet
-        move.w  (%sp)+, %d2             | puis l'octet bas : `.Loctet`, qui suit
+        move.w  (%sp)+, %d2             | then the low byte: `.Loctet`, which follows
 
-| L'OCTET %d2.b en deux chiffres hexadécimaux à (%a1)+. Clobbers %d2, %d3.
+| BYTE %d2.b as two hexadecimal digits at (%a1)+. Clobbers %d2, %d3.
 .Loctet:
         move.b  %d2, %d3
         lsr.b   #4, %d3
@@ -485,7 +485,7 @@ _memoire_ecran:
         rts
 
 | ----------------------------------------------------------------------------------
-| LES DONNÉES.
+| THE DATA.
         .balign 2
 .Ltxt_titre:
         .ascii  "MEMORY EDITOR"

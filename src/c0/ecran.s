@@ -1,103 +1,103 @@
 | SPDX-License-Identifier: GPL-3.0-or-later
 | Copyright (C) 2026 Thibaut Lion
 | ==================================================================================
-| L'ÉCRAN DE BOOT « Sprixe BIOS » — environ trois secondes, sautable, une seule fois par boot.
+| THE "Sprixe BIOS" BOOT SCREEN — about three seconds, skippable, only once per boot.
 |
-| Appelé par `jsr` depuis `_demarrage` (`c0.s`), après la pose de BIOS_MESS_POINT et avant
-| la poignée de main du son. Ni SYSTEM_RETURN ni la pièce n'y passent : leur chemin
-| (`_retour_systeme`, `_retour_piece`) part plus bas, à la remise de la main.
+| Called by `jsr` from `_demarrage` (`c0.s`), after BIOS_MESS_POINT is set and before the
+| sound handshake. Neither SYSTEM_RETURN nor the coin goes through it: their path
+| (`_retour_systeme`, `_retour_piece`) branches off further down, at the hand-over.
 |
-| AUCUN ORACLE : SNK n'a jamais écrit cet écran. C'est une création (`docs/DECISIONS.md`
-| §5) ; la remise est « Couche 3 → l'écran de boot, le 2026-10-20 »
-| (`docs/RELECTURE-CONTRATS.md`). Le critère est la capture sous MAME.
+| NO ORACLE: SNK never wrote this screen. It is a creation (`docs/DECISIONS.md` §5); the
+| hand-over is "Couche 3 → l'écran de boot, le 2026-10-20"
+| (`docs/RELECTURE-CONTRATS.md`). The criterion is the capture under MAME.
 |
-| TROIS SORTES D'AFFIRMATIONS, et chacune le dit :
-|   « mesuré »  : un relevé de `measured/`, nommé ;
-|   « lu dans » : une page du NeoGeo Development Wiki, nommée ;
-|   « SUPPOSÉ » : ni l'un ni l'autre, et c'est dit.
+| THREE KINDS OF CLAIMS, and each one says so:
+|   "measured" : a record from `measured/`, named;
+|   "read in"  : a page of the NeoGeo Development Wiki, named;
+|   "ASSUMED"  : neither, and it is said.
 |
-| LA CHRONOLOGIE, en trames comptées par le compteur de ligne (une trame = un passage de la
-| ligne $1F0, comme la remise de `c0.s`), 180 en tout avec PAUSE = 126, ≈ 3,04 s à
-| 59,185 Hz :
-|   0       synchronisation, palettes posées, textes fixes et valeurs écrits en noir ;
-|   1-12    le titre se décode : ses lettres vont par paires, la paire p (0 à 5) tire des
-|           glyphes au hasard, puis se fige à la trame 2 + 2p, de gauche à droite ; l'espace
-|           du titre reste vide ;
-|   13      l'URL et la version s'allument ;
-|   13-20   un reflet blanc balaie le titre, une paire de lettres par trame ;
-|   21-45   cinq lignes d'état, une toutes les 5 trames : l'étiquette s'imprime, puis la
-|           valeur s'allume en vert en trois paliers (2, 3 et 4 trames après) ;
-|   46-171  tout reste affiché, PAUSE trames ; le rappel « PRESS A BUTTON TO SKIP »
-|           clignote en bas, 16 trames allumé, 16 éteint ;
-|   172-179 fondu : chaque couleur à 7/8, 6/8 … 0/8 de sa valeur, noire à la dernière
-|           trame ; le rappel s'y éteint depuis sa phase du moment (éteint avec PAUSE = 126).
-| Les bornes 46-171 et 172-179 suivent PAUSE (T_FONDU = 46 + PAUSE, T_FIN = T_FONDU + 7).
-| Un bouton pressé (A, B, C, D, START, SELECT hors MVS, P1 ou P2) saute à la sortie dès la
-| trame suivante.
+| THE TIMELINE, in frames counted by the line counter (one frame = one pass of line $1F0,
+| like the hand-over in `c0.s`), 180 in all with PAUSE = 126, ≈ 3.04 s at 59.185 Hz:
+|   0       synchronisation, palettes set, fixed texts and values written in black;
+|   1-12    the title decodes: its letters go in pairs, pair p (0 to 5) draws random
+|           glyphs, then freezes at frame 2 + 2p, from left to right; the title's space
+|           stays empty;
+|   13      the URL and the version light up;
+|   13-20   a white glint sweeps the title, one pair of letters per frame;
+|   21-45   five status lines, one every 5 frames: the label prints, then the value
+|           lights up in green in three steps (2, 3 and 4 frames later);
+|   46-171  everything stays displayed, PAUSE frames; the reminder "PRESS A BUTTON TO SKIP"
+|           blinks at the bottom, 16 frames on, 16 off;
+|   172-179 fade: each colour at 7/8, 6/8 … 0/8 of its value, black on the last frame;
+|           the reminder fades out from its phase of the moment (off with PAUSE = 126).
+| The bounds 46-171 and 172-179 follow PAUSE (T_FONDU = 46 + PAUSE, T_FIN = T_FONDU + 7).
+| A pressed button (A, B, C, D, START, SELECT except on MVS, P1 or P2) jumps to the exit
+| from the next frame.
 |
-| LE SEUL PLAN : LE PLAN FIXE. Lu dans « Fix layer » : carte à $7000, 40 × 32 mots rangés
-| de haut en bas puis de gauche à droite — l'adresse d'une case est $7000 + 32 × colonne +
-| ligne —, palette dans les 4 bits hauts, et seules les 16 premières palettes servent ;
-| 28 lignes affichées, deux cachées en haut, donc les lignes 2 à 29 sont visibles.
+| THE ONLY LAYER: THE FIX LAYER. Read in "Fix layer": map at $7000, 40 × 32 words stored
+| top to bottom then left to right — the address of a cell is $7000 + 32 × column +
+| row —, palette in the 4 high bits, and only the first 16 palettes are used; 28 rows
+| displayed, two hidden at the top, so rows 2 to 29 are visible.
 |
-| LES GLYPHES, mesuré (`measured/2026-10-20-sfix-glyphes.tsv`) : police 8×16 en deux cases
-| empilées, haut = tuile $100 + code ASCII, bas = tuile $200 + code ASCII. Mesurés au relevé :
-| les majuscules A B C D E F G H I K L M N O P R S T U W X, les chiffres 0 1 2 6, « / » et
-| l'espace. Le reste, que la remise laissait SUPPOSÉ à la même règle ASCII, est MESURÉ sur nos
-| captures sous MAME (mslug, -bios euro, SFIX de la carte de MAME, trame 50, le 2026-10-20 ;
-| non versionnées) : les minuscules de « ReBIOS », « sprixe.dev/rebios » et « v0.1 », le
-| point, les chiffres 3 à 9, J Q V Y Z, « : », « - », « ? » et « ! » s'y lisent tous à leur
-| place ASCII. Les minuscules autres que c, d, e, i, o, p, r, s, v, x n'ont pas été vues,
-| sauf le « b » de « sprixe.dev/bios », lu à sa place ASCII sur notre capture du 2026-10-28
-| (aof, -bios euro, trame 100 ; non versionnée).
-| Les glyphes tirés au hasard ne viennent que des caractères du relevé.
+| THE GLYPHS, measured (`measured/2026-10-20-sfix-glyphes.tsv`): 8×16 font in two stacked
+| cells, top = tile $100 + ASCII code, bottom = tile $200 + ASCII code. Measured in the record:
+| the capitals A B C D E F G H I K L M N O P R S T U W X, the digits 0 1 2 6, "/" and the
+| space. The rest, which the hand-over left ASSUMED to follow the same ASCII rule, is MEASURED
+| on our captures under MAME (mslug, -bios euro, MAME's board SFIX, frame 50, 2026-10-20;
+| not versioned): the lower-case letters of "ReBIOS", "sprixe.dev/rebios" and "v0.1", the
+| full stop, the digits 3 to 9, J Q V Y Z, ":", "-", "?" and "!" all read at their ASCII
+| place. Lower-case letters other than c, d, e, i, o, p, r, s, v, x have not been seen,
+| except the "b" of "sprixe.dev/bios", read at its ASCII place on our capture of 2026-10-28
+| (aof, -bios euro, frame 100; not versioned).
+| The randomly drawn glyphs come only from the characters of the record.
 |
-| LES COULEURS. Lu dans « Palettes » : RAM de palettes à $400000, 256 palettes de 16
-| entrées, l'entrée 0 transparente ; la couleur de référence ($400000) « always has to be
-| pure black ($8000) », le fond (backdrop) est la dernière couleur de la banque, $401FFE ;
-| la banque se choisit par REG_PALBANK0/1, adresses lues dans « Memory mapped registers »
-| ($3A000F / $3A001F, octet impair, donnée indifférente) ; écrire en affichage fait de la
-| neige, d'où toutes les écritures de palette juste après le passage de la ligne $1F0.
-| Lu dans « Colors » : bit 15 « Dark », bits 14-12 les bits bas de R, G, B, puis R, G, B sur
-| quatre bits chacun en $0RGB. On n'emploie que ce $0RGB ; le fondu en réduit chaque quartet.
-| LES INDEX DES GLYPHES, mesuré sur une capture d'essai (mêmes conditions que ci-dessus :
-| entrée 1 rouge, 2 verte, 3 à 15 bleues) : le trait des glyphes 8×16 est l'index 1, le fond
-| de leurs cases l'index 2, et aucun pixel bleu. Chaque palette porte donc sa couleur dans
-| l'entrée 1 et du noir dans les entrées 2 à 15 — le fond des cases se confond avec le fond
-| d'écran. FIX_CLEAR met ses tuiles $FF et $020 sous la palette 0, et la $020 est pleine de
-| l'index 2 (`measured/2026-10-21-sfix-tuiles-pleines.tsv`) : la palette 0 est donc posée à la
-| trame 0 avec les autres, entrées 1 à 15 noires, comme `plantage.s` — son contenu à la mise
-| sous tension n'est écrit nulle part. Elle est remise à zéro à la sortie, avec les autres.
-| Palettes employées, 1 à 14, et la palette 0 en noir :
-|   1-6  une par paire de lettres du titre ;   7  URL et version ;   8  les étiquettes ;
-|   9-13 une par valeur de ligne, pour qu'elles s'allument chacune à son tour ;
-|   14   le rappel, qui clignote seul.
-| Par paire et non par lettre : « SPRIXE BIOS » a onze caractères, et seules les 16
-| premières palettes servent au plan fixe, la 0 étant prise par FIX_CLEAR et la 15 par le
-| message du commutateur 8.
-| La banque 0 est choisie : SUPPOSÉ, rien ne dit laquelle est en place à la mise sous
-| tension ; le jeu choisit la sienne.
+| THE COLOURS. Read in "Palettes": palette RAM at $400000, 256 palettes of 16 entries,
+| entry 0 transparent; the reference colour ($400000) "always has to be pure black
+| ($8000)", the background (backdrop) is the last colour of the bank, $401FFE; the bank
+| is chosen by REG_PALBANK0/1, addresses read in "Memory mapped registers" ($3A000F /
+| $3A001F, odd byte, any data); writing during display makes snow, hence all palette
+| writes just after the pass of line $1F0.
+| Read in "Colors": bit 15 "Dark", bits 14-12 the low bits of R, G, B, then R, G, B on
+| four bits each in $0RGB. Only this $0RGB is used; the fade reduces each nibble of it.
+| THE GLYPH INDEXES, measured on a test capture (same conditions as above: entry 1 red,
+| 2 green, 3 to 15 blue): the stroke of the 8×16 glyphs is index 1, the background of
+| their cells index 2, and no blue pixel. Each palette therefore carries its colour in
+| entry 1 and black in entries 2 to 15 — the cells' background merges with the screen
+| background. FIX_CLEAR puts its tiles $FF and $020 under palette 0, and $020 is full of
+| index 2 (`measured/2026-10-21-sfix-tuiles-pleines.tsv`): palette 0 is therefore set at
+| frame 0 with the others, entries 1 to 15 black, like `plantage.s` — its content at
+| power-on is written nowhere. It is reset to zero at the exit, with the others.
+| Palettes used, 1 to 14, and palette 0 in black:
+|   1-6  one per pair of title letters;   7  URL and version;   8  the labels;
+|   9-13 one per line value, so that each lights up in turn;
+|   14   the reminder, which blinks on its own.
+| Per pair and not per letter: "SPRIXE BIOS" has eleven characters, and only the first
+| 16 palettes serve the fix layer, 0 being taken by FIX_CLEAR and 15 by the board
+| switch 8 message.
+| Bank 0 is chosen: ASSUMED, nothing says which one is in place at power-on; the game
+| chooses its own.
 |
-| LE RYTHME DES ÉCRITURES VRAM, lu dans « VRAM » (cf. `video.s`) : 12 cycles au moins entre
-| deux données, 16 entre une donnée et l'adresse suivante. `.Lglyphe` tient 12 cycles entre
-| ses deux données (`addi.w` 8 + `nop` 4) et rend la main par `subi.w` (8) et `rts` (16)
-| avant toute adresse suivante.
+| THE PACE OF VRAM WRITES, read in "VRAM" (cf. `video.s`): at least 12 cycles between two
+| data, 16 between a datum and the next address. `.Lglyphe` holds 12 cycles between its
+| two data (`addi.w` 8 + `nop` 4) and returns through `subi.w` (8) and `rts` (16) before
+| any next address.
 |
-| L'ÉTAT RENDU AU JEU : plan fixe effacé par FIX_CLEAR (REG_VRAMMOD à 1), palettes 0 à 14
-| (entrées 1-15) et le fond remis à zéro, la référence laissée à $8000 (« Palettes » : « always
-| has to be pure black ($8000) »), registres rendus intacts. Restent
-| changés, par la demande de la remise : les sprites masqués par LSP_1st, la banque de
-| palettes 0, et $10FDD2-$10FDD8 que READ_CALENDAR a remplis — le jeu les relit à son appel.
-| Le code de boot qui suit (`c0.s`) ne suppose aucun registre hors %sp : il pose tous ceux
-| qu'il lit, et %d0 n'y sert que de donnée « any value ». On sauve quand même tout.
+| THE STATE HANDED TO THE GAME: fix layer cleared by FIX_CLEAR (REG_VRAMMOD at 1),
+| palettes 0 to 14 (entries 1-15) and the background reset to zero, the reference left at
+| $8000 ("Palettes": "always has to be pure black ($8000)"), registers returned intact.
+| Still changed, by the hand-over's request: the sprites hidden by LSP_1st, palette
+| bank 0, and $10FDD2-$10FDD8 which READ_CALENDAR filled — the game reads them again on
+| its call.
+| The boot code that follows (`c0.s`) assumes no register except %sp: it sets all those
+| it reads, and %d0 serves there only as "any value" data. Everything is saved anyway.
 |
-| LES IRQ RESTENT MASQUÉES (SR = $2700, posé par `_demarrage`). Le watchdog reçoit un coup
-| de pied à chaque tour des attentes de ligne, donc plusieurs fois par trame.
+| IRQs STAY MASKED (SR = $2700, set by `_demarrage`). The watchdog gets kicked on every
+| turn of the line waits, so several times per frame.
 | ==================================================================================
 
         .section .haut, "ax"
         .global _ecran_boot
-        .global _txt_version            | la version, reprise par l'écran ABOUT (`about.s`)
+        .global _txt_version            | the version, reused by the ABOUT screen (`about.s`)
 
         .equ    VRAMADDR, 0x3C0000
         .equ    VRAMRW,   0x3C0002
@@ -109,61 +109,61 @@
         .equ    PALETTES, 0x400000
         .equ    FOND,     0x401FFE
 
-        | Une case du plan fixe, colonne c, ligne l (« Fix layer »). Lignes 2-3 en marge ; titre,
-        | URL et version centrés sur la colonne 19.
-        .equ    CASE_TITRE,   0x7000 + 14 * 32 + 4     | « SPRIXE BIOS », 11 caractères, colonnes 14-24
-        .equ    CASE_URL,     0x7000 + 12 * 32 + 8     | 15 caractères, colonnes 12-26
-        .equ    CASE_VERSION, 0x7000 + 15 * 32 + 10    | « v0.1 BETA », 9 caractères, colonnes 15-23
-        .equ    CASE_LIGNES,  0x7000 +  7 * 32 + 15    | étiquettes, colonnes 7-20, lignes 15-24
-        .equ    CASE_VALEURS, 0x7000 + 22 * 32 + 15    | valeurs, depuis la colonne 22
-        .equ    CASE_RAPPEL,  0x7000 +  9 * 32 + 27    | 22 caractères, colonnes 9-30, lignes 27-28
-        .equ    CASE_GEL1,    0x7000 + 11 * 32 + 11    | « DIP SWITCH 8 IS ON », colonnes 11-28, lignes 11-12
-        .equ    CASE_GEL2,    0x7000 +  9 * 32 + 15    | 22 caractères, colonnes 9-30, lignes 15-16
+        | A cell of the fix layer, column c, row l ("Fix layer"). Rows 2-3 in the margin;
+        | title, URL and version centred on column 19.
+        .equ    CASE_TITRE,   0x7000 + 14 * 32 + 4     | "SPRIXE BIOS", 11 characters, columns 14-24
+        .equ    CASE_URL,     0x7000 + 12 * 32 + 8     | 15 characters, columns 12-26
+        .equ    CASE_VERSION, 0x7000 + 15 * 32 + 10    | "v0.1 BETA", 9 characters, columns 15-23
+        .equ    CASE_LIGNES,  0x7000 +  7 * 32 + 15    | labels, columns 7-20, rows 15-24
+        .equ    CASE_VALEURS, 0x7000 + 22 * 32 + 15    | values, from column 22
+        .equ    CASE_RAPPEL,  0x7000 +  9 * 32 + 27    | 22 characters, columns 9-30, rows 27-28
+        .equ    CASE_GEL1,    0x7000 + 11 * 32 + 11    | "DIP SWITCH 8 IS ON", columns 11-28, rows 11-12
+        .equ    CASE_GEL2,    0x7000 +  9 * 32 + 15    | 22 characters, columns 9-30, rows 15-16
 
-        | Les couleurs, en $0RGB (« Colors »). Choix d'aspect, sans autre raison.
-        .equ    C_TITRE,  0x04BF        | bleu ciel, le titre figé
-        .equ    C_TIRAGE, 0x0346        | bleu sombre, une lettre qui se cherche
-        .equ    C_MI,     0x09DF        | bord du reflet
-        .equ    C_BLANC,  0x0FFF        | cœur du reflet
-        .equ    C_DOUX,   0x0777        | URL et version
-        .equ    C_ETIQ,   0x0BBB        | étiquettes
-        .equ    C_VERT,   0x02F4        | valeurs
-        .equ    C_RAPPEL, 0x0999        | le rappel, allumé
+        | The colours, in $0RGB ("Colors"). A choice of look, for no other reason.
+        .equ    C_TITRE,  0x04BF        | sky blue, the frozen title
+        .equ    C_TIRAGE, 0x0346        | dark blue, a letter still searching
+        .equ    C_MI,     0x09DF        | edge of the glint
+        .equ    C_BLANC,  0x0FFF        | core of the glint
+        .equ    C_DOUX,   0x0777        | URL and version
+        .equ    C_ETIQ,   0x0BBB        | labels
+        .equ    C_VERT,   0x02F4        | values
+        .equ    C_RAPPEL, 0x0999        | the reminder, lit
 
-        | LA PAUSE, en trames : tout reste affiché, le rappel clignote. Le seul réglage de durée ;
-        | décodage, lignes et fondu gardent la leur.
+        | THE PAUSE, in frames: everything stays displayed, the reminder blinks. The only
+        | duration setting; decoding, lines and fade keep their own.
         .equ    PAUSE,    126
-        .equ    T_PAUSE,  46            | première trame de pause, les lignes finies
+        .equ    T_PAUSE,  46            | first pause frame, the lines finished
         .equ    T_FONDU,  T_PAUSE + PAUSE
-        .equ    T_FIN,    T_FONDU + 7   | dernière trame ; la trame 0 est la synchronisation
-        .equ    N_PAL,    14            | palettes employées, 1 à N_PAL
-        .equ    N_TITRE,  11            | caractères du titre, deux par palette 1 à 6
+        .equ    T_FIN,    T_FONDU + 7   | last frame; frame 0 is the synchronisation
+        .equ    N_PAL,    14            | palettes used, 1 to N_PAL
+        .equ    N_TITRE,  11            | title characters, two per palette 1 to 6
 
 _ecran_boot:
         movem.l %d0-%d7/%a0-%a6, -(%sp)
-        movea.l %sp, %a6                | la pile de l'entrée, pour sauter à la sortie
+        movea.l %sp, %a6                | the entry stack, to jump to the exit
         move.b  %d0, WATCHDOG
-        | LE COMMUTATEUR 3 lu ici, à l'ouverture, et pas après : P1 dans cet écran et ceux qu'il ouvre
-        | (`panneau.s`, DECISIONS §30).
+        | BOARD SWITCH 3 read here, at the opening, and not later: P1 in this screen and those
+        | it opens (`panneau.s`, DECISIONS §30).
         jsr     _panneau_verrou
 
-        | UN ÉCRAN PROPRE : la VRAM est quelconque à la mise sous tension. LSP_1st masque
-        | les sprites, FIX_CLEAR remplit le plan fixe et laisse REG_VRAMMOD à 1 (`video.s`).
+        | A CLEAN SCREEN: VRAM is arbitrary at power-on. LSP_1st hides the sprites,
+        | FIX_CLEAR fills the fix layer and leaves REG_VRAMMOD at 1 (`video.s`).
         jsr     _lsp_1st
         jsr     _fix_clear
-        | L'heure, une fois : READ_CALENDAR range la date en BCD à $10FDD2-$10FDD8 (`cal.s`).
+        | The time, once: READ_CALENDAR stores the date in BCD at $10FDD2-$10FDD8 (`cal.s`).
         jsr     _read_calendar
 
         lea     VRAMRW, %a0
         lea     VRAMADDR, %a1
 
-        | TRAME 0. Palettes après le passage de la ligne $1F0 : tout ce qu'on écrit ensuite
-        | est noir, sauf les lettres du titre, sombres.
+        | FRAME 0. Palettes after the pass of line $1F0: everything written afterwards is
+        | black, except the title letters, dark.
         bsr     .Lsync
         move.b  %d0, PALBANK0
-        move.w  #0x8000, PALETTES       | référence : « pure black ($8000) », « Palettes »
-        move.w  #0x8000, FOND           | le fond en noir
-        moveq   #0, %d5                 | la palette 0, sous FIX_CLEAR : entrées 1-15 noires
+        move.w  #0x8000, PALETTES       | reference: "pure black ($8000)", "Palettes"
+        move.w  #0x8000, FOND           | the background in black
+        moveq   #0, %d5                 | palette 0, under FIX_CLEAR: entries 1-15 black
         moveq   #0, %d6
         bsr     .Lpalette
         moveq   #1, %d4
@@ -177,11 +177,12 @@ _ecran_boot:
         cmpi.w  #N_PAL, %d4
         bls.s   1b
 
-        | LE COMMUTATEUR 8, « FREEZE », À ON AU BOOT. Le BIOS SNK et UniBIOS 4.0 s'arrêtent
-        | écran noir juste après leur test mémoire et repartent quand il revient à OFF (mesuré,
-        | `measured/2026-10-27-dip-2-8.tsv`, section 3). ÉCART VOULU (DECISIONS §21) : le même
-        | arrêt, mais deux lignes le disent, au lieu d'un écran noir qu'on prendrait pour une panne.
-        tst.b   0x300001                | REG_DIPSW, bit 7 actif bas : le signe
+        | BOARD SWITCH 8, "FREEZE", ON AT BOOT. The SNK BIOS and UniBIOS 4.0 stop on a black
+        | screen just after their memory test and resume when it goes back to OFF (measured,
+        | `measured/2026-10-27-dip-2-8.tsv`, section 3). DELIBERATE DEPARTURE (DECISIONS §21):
+        | the same stop, but two lines say so, instead of a black screen one would take for
+        | a fault.
+        tst.b   0x300001                | REG_DIPSW, bit 7 active low: the sign
         bmi.s   .Lsans_gel
         moveq   #15, %d5
         move.w  #C_BLANC, %d6
@@ -193,7 +194,7 @@ _ecran_boot:
         move.w  #CASE_GEL2, %d1
         lea     .Lgel2, %a2
         bsr     .Ltexte
-1:      bsr     .Lsync                  | watchdog servi à chaque tour
+1:      bsr     .Lsync                  | watchdog served on every turn
         tst.b   0x300001
         bpl.s   1b
         moveq   #15, %d5
@@ -204,7 +205,7 @@ _ecran_boot:
         lea     VRAMADDR, %a1
 .Lsans_gel:
 
-        | Les textes fixes, sous des palettes encore noires.
+        | The fixed texts, under palettes still black.
         move.w  #0x7000, %d3
         move.w  #CASE_URL, %d1
         lea     .Lurl, %a2
@@ -217,12 +218,12 @@ _ecran_boot:
         lea     .Lrappel, %a2
         bsr     .Ltexte
 
-        | LES VALEURS, lues une fois et écrites tout de suite, chacune sous sa palette.
+        | THE VALUES, read once and written straight away, each under its palette.
         |
-        | SYSTÈME, palette 9 : LE MODE, BIOS_MVS_FLAG ($10FD82 ; « BIOS RAM locations », 0 AES,
-        | $80 MVS), que `c0.s` pose avant cet écran — le descripteur, ou le mode choisi à
-        | l'éditeur (`reglages.s`). Il n'affiche donc plus le descripteur : un MVS en mode AES
-        | dit AES, ce que voient les jeux (DECISIONS §11).
+        | SYSTEM, palette 9: THE MODE, BIOS_MVS_FLAG ($10FD82; "BIOS RAM locations", 0 AES,
+        | $80 MVS), which `c0.s` sets before this screen — the descriptor, or the mode chosen
+        | in the editor (`reglages.s`). So it no longer displays the descriptor: an MVS in AES
+        | mode says AES, which is what the games see (DECISIONS §11).
         move.w  #0x9000, %d3
         move.w  #CASE_VALEURS, %d1
         lea     .Lmvs, %a2
@@ -231,10 +232,10 @@ _ecran_boot:
         lea     .Laes, %a2
 1:      bsr     .Ltexte
 
-        | RÉGION, palette 10. Lu dans « System ROM » : 0 Japon, 1 US, 2 Europe. Hors de 0-2,
-        | « UNKNOWN » — SUPPOSÉ, aucune page ne nomme d'autre valeur. Lue dans
-        | BIOS_COUNTRY_CODE, que `c0.s` pose avant cet écran : le descripteur, ou la région
-        | choisie à l'éditeur (`reglages.s`).
+        | REGION, palette 10. Read in "System ROM": 0 Japan, 1 US, 2 Europe. Outside 0-2,
+        | "UNKNOWN" — ASSUMED, no page names any other value. Read in BIOS_COUNTRY_CODE,
+        | which `c0.s` sets before this screen: the descriptor, or the region chosen in the
+        | editor (`reglages.s`).
         move.w  #0xA000, %d3
         move.w  #CASE_VALEURS + 2, %d1
         moveq   #0, %d0
@@ -247,23 +248,23 @@ _ecran_boot:
         movea.l (%a2,%d0.w), %a2
         bsr     .Ltexte
 
-        | L'HORLOGE, palette 11, « MM/DD/YY DDD ». Mesuré (`2026-10-19-read-calendar.tsv`,
-        | point 3) : $10FDD3 mois, $10FDD4 jour, $10FDD2 année, en BCD — deux quartets, donc
-        | deux chiffres —, $10FDD5 jour de semaine, dimanche = 0 (lu dans « READ CALENDAR »,
-        | cité au même relevé). Un jour de semaine hors de 0-6 n'affiche rien : SUPPOSÉ.
+        | THE CLOCK, palette 11, "MM/DD/YY DDD". Measured (`2026-10-19-read-calendar.tsv`,
+        | point 3): $10FDD3 month, $10FDD4 day, $10FDD2 year, in BCD — two nibbles, so two
+        | digits —, $10FDD5 day of week, Sunday = 0 (read in "READ CALENDAR", quoted in the
+        | same record). A day of week outside 0-6 displays nothing: ASSUMED.
         move.w  #0xB000, %d3
         move.w  #CASE_VALEURS + 4, %d1
         move.b  0x10FDD3, %d4
         bsr     .Lhex2
-        moveq   #0x2F, %d2           | « / »
+        moveq   #0x2F, %d2           | "/"
         bsr     .Lcar
         move.b  0x10FDD4, %d4
         bsr     .Lhex2
-        moveq   #0x2F, %d2           | « / »
+        moveq   #0x2F, %d2           | "/"
         bsr     .Lcar
         move.b  0x10FDD2, %d4
         bsr     .Lhex2
-        addi.w  #32, %d1                | une case de fond entre l'année et le jour
+        addi.w  #32, %d1                | one background cell between the year and the day
         moveq   #0, %d0
         move.b  0x10FDD5, %d0
         cmpi.b  #6, %d0
@@ -274,10 +275,10 @@ _ecran_boot:
         bsr     .Ltexte
 1:
 
-        | LA CARTE MÉMOIRE, palette 12. Lu dans « Memory mapped registers » : REG_STATUS_B,
-        | bits 5-4 à 00 quand la carte est « correctly inserted ». Mesuré
-        | (`2026-10-19-card-avec-carte.tsv`) : l'octet haut de $380000 vaut $FF sans carte,
-        | $8F avec — bits 5-4 à 11 puis 00.
+        | THE MEMORY CARD, palette 12. Read in "Memory mapped registers": REG_STATUS_B,
+        | bits 5-4 at 00 when the card is "correctly inserted". Measured
+        | (`2026-10-19-card-avec-carte.tsv`): the high byte of $380000 is $FF without a card,
+        | $8F with one — bits 5-4 at 11 then 00.
         move.w  #0xC000, %d3
         move.w  #CASE_VALEURS + 6, %d1
         lea     .Lsans_carte, %a2
@@ -287,58 +288,58 @@ _ecran_boot:
         lea     .Lavec_carte, %a2
 1:      bsr     .Ltexte
 
-        | LE JEU, palette 13. Lu dans « 68k program header » : le NGH est le mot de $108,
-        | « NGH number in BCD ». Quatre chiffres hexadécimaux : un NGH conforme n'en montre que
-        | de décimaux. PRIS DANS LA TABLE DES SLOTS ($D00124, l'entrée du slot servi $D00108),
-        | que la détection de `c0.s` vient d'écrire sous REG_CRTFIX — PAS RELU À $108 : cet
-        | écran tourne sous REG_BRDFIX, la police de la carte, et sur le matériel la cartouche
-        | n'y répond pas (SLOTCS, voir la détection). L'image n°8 le relisait : E05C sur une
-        | vraie MV-2F, le mot qui suivait cette lecture. Slot servi vide : 0000.
+        | THE GAME, palette 13. Read in "68k program header": the NGH is the word at $108,
+        | "NGH number in BCD". Four hexadecimal digits: a conforming NGH shows only decimal
+        | ones. TAKEN FROM THE SLOT TABLE ($D00124, the entry of the served slot $D00108),
+        | which the detection in `c0.s` has just written under REG_CRTFIX — NOT READ AGAIN AT
+        | $108: this screen runs under REG_BRDFIX, the board's font, and on the hardware the
+        | cartridge does not answer there (SLOTCS, see the detection). Image no. 8 read it
+        | again: E05C on a real MV-2F, the word that followed that read. Served slot empty: 0000.
         move.w  #0xD000, %d3
         move.w  #CASE_VALEURS + 8, %d1
         moveq   #0, %d4
-        move.b  0xD00108, %d4           | le slot servi
+        move.b  0xD00108, %d4           | the served slot
         lsl.w   #2, %d4
         lea     0xD00124, %a2
-        move.w  (%a2,%d4.w), %d4        | son NGH
+        move.w  (%a2,%d4.w), %d4        | its NGH
         ror.w   #8, %d4
         bsr     .Lhex2
         ror.w   #8, %d4
         bsr     .Lhex2
 
         | ------------------------------------------------------------------------------
-        | LES TRAMES 1 À T_FIN. %d7 : la trame. %a0, %a1, %a6 et %d7 ne changent pas.
+        | FRAMES 1 TO T_FIN. %d7: the frame. %a0, %a1, %a6 and %d7 do not change.
         moveq   #1, %d7
 .Lboucle:
         bsr     .Ltrame
 
-        | LE TITRE QUI SE DÉCODE, trames 1 à 12.
+        | THE TITLE DECODING, frames 1 to 12.
         cmpi.w  #12, %d7
         bhi.s   .Lapres_decode
-        moveq   #0, %d4                 | %d4 : la lettre, 0 à N_TITRE - 1
+        moveq   #0, %d4                 | %d4: the letter, 0 to N_TITRE - 1
         move.w  #CASE_TITRE, %d1
 .Ldecode:
         lea     .Ltitre, %a2
         moveq   #0, %d2
-        move.b  (%a2,%d4.w), %d2        | la lettre figée
-        cmpi.b  #0x20, %d2              | l'espace ne se décode pas
+        move.b  (%a2,%d4.w), %d2        | the frozen letter
+        cmpi.b  #0x20, %d2              | the space does not decode
         beq.s   .Ldecode_poser
         move.w  %d4, %d5
-        lsr.w   #1, %d5                 | sa paire, 0 à 5
+        lsr.w   #1, %d5                 | its pair, 0 to 5
         add.w   %d5, %d5
-        addq.w  #2, %d5                 | sa trame de fixation : 2 + 2 × paire
+        addq.w  #2, %d5                 | its freezing frame: 2 + 2 × pair
         cmp.w   %d5, %d7
         bcs.s   .Ldecode_hasard
         bne.s   .Ldecode_poser
-        move.w  %d4, %d5                | figée à cette trame : sa couleur de titre
+        move.w  %d4, %d5                | frozen at this frame: its title colour
         lsr.w   #1, %d5
         addq.w  #1, %d5
         move.w  #C_TITRE, %d6
-        bsr     .Lpalette               | %d2 rendu intact
+        bsr     .Lpalette               | %d2 returned intact
         bra.s   .Ldecode_poser
 .Ldecode_hasard:
-        | Tirage : _table_alea (`alea.s`, une permutation de 0-255) à l'index N_TITRE × trame
-        | + lettre, ses 5 bits bas choisissant parmi 32 caractères mesurés.
+        | Draw: _table_alea (`alea.s`, a permutation of 0-255) at index N_TITRE × frame
+        | + letter, its 5 low bits choosing among 32 measured characters.
         move.w  %d7, %d2
         mulu    #N_TITRE, %d2
         add.w   %d4, %d2
@@ -352,7 +353,7 @@ _ecran_boot:
         move.w  %d4, %d0
         lsr.w   #1, %d0
         addq.w  #1, %d0
-        ror.w   #4, %d0                 | palette 1 + paire dans les 4 bits hauts
+        ror.w   #4, %d0                 | palette 1 + pair in the 4 high bits
         or.w    %d0, %d2
         bsr     .Lglyphe
         addi.w  #32, %d1
@@ -361,7 +362,7 @@ _ecran_boot:
         bcs.s   .Ldecode
 .Lapres_decode:
 
-        | L'URL ET LA VERSION, trame 13.
+        | THE URL AND THE VERSION, frame 13.
         cmpi.w  #13, %d7
         bne.s   1f
         moveq   #7, %d5
@@ -369,8 +370,8 @@ _ecran_boot:
         bsr     .Lpalette
 1:
 
-        | LE REFLET, trames 13 à 20 : la paire h = trame - 13 en blanc, ses voisines en
-        | demi-teinte, les autres en couleur de titre. h = 6 et 7 finissent de sortir.
+        | THE GLINT, frames 13 to 20: pair h = frame - 13 in white, its neighbours in
+        | half-tone, the others in title colour. h = 6 and 7 finish leaving.
         cmpi.w  #13, %d7
         bcs.s   .Lapres_reflet
         cmpi.w  #20, %d7
@@ -397,8 +398,8 @@ _ecran_boot:
         bcs.s   1b
 .Lapres_reflet:
 
-        | LES LIGNES, trames 21 à 45 : ligne k = (trame - 21) / 5, phase = son reste.
-        | Phase 0 : l'étiquette s'imprime ; phases 2, 3, 4 : la valeur s'allume.
+        | THE LINES, frames 21 to 45: line k = (frame - 21) / 5, phase = its remainder.
+        | Phase 0: the label prints; phases 2, 3, 4: the value lights up.
         move.w  %d7, %d3
         subi.w  #21, %d3
         bcs.s   .Lapres_lignes
@@ -412,7 +413,7 @@ _ecran_boot:
         bra.s   2b
 3:      tst.w   %d3
         bne.s   5f
-        tst.w   %d4                     | la première ligne allume les étiquettes
+        tst.w   %d4                     | the first line lights the labels
         bne.s   4f
         moveq   #8, %d5
         move.w  #C_ETIQ, %d6
@@ -430,7 +431,7 @@ _ecran_boot:
 5:      cmpi.w  #2, %d3
         bcs.s   .Lapres_lignes
         lea     .Lrampe - 2, %a2
-        move.b  (%a2,%d3.w), %d3        | 3, 6 puis 8 huitièmes
+        move.b  (%a2,%d3.w), %d3        | 3, 6 then 8 eighths
         move.w  #C_VERT, %d6
         bsr     .Lattenuer
         move.w  %d4, %d5
@@ -438,8 +439,8 @@ _ecran_boot:
         bsr     .Lpalette
 .Lapres_lignes:
 
-        | LE RAPPEL QUI CLIGNOTE, de T_PAUSE à T_FONDU - 1 : allumé quand le bit 4 de
-        | (trame - T_PAUSE) est nul, soit 16 trames allumé, 16 éteint.
+        | THE BLINKING REMINDER, from T_PAUSE to T_FONDU - 1: lit when bit 4 of
+        | (frame - T_PAUSE) is zero, i.e. 16 frames on, 16 off.
         cmpi.w  #T_PAUSE, %d7
         bcs.s   1f
         cmpi.w  #T_FONDU, %d7
@@ -454,8 +455,8 @@ _ecran_boot:
         bsr     .Lpalette
 1:
 
-        | LE FONDU, trames T_FONDU à T_FIN : chaque palette à (T_FIN - trame)/8 de sa
-        | couleur finale. Le rappel y part de la phase où le clignotement l'a laissé.
+        | THE FADE, frames T_FONDU to T_FIN: each palette at (T_FIN - frame)/8 of its
+        | final colour. The reminder starts from the phase where the blinking left it.
         cmpi.w  #T_FONDU, %d7
         bcs.s   .Lapres_fondu
         moveq   #1, %d4
@@ -478,35 +479,35 @@ _ecran_boot:
         bls     .Lboucle
 
 | ----------------------------------------------------------------------------------
-| LA SORTIE, commune à la fin et au saut. Les palettes d'abord, juste après le passage de
-| la ligne $1F0, pour que leur remise à zéro tombe dans le blanking et ne fasse pas de
-| neige ; FIX_CLEAR ensuite, ses 1 280 écritures VRAM n'ayant pas à tenir dans le blanking.
+| THE EXIT, shared by the end and the skip. The palettes first, just after the pass of
+| line $1F0, so that their reset to zero falls in the blanking and makes no snow;
+| FIX_CLEAR afterwards, its 1,280 VRAM writes not needing to fit in the blanking.
 .Lsortie:
         movea.l %a6, %sp
         bsr     .Lsync
-        moveq   #0, %d4                 | palette 0 comprise, posée à la trame 0
+        moveq   #0, %d4                 | palette 0 included, set at frame 0
 1:      move.w  %d4, %d5
         moveq   #0, %d6
         bsr     .Lpalette
         addq.w  #1, %d4
         cmpi.w  #N_PAL, %d4
         bls.s   1b
-        | La référence n'est pas remise à zéro : elle reste au $8000 du tour 0.
+        | The reference is not reset to zero: it stays at the $8000 of turn 0.
         clr.w   FOND
-        jsr     _fix_clear              | REG_VRAMMOD laissé à 1
+        jsr     _fix_clear              | REG_VRAMMOD left at 1
         move.b  %d0, WATCHDOG
         movem.l (%sp)+, %d0-%d7/%a0-%a6
         rts
 
 | ----------------------------------------------------------------------------------
-| UNE TRAME, puis les boutons. Lu dans « Memory mapped registers » : REG_P1CNT ($300000)
-| et REG_P2CNT ($340000), bits 7-4 D, C, B, A, actifs à l'état bas ; REG_STATUS_B
-| ($380000), bits 3-0 SELECT P2, START P2, SELECT P1, START P1, actifs à l'état bas. Les
-| directions (bits 3-0 des manettes) et les pièces (REG_STATUS_A) ne sont pas lues : une
-| pièce n'est donc pas consommée ici.
+| ONE FRAME, then the buttons. Read in "Memory mapped registers": REG_P1CNT ($300000)
+| and REG_P2CNT ($340000), bits 7-4 D, C, B, A, active low; REG_STATUS_B ($380000),
+| bits 3-0 SELECT P2, START P2, SELECT P1, START P1, active low. The directions (bits 3-0
+| of the joysticks) and the coins (REG_STATUS_A) are not read: a coin is therefore not
+| consumed here.
 .Ltrame:
         bsr.s   .Lsync
-        jsr     _panneau_p1             | %d0 : P1, manette ou panneau traduit (`panneau.s`)
+        jsr     _panneau_p1             | %d0: P1, joystick or translated panel (`panneau.s`)
         andi.b  #0xF0, %d0
         cmpi.b  #0xF0, %d0
         bne.s   .Lsortie
@@ -514,33 +515,33 @@ _ecran_boot:
         andi.b  #0xF0, %d0
         cmpi.b  #0xF0, %d0
         bne.s   .Lsortie
-        | SELECT SUR MVS NE COMPTE PAS. Lu dans « BIOS RAM locations » : « On MVS the select
-        | bits are always read as 0 ». SUPPOSÉ : que le registre brut ne porte pas non plus de
-        | SELECT fiable sur MVS ; au repos à l'état actif, il sauterait l'écran dès la trame 1.
-        | On ne garde alors que les deux START (bits 0 et 2). C'est une question de MACHINE,
-        | pas de mode : REG_STATUS_B bit 7, « 0:AES 1:MVS » (« Memory mapped registers ») ; un
-        | MVS en mode AES reste un MVS (DECISIONS §11).
+        | SELECT ON MVS DOES NOT COUNT. Read in "BIOS RAM locations": "On MVS the select
+        | bits are always read as 0". ASSUMED: that the raw register does not carry a
+        | reliable SELECT on MVS either; resting in the active state, it would skip the screen
+        | from frame 1. Only the two STARTs (bits 0 and 2) are then kept. It is a question of
+        | MACHINE, not of mode: REG_STATUS_B bit 7, "0:AES 1:MVS" ("Memory mapped registers");
+        | an MVS in AES mode stays an MVS (DECISIONS §11).
         move.b  STATUS_B, %d0
         not.b   %d0
         andi.b  #0x0F, %d0
-        tst.b   STATUS_B                | la machine : bit 7, le signe — `tst` plutôt que
-        bpl.s   1f                      | `btst`, les cycles du `tst.b 0x10FD82` d'avant
+        tst.b   STATUS_B                | the machine: bit 7, the sign — `tst` rather than
+        bpl.s   1f                      | `btst`, the cycles of the earlier `tst.b 0x10FD82`
         andi.b  #0x05, %d0
 1:      tst.b   %d0
         bne.s   .Lsortie
         rts
 
-| LE PASSAGE DE LA LIGNE $1F0. Mesuré (`2026-10-17-diagnostic-b2b-minasan.tsv`, cité par
-| `c0.s`) : REG_LSPCMODE se relit en compteur de ligne dans ses bits 15-7. On attend d'en
-| sortir, puis d'y entrer : un seul retour par trame, même si l'appelant a été bref.
-| BORNÉE : chaque attente rend la main après SYNC_TOURS tours, ligne vue ou non, pour qu'un
-| compteur de ligne qui ne passerait jamais par $1F0 sur une carte ne fige pas le BIOS. Un
-| tour fait 70 cycles sans état d'attente (`move.b` Dn vers abs.l 16, `move.w` abs.l 16,
-| `lsr.w #7` 20, `cmpi.w` 8, `dbcc` pris 10) : 5 800 tours ≈ 406 000 cycles ≈ 2,0 trames à
-| 12 MHz (202 750 cycles par trame à 59,185 Hz). Un état d'attente sur les registres ne
-| ferait qu'allonger la borne. Sous MAME la ligne est vue à chaque trame : la borne ne
-| sert pas. Le watchdog reçoit un coup de pied à chaque tour. Copie identique dans
-| `dip.s`, `tests.s`, `menu.s`, `plantage.s`, `jukebox.s`. Clobbers %d0.
+| THE PASS OF LINE $1F0. Measured (`2026-10-17-diagnostic-b2b-minasan.tsv`, quoted by
+| `c0.s`): REG_LSPCMODE reads back as a line counter in its bits 15-7. We wait to leave
+| it, then to enter it: a single return per frame, even if the caller was brief.
+| BOUNDED: each wait returns after SYNC_TOURS turns, line seen or not, so that a line
+| counter that never went through $1F0 on a board does not freeze the BIOS. A turn takes
+| 70 cycles without wait state (`move.b` Dn to abs.l 16, `move.w` abs.l 16, `lsr.w #7` 20,
+| `cmpi.w` 8, `dbcc` taken 10): 5,800 turns ≈ 406,000 cycles ≈ 2.0 frames at 12 MHz
+| (202,750 cycles per frame at 59.185 Hz). A wait state on the registers would only
+| lengthen the bound. Under MAME the line is seen on every frame: the bound is not
+| used. The watchdog gets kicked on every turn. Identical copy in `dip.s`, `tests.s`,
+| `menu.s`, `plantage.s`, `jukebox.s`. Clobbers %d0.
         .equ    SYNC_TOURS, 5800
 .Lsync:
         move.l  %d1, -(%sp)
@@ -560,26 +561,26 @@ _ecran_boot:
         rts
 
 | ----------------------------------------------------------------------------------
-| UN GLYPHE 8×16. %d1 : la case du haut ; %d2 : palette << 12 | code ASCII, rendu intact.
-| REG_VRAMMOD à 1 : la case du bas est la suivante (« Fix layer », de haut en bas).
+| ONE 8×16 GLYPH. %d1: the top cell; %d2: palette << 12 | ASCII code, returned intact.
+| REG_VRAMMOD at 1: the bottom cell is the next one ("Fix layer", top to bottom).
 .Lglyphe:
         move.w  %d1, (%a1)              | REG_VRAMADDR
         addi.w  #0x100, %d2
-        move.w  %d2, (%a0)              | haut : $100 + ASCII
+        move.w  %d2, (%a0)              | top: $100 + ASCII
         addi.w  #0x100, %d2             | 8 cycles
-        nop                             | 4 : 12 entre les deux données
-        move.w  %d2, (%a0)              | bas : $200 + ASCII
+        nop                             | 4: 12 between the two data
+        move.w  %d2, (%a0)              | bottom: $200 + ASCII
         subi.w  #0x200, %d2
         rts
 
-| UN CARACTÈRE. %d2 : code ASCII ; %d3 : palette << 12 ; %d1 avance d'une colonne.
+| ONE CHARACTER. %d2: ASCII code; %d3: palette << 12; %d1 advances by one column.
 .Lcar:
         or.w    %d3, %d2
         bsr.s   .Lglyphe
         addi.w  #32, %d1
         rts
 
-| UNE CHAÎNE terminée par 0. %a2 : la chaîne ; %d1, %d3 comme `.Lcar`. Clobbers %d2, %a2.
+| A STRING terminated by 0. %a2: the string; %d1, %d3 as in `.Lcar`. Clobbers %d2, %a2.
 .Ltexte:
         moveq   #0, %d2
         move.b  (%a2)+, %d2
@@ -588,7 +589,7 @@ _ecran_boot:
         bra.s   .Ltexte
 1:      rts
 
-| UN OCTET EN DEUX CHIFFRES HEXADÉCIMAUX. %d4.b : l'octet, rendu intact. Clobbers %d2.
+| ONE BYTE AS TWO HEXADECIMAL DIGITS. %d4.b: the byte, returned intact. Clobbers %d2.
 .Lhex2:
         move.b  %d4, %d2
         lsr.b   #4, %d2
@@ -598,15 +599,15 @@ _ecran_boot:
         andi.w  #0x0F, %d2
         cmpi.w  #10, %d2
         bcs.s   1f
-        addq.w  #7, %d2                 | 10-15 → « A »-« F »
-1:      addi.w  #0x30, %d2              | « 0 »
+        addq.w  #7, %d2                 | 10-15 → "A"-"F"
+1:      addi.w  #0x30, %d2              | "0"
         bra.s   .Lcar
 
-| UNE PALETTE. %d5 : son numéro (1-15) ; %d6 : la couleur du trait, l'entrée 1 ; les
-| entrées 2 à 15 à zéro (voir l'en-tête, les index des glyphes). Clobbers %d0, %d5, %a2.
+| ONE PALETTE. %d5: its number (1-15); %d6: the stroke colour, entry 1; entries 2 to 15
+| at zero (see the header, the glyph indexes). Clobbers %d0, %d5, %a2.
 .Lpalette:
         lea     PALETTES + 2, %a2
-        lsl.w   #5, %d5                 | 16 entrées de 2 octets
+        lsl.w   #5, %d5                 | 16 entries of 2 bytes
         adda.w  %d5, %a2
         move.w  %d6, (%a2)+
         moveq   #14-1, %d0
@@ -614,13 +615,13 @@ _ecran_boot:
         dbra    %d0, 1b
         rts
 
-| UNE COULEUR ATTÉNUÉE. %d6 : $0RGB ; %d3 : facteur 0 à 8. Chaque quartet devient
-| quartet × facteur / 8 ; résultat dans %d6. Clobbers %d0, %d2, %d5.
+| A DIMMED COLOUR. %d6: $0RGB; %d3: factor 0 to 8. Each nibble becomes
+| nibble × factor / 8; result in %d6. Clobbers %d0, %d2, %d5.
 .Lattenuer:
         moveq   #0, %d0
         rol.w   #4, %d6                 | RGB0
         moveq   #3-1, %d5
-1:      rol.w   #4, %d6                 | R, puis G, puis B dans le quartet bas
+1:      rol.w   #4, %d6                 | R, then G, then B in the low nibble
         moveq   #0x0F, %d2
         and.w   %d6, %d2
         mulu    %d3, %d2
@@ -632,13 +633,13 @@ _ecran_boot:
         rts
 
 | ----------------------------------------------------------------------------------
-| LES DONNÉES.
+| THE DATA.
         .balign 2
-.Lfinales:                              | la couleur finale des palettes 1 à 14, pour le fondu
+.Lfinales:                              | the final colour of palettes 1 to 14, for the fade
         .word   C_TITRE, C_TITRE, C_TITRE, C_TITRE, C_TITRE, C_TITRE
         .word   C_DOUX, C_ETIQ
         .word   C_VERT, C_VERT, C_VERT, C_VERT, C_VERT
-        | Le rappel part de sa phase à T_FONDU, bit 4 de PAUSE : éteint, il le reste.
+        | The reminder starts from its phase at T_FONDU, bit 4 of PAUSE: off, it stays off.
         .word   C_RAPPEL * (1 - ((PAUSE >> 4) & 1))
 .Lregions:
         .long   .Ljapon, .Lusa, .Leurope, .Linconnue
@@ -646,7 +647,7 @@ _ecran_boot:
         .byte   3, 6, 8
 .Ltitre:
         .ascii  "SPRIXE BIOS"
-| 32 caractères, tous mesurés ; les six derniers répètent les premiers.
+| 32 characters, all measured; the last six repeat the first ones.
 .Lhasard:
         .ascii  "ABCDEFGHIKLMNOPRSTUWX0126/ABCDEF"
 .Lurl:
@@ -656,7 +657,7 @@ _txt_version:
         .asciz  "v0.1 BETA"
 .Lrappel:
         .asciz  "PRESS A BUTTON TO SKIP"
-| Cinq étiquettes de 14 caractères, 15 octets chacune avec le zéro.
+| Five labels of 14 characters, 15 bytes each with the zero.
 .Letiquettes:
         .asciz  "SYSTEM ......."
         .asciz  "REGION ......."
@@ -683,7 +684,7 @@ _txt_version:
         .asciz  "SET IT OFF TO CONTINUE"
 .Lavec_carte:
         .asciz  "INSERTED"
-| Lu dans « READ CALENDAR » : dimanche = 0. Quatre octets par jour.
+| Read in "READ CALENDAR": Sunday = 0. Four bytes per day.
 .Ljours:
         .asciz  "SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"
         .balign 2

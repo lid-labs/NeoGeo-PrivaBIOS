@@ -1,7 +1,7 @@
 | SPDX-License-Identifier: GPL-3.0-or-later
 | Copyright (C) 2026 Thibaut Lion
-| La fenêtre de la table d'aléa que `build/bios.ld` exige ($C04200, 256 octets) : vide ici,
-| l'image de diagnostic n'en tire rien. Elle n'existe que pour que `build/construire.sh` la lie.
+| The window of the random table that `build/bios.ld` requires ($C04200, 256 bytes): empty here,
+| the diagnostic image draws nothing from it. It exists only so that `build/construire.sh` links it.
         .section .alea, "a"
         .global _table_alea
 _table_alea:
