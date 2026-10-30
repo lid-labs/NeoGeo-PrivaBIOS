@@ -152,7 +152,7 @@ and the test screen was reachable only through the TEST button, absent from this
 | 14 | `f8cb3e3f` (#1442) | the Super Sidekicks grid (`DECISIONS.md` §18); 142 mutations killed, catalogue identical game by game to the reference | 120 | `B660FA81` | `5B39` | `8f03e1deeff52bf1e7f7120dcf0c5b414f41cc0ff3bca712bd431e74b6f0fd73` | `E9437AD8` |
 
 Each checked on the exact file: full regression PASS, catalogue 161 out of 164 with no game lost
-(ng_mv1f not measured). ReBIOS's departure on leaving the test screen with switch 1 ON
+(ng_mv1f not measured). ReBIOS's deviation on leaving the test screen with switch 1 ON
 (§17 pt 4) was confirmed on the board with the original BIOS.
 
 **Image no. 14 on the board, on 2026-10-26**: the soft-DIPs tried are honoured by the game, and
