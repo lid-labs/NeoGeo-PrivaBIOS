@@ -14,6 +14,7 @@ All notable changes to Sprixe BIOS are listed here. The format follows
   fighting games, Street Hoop, Super Sidekicks), NO GAME OVER for nine puzzle, quiz and sport games.
   81 games and 117 cheats in all.
 - `bench/cheats-recherche.py`, the tool that searches for cheats under MAME.
+- `CLAUDE.md`, guidance for AI coding agents. New text in the repository is written in English.
 
 ### Changed
 
