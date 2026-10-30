@@ -2458,8 +2458,9 @@ def restart():
     exiger(rs, "pas de RESET après RESTART GAME")
     k0 = rs[0]
     # The power-on of `boot` formats a new NVRAM, ~41 ms: its picture comes 2 frames later than
-    # that of a reset, which does not format (measured on 2026-10-30: 208 at 2, 140 at 0).
-    eg = sum(1 for k in range(1, 381) if s.h(k0 + k) is not None and s.h(k0 + k) == b.h(k + 2))
+    # that of a reset, which does not format (measured on 2026-10-30: 208 at 2, 140 at 0). The table
+    # of 152 games moves the reset's phase: 208 at 1, 151 at 2, 153 at 0.
+    eg = sum(1 for k in range(1, 381) if s.h(k0 + k) is not None and s.h(k0 + k) == b.h(k + 1))
     dit(f"RESET à {k0} ; {eg}/380 trames égales à une mise sous tension")
     exiger(eg >= F("restart", "egales_min"), f"{eg} trames égales")
 
