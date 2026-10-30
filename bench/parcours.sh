@@ -200,6 +200,9 @@
 #   jukebox-stop  code 21 played, B: RMS after B at most "ratio_max" of that of the same run
 #                 without B (jukebox-b0).
 #   cheats-off    INFINITE TIME ON then OFF in the same pause, RESUME: the timer runs again.
+#   cheats-fenetre  aof, 7 cheats, 4 lines: down to the hidden P1 ALTERNATE OUT, ON, down to the last
+#                 cheat, back up, RESUME: the window follows the choice, and the engine forces only
+#                 that cheat's two cells.
 #   partie-p2     two coins, START P2 at the title: at least "snk_min" of frames 500-2999 are
 #                 those of the SNK BIOS at the same instant, at most "p1_max" those of a START P1.
 #   partie-p2-joint a coin and START P2 in the middle of a game: P2 joins, as under SNK.
@@ -857,7 +860,7 @@ REF_SINUS="$PAQUET/measured/2026-10-28-parcours-sinus.tsv"
 REF_PANNEAU="$PAQUET/measured/2026-10-28-parcours-panneau.tsv"
 JOBS=$(( $( (sysctl -n hw.ncpu || nproc) 2>/dev/null || echo 4) - 2 )); [ "$JOBS" -ge 1 ] || JOBS=1
 CACHE=""
-SCENES_TOUTES="boot-ecran boot-saut calendrier carte demo-son partie-credit partie-start fin-demo fin-titre scores dip-temps dip-langue region autotests jukebox menu-hud menu-reprise menu-son cheats restart ms-demo ms-select ms-garde aes-bascule aes-demo aes-start aes-menu aes-piece aes-retour dip-defauts dip-mmss dip-fois region-europe region-japon region-usa autotests-palette autotests-vram autotests-backup tests-entrees tests-barres tests-grille jukebox-pas jukebox-stop cheats-off partie-p2 carte-sauve ms-select-p2 aes-ms-select aes-pause aes-logo aes-logo-fin aes-fin aes-texte depart-force piece-son ms-seule jukebox-repete partie-p2-joint carte-chercher carte-supprimer carte-nom tests-p2 tests-dip dip-sans-donnees gs-compte gs-defauts gs-choix gs-mmss gs-fois gs-sans-donnees gs-banque me-ecran me-goto me-octet me-ligne me-page me-repete me-poke me-gel me-liste me-degel me-borne bf-editeur bf-banque bf-tests bf-jukebox sans-cartouche flash-cart cm-liste cm-libres cm-effacer cm-annuler cm-formater cm-non-formatee cm-sans-carte cm-protegee cm-insertion bf-carte aes-scores scores-gel bo-ecran ab-ecran bo-free-play bo-fp-p2 bo-fp-joint bo-no-continue bo-demo-muette bo-aes bf-borne cheats-vies bo-cd-menu bo-cd-gel dip-free-play dip-fp-p2 dip-fp-refus dip-fp-chaud dip-fp-reglage dip-fp-cabinet dip-setting geste-boot geste-jeu geste-partie demo-ssideki japon-intitules gs-japon gs-japon-garde crc-fixe crc-banques crc-miroir crc-flottant bf-crc bf-crc-banque dd-effet dd-off dip-gel dip-gel-off dip-gel-boot dip-mahjong dip-mj-off dip-4p dip-4p-off af-tir af-sauve af-off af-mahjong boot-graphismes ms-son-slot2 dip-vierge dip-corrompue tests-mahjong jukebox-veille cm-copier alpha-trajectoire howto-preisle2 tests-sauvegarde dd-connu pn-menu-on pn-menu-off pn-valeur pn-verrou pn-jeu bram-sale"
+SCENES_TOUTES="boot-ecran boot-saut calendrier carte demo-son partie-credit partie-start fin-demo fin-titre scores dip-temps dip-langue region autotests jukebox menu-hud menu-reprise menu-son cheats cheats-fenetre restart ms-demo ms-select ms-garde aes-bascule aes-demo aes-start aes-menu aes-piece aes-retour dip-defauts dip-mmss dip-fois region-europe region-japon region-usa autotests-palette autotests-vram autotests-backup tests-entrees tests-barres tests-grille jukebox-pas jukebox-stop cheats-off partie-p2 carte-sauve ms-select-p2 aes-ms-select aes-pause aes-logo aes-logo-fin aes-fin aes-texte depart-force piece-son ms-seule jukebox-repete partie-p2-joint carte-chercher carte-supprimer carte-nom tests-p2 tests-dip dip-sans-donnees gs-compte gs-defauts gs-choix gs-mmss gs-fois gs-sans-donnees gs-banque me-ecran me-goto me-octet me-ligne me-page me-repete me-poke me-gel me-liste me-degel me-borne bf-editeur bf-banque bf-tests bf-jukebox sans-cartouche flash-cart cm-liste cm-libres cm-effacer cm-annuler cm-formater cm-non-formatee cm-sans-carte cm-protegee cm-insertion bf-carte aes-scores scores-gel bo-ecran ab-ecran bo-free-play bo-fp-p2 bo-fp-joint bo-no-continue bo-demo-muette bo-aes bf-borne cheats-vies bo-cd-menu bo-cd-gel dip-free-play dip-fp-p2 dip-fp-refus dip-fp-chaud dip-fp-reglage dip-fp-cabinet dip-setting geste-boot geste-jeu geste-partie demo-ssideki japon-intitules gs-japon gs-japon-garde crc-fixe crc-banques crc-miroir crc-flottant bf-crc bf-crc-banque dd-effet dd-off dip-gel dip-gel-off dip-gel-boot dip-mahjong dip-mj-off dip-4p dip-4p-off af-tir af-sauve af-off af-mahjong boot-graphismes ms-son-slot2 dip-vierge dip-corrompue tests-mahjong jukebox-veille cm-copier alpha-trajectoire howto-preisle2 tests-sauvegarde dd-connu pn-menu-on pn-menu-off pn-valeur pn-verrou pn-jeu bram-sale"
 SCENES="$SCENES_TOUTES"
 HASHPATH="${BIOS_HASHPATH:-}"
 while [ $# -gt 0 ]; do
@@ -1283,6 +1286,7 @@ runs_de() {
     menu-hud) echo menu ;;
     menu-reprise|menu-son) echo "menu partie" ;;
     cheats) echo "cheats partie" ;;
+    cheats-fenetre) echo "cheats-fenetre partie" ;;
     restart) echo "restart boot" ;;
     ms-demo) echo "ms-demo pz-demo" ;;
     ms-select) echo "ms-select pz-titre" ;;
@@ -1546,6 +1550,9 @@ veut veille-0 && lancer veille-0 son.lua "$NOTRE $WAV" $VEILLE J_APPUIS=$JUKE,30
 # Without B, and "up" held 60 frames at 1000: the repeat.
 veut jukebox-b0 && lancer jukebox-b0 son.lua "$NOTRE $WAV" $EDIT J_APPUIS=$JUKE,1000:haut:60 J_TEXTE=990,1065 J_FIN=1300
 # A cheat set to ON then to OFF in the same pause, RESUME.
+veut cheats-fenetre && lancer cheats-fenetre son.lua "$NOTRE" $MENU_TEST \
+  J_APPUIS=2380:bas,2386:bas,2392:bas,2398:bas,2404:bas,2410:bas,2416:bas,2422:A,2428:bas,2434:haut,2440:haut,2446:haut,2452:haut,2458:haut,2464:haut,2470:haut,2476:haut,2482:A \
+  J_HACHES=2200-4200 J_SUIVRE=109052:1,109752:1,1092CD:1 J_TEXTE=2415,2421,2427,2433,2463 J_FIN=4200
 veut cheats-off && lancer cheats-off son.lua "$NOTRE" $MENU_TEST \
   J_APPUIS=2380:bas,2386:bas,2392:A,2398:A,2404:haut,2410:haut,2416:A \
   J_ZONES="146,10,173,29;62,17,142,22" J_HACHES=2200-4200 J_SUIVRE=108406:1 J_TEXTE=2395,2401 J_FIN=4200
@@ -2451,6 +2458,27 @@ def cheats():
     k60 = sum(1 for k in range(r + 300, r + 1500) if c.f[k].get("m108406") == "60" and c.f[k].get("m1092CD") == "60")
     dit(f"$108406 et $1092CD à $60 sur {k60}/1200 trames")
     exiger(k60 >= F("cheats", "ram_min"), f"$108406 et $1092CD à $60 sur {k60}/1200 trames seulement")
+
+def cheats_fenetre():
+    c, p = sain("cheats-fenetre", "partie")
+    for n in (2415, 2421, 2427, 2433, 2463):
+        dit(f"trame {n} : " + " | ".join(x.strip() for x in c.texte(n).split("\n") if x.strip()))
+    a = c.texte(2421)
+    exiger(re.search(r"CHEATS 3-6/7", a), "à la 6e ligne, la fenêtre ne dit pas CHEATS 3-6/7")
+    exiger("P1 ALTERNATE OUT" in a and "P1 INFINITE LIFE" not in a, "le cheat choisi n'est pas dans la fenêtre")
+    exiger(re.search(r"P1 ALTERNATE OUT +ON", c.texte(2427)), "le cheat caché n'est pas passé à ON")
+    d = c.texte(2433)
+    exiger(re.search(r"CHEATS 4-7/7", d) and "P2 ALTERNATE OUT" in d, "le dernier cheat n'est pas dans la fenêtre")
+    h = c.texte(2463)
+    exiger(re.search(r"CHEATS 2-5/7", h) and "P1 INFINITE LIFE" in h and "P1 ALTERNATE OUT" not in h, "la fenêtre ne remonte pas")
+    r, _ = reprise(c, p)
+    k = range(r + 300, r + 1500)
+    forces = sum(1 for n in k if c.f[n].get("m109052") == "3" and c.f[n].get("m109752") == "3")
+    dit(f"$109052 et $109752 à $03 sur {forces}/1200 trames")
+    exiger(forces >= F("cheats", "ram_min"), f"cheat caché forcé sur {forces}/1200 trames seulement")
+    vie = sum(1 for n in k if c.f[n].get("m1092CD") == "60")
+    dit(f"$1092CD, cheat OFF : à $60 sur {vie}/1200 trames")
+    exiger(vie < 1200, "la vie de P1 reste forcée alors que son cheat est OFF")
 
 def restart():
     s, b = sain("restart", "boot")
@@ -3791,7 +3819,7 @@ JUGES = {"aes-bascule": aes_bascule, "aes-demo": aes_demo, "aes-start": aes_star
          "fin-demo": fin_demo, "fin-titre": fin_titre, "scores": scores, "dip-temps": dip_temps,
          "dip-langue": dip_langue, "region": region, "autotests": autotests, "jukebox": jukebox,
          "menu-hud": menu_hud, "menu-reprise": menu_reprise, "menu-son": menu_son, "cheats": cheats,
-         "restart": restart, "ms-demo": ms_demo, "ms-select": ms_select, "ms-garde": ms_garde,
+         "restart": restart, "cheats-fenetre": cheats_fenetre, "ms-demo": ms_demo, "ms-select": ms_select, "ms-garde": ms_garde,
          "dip-defauts": dip_defauts, "dip-mmss": dip_mmss, "dip-fois": dip_fois, "region-europe": region_europe,
          "region-japon": region_japon, "region-usa": region_usa, "autotests-palette": autotests_palette,
          "autotests-vram": autotests_vram, "autotests-backup": autotests_backup, "tests-entrees": tests_entrees,

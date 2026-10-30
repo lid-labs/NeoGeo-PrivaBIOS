@@ -153,6 +153,12 @@ MUTATIONS = {
         [("        move.b  %d3, (%a2)\n", "        nop                     | MUTATION : le moteur n'écrit plus\n")],
         "le moteur des cheats n'écrit plus les valeurs d'un octet",
     ),
+    "cheats-fenetre-fixe": (
+        "cheats-fenetre", "menu.s",
+        [("        ble.s   9f                      | signed: negative as long as the index is under MN_NVIS\n        move.w  %d1, MN_HAUT\n",
+          "        ble.s   9f                      | signed: negative as long as the index is under MN_NVIS\n        nop                     | MUTATION\n")],
+        "la fenêtre des cheats ne suit plus le choix vers le bas",
+    ),
     "restart-reprend": (
         "restart", "menu.s",
         [("        beq.w   .Lrelance\n", "        beq.w   .Lreprendre             | MUTATION\n")],
