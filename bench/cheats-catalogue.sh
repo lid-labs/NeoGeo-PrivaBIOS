@@ -25,7 +25,7 @@
 # Dans tous les genres, le tap du mode menu de `cheats.lua` exige que le moteur du BIOS n'ait écrit
 # que l'adresse du cheat, et qu'il n'ait rien écrit au témoin.
 #
-# LES ENTRÉES. « k » et « l » : P2 seul (pièce de P2 à 400, son START à 500), « x » et « j » joués par P2 ;
+# LES ENTRÉES. « k » et « l » : « x » et « j » joués par P2 seul (sa pièce à 400, son START à 500) ;
 # le menu reste aux commandes de P1. « x » : le scénario action de `cheats-recherche.py` (A toutes les 6 trames, droite, B et C).
 # « j » (sauter pour mourir) : pièce, START, puis droite tenue et B toutes les 20 trames,
 # sans tirer : P1 fonce en sautant dans les ennemis.
@@ -348,9 +348,9 @@ for l in open(sys.argv[6], encoding="utf-8"):
                 return max(z.count(v) for v in set(z)) / len(z), len(set(z))
             (fo, no), (ft, nt) = dominante(on), dominante(te)
             dit.append(f"{'chronomètre' if genre == 'temps' else 'compteur'} : son image la plus fréquente sur {fo:.2f} des relevés sous cheat ({no} images), {ft:.2f} au témoin ({nt}) ; ${adr} à ${val:02X} sur {ram:.2f}")
-            on_min, tem_max = (ON_MIN, TEM_MAX) if genre == "temps" else (CPT_ON, CPT_ON)
+            on_min = ON_MIN if genre == "temps" else CPT_ON
             if fo < on_min: raison.append(f"sous cheat, l'image la plus fréquente n'est que sur {fo:.2f} des relevés")
-            if ft >= tem_max or nt < 2: raison.append(f"le témoin garde la même image sur {ft:.2f} des relevés ({nt} images) : la scène ne prouve rien")
+            if (ft > TEM_MAX) if genre == "temps" else (ft >= CPT_ON or nt < 2): raison.append(f"le témoin garde la même image sur {ft:.2f} des relevés ({nt} images) : la scène ne prouve rien")
         else:
             fin_t = [n for n in sorted(te["user"]) if n > T and te["user"][n] != 2]
             fin_o = [n for n in sorted(on["user"]) if n > T and on["user"][n] != 2]
