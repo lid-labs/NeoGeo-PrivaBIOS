@@ -40,6 +40,8 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 
 ### Fixed
 
+- Source comments that contradicted the code next to them (cycle counts, menu line numbers, the
+  Z80 parking, the calendar call), and the CI's description in CONTRIBUTING and README.
 - AES mode: kof98's boot animation (request 1) no longer comes back after a game over. Its
   flag shared a byte with the cheat engine's freeze mask, which cleared it at the start of a game.
 - `diag/slots` and `build/harnais` link again: they lacked the grid and sine table windows that

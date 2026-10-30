@@ -15,7 +15,7 @@
 | THE HOOK. `_menu_en_jeu`, called by `jsr` from SYSTEM_IO (`io.s`) right after
 | `_io_commun`, on every call. Without the gesture: a few instructions, no register
 | touched. It starts with the cheat and freeze engine (`cheats.s`), which with no cheat or
-| freeze active is only two tests.
+| freeze active is a single test.
 | MEASURED: the 22 games call SYSTEM_IO from their vblank handler (SR at the
 | time of the call: IPL 1, or 7 for kof94, kof98, samsho2; only trally has calls at
 | IPL 0, outside play). The menu therefore opens INSIDE the game's interrupt, and its main
@@ -183,7 +183,7 @@
         .equ    MN_CASE0, 0x10F85C      | .w the top-left cell
         .equ    MN_CURS,  0x10F85E      | .w the cursor column
         .equ    MN_PAD,   0x10F860      | .w the margin of the fixed lines
-        | .w the last choice: 3 + N, or 2 under CHEATS/DEBUG OFF (GAME SETTINGS), set by
+        | .w the last choice: 4 + N, or 3 + N under CHEATS/DEBUG OFF (GAME SETTINGS), set by
         | `.Lmise_en_page`. Read by the loop in as many cycles as the old computation (MN_NCH + 3):
         | measured, two more tests per turn and per line moved RESTART GAME's restart from GAME
         | SETTINGS on ncombat one frame earlier (scene gs-mmss, RESET at 2417 instead of 2418).
