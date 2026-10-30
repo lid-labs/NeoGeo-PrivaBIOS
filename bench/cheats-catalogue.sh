@@ -42,8 +42,8 @@
 #
 # Salle blanche : aucune base de cheats tierce, aucun code de jeu lu ni tracé ; le PC ne sert qu'à
 # dire si une écriture vient du BIOS. MAME sans fenêtre, un dossier de cfg et de NVRAM par run.
-# Mesures et seuils : measured/2026-10-25-cheats-table.tsv et 2026-10-29-cheats-table.tsv (une ligne
-# par cheat), 2026-10-25-cheats-catalogue.tsv et 2026-10-29-cheats-catalogue.tsv (les verdicts).
+# Mesures et seuils : measured/2026-10-25, 2026-10-29 et 2026-10-30-cheats-table.tsv (une ligne par
+# cheat), et les -cheats-catalogue.tsv des mêmes dates (les verdicts).
 set -u
 
 ICI="$(cd "$(dirname "$0")" && pwd)"
@@ -76,9 +76,11 @@ COMPTEUR_ON_MIN=0.9
 
 # jeu  k  nom  adr  valeur  genre  entrées  T  FIN  zone(x0,y0,x1,y1)  pixels de la zone
 # Les pixels : « brut », toutes les couleurs (un chronomètre dans un cadre opaque) ; « clair »,
-# R + V + B > 600 ; sinon la couleur des chiffres (COULEURS plus bas), pour qu'un décor qui défile
-# derrière eux ne compte pas. Choisis le 2026-10-25 sur des images des runs, le rectangle autour
-# des chiffres à l'œil.
+# R + V + B > 600 ; « tres-clair », > 700 (des chiffres blancs sur un cadre où passe un décor clair) ;
+# sinon la couleur des chiffres (COULEURS plus bas), pour qu'un décor qui défile derrière eux ne
+# compte pas. Choisis le 2026-10-25 sur des images des runs, le rectangle autour des chiffres à
+# l'œil ; pour les chronomètres du 2026-10-30, rectangle et pixels cherchés sur les images d'un run
+# CAT_DENSE (le plus d'écart entre cheat et témoin).
 # Absent de la table : INFINITE TIME de kof95. Sous cheat, le chronomètre garde son image sur tous
 # les relevés, mais aucun T essayé ne donne un témoin qui décompte sans KO dans la fenêtre (round 2 :
 # 0,38 des relevés à la même image ; round 3 : un KO sous cheat). Sa preuve est celle de la recherche
@@ -180,6 +182,16 @@ spinmast	1	P2 INF. LIVES	10503D	02	vies	l	1500	13000	-	-
 viewpoin	1	P2 INF. LIVES	1090ED	03	vies	k	1500	13000	-	-
 zedblade	1	P2 INF. LIVES	100029	03	vies	k	1500	13000	-	-
 fightfev	0	INFINITE TIME	108110	99	temps	f	1900	3200	147,24,172,36	brut
+aof3	0	INFINITE TIME	10DF0F	3C	temps	f	1300	2600	146,16,172,30	brut
+breakers	0	INFINITE TIME	107C0B	63	temps	f	1900	3200	152,15,167,31	vert
+fatfury2	0	INFINITE TIME	10092A	90	temps	f	1300	2600	146,10,173,29	brut
+kof98	0	INFINITE TIME	10A83B	32	temps	f	1900	3200	141,13,173,35	jaune
+savagere	0	INFINITE TIME	1084A8	60	temps	f	1300	2600	147,27,172,36	brut
+garou	0	INFINITE TIME	107490	60	temps	f	1900	3200	153,13,175,27	jaune
+whp	0	INFINITE TIME	10C109	99	temps	f	1900	3200	153,15,174,27	jaune
+lastbld2	0	INFINITE TIME	10E595	61	temps	f	1900	3200	155,20,187,29	blanc
+gowcaizr	0	INFINITE TIME	1062E1	3C	temps	f	1900	3200	149,14,171,35	tres-clair
+ninjamas	1	INFINITE TIME	10C021	99	temps	f	1900	3200	157,28,170,37	rouge
 kof96	1	INFINITE TIME	10A837	32	temps	f	1900	3200	147,14,172,32	brut
 matrim	0	INFINITE TIME	10B90B	3C	temps	f	1900	3200	145,8,174,24	brut
 rbff2	0	INFINITE TIME	107C28	60	temps	f	1900	3200	145,16,175,31	brut
@@ -237,6 +249,7 @@ pixels() {
   case "$1" in
     brut) echo "C_SEUIL=0" ;;
     clair) echo "C_SEUIL=600" ;;
+    tres-clair) echo "C_SEUIL=700" ;;
     jaune) echo "C_COULEUR=180,255,160,255,0,120" ;;
     blanc) echo "C_COULEUR=180,255,180,255,180,255" ;;
     vert) echo "C_COULEUR=0,120,150,255,0,120" ;;

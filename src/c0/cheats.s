@@ -535,9 +535,10 @@ _cheats_table:
         JEU     0x0214, 0xEB0F, 2
         CHEAT   "P1 INFINITE LIFE", 0x108422, 1, 0x00
         CHEAT   "INFINITE TIME",   0x10A837, 1, 0x32
-        | NINJA MASTER'S : $100050, la vie de P1, $D0 au plus haut.
-        JEU     0x0217, 0x4720, 1
+        | NINJA MASTER'S : $100050, la vie de P1, $D0 au plus haut. Le temps : $10C021.
+        JEU     0x0217, 0x4720, 2
         CHEAT   "P1 INFINITE LIFE", 0x100050, 1, 0xD0
+        CHEAT   "INFINITE TIME",   0x10C021, 1, 0x99
         | RAGE OF THE DRAGONS : $1023E6, la vie de P1, $10 au plus haut. Le temps, par valeur connue :
         | $106B11, les secondes, binaire.
         JEU     0x0264, 0x8D79, 2
@@ -565,6 +566,36 @@ _cheats_table:
         | KING OF THE MONSTERS 2 : les secondes, BCD.
         JEU     0x0039, 0x9C61, 1
         CHEAT   "INFINITE TIME",   0x1013D2, 1, 0x70
+        | LES CHRONOMÈTRES DE JEUX DE COMBAT TROUVÉS LE 2026-10-29 ET PROUVÉS LE 2026-10-30 : même
+        | recherche ; le catalogue les juge sur les seuls pixels des chiffres (le décor défile derrière),
+        | ou plus tôt dans le round. Valeur : la plus haute du relevé.
+        | ART OF FIGHTING 3.
+        JEU     0x0096, 0xC5DF, 1
+        CHEAT   "INFINITE TIME",   0x10DF0F, 1, 0x3C
+        | BREAKERS.
+        JEU     0x0230, 0x9C95, 1
+        CHEAT   "INFINITE TIME",   0x107C0B, 1, 0x63
+        | FATAL FURY 2.
+        JEU     0x0047, 0xAED3, 1
+        CHEAT   "INFINITE TIME",   0x10092A, 1, 0x90
+        | THE KING OF FIGHTERS '98.
+        JEU     0x0242, 0x8F29, 1
+        CHEAT   "INFINITE TIME",   0x10A83B, 1, 0x32
+        | SAVAGE REIGN.
+        JEU     0x0059, 0xF782, 1
+        CHEAT   "INFINITE TIME",   0x1084A8, 1, 0x60
+        | GAROU: MARK OF THE WOLVES.
+        JEU     0x0253, 0x6078, 1
+        CHEAT   "INFINITE TIME",   0x107490, 1, 0x60
+        | WORLD HEROES PERFECT.
+        JEU     0x0090, 0x5FA2, 1
+        CHEAT   "INFINITE TIME",   0x10C109, 1, 0x99
+        | THE LAST BLADE 2.
+        JEU     0x0243, 0xB546, 1
+        CHEAT   "INFINITE TIME",   0x10E595, 1, 0x61
+        | GOWCAIZER.
+        JEU     0x0094, 0x4B34, 1
+        CHEAT   "INFINITE TIME",   0x1062E1, 1, 0x3C
         | LES TEMPS DE JEUX D'ACTION PAR SUITE ATTENDUE, le 2026-10-29 : l'octet qui suit exactement
         | v0, v0 − 1… depuis 30, 50, 59, 60, 90 ou 99 (`bench/cheats-recherche.py`, filtre_suite), forcé
         | seul ; la zone des chiffres calculée sur les images du forçage.
