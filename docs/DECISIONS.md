@@ -503,8 +503,8 @@ outside ASCII, and `.Lecrire` replaced those bytes with a space. Measurements:
    $5F, $60 nor $7C-$7E (section 2). ssideki's labels use $7C-$7E for a kanji.
 3. **The cartridges' S ROM does not have these glyphs**: 0 identical tile out of 50 for ssideki,
    kof98, mslug, aof and samsho4 (section 3).
-4. **Boot test screen, as observed on the SNK BIOS, the user's decision of 2026-10-27**: in the
-   JAPAN region, if the block's labels carry a byte outside $20-$7E, the whole list goes to 8×16, two rows per entry,
+4. **Boot test screen, layout observed on the Japanese SNK BIOS, the user's decision of
+   2026-10-27**: in the JAPAN region, if the block's labels carry a byte outside $20-$7E, the whole list goes to 8×16, two rows per entry,
    in a scrolling window of ten entries. A byte in $20-$5E or $61-$7B is written as $100/$200 + b,
    any other as $300/$400 + b. A block entirely in ASCII, or another region: the previous 8×8 list,
    unchanged. The CABINET SETTINGS sub-screen stays in 8×8.
