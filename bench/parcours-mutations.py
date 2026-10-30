@@ -5,6 +5,7 @@
 to prove that the scene judging it can fail.
 
     python3 -I -B bench/parcours-mutations.py --liste
+    python3 -I -B bench/parcours-mutations.py --verifier
     python3 -I -B bench/parcours-mutations.py <name> <copy-of-the-sources>
     python3 -I -B bench/parcours-mutations.py --eprouver [--paralleles n] <roms-dir> <work-dir> [names…]
 
@@ -360,6 +361,12 @@ MUTATIONS = {
         [("        .equ    BIOS_LOGO, 0x10FB52     | request 1 of the AES mode (`_logo_aes`)\n",
           "        .equ    BIOS_LOGO, 0x10FB08     | MUTATION : l'octet fort de GL_MASQUE\n")],
         "BIOS_LOGO sous GL_MASQUE : le moteur des cheats l'efface en partie, la demande 1 revient",
+    ),
+    "bram-formatee-en-partie": (
+        "bram-sale", "c0.s",
+        [("        move.w  #(0x10000 / 4) - 1, %d1\n_bram_vider:\n",
+          "        move.w  #(0x80 / 4) - 1, %d1    | MUTATION : le formatage s'arrête à $D0007F\n_bram_vider:\n")],
+        "le formatage laisse la backup RAM au-delà de $D0007F : samsho4 montre son WARNING",
     ),
     "aes-titre-apres-partie": (
         "aes-fin", "c0.s",
@@ -1236,15 +1243,15 @@ MUTATIONS = {
     "boot-police-cartouche": (
         "boot-graphismes", "ecran.s",
         [
-         ('        jsr     _fix_clear\n        | The time, once: READ_CALENDAR stores the date in BCD at $10FDD2-$10FDD8 (`cal.s`).\n',
-          '        jsr     _fix_clear\n        move.b  %d0, 0x3A001B           | MUTATION : REG_CRTFIX, la S ROM de la cartouche\n        | The time, once: READ_CALENDAR stores the date in BCD at $10FDD2-$10FDD8 (`cal.s`).\n')],
+         ('        jsr     _fix_clear\n        | The time, once: `_read_calendar` stores the date and time in BCD at $10FDD2-$10FDD8\n        | (`cal.s`).\n',
+          '        jsr     _fix_clear\n        move.b  %d0, 0x3A001B           | MUTATION : REG_CRTFIX, la S ROM de la cartouche\n        | The time, once: `_read_calendar` stores the date and time in BCD at $10FDD2-$10FDD8\n        | (`cal.s`).\n')],
         "l'écran de boot s'écrit avec la police de la cartouche",
     ),
     "boot-sans-lsp": (
         "boot-graphismes", "ecran.s",
         [
-         ('        jsr     _lsp_1st\n        jsr     _fix_clear\n        | The time, once: READ_CALENDAR stores the date in BCD at $10FDD2-$10FDD8 (`cal.s`).\n',
-          '        jsr     _fix_clear              | MUTATION : les sprites de la mise sous tension laissés\n        | The time, once: READ_CALENDAR stores the date in BCD at $10FDD2-$10FDD8 (`cal.s`).\n')],
+         ('        jsr     _lsp_1st\n        jsr     _fix_clear\n        | The time, once: `_read_calendar` stores the date and time in BCD at $10FDD2-$10FDD8\n        | (`cal.s`).\n',
+          '        jsr     _fix_clear              | MUTATION : les sprites de la mise sous tension laissés\n        | The time, once: `_read_calendar` stores the date and time in BCD at $10FDD2-$10FDD8\n        | (`cal.s`).\n')],
         "l'écran de boot laisse affichés les sprites que la VRAM porte à la mise sous tension",
     ),
     "vierge-inutilises": (
@@ -1388,6 +1395,21 @@ def appliquer(nom, dossier):
     open(chemin, "w", encoding="utf-8").write(texte)
 
 
+def verifier():
+    """Every passage of every mutation applies to `src/c0`, comments included: an edited comment
+    can silently break a mutation, and `--eprouver` needs MAME. Run by the CI."""
+    faux = []
+    for nom, (_, fichier, paires, _) in MUTATIONS.items():
+        texte = open(os.path.join(DEPOT, "src", "c0", fichier), encoding="utf-8").read()
+        for avant, apres in paires:
+            if texte.count(avant) != 1:
+                faux.append(f"{nom} : un passage est {texte.count(avant)} fois dans {fichier}, 1 attendu")
+                break
+            texte = texte.replace(avant, apres)
+    print("\n".join(faux) or f"{len(MUTATIONS)} mutations applicables")
+    return 1 if faux else 0
+
+
 def eprouver_une(nom, roms, travail):
     """One mutation: its copy, its run. Returns (killed, verdict line). A mutation that no
     longer applies (`appliquer` exits through sys.exit) or any other error gives an ERREUR line,
@@ -1442,6 +1464,8 @@ if __name__ == "__main__":
     if a == ["--liste"]:
         for nom, (scenes, fichier, _, quoi) in MUTATIONS.items():
             print(f"{nom}\t{scenes}\t{fichier}\t{quoi}")
+    elif a == ["--verifier"]:
+        sys.exit(verifier())
     elif len(a) >= 3 and a[0] == "--eprouver":
         a = a[1:]
         paralleles = max(1, (os.cpu_count() or 4) // 2 - 1)

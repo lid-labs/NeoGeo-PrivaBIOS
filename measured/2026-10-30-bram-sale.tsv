@@ -1,0 +1,13 @@
+# samsho4 (MAME 0.286, neogeo -cart1 samsho4, -bios euro) from a backup RAM of 64 KiB of random bytes, without the signature:
+# jig of $D00100 (writes, REG_SRAMLOCK/UNLOCK, watchdog kicks, resets), then bench/son.lua for the fix layer. Image 65051ec0…
+# (before the fix) and the SNK BIOS. On a new, all-zero NVRAM both show no WARNING: this is why the bench had not seen it.
+# Our image formatted $D00000-$D0007F only, then wrote the signature; the SNK BIOS tests and clears all of it (patterns
+# $5555, $AAAA, then a value, then $0000 at $D00100). After the run, 64,361 non-zero bytes of 65,536 under our image, 3,464
+# under the SNK BIOS. Request 0 itself is the same under both: game write of $0000 with the lock closed (no effect), game
+# unlock, no more kicks, watchdog reset 8 frames later ($D00100 is not written again).
+bios	backup_ram	$D00100_at_game_start	frames	screen_after_START
+ours (65051ec0)	all zero	0000	f186 write ignored, f195 reset	-
+SNK	all zero	0000	f38-f77 patterns then 0000, f291 reset	-
+ours (65051ec0)	random	3B52	never cleared	WARNING / THIS ROM CARTRIDGE IS FOR USE WITH ORIGINAL SNK BOARDS ONLY, at f2750
+SNK	random	0000	f77 cleared	no WARNING, game starts at f2701
+ours (fixed)	arbitrary fill (scene bram-sale)	-	formatted whole	no WARNING, game starts at f2701

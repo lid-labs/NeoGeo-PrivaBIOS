@@ -12,8 +12,8 @@ The scripts' own documentation is in their headers. This page is the map.
 - A folder of non-merged sets, including `neogeo.zip`. The SNK and UniBIOS 4.0 columns use the BIOS
   options of your MAME `neogeo` set (`-bios euro`, `-bios unibios40`, …).
 - The regression run needs, besides the 17 games of the reference matrix, kof98, ncombat, ng_mv1,
-  wh2, mslug, mslug2, ssideki, bstars, kof94, ng_mv2f, janshin, kizuna, viewpoin, alpham2 and
-  preisle2.
+  wh2, mslug, mslug2, ssideki, bstars, kof94, ng_mv2f, janshin, kizuna, viewpoin, alpham2,
+  preisle2 and samsho4.
 
 ## What is in `bench/`
 
@@ -57,7 +57,7 @@ runs of the same configuration give identical output, except the speed column.
 result; 4 (full run only), `parcours.sh`. A deliberate change of behaviour needs a new recorded
 result, not a looser threshold.
 
-As of 30 October 2026: 161 scenes and 207 mutations, all caught.
+As of 30 October 2026: 162 scenes and 208 mutations, all caught.
 
 Work directories, captures and MAME state are written under the work directory you pass, outside the
 repository.
