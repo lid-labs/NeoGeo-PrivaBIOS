@@ -336,13 +336,13 @@ for l in open(sys.argv[6], encoding="utf-8"):
             if not x["wrong"]: raison.append(f"{nm} : pas de WRONG CHECKSUMS")
         ne, adrs = on["ecrits"] or (0, [])
         dit.append(f"{on['entete']} ; moteur : {ne} écritures {' '.join(adrs)} ; témoin {te['ecrits'][0] if te['ecrits'] else '?'}")
-        # Le tap voit le bus 16 bits : un octet écrit est relevé à l'adresse paire de son mot.
+        # The tap sees the 16-bit bus: a written byte is recorded at the even address of its word.
         if not adrs or any(int(a.split("x")[0], 16) != int(adr, 16) & ~1 for a in adrs): raison.append(f"le moteur a écrit {adrs}, {adr} seule attendue")
         if te["ecrits"] and te["ecrits"][0]: raison.append("le moteur a écrit au témoin")
         fen = range(T + 200, T + 801)
         vals = [on["val"][n] for n in fen if n in on["val"]]
-        # Relue en fin de trame, une cellule forcée peut porter ce que le jeu vient d'en ôter (un
-        # décompte d'une trame) avant que le moteur la rétablisse au SYSTEM_IO suivant.
+        # Read back at the end of the frame, a forced cell may carry what the game has just taken
+        # from it (a countdown of one frame) before the engine restores it at the next SYSTEM_IO.
         ram = sum(1 for v in vals if val - 1 <= v <= val) / max(1, len(vals))
         if genre in ("temps", "compteur"):
             zf = fen if genre == "temps" else range(T + 200, FIN + 1)

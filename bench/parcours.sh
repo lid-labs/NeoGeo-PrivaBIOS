@@ -1026,7 +1026,7 @@ fi
 # each word being stored there with its bytes swapped (`load16_word_swap`). In the work
 # directory only.
 # THE BANKED AREA FIXTURE, same recipe, the pointer at $00200100: accepted by the boot editor
-# (`dip.s`), refused by GAME SETTINGS in game (`reglages-jeu.s`, intended departure).
+# (`dip.s`), refused by GAME SETTINGS in game (`reglages-jeu.s`, deliberate departure).
 # fixture <dir> <pointer, hex>: the copy, once per image.
 fixture() {
   local D="$1" PTR="$2"
@@ -1039,7 +1039,7 @@ zi = zipfile.ZipFile(src)
 p1 = [n for n in zi.namelist() if n.endswith(".p1") and not n.startswith("sp")]
 assert len(p1) == 1, f"un seul fichier p1 attendu : {p1}"
 f = bytearray(zi.read(p1[0]))
-mem = lambda a: f[a ^ 1]                  # l'octet a du 68000 : le mot du fichier, inversé
+mem = lambda a: f[a ^ 1]                  # byte a of the 68000: the word of the file, swapped
 lng = lambda a: (mem(a) << 24) | (mem(a + 1) << 16) | (mem(a + 2) << 8) | mem(a + 3)
 assert bytes(mem(0x100 + i) for i in range(7)) == b"NEO-GEO", "ordre des octets : « NEO-GEO » absent à $100"
 assert 0x100000 <= lng(0) <= 0x10FFFF, "ordre des octets : le SSP n'est pas en RAM de travail"
@@ -1094,7 +1094,8 @@ def chaine(n):
         fat[a] = b
     fat[blocs[-1]] = 1
     return blocs[0]
-# (entrée, sous-sauvegarde, NGH, blocs) : aof ; un NGH sans jeu inscrit, trois blocs ; l'entrée 2 libre ; douze d'un bloc.
+# (entry, sub-save, NGH, blocks): aof; an NGH with no registered game, three blocks; entry 2 free;
+# twelve of one block.
 saves = [(0, 0, 0x0044, 1), (1, 1, 0x0202, 3)] + [(3 + k, k % 16, 0x0100 + k, 1) for k in range(12)]
 for e, sub, ngh, n in saves:
     c[0x40 + 4 * e:0x44 + 4 * e] = bytes([sub, ngh >> 8, ngh & 0xFF, chaine(n)])
@@ -1549,7 +1550,7 @@ veut p2-joint-snk && lancer p2-joint-snk son.lua "$SNK" $JOINT
 # A coin at 400, nothing else: the sound of the coin, then the forced start from the title.
 veut piece-seule && lancer piece-seule son.lua "$NOTRE $WAV" J_PIECE=400 J_START=0 J_HACHES=1-3000 J_FIN=3000
 veut piece-seule-snk && lancer piece-seule-snk son.lua "$SNK $WAV" J_PIECE=400 J_START=0 J_HACHES=1-3000 J_FIN=3000
-# A single cartridge on the MV-6F, SELECT at the title (one coin): ignored, intended departure
+# A single cartridge on the MV-6F, SELECT at the title (one coin): ignored, deliberate departure
 # (`io.s`).
 veut ms-seule && lancer ms-seule son.lua "$MS_AOF" J_PIECE=1000 J_START=0 J_APPUIS=1050:select:8 J_HACHES=1000-1500 J_FIN=1500
 veut ms-seule0 && lancer ms-seule0 son.lua "$MS_AOF" J_PIECE=1000 J_START=0 J_HACHES=1000-1500 J_FIN=1500
@@ -2055,7 +2056,7 @@ REF_GAR = sys.argv[18]
 REF_SINUS = sys.argv[19]
 REF_PANNEAU = sys.argv[20]
 
-# Les relevés : scène, grandeur, seuil, mesure. Seul le seuil juge.
+# The records: scene, quantity, threshold, measurement. Only the threshold judges.
 SEUILS = {}
 for ref in (REF, REF_AES, REF_COUV, REF_MENU, REF_CARTE, REF_BORNE, REF_CHEATS, REF_DIP, REF_SSIDEKI, REF_CRC, REF_DIP28, REF_AF, REF_GAR, REF_SINUS, REF_PANNEAU):
     for l in open(ref, encoding="utf-8"):
@@ -2128,14 +2129,14 @@ def rms(p, t0, t1):
     return math.sqrt(sum(x * x for x in d) / max(1, len(d)))
 K = (1, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53)
 def hache(b):
-    """L'empreinte de `son.lua` (hache), à l'identique."""
+    """The fingerprint of `son.lua` (hache), reproduced exactly."""
     h = 5381
     for i in range(0, len(b) - 63, 64):
         v = struct.unpack_from("<16I", b, i)
         h = (h * 31 + sum(x * k for x, k in zip(v, K))) % 4294967291
     return h
 def cases(a, b, y0=0, y1=223, x0=0, x1=319):
-    """Les cases 8 × 8 où deux images diffèrent, dans le rectangle donné (pixels compris)."""
+    """The 8 × 8 cells where two images differ, within the given rectangle (bounds in pixels, inclusive)."""
     c = set()
     for y in range(y0, y1 + 1):
         o = y * 320
@@ -2158,7 +2159,7 @@ def sain(*noms):
         rc = open(os.path.join(d, "rc")).read().strip() if os.path.exists(os.path.join(d, "rc")) else "?"
         exiger(rc == "0", f"run {nom} : MAME sorti en {rc}")
         log = open(os.path.join(d, "mame.log"), errors="replace").read()
-        if "snk" in nom.split("-"):  # les témoins SNK : demo-snk, aes-snk-*, carte-sauve-snk…
+        if "snk" in nom.split("-"):  # the SNK witness runs: demo-snk, aes-snk-*, carte-sauve-snk…
             exiger("WRONG CHECKSUMS" not in log, f"run {nom} : le témoin SNK porte WRONG CHECKSUMS")
         else:
             exiger("WRONG CHECKSUMS" in log, f"run {nom} : pas de WRONG CHECKSUMS, notre image n'est pas chargée")
@@ -2179,7 +2180,7 @@ LIGNE = {}
 def dit(*a):
     LIGNE.setdefault("d", []).append(" ".join(str(x) for x in a))
 
-# ---- les scènes ----
+# ---- the scenes ----
 def boot_ecran():
     (b,) = sain("boot")
     t = b.texte(100)
@@ -2255,7 +2256,7 @@ def partie_start():
     exiger(len(c) >= F("partie-start", "cases_min"), f"{len(c)} cases")
 
 def meilleur_decalage(a, b, n0, n1):
-    """Le décalage D qui égale le plus de trames a[k] == b[k - D], k dans [n0, n1)."""
+    """The shift D that makes the most frames a[k] == b[k - D] equal, k in [n0, n1)."""
     inv = {}
     for k, v in b.f.items():
         if "img" in v: inv.setdefault(v["img"], []).append(k)
@@ -2364,8 +2365,8 @@ def jukebox():
 
 def menu_cadre(m):
     a, b = pause_apres(m, 1000)
-    # Le dessin du cadre commence à la première palette écrite par le BIOS dans la pause : avant,
-    # le BIOS peut écrire au plan fixe pour le jeu (MESS_OUT : son compteur CREDIT).
+    # The drawing of the frame starts at the first palette written by the BIOS in the pause:
+    # before, the BIOS may write to the fix layer for the game (MESS_OUT: its CREDIT counter).
     dessin = [n for n in range(a, b + 1) if int(m.f[n]["palB"]) > 0]
     exiger(dessin, "aucune palette écrite par le BIOS pendant la pause")
     boite = None
@@ -2380,7 +2381,7 @@ def menu_cadre(m):
 def menu_hud():
     (m,) = sain("menu")
     a, b, (c0, c1, r0, r1), d0 = menu_cadre(m)
-    # Le plan fixe : ligne r à l'écran y = 8 × (r − 2) (deux lignes cachées en haut).
+    # The fix layer: line r on screen at y = 8 × (r − 2) (two hidden lines at the top).
     dans = lambda x: c0 <= x[0] <= c1 and r0 - 2 <= x[1] <= r1 - 2
     c = cases(m.img(d0 - 1), m.img(b - 1))
     hors = [x for x in c if not dans(x)]
@@ -2424,8 +2425,9 @@ def cheats():
         dit(f"{nom} : {'figé' if fige else 'change'} sous cheat, {'change' if bouge else 'figé'} au témoin")
         exiger(fige, f"le {nom} change sous cheat")
         exiger(bouge, f"le {nom} ne change pas au témoin : la scène ne prouve rien")
-    # Relu en fin de trame, une cellule forcée peut porter la valeur que le jeu vient d'écrire
-    # (le coup reçu, la seconde décomptée) avant que le moteur la rétablisse au SYSTEM_IO suivant.
+    # Read back at the end of the frame, a forced cell may carry the value the game has just
+    # written (the hit taken, the second counted down) before the engine restores it at the next
+    # SYSTEM_IO.
     k60 = sum(1 for k in range(r + 300, r + 1500) if c.f[k].get("m108406") == "60" and c.f[k].get("m1092CD") == "60")
     dit(f"$108406 et $1092CD à $60 sur {k60}/1200 trames")
     exiger(k60 >= F("cheats", "ram_min"), f"$108406 et $1092CD à $60 sur {k60}/1200 trames seulement")
@@ -2487,7 +2489,7 @@ def ms_garde():
     exiger(len(sl) == 1, f"{len(sl)} écritures de REG_SLOT")
     exiger(ms_capture_select("ms-garde") == ms_capture_select("ms-select"), "l'image diffère du SELECT simple")
 
-# ---- le mode AES ----
+# ---- the AES mode ----
 def premiere_remise(run, apres=0):
     r = [n for n, e in run.ev if e == "REMISE" and n > apres]
     exiger(r, f"{run.nom} : pas de remise après la trame {apres}")
@@ -2556,7 +2558,7 @@ def aes_retour():
     exiger(t >= F("aes-retour", "titre_min"), f"{t} trames du titre")
 
 
-# ---- la couverture (relevé --ref-couv) ----
+# ---- the coverage (record --ref-couv) ----
 def meme_instant(a, b, n0, n1):
     return sum(1 for k in range(n0, n1) if a.h(k) is not None and a.h(k) == b.h(k))
 
@@ -2575,7 +2577,7 @@ def dip_mmss():
     exiger(re.search(r"PLAY TIME +03:01", b.texte(330)), "l'éditeur ne montre pas PLAY TIME 03:01")
     for k in (1300, 2000, 3000):
         c = cases(a.img(k), b.img(k))
-        # Le TIME du HUD de ncombat : « 02:56 », colonnes 10-15 de la ligne 26 (y 208-215).
+        # The TIME of ncombat's HUD: "02:56", columns 10-15 of line 26 (y 208-215).
         dans = [x for x in c if 10 <= x[0] <= 15 and x[1] == 26]
         dit(f"trame {k} : {len(dans)} case(s) changent dans le TIME du HUD, {len(c) - len(dans)} ailleurs")
         exiger(dans, f"trame {k} : le TIME du HUD ne change pas")
@@ -2652,7 +2654,7 @@ def tests_barres():
     rvb = lambda x: ((x >> 16) & 255, (x >> 8) & 255, x & 255)
     for k, page in ((420, "rouge, vert, bleu"), (470, "blanc")):
         a = t.img(k)
-        for b, y in enumerate((56, 104, 152)):  # les trois barres, lignes 6-11, 12-17, 18-23
+        for b, y in enumerate((56, 104, 152)):  # the three bars, lines 6-11, 12-17, 18-23
             pas = [rvb(a[y * 320 + 40 + 16 * s]) for s in range(16)]
             exiger(pas[0] == (0, 0, 0), f"{page}, barre {b + 1} : le pas 0 n'est pas noir")
             for c in range(3):
@@ -2783,8 +2785,9 @@ def aes_texte():
     n = sum(1 for x in range(3845, 4100) if h.f[x]["z1"] in vus)
     avant = {k.f[x]["z1"] for x in range(1000, 3845)}
     n0 = sum(1 for x in range(1000, 3845) if h.f[x]["z1"] in avant)
-    # Les états tenus (≥ 10 trames d'une même image de la zone) : les messages, hors des trames
-    # d'animation, que le défilement du décor derrière rend rarement égales d'un BIOS à l'autre.
+    # The held states (≥ 10 frames of a same image of the area): the messages, outside the
+    # animation frames, which the scrolling of the background behind rarely makes equal from one
+    # BIOS to the other.
     tous = avant | vus
     etats = []
     for v, g in itertools.groupby(range(3845, 4100), lambda x: h.f[x]["z1"]):
@@ -2840,9 +2843,10 @@ def jukebox_repete():
     dit(f"« haut » tenu 60 trames : {a} → {b}, {pas} crans")
     exiger(pas >= F("jukebox-repete", "crans_min"), f"{pas} crans")
 
-# ---- la couverture, second lot : CARD forcé, INPUT TEST de P2 et des commutateurs, NO SOFT DIP DATA ----
+# ---- the coverage, second batch: CARD forced, INPUT TEST of P2 and of the switches,
+# NO SOFT DIP DATA ----
 def forcer_sortie(nom):
-    """La sortie de `forcer.lua` : l'interface après l'appel, le tampon, et la carte du run."""
+    """The output of `forcer.lua`: the interface after the call, the buffer, and the run's card."""
     t = open(os.path.join(RUNS, nom, "o.txt"), errors="replace").read()
     exiger(re.search(r"retour apres \d+ trames", t), f"{nom} : CARD ne rend pas la main")
     ap = re.search(r"apres: ([0-9A-F ]+)", t)
@@ -2864,7 +2868,7 @@ def carte_chercher():
         exiger(d <= F("carte-chercher", "octets_max"), f"NGH $00{ngh} : {d} octets de l'interface diffèrent du BIOS SNK")
         exiger(ca == cb, f"NGH $00{ngh} : la carte diffère de celle du BIOS SNK (la recherche n'écrit pas)")
         vu[ngh] = a
-    # BIOS_CARD_SUB ($10FDD0, octets 12-13 de l'interface) : le masque des sous-sauvegardes.
+    # BIOS_CARD_SUB ($10FDD0, bytes 12-13 of the interface): the mask of the sub-saves.
     exiger(vu["44"][12:14] != vu["66"][12:14], "le masque est le même pour un NGH présent et un NGH absent : la scène ne prouve rien")
 
 def carte_supprimer():
@@ -2893,14 +2897,14 @@ def carte_nom():
     exiger(d <= F("carte-nom", "octets_max"), f"{d} octets de la carte diffèrent du BIOS SNK")
     a, ta, _ = forcer_sortie("cop-nomlu")
     b, tb, _ = forcer_sortie("cop-nomlu-snk")
-    # Le motif de `forcer.lua` (A_REMPLIR) : ses 16 premiers octets sont le nom écrit.
+    # The pattern of `forcer.lua` (A_REMPLIR): its first 16 bytes are the written name.
     nom = "".join("%02X" % ((i * 7 + 0x31) & 0xFF) for i in range(16))
     dit(f"le nom relu : tampon {ta}, réponse ${a[2]} ; BIOS SNK {tb}, ${b[2]} ; écrit {nom}")
     exiger(tb == nom, "le BIOS SNK ne relit pas le nom écrit : la scène ne prouve rien")
     exiger(ta == tb and a == b, "le nom relu ou la réponse diffèrent du BIOS SNK")
 
-# L'INPUT TEST : la case de chaque élément, lue dans la table de `src/c0/tests.s` (ELEM : colonne,
-# ligne du plan fixe, texte) ; à l'écran, la case (colonne, ligne − 2).
+# The INPUT TEST: the cell of each element, read in the table of `src/c0/tests.s` (ELEM: column,
+# fix layer line, text); on screen, the cell (column, line − 2).
 def elem(col, ligne, txt):
     return {(col + i, ligne - 2) for i in range(len(txt))}
 
@@ -2936,7 +2940,7 @@ def dip_sans_donnees():
     tn, tl = n.texte(330), l.texte(330)
     exiger("ROUND TIME" in tl, "l'éditeur du témoin n'a pas de ROUND TIME : la scène ne prouve rien")
     exiger("SOFT DIP SETTINGS" in tn and "NO SOFT DIP DATA" in tn, "l'éditeur ne dit pas NO SOFT DIP DATA")
-    # La liste : lignes 7 à 27 du plan fixe (`dip.s`, CASE_LIGNE ; 8 à 26 avant le 2026-10-24).
+    # The list: lines 7 to 27 of the fix layer (`dip.s`, CASE_LIGNE; 8 to 26 before 2026-10-24).
     ln = [n.fix[330].get(r, "").strip() for r in range(7, 28)]
     ll = [l.fix[330].get(r, "").strip() for r in range(7, 28)]
     ln, ll = [x for x in ln if x], [x for x in ll if x]
@@ -2945,16 +2949,17 @@ def dip_sans_donnees():
     exiger(not [x for x in ln if "ROUND TIME" in x], "la fixture montre ROUND TIME")
     exiger([k for k, e in n.ev if e == "REMISE" and k > 340], "START ne rend pas la main au jeu")
 
-# ---- le menu en jeu complet : GAME SETTINGS et MEMORY EDITOR (relevé --ref-menu) ----
+# ---- the full in-game menu: GAME SETTINGS and MEMORY EDITOR (record --ref-menu) ----
 def apres_pause(run):
     a, b = pause_apres(run, 1000)
     return b + 1
 def chrono_65(p, t1):
-    """Les images du chronomètre d'aof qu'on ne voit qu'avec ROUND TIME 65 : celles de temps1 (65 posé à
-    l'éditeur du boot) que le témoin (60) ne montre jamais — les valeurs 61 à 65. Seules celles qui tiennent au
-    moins deux trames : une seconde en dure ~60, et une image de passage d'un chiffre à l'autre, vue une seule trame,
-    peut manquer au témoin par la phase seule — mesuré le 2026-10-25 : le passage de 52 à 51 (trame 3818 de temps1),
-    absent de partie, comptait une trame « 61-65 » à gs-def sur une image à 30 cycles par trame de plus."""
+    """The images of aof's timer that only show with ROUND TIME 65: those of temps1 (65 set in the boot
+    editor) that the witness run (60) never shows — the values 61 to 65. Only those that last at least two
+    frames: a second lasts ~60, and an image of the transition from one digit to the next, seen for a single
+    frame, can be missing from the witness run through the phase alone — measured on 2026-10-25: the transition
+    from 52 to 51 (frame 3818 of temps1), absent from partie, counted one "61-65" frame in gs-def on an image
+    30 cycles per frame longer."""
     from collections import Counter
     n1 = Counter(t1.f[n]["z1"] for n in t1.f if "z1" in t1.f[n])
     h = {z for z, k in n1.items() if k >= 2} - {p.f[n]["z1"] for n in p.f if "z1" in p.f[n]}
@@ -3006,7 +3011,7 @@ def gs_mmss():
     R = relance(g, 2410)
     for k in (1300, 2000, 3000):
         ig = g.img(R + k)
-        # Le TIME du HUD de ncombat : colonnes 10-15 de la ligne 26 (y 208-215), comme dip-mmss.
+        # The TIME of ncombat's HUD: columns 10-15 of line 26 (y 208-215), like dip-mmss.
         zone = lambda c: [x for x in c if 10 <= x[0] <= 15 and x[1] == 26]
         c1, c0 = cases(b.img(k), ig), cases(a.img(k), ig)
         dit(f"R + {k} : TIME {len(zone(c1))} case(s) de l'éditeur du boot à 03:01, {len(zone(c0))} de 03:00 ; {len(c1)} cases en tout contre 03:01")
@@ -3025,7 +3030,7 @@ def gs_fois():
     exiger(abs(rg - rb) <= F("gs-fois", "ecart_max"), f"{abs(rg - rb)} trames d'écart avec WITHOUT posé au boot")
 
 def liste_gs(run, n):
-    """Les lignes de la liste de GAME SETTINGS : lignes 3 à 10 du cadre, 12 à 19 de l'écran."""
+    """The lines of the GAME SETTINGS list: lines 3 to 10 of the box, 12 to 19 of the screen."""
     return [x for x in (run.fix.get(n, {}).get(r, "").strip() for r in range(12, 20)) if x]
 
 def gs_sans(nom):
@@ -3042,8 +3047,8 @@ def gs_banque():
     gs_sans("gs-banque")
 
 def me_ecran_lu(run, n):
-    """L'écran de l'éditeur mémoire à la trame n : l'adresse du curseur (ligne 0 du cadre, colonne 20 ;
-    écran 9, 26), et les huit lignes (cadre 2-9, écran 11-18 : l'adresse, puis 2 × 4 octets)."""
+    """The memory editor screen at frame n: the cursor address (line 0 of the box, column 20;
+    screen 9, 26), and the eight lines (box 2-9, screen 11-18: the address, then 2 × 4 bytes)."""
     fx = run.fix.get(n, {})
     exiger(fx, f"pas de plan fixe à la trame {n}")
     tete = fx.get(9, "")
@@ -3055,7 +3060,7 @@ def me_ecran_lu(run, n):
         lignes.append((int(m[1], 16), bytes.fromhex(m[2] + m[3])))
     return int(tete[26:32], 16), lignes
 def ram(run, n, a0):
-    """Les huit octets de a0 lus par lua en fin de trame (J_SUIVRE, des mots)."""
+    """The eight bytes at a0 read by lua at the end of the frame (J_SUIVRE, words)."""
     f = run.f[n]
     return b"".join(int(f["m%06X" % (a0 + 2 * k)], 16).to_bytes(2, "big") for k in range(4))
 
@@ -3108,7 +3113,7 @@ def me_poke():
     exiger(re.search(r"108400 [0-9A-F]{8} [0-9A-F]{4}40", k.texte(2571)) and "SET VALUE" not in k.texte(2571), "B ne renonce pas")
     exiger(k.f[2571].get("m108406") == "40", f"$108406 vaut {k.f[2571].get('m108406')} après B, $40 attendu")
     r, D = reprise(k, p)
-    # Le HUD d'aof ne redessine le chronomètre qu'au décompte suivant : $40 écrit, il affiche 39.
+    # aof's HUD only redraws the timer at the next countdown: $40 written, it displays 39.
     h = {p.f[n]["z1"] for n in p.f if p.f[n].get("m108406") == "39"}
     exiger(h, "le témoin ne passe pas par 39 : la scène ne prouve rien")
     n = sum(1 for x in range(r, r + 600) if k.f[x].get("z1") in h)
@@ -3157,7 +3162,7 @@ def me_borne():
     v = {m.f[n]["m10FD84"] for n in range(2357, 2700) if n in m.f}
     exiger(len(v) == 1, f"$10FD84 a changé : {sorted(v)}")
 
-# ---- le bus flottant ----
+# ---- the floating bus ----
 def bf_bilan(run):
     b = [l for l in open(os.path.join(run.d, "bf.tsv"), encoding="utf-8") if l.startswith("#\tbilan")]
     exiger(b, f"{run.nom} : pas de bilan du bus flottant")
@@ -3214,14 +3219,15 @@ def flash_cart():
     exiger(lb == 0 and lj == 0, f"{lb} lectures flottantes du BIOS, {lj} du jeu")
     exiger(jeu > 0, "le jeu n'a jamais la main")
 
-# ---- le gestionnaire de la carte mémoire (relevé --ref-carte) ----
-# Les lignes de l'écran (`src/c0/gestion-carte.s`) : l'état à la ligne 6, la protection à la 7, la liste de la 10 à
-# la 22, les messages à la 24 ; une ligne de la liste : le curseur en colonne 3, puis NGH, sous-sauvegarde, blocs, nom.
+# ---- the memory card manager (record --ref-carte) ----
+# The lines of the screen (`src/c0/gestion-carte.s`): the state at line 6, the protection at 7,
+# the list from 10 to 22, the messages at 24; a line of the list: the cursor in column 3, then
+# NGH, sub-save, blocks, name.
 def cm_l(run, n, r):
     exiger(n in run.fix, f"{run.nom} : pas de plan fixe à la trame {n}")
     return run.fix[n].get(r, "")
 def cm_liste_de(run, n):
-    """Les sauvegardes listées : (choisie, NGH, sous-sauvegarde, blocs, nom)."""
+    """The listed saves: (selected, NGH, sub-save, blocks, name)."""
     out = []
     for r in range(10, 23):
         m = re.match(r"^ {3}([> ]) ([0-9A-F]{4}) (\d\d)  (\d\d)  (.*?) *$", cm_l(run, n, r))
@@ -3336,7 +3342,8 @@ def cm_insertion():
     dit(f"carte absente : « {e0} » ; présente à 400 : « {e1} », {len(v)} sauvegardes visibles")
     exiger(e0 == "NO CARD", f"« {e0} » avant l'insertion")
     exiger(e1 == "FREE BLOCKS 11" and v and v[0][1] == "0044", "la carte insérée n'est pas relue")
-    # Une confirmation en attente, puis la carte retirée et remise : elle est abandonnée, rien n'est effacé.
+    # A pending confirmation, then the card removed and reinserted: it is abandoned, nothing is
+    # erased.
     m0, m1, m2 = cm_l(i, 440, 24).strip(), cm_l(i, 480, 24).strip(), cm_l(i, 500, 24).strip()
     w = cm_liste_de(i, 480)
     d = octets(carte_de("cm-insertion"), open(FIXTURE, "rb").read())
@@ -3379,7 +3386,7 @@ def scores_gel():
 def bf_carte():
     bf_juge("bf-carte", [(345, "ART OF FIGHTING"), (345, "FREE BLOCKS 11"), (410, r"> MEMORY CARD")])
 
-# ---- les réglages de la borne (relevé --ref-borne) ----
+# ---- the cabinet settings (record --ref-borne) ----
 def lignes_liste(run, n):
     return [run.fix.get(n, {}).get(r, "").strip() for r in range(7, 28) if run.fix.get(n, {}).get(r, "").strip()]
 
@@ -3430,16 +3437,17 @@ def bo_reglage(run, m):
     exiger(re.search(m, run.texte(365)), f"{run.nom} : l'éditeur ne montre pas « {m} »")
 
 def bo_alignes(a, k):
-    # La première remise du BIOS SNK (mode 01, demande 00) précède d'une trame sa demande 2 : 750 et 751, contre 184
-    # chez nous (demande 2 directe) ; les entrées du témoin sont décalées de 567, de demande 2 à demande 2.
+    # The first hand-over of the SNK BIOS (mode 01, request 00) precedes its request 2 by one
+    # frame: 750 and 751, against 184 for us (direct request 2); the inputs of the witness run are
+    # shifted by 567, from request 2 to request 2.
     r, rk = premiere_remise(a), premiere_remise(k)
     exiger(rk - r == 566, f"remises {r} et {rk} : l'écart n'est plus 566, les entrées du témoin ne sont plus au même instant")
     return 567
 
 def meme_instant_d(a, b, n0, n1, d):
-    """Les trames de [n0, n1) égales au témoin, au meilleur décalage à ± 3 trames de d : la partie part à la trame de
-    l'appui sous les deux BIOS, mais pas à la même phase de la trame (mesuré : 213 à 1 123 trames égales selon le
-    décalage, de 565 à 568)."""
+    """The frames of [n0, n1) equal to the witness run, at the best shift within ± 3 frames of d: the game starts on
+    the frame of the press under both BIOSes, but not at the same phase of the frame (measured: 213 to 1,123 equal
+    frames depending on the shift, from 565 to 568)."""
     return max(sum(1 for k in range(n0, n1) if a.h(k) is not None and a.h(k) == b.h(k + x)) for x in range(d - 3, d + 4))
 
 def bo_free_play():
@@ -3536,7 +3544,7 @@ def bo_aes():
     exiger(ef <= F("bo-aes", "fin_max"), f"{ef} trames du game over")
     exiger(rc > 0 and ra >= F("bo-aes", "demo_min") * rc, f"la démo RMS {ra:.0f} contre {rc:.0f} : DEMO SOUND agit en mode AES")
 
-# ---- le catalogue des cheats et CHEATS/DEBUG (relevé --ref-cheats) ----
+# ---- the cheat catalogue and CHEATS/DEBUG (record --ref-cheats) ----
 def cheats_vies():
     o, t = sain("cv-on", "cv-temoin")
     exiger(re.search(r"INFINITE LIVES +ON", o.texte(1560)), "le menu ne montre pas INFINITE LIVES ON")
@@ -3553,7 +3561,7 @@ def cheats_vies():
     exiger(fo >= F("cheats-vies", "hud_on_min"), f"le compteur de vies change sous cheat ({fo:.3f})")
     exiger(not fin_o, f"fin de partie sous cheat à la trame {fin_o[0] if fin_o else 0}")
 
-# ---- la grille de $C03000 (relevé --ref-ssideki) ----
+# ---- the grid of $C03000 (record --ref-ssideki) ----
 def demo_ssideki():
     o, t = sain("ss-notre", "ss-snk")
     def apres_remise(run):
@@ -3603,7 +3611,7 @@ def bo_cd_gel():
 def bf_borne():
     bf_juge("bf-borne", [(325, "CABINET SETTINGS"), (325, r"FREE PLAY +OFF"), (385, "ART OF FIGHTING"), (385, r"> CABINET SETTINGS")])
 
-# ---- le CRC32 de la cartouche et les debug dips (relevé --ref-crc) ----
+# ---- the cartridge CRC32 and the debug dips (record --ref-crc) ----
 def crc_attendu(jeu):
     for l in open(CRC_ATTENDUS, encoding="utf-8"):
         c = l.rstrip("\n").split("\t")
@@ -3619,8 +3627,8 @@ def crc_lignes(run, n):
     return t, f, b
 
 def crc_juge(run, jeu, n_fin, scene, fixe=None):
-    """L'écran du CRC : le calcul en cours, puis ses deux lignes égales à celles de `crc-cartouche.py` (ou à `fixe`), DONE
-    au plus tard à la trame du seuil."""
+    """The CRC screen: the computation in progress, then its two lines equal to those of `crc-cartouche.py` (or to
+    `fixe`), DONE at the latest on the threshold frame."""
     c = crc_attendu(jeu)
     t, f, b = crc_lignes(run, n_fin)
     dit(f"{run.nom}, trame {n_fin} : {f[0] if f else 'pas de FIXED'} / {b[0] if b else 'pas de BANKS'} ; "
@@ -3768,7 +3776,7 @@ JUGES = {"aes-bascule": aes_bascule, "aes-demo": aes_demo, "aes-start": aes_star
          "demo-ssideki": demo_ssideki,
          "crc-fixe": crc_fixe, "crc-banques": crc_banques, "crc-miroir": crc_miroir, "crc-flottant": crc_flottant, "bf-crc": bf_crc,
          "bf-crc-banque": bf_crc_banque, "dd-effet": dd_effet, "dd-off": dd_off}
-# ---- les commutateurs de la carte et le geste sans bouton TEST (relevé --ref-dip) ----
+# ---- the board switches and the gesture without a TEST button (record --ref-dip) ----
 def mode_a(run, n0, n1):
     return {run.f[k]["m10FDAF"] for k in range(n0, n1) if k in run.f}
 
@@ -3913,7 +3921,7 @@ def geste_jeu():
     exiger(pA and pA[0][1] - pA[0][0] >= F("geste-jeu", "pause_min"), "START + SELECT + A : le jeu n'est pas en pause")
 
 def compte_geste(run, n0, n1):
-    # MN_COMPTE, .w signé : $FFFF après une fermeture (attendre le relâchement), compté comme 0.
+    # MN_COMPTE, signed .w: $FFFF after a close (wait for the release), counted as 0.
     v = [int(run.f[k]["m10F800"], 16) for k in range(n0, n1) if "m10F800" in run.f.get(k, {})]
     return max([x for x in v if x < 0x8000] or [0])
 
@@ -3931,10 +3939,10 @@ def geste_partie():
         exiger(c < F("geste-partie", "compte_max"), f"{j} : le compte du geste atteint {c}")
         exiger(lp < F("geste-partie", "pause_min"), f"{j} : une pause de {lp} trames")
 
-# ---- les intitulés en région JAPAN (measured/2026-10-27-intitules-japon.tsv) ----
+# ---- the labels in the JAPAN region (measured/2026-10-27-intitules-japon.tsv) ----
 def intitules_snk(run, n):
-    """Les intitulés du BIOS SNK japonais : les rangées en banque $3 (moitié haute), colonnes 6-17, en octets, sans les
-    espaces de fin ; un par réglage."""
+    """The labels of the Japanese SNK BIOS: the rows in bank $3 (upper half), columns 6-17, as bytes, without the
+    trailing spaces; one per setting."""
     r = []
     for row, t in sorted(run.tu.get(n, {}).items()):
         if any((x >> 8) & 0xF == 3 for x in t[6:18]):
@@ -3944,9 +3952,9 @@ def intitules_snk(run, n):
     return r
 
 def lu_notre(t):
-    """Une rangée du plan fixe en octets : None où la case ne peut pas être cet octet. Un octet dont le glyphe est le même
-    dans les deux banques de la police de la carte ($20-$5E, $61-$7B : measured/2026-10-27-intitules-japon.tsv, section 2)
-    s'écrit en 8×8 (banque 0), en $100 + b ou en $300 + b ; tout autre, seulement en $300 + b (la règle relevée)."""
+    """A row of the fix layer as bytes: None where the cell cannot be that byte. A byte whose glyph is the same in
+    both banks of the card's font ($20-$5E, $61-$7B: measured/2026-10-27-intitules-japon.tsv, section 2) is
+    written in 8×8 (bank 0), as $100 + b or as $300 + b; any other, only as $300 + b (the recorded rule)."""
     o = []
     for x in t:
         b, k = x & 0xFF, (x >> 8) & 0xF
@@ -3971,12 +3979,12 @@ def japon_intitules():
     exiger(not manque, f"{len(manque)} intitulés absents de notre écran, comme suite de tuiles : {manque[:3]}")
 
 def liste_cadre(run, n):
-    """GAME SETTINGS : les lignes 3 à 10 du cadre (rangées 12 à 19), « > » ôté, telles qu'à l'écran."""
+    """GAME SETTINGS: lines 3 to 10 of the box (rows 12 to 19), ">" removed, as on screen."""
     return [run.fix.get(n, {}).get(r, "")[8:34].rstrip() for r in range(12, 20)]
 
 def cadre_sans_banque_japon(run, n):
-    """Aucune tuile des banques $3/$4 dans le cadre (rangées 9 à 22, colonnes 6 à 33) : sous la S ROM de la cartouche,
-    ces tuiles dessinent le décor du jeu (measured/2026-10-27-intitules-japon.tsv, section 3)."""
+    """No tile from banks $3/$4 in the box (rows 9 to 22, columns 6 to 33): under the cartridge's S ROM,
+    these tiles draw the game's scenery (measured/2026-10-27-intitules-japon.tsv, section 3)."""
     return [(r, c) for r, t in run.tu.get(n, {}).items() if 9 <= r <= 22 for c in range(6, 34) if (t[c] >> 8) & 0xF in (3, 4)]
 
 def gs_japon():
@@ -4010,13 +4018,13 @@ JUGES.update({"dip-free-play": dip_free_play, "dip-fp-p2": dip_fp_p2, "dip-fp-re
               "dip-fp-chaud": dip_fp_chaud, "dip-fp-cabinet": dip_fp_cabinet, "dip-setting": dip_setting,
               "geste-boot": geste_boot, "geste-jeu": geste_jeu, "dip-fp-reglage": dip_fp_reglage,
               "geste-partie": geste_partie})
-# ---- Les commutateurs 2, 3 et 8 ----
+# ---- The board switches 2, 3 and 8 ----
 def figees_dans(run, n0, n1):
-    """Les trames de [n0, n1[ dont l'image égale celle de la trame d'avant."""
+    """The frames of [n0, n1[ whose image equals that of the previous frame."""
     return sum(1 for k in range(n0, n1) if run.h(k) is not None and run.h(k) == run.h(k - 1))
 
 def reprise_decalee(a, b, n0, n1, d):
-    """Les trames k de [n0, n1[ de a égales à la trame k − d de b : a a repris là où b était."""
+    """The frames k of [n0, n1[ of a equal to frame k − d of b: a resumed where b was."""
     return sum(1 for k in range(n0, n1) if a.h(k) is not None and a.h(k) == b.h(k - d))
 
 def dip_gel():
@@ -4057,7 +4065,7 @@ def dip_gel_boot():
     exiger([k for k in r if k > 1000] and min(k for k in r if k > 1000) - 1000 <= F("dip-gel-boot", "reprise_max"),
            f"le boot ne reprend pas au commutateur remis à OFF : {r[:3]}")
 
-# Les touches de TOUCHES_MJ (`parcours.sh`) : (trame, touches) ; une touche = (rangée, bit) — mahjong.cpp.
+# The keys of TOUCHES_MJ (`parcours.sh`): (frame, keys); a key = (row, bit) — mahjong.cpp.
 RANGEES_MJ = {k: (0, i) for i, k in enumerate("ABCDEFG")}
 RANGEES_MJ.update({k: (1, i) for i, k in enumerate("HIJKLMN")})
 RANGEES_MJ.update({k: (2, i) for i, k in enumerate(("Pon", "Chi", "Kan", "Ron", "Reach"))})
@@ -4116,14 +4124,15 @@ def dip_mj_off():
     exiger(not faux, "; ".join(faux[:3]))
 
 def bandeau(run, n):
-    """Les cases du bas de l'écran (lignes 26 à 27 du plan fixe : y 208-223) où l'image n'est pas noire."""
+    """The cells at the bottom of the screen (lines 26 to 27 of the fix layer: y 208-223) where the image is not black."""
     a = run.img(n)
     return {(x // 8, y // 8) for y in range(208, 224) for x in range(320)
             if (a[y * 320 + x] & 255) + ((a[y * 320 + x] >> 8) & 255) + ((a[y * 320 + x] >> 16) & 255) > 24}
 
 def dip_4p():
     a, a0, s, s0 = sain("4p", "4p0", "4p-snk", "4p0-snk")
-    # La démo du BIOS SNK part ~560 trames après la nôtre (750 contre 189) : son écran est pris à 1460.
+    # The demo of the SNK BIOS starts ~560 frames after ours (750 against 189): its screen is
+    # taken at 1460.
     c, c0, cs, cs0 = len(bandeau(a, 900)), len(bandeau(a0, 900)), len(bandeau(s, 1460)), len(bandeau(s0, 1460))
     v = {memoire(a, k, "10FEF8") for k in range(400, 1000)}
     dit(f"kizuna, commutateur 2 à ON : $10FEF8 {sorted(v)} ; le bas de l'écran à 900 : {c} cases allumées (OFF {c0}) ;"
@@ -4147,7 +4156,7 @@ def dip_4p_off():
 
 JUGES.update({"dip-gel": dip_gel, "dip-gel-off": dip_gel_off, "dip-gel-boot": dip_gel_boot, "dip-mahjong": dip_mahjong,
               "dip-mj-off": dip_mj_off, "dip-4p": dip_4p, "dip-4p-off": dip_4p_off})
-# ---- L'autofire ----
+# ---- The autofire ----
 def bit_a(run, n0, n1, adr="10FD95", bit=4):
     return [(memoire(run, k, adr) >> bit) & 1 for k in range(n0, n1)]
 
@@ -4186,7 +4195,8 @@ def af_off():
     dit(f"A remis à OFF : {e}/1100 trames égales au run sans turbo, A vu {c}/998 trames ; relu après redémarrage :"
         f" {el}/1100, A vu {cl}/998")
     exiger(af_ecran(s0, 1066, "ON") and af_ecran(s0, 1072, "OFF"), "l'écran ne dit pas BUTTON A ON puis OFF")
-    # Avant sa touche (gauche, qui remettrait à OFF une fiche restée à ON), af-relu doit déjà dire OFF.
+    # Before its key (left, which would set back to OFF an entry left at ON), af-relu must
+    # already say OFF.
     exiger(af_ecran(rl, 1066, "OFF"), "relu : l'écran AUTOFIRE ne dit pas BUTTON A OFF, la fiche ON est restée")
     exiger(memoire(s0, 2399, "D001B4") != 0x51, "la fiche de viewpoin reste en backup RAM après OFF")
     exiger(e >= F("af-off", "egales_min") and c == 998, f"A à OFF : {e} trames égales, A vu {c} : le turbo reste")
@@ -4207,9 +4217,9 @@ def af_mahjong():
     exiger(rang == {0x10}, f"la rangée A-G vaut {sorted(rang)} : le turbo touche le panneau")
 
 JUGES.update({"af-tir": af_tir, "af-sauve": af_sauve, "af-off": af_off, "af-mahjong": af_mahjong})
-# ---- Les garanties sur les défauts d'UniBIOS (relevé --ref-garanties) ----
+# ---- The guarantees on UniBIOS defects (record --ref-garanties) ----
 def premiere_palette(run):
-    """La première trame où le BIOS écrit une palette : l'écran de boot commence (`ecran.s`, trame 0)."""
+    """The first frame where the BIOS writes a palette: the boot screen starts (`ecran.s`, frame 0)."""
     t = [k for k in sorted(run.f) if int(run.f[k].get("palB", "0")) > 0]
     exiger(t, f"{run.nom} : aucune écriture de palette du BIOS")
     return t[0]
@@ -4219,8 +4229,8 @@ def differentes(a, b, n0, n1):
 
 def boot_graphismes():
     n, b = sain("bg", "bg-brouille")
-    # Le témoin UniBIOS : ni notre image ni celle de SNK, et la fixture porte WRONG CHECKSUMS de toute façon ; seul
-    # le code de sortie de MAME est exigé.
+    # The UniBIOS witness run: neither our image nor SNK's, and the fixture carries WRONG
+    # CHECKSUMS anyway; only MAME's exit code is required.
     for x in ("bg-uni", "bg-uni-brouille"):
         rc = open(os.path.join(RUNS, x, "rc")).read().strip() if os.path.exists(os.path.join(RUNS, x, "rc")) else "?"
         exiger(rc == "0", f"run {x} : MAME sorti en {rc}")
@@ -4270,7 +4280,8 @@ def dip_vierge():
         exiger(len(img) <= F("dip-vierge", "cases_max"), f"{r.nom} : {len(img)} cases à la trame 3000")
     exiger(bloc(n, 400, 0x230) == bloc(n, 1, 0x230), "vierge-n : le bloc 1, d'une autre entrée, a changé")
     exiger(memoire(n, 400, "D002A0") == memoire(z, 400, "D002A0"), "vierge-n : le nom du jeu n'est pas écrit")
-    # mslug : le bloc dans la zone banquée, que `_dip_valider` laisse ; seul l'éditeur rend les valeurs valides.
+    # mslug: the block in the banked area, which `_dip_valider` leaves; only the editor makes
+    # the values valid.
     m0, m = sain("vierge-m0", "vierge-m")
     bm, bm0 = bloc(m, 400), bloc(m0, 400)
     dit(f"vierge-m (mslug) : bloc enregistré {' '.join('%04X' % x for x in bm)} (NVRAM neuve : {' '.join('%04X' % x for x in bm0)})")
@@ -4290,7 +4301,8 @@ def dip_corrompue():
     exiger(gd(c) == gd(z), "GAME_DIP n'est pas celui du témoin : le bloc quelconque est servi au jeu")
     exiger(e >= F("dip-corrompue", "egales_min"), f"{e} trames égales au témoin")
 
-# Les touches de la page (`tests.s`, .Lm_touches) : intitulé, colonne, ligne ; le chiffre suit l'intitulé et une espace.
+# The keys of the page (`tests.s`, .Lm_touches): label, column, line; the digit follows the
+# label and a space.
 MJ_PAGE = [(k, 5, 8 + i) for i, k in enumerate("ABCDEFG")] + [(k, 11, 8 + i) for i, k in enumerate("HIJKLMN")]
 MJ_PAGE += [(k, 17, 8 + i) for i, k in enumerate(("PON", "CHI", "KAN", "RON", "REACH", "START", "SELECT"))]
 
@@ -4312,7 +4324,7 @@ def tests_mahjong():
     exiger("HARDWARE TESTS" in t.texte(640) and "INPUT TEST" in t.texte(640), "START tenu ne rend pas le menu des tests")
 
 def carte_sauv(c, ngh, sub):
-    """Les 64 octets du premier bloc de la sauvegarde ngh/sub de la carte c, ou None."""
+    """The 64 bytes of the first block of save ngh/sub on card c, or None."""
     for k in range(32):
         e = c[0x40 + 4 * k:0x44 + 4 * k]
         if e[0] != 0xFF and e[0] == sub and (e[1] << 8 | e[2]) == ngh:
@@ -4325,7 +4337,8 @@ def cm_copier():
     attendu = carte_sauv(src, 0x44, 0)
     exiger(attendu and attendu != bytes(64), "la source ne porte pas le motif : la scène ne prouve rien")
     ram = lambda run, n: [memoire(run, n, a) for a in ("100000", "100002", "100004", "100006", "1006BE")]
-    # La RAM relue juste après COPIED, l'écran encore ouvert : au START, le jeu prend la main et écrit la sienne.
+    # The RAM read back just after COPIED, the screen still open: at START, the game takes
+    # control and writes its own.
     for run, apres, msgs in ((v, 475, ((380, "CHANGE CARD AND PRESS A"), (460, "COPIED"))),
                              (c, 505, ((380, "CHANGE CARD AND PRESS A"), (460, "OVERWRITE 0044-00? A:YES B:NO"), (490, "COPIED")))):
         for n, m in msgs:
@@ -4357,14 +4370,14 @@ def jukebox_veille():
     dit(f"le code : {c1} après le réveil, {c2} après le HAUT suivant")
     exiger(c1 == "21" and c2 == "22", f"le code {c1} puis {c2}, 21 puis 22 attendus")
 
-# ---- Les menus au panneau de mahjong (relevé --ref-panneau) ----
+# ---- The menus on the mahjong panel (record --ref-panneau) ----
 def choisie(run, n):
-    """La ligne sous le curseur « > » du plan fixe à la trame n, sans le curseur ; None s'il n'y en a pas."""
+    """The line under the ">" cursor of the fix layer at frame n, without the cursor; None if there is none."""
     l = [s.strip()[1:].strip() for s in run.fix.get(n, {}).values() if s.strip().startswith(">")]
     exiger(len(l) <= 1, f"{run.nom}, trame {n} : {len(l)} curseurs")
     return " ".join(l[0].split()) if l else None
 def editeur_vers_tests(run, n_mode, n_tests):
-    """Le chemin de l'éditeur : REGION à l'ouverture, MODE MVS jusqu'à n_mode, HARDWARE TESTS à n_mode + 10, ouverts à n_tests."""
+    """The editor's path: REGION on opening, MODE MVS until n_mode, HARDWARE TESTS at n_mode + 10, opened at n_tests."""
     for n, attendu in ((265, "REGION EUROPE"), (305, "MODE MVS"), (n_mode, "MODE MVS"), (n_mode + 10, "HARDWARE TESTS")):
         c = choisie(run, n)
         dit(f"{run.nom}, trame {n} : « {c} »")
@@ -4412,11 +4425,12 @@ JUGES.update({"boot-graphismes": boot_graphismes, "ms-son-slot2": ms_son_slot2, 
               "dip-corrompue": dip_corrompue, "tests-mahjong": tests_mahjong, "jukebox-veille": jukebox_veille,
               "cm-copier": cm_copier})
 
-# ---- La table du sinus (relevé --ref-sinus) ----
-# Les couleurs du vaisseau d'alpham2, relevées sur une image du témoin (b, g, r de l'image bgra).
+# ---- The sine table (record --ref-sinus) ----
+# The colours of alpham2's ship, recorded on an image of the witness run (b, g, r of the bgra
+# image).
 VIOLET = {int.from_bytes(bytes.fromhex(h), "little") for h in ("4f266d", "6d4998", "cba0f1", "9267b6", "41162c")}
 def vaisseau(run, n):
-    """Le centre du cadre des pixels du vaisseau dans la zone de jeu (y 24-211), à la trame n."""
+    """The centre of the bounding box of the ship's pixels in the play area (y 24-211), at frame n."""
     a, xs, ys = run.img(n), [], []
     for y in range(24, 212):
         for x in range(320):
@@ -4448,9 +4462,9 @@ def howto_preisle2():
 
 JUGES.update({"alpha-trajectoire": alpha_trajectoire, "howto-preisle2": howto_preisle2})
 JUGES.update({"tests-sauvegarde": tests_sauvegarde, "dd-connu": dd_connu})
-# Un défaut connu du BIOS, pas encore corrigé : la scène tourne et dit son verdict, « CONNU » au
-# lieu de FAIL, sans faire échouer le parcours (grandeur « bug_connu » du relevé, 1). Corrigé,
-# elle sort PASS : retirer alors la ligne du relevé.
+# A known defect of the BIOS, not yet fixed: the scene runs and gives its verdict, "CONNU"
+# instead of FAIL, without failing the player's path (quantity "bug_connu" of the record, 1).
+# Once fixed, it comes out PASS: then remove the line from the record.
 CONNUS = {sc for (sc, g), v in SEUILS.items() if g == "bug_connu" and v == "1"}
 echecs = 0
 for s in SCENES:
@@ -4460,7 +4474,7 @@ for s in SCENES:
         verdict, raison = "PASS", ""
     except Ecart as e:
         verdict, raison = "FAIL", str(e)
-    except Exception as e:  # un relevé absent ou illisible est un échec, pas un plantage du juge
+    except Exception as e:  # an absent or unreadable record is a failure, not a crash of the judge
         verdict, raison = "FAIL", f"{type(e).__name__} : {e}"
     if verdict == "FAIL" and s in CONNUS:
         verdict = "CONNU"

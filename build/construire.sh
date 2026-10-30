@@ -98,10 +98,10 @@ brut = io.open(sys.argv[3], "rb").read()
 if len(brut) > taille:
     sys.exit(f"l'image fait {len(brut)} octets, le BIOS en veut {taille} au plus")
 brut = brut + b"\xff" * (taille - len(brut))
-# Compté hors de la f-string : un backslash dans sa partie expression est une SyntaxError avant
-# Python 3.12 (PEP 701), et le `python3` livré avec macOS est en 3.9.
+# Counted outside the f-string: a backslash in its expression part is a SyntaxError before
+# Python 3.12 (PEP 701), and the `python3` shipped with macOS is 3.9.
 utiles = len(brut.rstrip(b"\xff"))
-# L'échange de `load16_word_swap` : le banc le défait au chargement.
+# The swap of `load16_word_swap`: the bench undoes it at load time.
 swap = bytearray(brut)
 swap[0::2], swap[1::2] = brut[1::2], brut[0::2]
 io.open(out, "wb").write(bytes(swap))

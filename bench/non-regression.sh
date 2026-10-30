@@ -201,7 +201,7 @@ elif cmd == "matrice":
             v, vr = int(m["vifs_max"]), int(r["vifs_max"])
         except ValueError:
             ecart(f"{j}/{notre} : vifs illisibles ({m['vifs_max']!r} / {r['vifs_max']!r})"); continue
-        # 2 % de la référence ; une référence nulle n'admet que 0.
+        # 2% of the reference; a zero reference only admits 0.
         if abs(v - vr) * 100 > 2 * vr or (vr == 0 and v != 0):
             ecart(f"{j}/{notre} : vifs {v}, référence {vr} ({(v - vr) * 100 / max(vr, 1):+.2f} %)")
         else:
@@ -261,7 +261,7 @@ elif cmd == "menu":
         except OSError:
             ecart(f"{k} : relevé avant/après absent"); continue
         if len(a) != len(p): ecart(f"{k} : tailles {len(a)} / {len(p)}"); continue
-        # Deux relevés vides seraient « identiques » sans rien avoir comparé.
+        # Two empty records would be "identical" without having compared anything.
         if len(a) == 0: ecart(f"{k} : relevé avant/après vide"); continue
         diff = [i for i in range(len(a)) if a[i] != p[i]]
         if k == "ram":
