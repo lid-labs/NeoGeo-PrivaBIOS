@@ -60,7 +60,7 @@ python3 -I -B bench/parcours-mutations.py --eprouver "$ROMS" <work-dir>
 - MAME runs are deterministic, one core each, so running them in parallel changes no verdict.
   See [Speed](docs/BENCH.md#speed) for which scripts do so by default.
 - Work directories go **outside the repository**. Python is run with `-I`.
-- Each script documents its usage in its header (in French).
+- Each script documents its usage in its header.
 
 ## Bench pitfalls
 
@@ -91,11 +91,12 @@ such as `packages/…` or `cosim.sh` to the private monorepo where the BIOS was 
 
 ## Language
 
-Write all new text in English: docs, code comments, commit messages, pull requests. Many notes in
-`docs/` and the comments in `src/` and `bench/` are still in French and are being translated.
-Identifiers (labels, script names, options such as `--eprouver`) stay as they are. The dated
-notes (`AUDIT-2026-10-21.md`, `ATTENTES.md`, `RELECTURE-CONTRATS.md`, `tasks.md`) stay in French.
-`specs/traces/` is generator output: never edit it by hand.
+Write all new text in English: docs, code comments, commit messages, pull requests. Still in
+French, on purpose: identifiers (labels, script names, options such as `--eprouver`), the dated
+notes (`AUDIT-2026-10-21.md`, `ATTENTES.md`, `RELECTURE-CONTRATS.md`, `tasks.md`) and quotes of
+their headings, the measurement records `measured/*.tsv`, and the bench scripts' runtime output
+(messages, usage lines, output columns), which other scripts and recorded results read.
+`specs/traces/` is generator output, in French too: never edit it by hand.
 
 ## Changes and commits
 

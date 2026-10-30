@@ -25,6 +25,8 @@ All notable changes to Sprixe BIOS are listed here. The format follows
   `ESSAI-MATERIEL.md` and `measured/HISTORIQUE.md`.
 - Code comments in English: `src/c0/`, `diag/slots/`, `build/harnais/`, `build/bios.ld`. The image
   is unchanged.
+- Comments and headers of `bench/` and the build scripts in English. Runtime output of the
+  bench scripts is unchanged.
 
 ### Fixed
 

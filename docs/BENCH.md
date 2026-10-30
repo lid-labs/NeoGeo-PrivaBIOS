@@ -4,7 +4,7 @@ Everything here runs locally, under MAME, with **your own** ROM sets. This repos
 neither BIOS nor game, and never will. The scripts take paths as arguments; the examples below use
 `$ROMS` for a folder of **non-merged** MAME sets.
 
-The scripts' own documentation is in their headers (in French). This page is the map.
+The scripts' own documentation is in their headers. This page is the map.
 
 ## Requirements
 
