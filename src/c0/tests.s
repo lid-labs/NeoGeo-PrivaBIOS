@@ -642,9 +642,9 @@ _autotests:
 
 | ----------------------------------------------------------------------------------
 | THE MAHJONG PANEL PAGE, 2026-10-27 (DECISIONS §24, the user's decision:
-| copy the Japanese SNK BIOS and UniBIOS 4.0). MEASURED on them (`measured/2026-10-27-attentes-
-| reference.tsv`): a page in place of the pads, one cell per key — A to G, H to N, PON, CHI,
-| KAN, RON, REACH, START, SELECT —, 1 while it is held, 0 otherwise; then the coins, TEST and
+| the behaviour observed on the Japanese SNK BIOS and UniBIOS 4.0). MEASURED on them
+| (`measured/2026-10-27-attentes-reference.tsv`): a page in place of the pads, one cell per key — A to G,
+| H to N, PON, CHI, KAN, RON, REACH, START, SELECT —, 1 while it is held, 0 otherwise; then the coins, TEST and
 | the switches. Here the same list, each key followed by its 0 or 1 (palette 5 held,
 | 4 released), and the lights of the ordinary page for COIN, SERVICE, TEST and DIP. P2 is not
 | there, as on theirs. The panel is scanned like `_io_mahjong` (`io.s`): REG_POUTPUT ← $09, $12,

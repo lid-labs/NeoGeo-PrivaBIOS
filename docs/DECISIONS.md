@@ -503,8 +503,8 @@ outside ASCII, and `.Lecrire` replaced those bytes with a space. Measurements:
    $5F, $60 nor $7C-$7E (section 2). ssideki's labels use $7C-$7E for a kanji.
 3. **The cartridges' S ROM does not have these glyphs**: 0 identical tile out of 50 for ssideki,
    kof98, mslug, aof and samsho4 (section 3).
-4. **Boot test screen, copied from SNK, the user's decision of 2026-10-27**: in the JAPAN region, if
-   the block's labels carry a byte outside $20-$7E, the whole list goes to 8×16, two rows per entry,
+4. **Boot test screen, as observed on the SNK BIOS, the user's decision of 2026-10-27**: in the
+   JAPAN region, if the block's labels carry a byte outside $20-$7E, the whole list goes to 8×16, two rows per entry,
    in a scrolling window of ten entries. A byte in $20-$5E or $61-$7B is written as $100/$200 + b,
    any other as $300/$400 + b. A block entirely in ASCII, or another region: the previous 8×8 list,
    unchanged. The CABINET SETTINGS sub-screen stays in 8×8.
@@ -578,7 +578,7 @@ On 2026-10-27 (#1445; `io.s`, `c0.s`, `ecran.s`). The user's decisions of the sa
 record first made black-box: `measured/2026-10-27-dip-2-8.tsv`. Thresholds:
 `measured/2026-10-27-parcours-dip-2-8.tsv`.
 
-1. **Switch 8, "Freeze": copied from the SNK BIOS and UniBIOS 4.0.** At ON, the game is suspended
+1. **Switch 8, "Freeze": as observed on the SNK BIOS and UniBIOS 4.0.** At ON, the game is suspended
    from the next call of SYSTEM_IO or SYSTEM_INT1, in the demo as during a game: the picture no
    longer moves, inputs no longer reach it, the watchdog is served, and the Z80 carries on (its
    driver still writes to the YM2610). Set back to OFF, the game resumes where it was, without a
@@ -592,7 +592,7 @@ record first made black-box: `measured/2026-10-27-dip-2-8.tsv`. Thresholds:
    boot resumes (scene `dip-gel-boot`). Outside boot, the freeze goes through SYSTEM_IO and
    SYSTEM_INT1: in the BIOS's screens (test screen, in-game menu), neither ours nor the references'
    has been tried.
-3. **Switch 3, "Mahjong Panel": copied from the SNK BIOS.** At ON, BIOS_P1STATUS ($10FD94) is 3 and
+3. **Switch 3, "Mahjong Panel": as observed on the SNK BIOS.** At ON, BIOS_P1STATUS ($10FD94) is 3 and
    the panel is scanned at every call through REG_POUTPUT ($09, $12, $24): rows A-G, H-N and PON to
    REACH held in $10FD95, $10FD96 and $10FD97, their edges in $10FDA1, $10FDA2 and $10FDA3, without
    repeat. The mapping was measured key by key, under the three reference BIOSes, before writing the
@@ -603,7 +603,7 @@ record first made black-box: `measured/2026-10-27-dip-2-8.tsv`. Thresholds:
    5). With switch 3 at OFF, the reference reads it as a joystick, rows A-G and H-N merged: ReBIOS
    writes $1B to REG_POUTPUT before reading the joysticks, as it does (scene `dip-mj-off`). On a
    joystick, this output changes nothing. It costs one write per call.
-5. **Switch 2, "VS Mode": copied from UniBIOS and the Japanese SNK BIOS.** Copied into $10FEF8,
+5. **Switch 2, "VS Mode": as observed on UniBIOS and the Japanese SNK BIOS.** Copied into $10FEF8,
    BIOS_4P_REQUESTED ("BIOS RAM locations": $2, "dip 2 was on"). The European SNK BIOS does not do
    it. kizuna then shows a second CREDIT counter (scene `dip-4p`). **No 4-player adapter**:
    BIOS_4P_MODE and BIOS_4P_PLUGGED stay at 0.
@@ -730,8 +730,8 @@ On 2026-10-27 (#1448; `dip.s`). Three scenes fix what ReBIOS does where UniBIOS 
 ## 24. The mahjong panel page in INPUT TEST
 
 On 2026-10-27 (#1448; `tests.s`). The user's decision of the same day, on the record made black-box
-(`measured/2026-10-27-attentes-reference.tsv`): copy the Japanese SNK BIOS and UniBIOS 4.0, without
-a 4-player page. The scene judges states, without a threshold.
+(`measured/2026-10-27-attentes-reference.tsv`): the behaviour observed on the Japanese SNK BIOS and
+UniBIOS 4.0; no 4-player page here. The scene judges states, without a threshold.
 
 1. **Switch 3 ON when INPUT TEST opens: the MAHJONG PANEL page** replaces the joysticks' page: A to
    G, H to N, PON, CHI, KAN, RON, REACH, START, SELECT, each followed by 0 or 1 (held), then the
@@ -752,8 +752,8 @@ a 4-player page. The scene judges states, without a threshold.
 
 ## 25. The JUKEBOX screen saver
 
-On 2026-10-27 (#1448; `jukebox.s`). The user's decision of the same day: copy UniBIOS 4.0, in the
-JUKEBOX only, not on CROSSHATCH. Threshold: `measured/2026-10-27-parcours-garanties.tsv`.
+On 2026-10-27 (#1448; `jukebox.s`). The user's decision of the same day: the behaviour observed on
+UniBIOS 4.0, in its JUKEBOX; here in the JUKEBOX only, not on CROSSHATCH. Threshold: `measured/2026-10-27-parcours-garanties.tsv`.
 
 1. **Measured on UniBIOS 4.0** (`measured/2026-10-27-attentes-reference.tsv`): in its JUKEBOX
    PLAYER, the screen goes entirely black ~7,220 frames after the last input, the music continues, a
