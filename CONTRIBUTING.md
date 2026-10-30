@@ -23,8 +23,10 @@ You must never, for the SNK BIOS, UniBIOS, any other third-party BIOS or a game:
 - use the addresses, values or code of a third-party cheat database (UniBIOS, MAME's `cheat.xml`,
   websites).
 
-The titles of such a list, without addresses or values, may be read to decide what to look for.
-Every cheat is still located and proven here, by observing the game.
+One exception: cheats from the MAME XML Cheats Collection (Pugsy and contributors), imported with
+`bench/cheats-importer.py` and credited in the README. Its licence is unknown: its author said so in
+2009, and no later statement was found. The titles of any other list may be read to decide what to
+look for; a cheat added by hand is still located and proven here, by observing the game.
 
 If you are unsure whether something you saw or used crosses this line, say so in the pull request
 before writing code.
