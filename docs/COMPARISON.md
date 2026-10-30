@@ -57,7 +57,7 @@ are in [Not compared](#not-compared).
 | Topic | UniBIOS 4.0 | Sprixe BIOS |
 |---|---|---|
 | Systems | ✓ **MVS, AES and CD**. All MVS types, slot 1 and multi-slot, AES, and the three CD models (v3.3). | ◐ **MVS only**. An AES mode on MVS boards. No image for the AES console or CD systems. |
-| Real boards | ✓ **Widely installed**. Release notes since 2004, and third-party installers listed on its site. | ◐ **One**. A single MV-2F so far. |
+| Real boards | ✓ **Yes**. Four third-party installers listed on its site. | ◐ **One**. A single MV-2F so far. |
 | Compatibility under MAME | 162 of 164 games play in our catalogue, judged on the picture. | 161 of 164, same test. Not evidence for real hardware. |
 
 ## Look and extras
@@ -68,15 +68,15 @@ are in [Not compared](#not-compared).
 | Screen saver, menu colours | ✓ **Yes**. In-game menu blanking and menu colours (v2.3), jukebox screen saver (v3.1). | ◐ **Partly**. Screen saver in the jukebox: black screen after about two minutes, music keeps playing. No menu colours. |
 | Arcade VS | ✓ **Yes**. Hard DIP 2, with separate coin inputs (v1.1). | ◐ **Partly**. Switch 2 passes the request to the games; kizuna then shows a second CREDIT counter. No 4-player adapter. |
 | US-style credit display, PC-2-NEO, PICKnMIX, overclock detection, coin and select remapping for joypads | ✓ **Yes** | ✕ **No** |
-| Code | A patched SNK BIOS, new code by its author, Razoola (how-it-works and terms pages). | Written from scratch in 68000 assembly by coding agents, no SNK or UniBIOS code ([`METHOD.md`](METHOD.md)). |
+| Code | A patched SNK BIOS, new code by its author, Razoola (how-it-works and terms pages). | Written from scratch in 68000 assembly by coding agents, no SNK or UniBIOS code copied ([`METHOD.md`](METHOD.md)). |
 | Licence | Free to download since March 2020. Personal use only: no distribution, no sale, no alteration, and original hardware required. | GPL-3.0-or-later. The source code is on GitHub. |
 | Development | v4.0 in May 2018; PC-2-NEO updated in January 2025. | Beta, started in October 2026. |
 
 ## Not compared
 
-Sprixe BIOS has these. We found nothing about them on UniBIOS's site, which is no evidence either
-way, so they get no column:
+Sprixe BIOS has these. UniBIOS's site does not settle whether it has an equivalent, so they get
+no column:
 
 - NO CONTINUE and DEMO SOUND in cabinet settings.
 
-Free play is not listed: board switch 7 gives it whatever the BIOS, and UniBIOS's FAQ says so.
+Free play is not listed: board switch 7 gives it, and UniBIOS's FAQ mentions the same hard dip.
