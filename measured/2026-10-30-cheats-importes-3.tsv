@@ -1,0 +1,450 @@
+jeu	ngh	empreinte	nom	intitule MAME	ecritures
+alpham2	0007	799C	P1 LASE NORMAL	P1 Select Laser PowerUp Level : Normal	1010A0/1/3
+alpham2	0007	799C	P1 LASE NORMAL+1	P1 Select Laser PowerUp Level : Normal+1	1010A0/1/2
+alpham2	0007	799C	P1 LASE NORMAL+2	P1 Select Laser PowerUp Level : Normal+2	1010A0/1/1
+alpham2	0007	799C	P1 LASE NORMAL+3	P1 Select Laser PowerUp Level : Normal+3	1010A0/1/0
+alpham2	0007	799C	P1 MISS NORMAL	P1 Select Missile PowerUp Level : Normal	1010A1/1/3
+alpham2	0007	799C	P1 MISS NORMAL+1	P1 Select Missile PowerUp Level : Normal+1	1010A1/1/2
+aof	0044	42B6	PERM WI P1	Select Perm Winner : P1	10840A/1/90
+aof	0044	42B6	PERM WI P2	Select Perm Winner : P2	10840A/1/91
+aof	0044	42B6	P1 CHAR RYO SAKA	P1 Select Character : Ryo Sakazaki	1092C2/2/0
+aof	0044	42B6	P1 CHAR ROBERT G	P1 Select Character : Robert Garcia	1092C2/2/1
+aof2	0056	2DFA	PERM WI P1	Select Perm Winner : P1	10840A/1/90
+aof2	0056	2DFA	PERM WI P2	Select Perm Winner : P2	10840A/1/91
+aof2	0056	2DFA	P1 OUTF REGULAR	P1 Select Outfit : Regular	1094F7/1/0
+aof2	0056	2DFA	P1 OUTF ALTERNAT	P1 Select Outfit : Alternate 1	1094F7/1/1
+aof3	0096	C5DF	BIRTHDA ROBERT	Select Birthday Character : Robert	10E260/2/0
+aof3	0096	C5DF	BIRTHDA RYO	Select Birthday Character : Ryo	10E260/2/1
+aof3	0096	C5DF	BIRTHDA KARMAN	Select Birthday Character : Karman	10E260/2/2
+aof3	0096	C5DF	BIRTHDA KASUMI	Select Birthday Character : Kasumi	10E260/2/3
+bangbead	0259	A494	P1 CHAR CHINTA	P1 Select Character : Chinta	1041AF/1/0
+bangbead	0259	A494	P1 CHAR SIREN	P1 Select Character : Siren	1041AF/1/1
+bangbead	0259	A494	P1 CHAR HIROMU	P1 Select Character : Hiromu	1041AF/1/2
+bangbead	0259	A494	P1 CHAR BLOODY W	P1 Select Character : Bloody Wolf	1041AF/1/3
+bangbead	0259	A494	P1 CHAR SIMON	P1 Select Character : Simon	1041AF/1/4
+bangbead	0259	A494	P1 CHAR SURYA	P1 Select Character : Surya	1041AF/1/5
+bangbead	0259	A494	P2 CHAR CHINTA	P2 Select Character : Chinta	1041B1/1/0
+bangbead	0259	A494	P2 CHAR SIREN	P2 Select Character : Siren	1041B1/1/1
+bangbead	0259	A494	P2 CHAR HIROMU	P2 Select Character : Hiromu	1041B1/1/2
+bangbead	0259	A494	P2 CHAR BLOODY W	P2 Select Character : Bloody Wolf	1041B1/1/3
+bangbead	0259	A494	P2 CHAR SIMON	P2 Select Character : Simon	1041B1/1/4
+burningf	0018	A9E4	P1 CHAR RYU	P1 Select Character : Ryu	103D35/1/0
+burningf	0018	A9E4	P1 CHAR DUKE	P1 Select Character : Duke	103D35/1/1
+burningf	0018	A9E4	P1 CHAR BILLY	P1 Select Character : Billy	103D35/1/2
+burningf	0018	A9E4	P2 CHAR RYU	P2 Select Character : Ryu	103D55/1/0
+burningf	0018	A9E4	P2 CHAR DUKE	P2 Select Character : Duke	103D55/1/1
+burningf	0018	A9E4	P2 CHAR BILLY	P2 Select Character : Billy	103D55/1/2
+ctomaday	0249	E6CD	P1 SHIP ORIGINAL	P1 Select Ship : Original Ship	104135/1/0
+ctomaday	0249	E6CD	P1 SHIP WINGED S	P1 Select Ship : Winged Ship	104135/1/1
+ctomaday	0249	E6CD	P1 SHIP MINI SHI	P1 Select Ship : Mini Ship	104135/1/2
+ctomaday	0249	E6CD	P1 SHIP BIG SHIP	P1 Select Ship : Big Ship	104135/1/3
+ctomaday	0249	E6CD	P1 SHIP CARROT S	P1 Select Ship : Carrot Ship	104135/1/4
+ctomaday	0249	E6CD	P1 SHIP FISH SHI	P1 Select Ship : Fish Ship	104135/1/5
+ctomaday	0249	E6CD	P2 SHIP ORIGINAL	P2 Select Ship : Original Ship	104325/1/0
+doubledr	0082	1CB9	P1 CHAR MAX CHAR	P1 Select Charge : Maximum Charge	100510/1/68
+doubledr	0082	1CB9	P1 CHAR MIN CHAR	P1 Select Charge : Minimum Charge	100510/1/0
+doubledr	0082	1CB9	P2 CHAR MAX CHAR	P2 Select Charge : Maximum Charge	100610/1/68
+doubledr	0082	1CB9	P2 CHAR MIN CHAR	P2 Select Charge : Minimum Charge	100610/1/0
+doubledr	0082	1CB9	P1 CHAR BILLY	P1 Select Character : Billy	100445/1/0
+doubledr	0082	1CB9	P1 CHAR SUPER BI	P1 Select Character : Super Billy	100445/1/1
+doubledr	0082	1CB9	P1 CHAR JIMMY	P1 Select Character : Jimmy	100445/1/2
+doubledr	0082	1CB9	P1 CHAR SUPER JI	P1 Select Character : Super Jimmy	100445/1/3
+doubledr	0082	1CB9	P1 CHAR MARIAN	P1 Select Character : Marian	100445/1/4
+fatfury1	0033	A9A5	P1 CHAR TERRY BO	P1 Select Character : Terry Bogard	100331/1/1
+fatfury1	0033	A9A5	P1 CHAR ANDY BOG	P1 Select Character : Andy Bogard	100331/1/2
+fatfury1	0033	A9A5	P1 CHAR JOE HIGA	P1 Select Character : Joe Higashi	100331/1/3
+fatfury1	0033	A9A5	P1 CHAR DUCK KIN	P1 Select Character : Duck King	100331/1/4
+fatfury1	0033	A9A5	P1 CHAR MICHAEL	P1 Select Character : Michael Max	100331/1/6
+fatfury1	0033	A9A5	P2 CHAR TERRY BO	P2 Select Character : Terry Bogard	100431/1/1
+fatfury2	0047	AED3	STAGE TERRY U.S.	Select Stage (Background) : Terry (U.S.A.)	10AAD5/1/1
+fatfury2	0047	AED3	STAGE ANDY ITALY	Select Stage (Background) : Andy (Italy)	10AAD5/1/2
+fatfury2	0047	AED3	STAGE JOE THAILA	Select Stage (Background) : Joe (Thailand)	10AAD5/1/3
+fatfury2	0047	AED3	STAGE BIG BEAR A	Select Stage (Background) : Big Bear (Australia)	10AAD5/1/4
+fatfury2	0047	AED3	STAGE JUBEI JAPA	Select Stage (Background) : Jubei (Japan)	10AAD5/1/5
+fatfury2	0047	AED3	STAGE CHENG HONG	Select Stage (Background) : Cheng (Hong Kong)	10AAD5/1/6
+fatfury2	0047	AED3	P1 CHAR TERRY	P1 Select Character : Terry	10419B/1/1
+fatfury2	0047	AED3	P1 CHAR ANDY	P1 Select Character : Andy	10419B/1/2
+fatfury2	0047	AED3	P1 CHAR JOE	P1 Select Character : Joe	10419B/1/3
+fatfury2	0047	AED3	P1 CHAR BIG BEAR	P1 Select Character : Big Bear	10419B/1/4
+fatfury3	0069	EF51	P1 COLO A COLOUR	P1 Select Colour : A colour	105624/1/0
+fatfury3	0069	EF51	P1 COLO D COLOUR	P1 Select Colour : D colour	105624/1/1
+fatfury3	0069	EF51	P2 COLO A COLOUR	P2 Select Colour : A colour	105625/1/0
+fatfury3	0069	EF51	P2 COLO D COLOUR	P2 Select Colour : D colour	105625/1/1
+fatfury3	0069	EF51	PERM. B SOUND BE	Select Perm. Background : Sound Beach (Terry)	105627/1/1
+fightfev	0060	06A2	P1 CHAR HAN BAED	P1 Select Character : Han Baedal	10C6B0/1/0
+fightfev	0060	06A2	P1 CHAR MIYUKI	P1 Select Character : Miyuki	10C6B0/1/1
+fightfev	0060	06A2	P1 CHAR ROPHEN H	P1 Select Character : Rophen Heimer	10C6B0/1/2
+fightfev	0060	06A2	P1 CHAR GOLRIO	P1 Select Character : Golrio	10C6B0/1/3
+fightfev	0060	06A2	P1 CHAR NICK COM	P1 Select Character : Nick Commando	10C6B0/1/4
+fightfev	0060	06A2	P1 CHAR CHINTAO	P1 Select Character : Chintao	10C6B0/1/5
+fightfev	0060	06A2	P2 CHAR HAN BAED	P2 Select Character : Han Baedal	10C7B0/1/0
+fightfev	0060	06A2	P2 CHAR MIYUKI	P2 Select Character : Miyuki	10C7B0/1/1
+fightfev	0060	06A2	P2 CHAR ROPHEN H	P2 Select Character : Rophen Heimer	10C7B0/1/2
+fightfev	0060	06A2	P2 CHAR GOLRIO	P2 Select Character : Golrio	10C7B0/1/3
+flipshot	0247	C16D	P1 CHAR CHINTA N	P1 Select Character : Chinta Nemoto	1033ED/1/0
+flipshot	0247	C16D	P1 CHAR SIREN	P1 Select Character : Siren	1033ED/1/1
+flipshot	0247	C16D	P1 CHAR SAIMON	P1 Select Character : Saimon	1033ED/1/2
+flipshot	0247	C16D	P1 CHAR MR. JUST	P1 Select Character : Mr. Justice	1033ED/1/3
+flipshot	0247	C16D	P1 CHAR BLOODY W	P1 Select Character : Bloody Wolf	1033ED/1/4
+flipshot	0247	C16D	P1 CHAR BOSS	P1 Select Character : Boss	1033ED/1/5
+flipshot	0247	C16D	P2 CHAR CHINTA N	P2 Select Character : Chinta Nemoto	1033EF/1/0
+flipshot	0247	C16D	P2 CHAR SIREN	P2 Select Character : Siren	1033EF/1/1
+flipshot	0247	C16D	P2 CHAR SAIMON	P2 Select Character : Saimon	1033EF/1/2
+flipshot	0247	C16D	P2 CHAR MR. JUST	P2 Select Character : Mr. Justice	1033EF/1/3
+flipshot	0247	C16D	P2 CHAR BLOODY W	P2 Select Character : Bloody Wolf	1033EF/1/4
+flipshot	0247	C16D	P2 CHAR BOSS	P2 Select Character : Boss	1033EF/1/5
+ganryu	0252	0111	P1 WEAP NORMAL	P1 Select Weapon : Normal	100499/1/1
+ganryu	0252	0111	P1 WEAP SHURIKEN	P1 Select Weapon : Shuriken	100499/1/2
+ganryu	0252	0111	P1 WEAP DYNAMITE	P1 Select Weapon : Dynamite	100499/1/3
+ganryu	0252	0111	P1 WEAP FLYING B	P1 Select Weapon : Flying Balls	100499/1/4
+ganryu	0252	0111	P2 WEAP NORMAL	P2 Select Weapon : Normal	1004B9/1/1
+ganryu	0252	0111	P2 WEAP SHURIKEN	P2 Select Weapon : Shurikens	1004B9/1/2
+ganryu	0252	0111	P2 WEAP DYNAMITE	P2 Select Weapon : Dynamite	1004B9/1/3
+ganryu	0252	0111	P2 WEAP FLYING B	P2 Select Weapon : Flying Balls	1004B9/1/4
+garou	0253	6078	P1 CHAR A COLOUR	P1 Select Character Colour : A colour	107432/1/0
+garou	0253	6078	P1 CHAR B COLOUR	P1 Select Character Colour : B colour	107432/1/1
+gururin	0067	97E7	P1 PERM CLEAR	P1 Select Perm. Current LEFT : Clear	101D03/1/0
+gururin	0067	97E7	P1 PERM PINK	P1 Select Perm. Current LEFT : Pink	101D03/1/1
+gururin	0067	97E7	P1 PERM YELLOW	P1 Select Perm. Current LEFT : Yellow	101D03/1/2
+gururin	0067	97E7	P1 PERM PURPLE	P1 Select Perm. Current LEFT : Purple	101D03/1/3
+gururin	0067	97E7	P1 PERM RED	P1 Select Perm. Current LEFT : Red	101D03/1/4
+gururin	0067	97E7	P1 PERM GREY	P1 Select Perm. Current LEFT : Grey	101D03/1/5
+gururin	0067	97E7	P1 PERM CLEAR 2	P1 Select Perm. Current CENTRE : Clear	101D23/1/0
+gururin	0067	97E7	P1 PERM PINK 2	P1 Select Perm. Current CENTRE : Pink	101D23/1/1
+gururin	0067	97E7	P1 PERM YELLOW 2	P1 Select Perm. Current CENTRE : Yellow	101D23/1/2
+gururin	0067	97E7	P1 PERM PURPLE 2	P1 Select Perm. Current CENTRE : Purple	101D23/1/3
+gururin	0067	97E7	P1 PERM RED 2	P1 Select Perm. Current CENTRE : Red	101D23/1/4
+gururin	0067	97E7	P1 PERM GREY 2	P1 Select Perm. Current CENTRE : Grey	101D23/1/5
+gururin	0067	97E7	P1 PERM CLEAR 3	P1 Select Perm. Current RIGHT : Clear	101D43/1/0
+gururin	0067	97E7	P1 PERM PINK 3	P1 Select Perm. Current RIGHT : Pink	101D43/1/1
+ironclad	0220	D34D	P1 L-AR LASER	P1 Select L-Arm : Laser	108A55/1/2
+ironclad	0220	D34D	P1 L-AR H. MISSI	P1 Select L-Arm : H. Missile	108A55/1/4
+ironclad	0220	D34D	P1 L-AR FIRE ARM	P1 Select L-Arm : Fire Armour	108A55/1/6
+ironclad	0220	D34D	P1 R-AR DRILL	P1 Select R-Arm : Drill	108A71/1/2
+ironclad	0220	D34D	P1 R-AR CHAINSAW	P1 Select R-Arm : Chainsaw	108A71/1/4
+ironclad	0220	D34D	P1 R-AR STAB BAL	P1 Select R-Arm : Stab Ball	108A71/1/6
+ironclad	0220	D34D	P2 L-AR LASER	P2 Select L-Arm : Laser	108C55/1/2
+ironclad	0220	D34D	P2 L-AR H. MISSI	P2 Select L-Arm : H. Missile	108C55/1/4
+ironclad	0220	D34D	P2 L-AR FIRE ARM	P2 Select L-Arm : Fire Armour	108C55/1/6
+joyjoy	0021	B9B7	P1 PERM RED	P1 Select Perm. Next Shape : Red	100673/1/0
+joyjoy	0021	B9B7	P1 PERM PURPLE	P1 Select Perm. Next Shape : Purple	100673/1/1
+joyjoy	0021	B9B7	P1 PERM ORANGE	P1 Select Perm. Next Shape : Orange	100673/1/2
+joyjoy	0021	B9B7	P1 PERM BLUE	P1 Select Perm. Next Shape : Blue	100673/1/3
+joyjoy	0021	B9B7	P1 PERM YELLOW	P1 Select Perm. Next Shape : Yellow	100673/1/4
+joyjoy	0021	B9B7	P1 PERM GREEN	P1 Select Perm. Next Shape : Green	100673/1/5
+joyjoy	0021	B9B7	P2 PERM RED	P2 Select Perm. Next Shape : Red	100983/1/0
+joyjoy	0021	B9B7	P2 PERM PURPLE	P2 Select Perm. Next Shape : Purple	100983/1/1
+joyjoy	0021	B9B7	P2 PERM ORANGE	P2 Select Perm. Next Shape : Orange	100983/1/2
+joyjoy	0021	B9B7	P2 PERM BLUE	P2 Select Perm. Next Shape : Blue	100983/1/3
+karnovr	0066	6A32	P1 CHAR RAY	P1 Select Character : Ray	103671/1/0
+karnovr	0066	6A32	P1 CHAR FEILIN	P1 Select Character : Feilin	103671/1/1
+karnovr	0066	6A32	P1 CHAR RYOKO	P1 Select Character : Ryoko	103671/1/2
+karnovr	0066	6A32	P1 CHAR MATLOCK	P1 Select Character : Matlock	103671/1/3
+karnovr	0066	6A32	P1 CHAR SAMCHAY	P1 Select Character : Samchay	103671/1/4
+karnovr	0066	6A32	P1 CHAR LEE	P1 Select Character : Lee	103671/1/5
+karnovr	0066	6A32	P2 CHAR RAY	P2 Select Character : Ray	103871/1/0
+karnovr	0066	6A32	P2 CHAR FEILIN	P2 Select Character : Feilin	103871/1/1
+karnovr	0066	6A32	P2 CHAR RYOKO	P2 Select Character : Ryoko	103871/1/2
+karnovr	0066	6A32	P2 CHAR MATLOCK	P2 Select Character : Matlock	103871/1/3
+karnovr	0066	6A32	P2 CHAR SAMCHAY	P2 Select Character : Samchay	103871/1/4
+karnovr	0066	6A32	P2 CHAR LEE	P2 Select Character : Lee	103871/1/5
+kof2001	0262	CFA8	P1 CHAR K	P1 Select Character (A) : K'	10A7E6/1/0
+kof2001	0262	CFA8	P1 CHAR MAXIMA	P1 Select Character (A) : Maxima	10A7E6/1/1
+kof2001	0262	CFA8	P1 CHAR WHIP	P1 Select Character (A) : Whip	10A7E6/1/2
+kof2001	0262	CFA8	P1 CHAR LIN	P1 Select Character (A) : Lin	10A7E6/1/3
+kof2001	0262	CFA8	P1 CHAR KYO	P1 Select Character (A) : Kyo	10A7E6/1/4
+kof2001	0262	CFA8	P1 CHAR BENIMARU	P1 Select Character (A) : Benimaru	10A7E6/1/5
+kof2001	0262	CFA8	P1 CHAR K 2	P1 Select Character (B) : K'	10A7E7/1/0
+kof2003	0271	0F9A	P1 CHAR ASH	P1 Select Character (A) : Ash	107D0C/1/0
+kof2003	0271	0F9A	P1 CHAR DUOLON	P1 Select Character (A) : Duolon	107D0C/1/1
+kof2003	0271	0F9A	P1 CHAR SHEN	P1 Select Character (A) : Shen	107D0C/1/2
+kof2003	0271	0F9A	P1 CHAR TERRY	P1 Select Character (A) : Terry	107D0C/1/3
+kof2003	0271	0F9A	P1 CHAR JOE	P1 Select Character (A) : Joe	107D0C/1/4
+kof2003	0271	0F9A	P1 CHAR TIZOC	P1 Select Character (A) : Tizoc	107D0C/1/5
+kof2003	0271	0F9A	P1 CHAR ASH 2	P1 Select Character (B) : Ash	107D0D/1/0
+kof2003	0271	0F9A	P1 CHAR DUOLON 2	P1 Select Character (B) : Duolon	107D0D/1/1
+kof2003	0271	0F9A	P1 CHAR SHEN 2	P1 Select Character (B) : Shen	107D0D/1/2
+kof2003	0271	0F9A	P1 CHAR TERRY 2	P1 Select Character (B) : Terry	107D0D/1/3
+kof2003	0271	0F9A	P1 CHAR JOE 2	P1 Select Character (B) : Joe	107D0D/1/4
+kof2003	0271	0F9A	P1 CHAR TIZOC 2	P1 Select Character (B) : Tizoc	107D0D/1/5
+kof2003	0271	0F9A	P1 CHAR ASH 3	P1 Select Character (C) : Ash	107D0E/1/0
+kof2003	0271	0F9A	P1 CHAR DUOLON 3	P1 Select Character (C) : Duolon	107D0E/1/1
+kof94	0055	4489	MAI S B BOUNCE	Select Mai's Boobs : Always Bounce	10C6E2/1/0
+kof94	0055	4489	MAI S B NEVER BO	Select Mai's Boobs : Never Bounce	10C6E2/1/1
+kof95	0084	0A7E	P1 1ST HEIDERN	P1 Select 1st Character : Heidern	10A843/1/0
+kof95	0084	0A7E	P1 1ST RALF	P1 Select 1st Character : Ralf	10A843/1/1
+kof95	0084	0A7E	P1 1ST CLARK	P1 Select 1st Character : Clark	10A843/1/2
+kof95	0084	0A7E	P1 1ST ATHENA	P1 Select 1st Character : Athena	10A843/1/3
+kof95	0084	0A7E	P1 1ST KENSOU	P1 Select 1st Character : Kensou	10A843/1/4
+kof95	0084	0A7E	P1 1ST CHIN	P1 Select 1st Character : Chin	10A843/1/5
+kof96	0214	EB0F	P1 COLO A COLOUR	P1 Select Colour (A) : A colour	10A849/1/0
+kof96	0214	EB0F	P1 COLO D COLOUR	P1 Select Colour (A) : D colour	10A849/1/1
+kof96	0214	EB0F	P1 COLO A COLO 2	P1 Select Colour (B) : A colour	10A84A/1/0
+kof97	0232	FC0D	P1 MODE ADVANCED	P1 Select Mode : Advanced Mode	10A849/1/0
+kof97	0232	FC0D	P1 MODE EXTRA MO	P1 Select Mode : Extra Mode	10A849/1/1
+kof97	0232	FC0D	P2 MODE ADVANCED	P2 Select Mode : Advanced Mode	10A85A/1/0
+kof97	0232	FC0D	P2 MODE EXTRA MO	P2 Select Mode : Extra Mode	10A85A/1/1
+kof97	0232	FC0D	P1 FIRS CHAR A	P1 Select First Character : Character A	10A851/1/0
+kof97	0232	FC0D	P1 FIRS CHAR B	P1 Select First Character : Character B	10A851/1/1
+kof97	0232	FC0D	P1 FIRS CHAR C	P1 Select First Character : Character C	10A851/1/2
+kof98	0242	8F29	P1 MODE ADVANCED	P1 Select Mode : Advanced Mode	10A84C/1/0
+kof98	0242	8F29	P1 MODE EXTRA MO	P1 Select Mode : Extra Mode	10A84C/1/1
+kof98	0242	8F29	P2 MODE ADVANCED	P2 Select Mode : Advanced Mode	10A85D/1/0
+kof98	0242	8F29	P2 MODE EXTRA MO	P2 Select Mode : Extra Mode	10A85D/1/1
+kof98	0242	8F29	P1 FIRS CHAR A	P1 Select First Character : Character A	10A854/1/0
+kof98	0242	8F29	P1 FIRS CHAR B	P1 Select First Character : Character B	10A854/1/1
+kof98	0242	8F29	P1 FIRS CHAR C	P1 Select First Character : Character C	10A854/1/2
+kof98	0242	8F29	P1 SECO CHAR A	P1 Select Second Character : Character A	10A855/1/0
+kof98	0242	8F29	P1 SECO CHAR B	P1 Select Second Character : Character B	10A855/1/1
+kotm2	0039	9C61	P1 CHAR SUPER GE	P1 Select Character : Super Geon	1013DC/1/0
+kotm2	0039	9C61	P1 CHAR ATOMIC G	P1 Select Character : Atomic Guy	1013DC/1/1
+kotm2	0039	9C61	P1 CHAR CYBER WO	P1 Select Character : Cyber Woo	1013DC/1/2
+kotm2	0039	9C61	P1 CHAR HUGE FRO	P1 Select Character : #Huge Frogger (some glitches)#	1013DC/1/4
+kotm2	0039	9C61	P2 CHAR SUPER GE	P2 Select Character : Super Geon	1014DC/1/0
+kotm2	0039	9C61	P2 CHAR ATOMIC G	P2 Select Character : Atomic Guy	1014DC/1/1
+kotm2	0039	9C61	P2 CHAR CYBER WO	P2 Select Character : Cyber Woo	1014DC/1/2
+kotm2	0039	9C61	P2 CHAR HUGE FRO	P2 Select Character : #Huge Frogger (some glitches)#	1014DC/1/4
+lastblad	0234	B3E9	P1 CHAR KAEDE	P1 Select Character : Kaede	10EAAD/1/0
+lastblad	0234	B3E9	P1 CHAR MORIYA	P1 Select Character : Moriya	10EAAD/1/1
+lastblad	0234	B3E9	P1 CHAR YUKI	P1 Select Character : Yuki	10EAAD/1/2
+lastblad	0234	B3E9	P1 CHAR OKINA	P1 Select Character : Okina	10EAAD/1/3
+lastblad	0234	B3E9	P1 CHAR AKARI	P1 Select Character : Akari	10EAAD/1/4
+lastblad	0234	B3E9	P1 CHAR JUZOH	P1 Select Character : Juzoh	10EAAD/1/5
+lastblad	0234	B3E9	P2 CHAR KAEDE	P2 Select Character : Kaede	10EAAF/1/0
+lastblad	0234	B3E9	P2 CHAR MORIYA	P2 Select Character : Moriya	10EAAF/1/1
+lastblad	0234	B3E9	P2 CHAR YUKI	P2 Select Character : Yuki	10EAAF/1/2
+lastblad	0234	B3E9	P2 CHAR OKINA	P2 Select Character : Okina	10EAAF/1/3
+lastblad	0234	B3E9	P2 CHAR AKARI	P2 Select Character : Akari	10EAAF/1/4
+lastbld2	0243	B546	CONSTAN SHIMIJI	Select Constant Background : Shimiji Pass	10E57D/1/0
+lastbld2	0243	B546	CONSTAN BATTLE O	Select Constant Background : Battle of Cloudy Sky	10E57D/1/1
+lastbld2	0243	B546	CONSTAN 13 PORTT	Select Constant Background : 13 Porttown	10E57D/1/2
+lastbld2	0243	B546	CONSTAN VILLAGE	Select Constant Background : Village of Twilight	10E57D/1/3
+lastbld2	0243	B546	CONSTAN THE GRAV	Select Constant Background : The Graveyard	10E57D/1/4
+lastbld2	0243	B546	CONSTAN FOREST O	Select Constant Background : Forest of Forgetfulness	10E57D/1/5
+lastbld2	0243	B546	P1 CHAR KAEDE	P1 Select Character : Kaede	10BD59/1/0
+lastbld2	0243	B546	P1 CHAR MORIYA	P1 Select Character : Moriya	10BD59/1/1
+lastbld2	0243	B546	P1 CHAR YUKI	P1 Select Character : Yuki	10BD59/1/2
+lastbld2	0243	B546	P1 CHAR OKINA	P1 Select Character : Okina	10BD59/1/3
+magdrop3	0233	FB9F	P1 CARD FOOL	P1 Select Card : Fool	1000FA/1/0
+magdrop3	0233	FB9F	P1 CARD MAGICIAN	P1 Select Card : Magician	1000FA/1/1
+magdrop3	0233	FB9F	P1 CARD HIGH PRI	P1 Select Card : High Priestess	1000FA/1/2
+magdrop3	0233	FB9F	P1 CARD EMPRESS	P1 Select Card : Empress	1000FA/1/3
+magdrop3	0233	FB9F	P1 CARD EMPEROR	P1 Select Card : Emperor	1000FA/1/4
+magdrop3	0233	FB9F	P1 CARD HIEROPHA	P1 Select Card : Hierophant	1000FA/1/5
+magdrop3	0233	FB9F	P2 CARD FOOL	P2 Select Card : Fool	1000FB/1/0
+magdrop3	0233	FB9F	P2 CARD MAGICIAN	P2 Select Card : Magician	1000FB/1/1
+magdrop3	0233	FB9F	P2 CARD HIGH PRI	P2 Select Card : High Priestess	1000FB/1/2
+magdrop3	0233	FB9F	P2 CARD EMPRESS	P2 Select Card : Empress	1000FB/1/3
+magdrop3	0233	FB9F	P2 CARD EMPEROR	P2 Select Card : Emperor	1000FB/1/4
+magdrop3	0233	FB9F	P2 CARD HIEROPHA	P2 Select Card : Hierophant	1000FB/1/5
+maglord	0005	9330	P1 CHAR MAGICIAN	P1 Select Character : Magician Lord	103B05/1/1
+maglord	0005	9330	P1 CHAR SHINOBI	P1 Select Character : Shinobi	103B05/1/D
+maglord	0005	9330	P1 CHAR WATERMAN	P1 Select Character : Waterman	103B05/1/9
+maglord	0005	9330	P1 CHAR SAMURAI	P1 Select Character : Samurai	103B05/1/E
+maglord	0005	9330	P1 CHAR DRAGON W	P1 Select Character : Dragon Warrior	103B05/1/5
+maglord	0005	9330	P1 CHAR POSEIDON	P1 Select Character : Poseidon	103B05/1/A
+maglord	0005	9330	P2 CHAR MAGICIAN	P2 Select Character : Magician Lord	103C05/1/1
+mslug2	0241	BE57	P1 BODY NORMAL	P1 Select Body Type : Normal	101525/1/0
+mslug2	0241	BE57	P1 BODY FAT BLOA	P1 Select Body Type : Fat Bloater	101525/1/2
+mslug2	0241	BE57	P1 BODY MUMMY	P1 Select Body Type : Mummy	101525/1/3
+mslug3	0256	E095	P1 BOMB MORTAR G	P1 Select Bomb : Mortar Grenade(Normal)	10EAF4/1/1
+mslug3	0256	E095	P1 BOMB PETROL B	P1 Select Bomb : Petrol Bomb	10EAF4/1/2
+mslug3	0256	E095	P1 BOMB ROCK	P1 Select Bomb : Rock	10EAF4/1/3
+mslug4	0263	D875	P1 BOMB NORMAL	P1 Select Bomb : Normal	10EDEC/1/1
+mslug4	0263	D875	P1 BOMB FIRE	P1 Select Bomb : Fire	10EDEC/1/2
+mslug5	0268	1581	P1 BOMB NORMAL	P1 Select Bomb : Normal	10D456/1/1
+mslugx	0250	92D4	P1 BODY NORMAL	P1 Select Body Type : Normal	101557/1/1
+mutnat	0014	7834	P1 SPEC NONE	P1 Select Special Attack : None	10153E/1/0
+mutnat	0014	7834	P1 SPEC A	P1 Select Special Attack : A	10153E/1/1
+mutnat	0014	7834	P1 SPEC B	P1 Select Special Attack : B	10153E/1/2
+mutnat	0014	7834	P1 SPEC C	P1 Select Special Attack : C	10153E/1/3
+mutnat	0014	7834	P1 SPEC D	P1 Select Special Attack : D	10153E/1/4
+mutnat	0014	7834	P2 SPEC NONE	P2 Select Special Attack : None	101540/1/0
+mutnat	0014	7834	P2 SPEC A	P2 Select Special Attack : A	101540/1/1
+mutnat	0014	7834	P2 SPEC B	P2 Select Special Attack : B	101540/1/2
+nam1975	0001	D38B	P1 WEAP FLAMETHR	P1 Select Weapon : Flamethrower	1010E6/1/2
+nam1975	0001	D38B	P1 WEAP BAZOOKA	P1 Select Weapon : Bazooka	1010E6/1/8
+nam1975	0001	D38B	P1 WEAP MACHINE	P1 Select Weapon : Machine Gun	1010E6/1/1
+nam1975	0001	D38B	P2 WEAP FLAMETHR	P2 Select Weapon : Flamethrower	1011E6/1/2
+nam1975	0001	D38B	P2 WEAP BAZOOKA	P2 Select Weapon : Bazooka	1011E6/1/8
+nam1975	0001	D38B	P2 WEAP MACHINE	P2 Select Weapon : Machine Gun	1011E6/1/1
+ncombat	0009	8C0D	P1 CHAR JOE	P1 Select Character : Joe	10262E/1/0
+ncombat	0009	8C0D	P1 CHAR MUSASHI	P1 Select Character : Musashi	10262E/1/1
+pbobblen	0083	19FA	P1 HELP ENABLED	P1 Select Help Line : Enabled	108287/1/1
+pbobblen	0083	19FA	P1 HELP DISABLED	P1 Select Help Line : Disabled	108287/1/0
+pbobblen	0083	19FA	P2 HELP ENABLED	P2 Select Help Line : Enabled	108323/1/1
+pbobblen	0083	19FA	P2 HELP DISABLED	P2 Select Help Line : Disabled	108323/1/0
+pbobblen	0083	19FA	P1 PERM BLUE	P1 Select Perm. Current Bubble : Blue	10821F/1/0
+pbobblen	0083	19FA	P1 PERM RED	P1 Select Perm. Current Bubble : Red	10821F/1/1
+pbobblen	0083	19FA	P1 PERM YELLOW	P1 Select Perm. Current Bubble : Yellow	10821F/1/2
+pbobblen	0083	19FA	P1 PERM GREEN	P1 Select Perm. Current Bubble : Green	10821F/1/3
+pbobblen	0083	19FA	P1 PERM PURPLE	P1 Select Perm. Current Bubble : Purple	10821F/1/4
+pbobblen	0083	19FA	P1 PERM ORANGE	P1 Select Perm. Current Bubble : Orange	10821F/1/5
+pbobblen	0083	19FA	P1 PERM BLUE 2	P1 Select Perm. Next Bubble : Blue	10823D/1/0
+pbobblen	0083	19FA	P1 PERM RED 2	P1 Select Perm. Next Bubble : Red	10823D/1/1
+pbobblen	0083	19FA	P1 PERM YELLOW 2	P1 Select Perm. Next Bubble : Yellow	10823D/1/2
+pbobblen	0083	19FA	P1 PERM GREEN 2	P1 Select Perm. Next Bubble : Green	10823D/1/3
+puzzldpr	0235	CFF1	P1 PERM BLUE	P1 Select Perm. Current Bubble : Blue	1023B5/1/1
+puzzldpr	0235	CFF1	P1 PERM RED	P1 Select Perm. Current Bubble : Red	1023B5/1/2
+puzzldpr	0235	CFF1	P1 PERM ORANGE	P1 Select Perm. Current Bubble : Orange	1023B5/1/3
+puzzldpr	0235	CFF1	P1 PERM GREEN	P1 Select Perm. Current Bubble : Green	1023B5/1/4
+puzzldpr	0235	CFF1	P1 PERM YELLOW	P1 Select Perm. Current Bubble : Yellow	1023B5/1/5
+puzzldpr	0235	CFF1	P1 PERM GREY	P1 Select Perm. Current Bubble : Grey	1023B5/1/6
+puzzldpr	0235	CFF1	P1 PERM BLUE 2	P1 Select Perm. Next Bubble : Blue	10212B/1/1
+puzzldpr	0235	CFF1	P1 PERM RED 2	P1 Select Perm. Next Bubble : Red	10212B/1/2
+puzzldpr	0235	CFF1	P1 PERM ORANGE 2	P1 Select Perm. Next Bubble : Orange	10212B/1/3
+puzzldpr	0235	CFF1	P1 PERM GREEN 2	P1 Select Perm. Next Bubble : Green	10212B/1/4
+puzzldpr	0235	CFF1	P1 PERM YELLOW 2	P1 Select Perm. Next Bubble : Yellow	10212B/1/5
+puzzldpr	0235	CFF1	P1 PERM GREY 2	P1 Select Perm. Next Bubble : Grey	10212B/1/6
+puzzldpr	0235	CFF1	P2 PERM BLUE	P2 Select Perm. Current Bubble : Blue	104B9D/1/1
+puzzledp	0202	CF3A	P1 PERM BLUE	P1 Select Perm. Current Bubble : Blue	1023B5/1/1
+puzzledp	0202	CF3A	P1 PERM RED	P1 Select Perm. Current Bubble : Red	1023B5/1/2
+puzzledp	0202	CF3A	P1 PERM ORANGE	P1 Select Perm. Current Bubble : Orange	1023B5/1/3
+puzzledp	0202	CF3A	P1 PERM GREEN	P1 Select Perm. Current Bubble : Green	1023B5/1/4
+puzzledp	0202	CF3A	P1 PERM YELLOW	P1 Select Perm. Current Bubble : Yellow	1023B5/1/5
+puzzledp	0202	CF3A	P1 PERM GREY	P1 Select Perm. Current Bubble : Grey	1023B5/1/6
+puzzledp	0202	CF3A	P1 PERM BLUE 2	P1 Select Perm. Next Bubble : Blue	10212B/1/1
+puzzledp	0202	CF3A	P1 PERM RED 2	P1 Select Perm. Next Bubble : Red	10212B/1/2
+puzzledp	0202	CF3A	P1 PERM ORANGE 2	P1 Select Perm. Next Bubble : Orange	10212B/1/3
+puzzledp	0202	CF3A	P1 PERM GREEN 2	P1 Select Perm. Next Bubble : Green	10212B/1/4
+puzzledp	0202	CF3A	P1 PERM YELLOW 2	P1 Select Perm. Next Bubble : Yellow	10212B/1/5
+puzzledp	0202	CF3A	P1 PERM GREY 2	P1 Select Perm. Next Bubble : Grey	10212B/1/6
+puzzledp	0202	CF3A	P2 PERM BLUE	P2 Select Perm. Current Bubble : Blue	104B9D/1/1
+quizdai2	0042	BE81	PERM. A 3 ANSWER	Select Perm. Answer Options : 3 Answers	100990/1/1
+quizdai2	0042	BE81	PERM. A 2 ANSWER	Select Perm. Answer Options : 2 Answers	100990/1/2
+quizdai2	0042	BE81	PERM. A 1 ANSWER	Select Perm. Answer Options : 1 Answer	100990/1/3
+quizdai2	0042	BE81	PERM. N 1	Select Perm. Normal Points : 1	10097B/1/1
+quizdai2	0042	BE81	PERM. N 3	Select Perm. Normal Points : 3	10097B/1/3
+quizdai2	0042	BE81	PERM. N 5	Select Perm. Normal Points : 5	10097B/1/5
+quizdais	0023	3ECF	PERM. A 3 ANSWER	Select Perm. Answer Options : 3 Answers	105A72/1/3
+quizdais	0023	3ECF	PERM. A 2 ANSWER	Select Perm. Answer Options : 2 Answers	105A72/1/2
+rbff1	0095	8E2F	STAGE SOUTH TOWN	Select Stage : South Town Sound Beach (Sunset)	106A33/1/1
+rbff1	0095	8E2F	STAGE SOUTH TO 2	Select Stage : South Town Sound Beach (Dusk)	106A33/1/2
+rbff1	0095	8E2F	STAGE SOUTH TO 3	Select Stage : South Town Sound Beach (Night)	106A33/1/3
+rbffspec	0223	2249	P1 COLO A COLOUR	P1 Select Colour : A Colour	106A2C/1/0
+rbffspec	0223	2249	P1 COLO D COLOUR	P1 Select Colour : D Colour	106A2C/1/1
+s1945p	0254	D5FF	P1 PLAN P38 LIGH	P1 Select Plane : P38 Lightning	1000E7/1/1
+s1945p	0254	D5FF	P1 PLAN F5U FLYI	P1 Select Plane : F5U Flying Pancake	1000E7/1/2
+s1945p	0254	D5FF	P1 PLAN SPITFIRE	P1 Select Plane : Spitfire Mk.VI	1000E7/1/3
+s1945p	0254	D5FF	P1 PLAN TA-152 F	P1 Select Plane : TA-152 Focke-Wulf	1000E7/1/4
+s1945p	0254	D5FF	P1 PLAN ZERO FIG	P1 Select Plane : Zero Fighter t.52	1000E7/1/5
+samsh5sp	0272	1851	P1 CHAR HAOHMARU	P1 Select Character : Haohmaru	108322/1/0
+samsho	0045	39BC	P1 CHAR HAOHMARU	P1 Select Character : Haohmaru	10100B/1/0
+samsho	0045	39BC	P1 CHAR NAKORURU	P1 Select Character : Nakoruru	10100B/1/1
+samsho	0045	39BC	P1 CHAR HANZO	P1 Select Character : Hanzo	10100B/1/2
+samsho	0045	39BC	P1 CHAR GALFORD	P1 Select Character : Galford	10100B/1/3
+samsho	0045	39BC	P1 CHAR WANG-FU	P1 Select Character : Wang-Fu	10100B/1/4
+samsho	0045	39BC	P1 CHAR UKYO	P1 Select Character : Ukyo	10100B/1/5
+samsho	0045	39BC	P2 CHAR HAOHMARU	P2 Select Character : Haohmaru	10102B/1/0
+samsho	0045	39BC	P2 CHAR NAKORURU	P2 Select Character : Nakoruru	10102B/1/1
+samsho	0045	39BC	P2 CHAR HANZO	P2 Select Character : Hanzo	10102B/1/2
+samsho	0045	39BC	P2 CHAR GALFORD	P2 Select Character : Galford	10102B/1/3
+samsho	0045	39BC	P2 CHAR WANG-FU	P2 Select Character : Wang-Fu	10102B/1/4
+samsho	0045	39BC	P2 CHAR UKYO	P2 Select Character : Ukyo	10102B/1/5
+samsho2	0063	B2EF	BACKGRO HAOHMARU	Select Background : Haohmaru	100AD9/1/0
+samsho2	0063	B2EF	BACKGRO NAKORURU	Select Background : Nakoruru	100AD9/1/1
+samsho2	0063	B2EF	BACKGRO HANZO	Select Background : Hanzo	100AD9/1/2
+samsho2	0063	B2EF	BACKGRO GALFORD	Select Background : Galford	100AD9/1/3
+samsho2	0063	B2EF	BACKGRO WAN-FU	Select Background : Wan-Fu	100AD9/1/4
+samsho2	0063	B2EF	BACKGRO UKYO	Select Background : Ukyo	100AD9/1/5
+samsho2	0063	B2EF	P1 CHAR HAOHMARU	P1 Select Character : Haohmaru	100D0B/1/0
+samsho2	0063	B2EF	P1 CHAR NAKORURU	P1 Select Character : Nakoruru	100D0B/1/1
+samsho2	0063	B2EF	P1 CHAR HANZO	P1 Select Character : Hanzo	100D0B/1/2
+samsho2	0063	B2EF	P1 CHAR GALFORD	P1 Select Character : Galford	100D0B/1/3
+samsho2	0063	B2EF	P1 CHAR WAN-FU	P1 Select Character : Wan-Fu	100D0B/1/4
+samsho2	0063	B2EF	P1 CHAR UKYO	P1 Select Character : Ukyo	100D0B/1/5
+samsho2	0063	B2EF	P2 CHAR HAOHMARU	P2 Select Character : Haohmaru	100D1B/1/0
+samsho2	0063	B2EF	P2 CHAR NAKORURU	P2 Select Character : Nakoruru	100D1B/1/1
+samsho2	0063	B2EF	P2 CHAR HANZO	P2 Select Character : Hanzo	100D1B/1/2
+samsho3	0087	E4CB	P1 CHAR BEGINNER	P1 Select Character Difficulty : Beginners Class	108472/1/0
+samsho3	0087	E4CB	P1 CHAR MEDIUM G	P1 Select Character Difficulty : Medium Grade	108472/1/1
+samsho3	0087	E4CB	P1 CHAR UPPER GR	P1 Select Character Difficulty : Upper Grade	108472/1/2
+samsho3	0087	E4CB	P2 CHAR BEGINNER	P2 Select Character Difficulty : Beginners Class	108473/1/0
+samsho3	0087	E4CB	P2 CHAR MEDIUM G	P2 Select Character Difficulty : Medium Grade	108473/1/1
+samsho3	0087	E4CB	P2 CHAR UPPER GR	P2 Select Character Difficulty : Upper Grade	108473/1/2
+samsho4	0222	2643	P1 COLO A COLOUR	P1 Select Colour : A Colour	10832A/1/0
+samsho4	0222	2643	P1 COLO B COLOUR	P1 Select Colour : B Colour	10832A/1/1
+samsho4	0222	2643	P1 PLAY SLASH	P1 Select Playing Style : Slash	108324/1/0
+samsho4	0222	2643	P1 PLAY BUST	P1 Select Playing Style : Bust	108324/1/1
+samsho4	0222	2643	P1 CONT HUMAN CO	P1 Select Control : Human Control	108320/1/FF
+samsho4	0222	2643	P1 CONT CPU CONT	P1 Select Control : CPU Control	108320/1/0
+samsho5	0270	1B2F	P1 CHAR HAOHMARU	P1 Select Character : Haohmaru	108322/1/0
+samsho5	0270	1B2F	P1 CHAR NAKORURU	P1 Select Character : Nakoruru	108322/1/1
+savagere	0059	F782	CHARACT KING LEO	Select Character : King Leo [End Boss]	1043C3/1/A
+savagere	0059	F782	CHARACT ANGRY CH	Select Character : Angry Chung	1043C3/1/B
+sengoku	0017	836D	P1 WEAP NONE	P1 Select Weapon : None	1002F9/1/0
+sengoku	0017	836D	P1 WEAP RED SPHE	P1 Select Weapon : Red Sphere	1002F9/1/1
+sengoku3	0261	83B6	P1 WEAP SYURIKEN	P1 Select Weapon : Syuriken	1083EA/1/0
+shocktr2	0246	5240	P1 WEAP NORMAL S	P1 Select Weapon : Normal Shot	109015/1/0
+shocktr2	0246	5240	P1 WEAP FIRE SHO	P1 Select Weapon : Fire Shot	109015/1/4
+shocktr2	0246	5240	P1 WEAP ROUND SH	P1 Select Weapon : Round Shot	109015/1/8
+shocktr2	0246	5240	P1 WEAP MISSILE	P1 Select Weapon : Missile Shot	109015/1/C
+shocktr2	0246	5240	P1 WEAP BOOMERAN	P1 Select Weapon : Boomerang Shot	109015/1/10
+shocktro	0238	E4F2	P1 NORM NORMAL G	P1 Select Normal Weapon : Normal Gun	108DB9/1/0
+sonicwi3	0097	63E9	CHARACT P1 KEATO	Select Character : P1 Keaton [F4U Corsair] \ P2 Blazers [P61 Black Widow]	1003AB/1/0
+sonicwi3	0097	63E9	CHARACT P1 BLAZE	Select Character : P1 Blazers [P61 Black Widow] \ P2 Keaton [F4U Corsair]	1003AB/1/1
+sonicwi3	0097	63E9	CHARACT P1 HIEN	Select Character : P1 Hien [Zero Fighter] \ P2 Mao Mao [Seiran(M6A1)]	1003AB/1/2
+sonicwi3	0097	63E9	CHARACT P1 MAO M	Select Character : P1 Mao Mao [Seiran(M6A1)] \ P2 Hien [Zero Fighter]	1003AB/1/3
+sonicwi3	0097	63E9	CHARACT P1 CHAIK	Select Character : P1 Chaika + Pooshka [IL2 Stormovik] \ P2 Spanky [Polikarpov I-16]	1003AB/1/4
+sonicwi3	0097	63E9	CHARACT P1 SPANK	Select Character : P1 Spanky [Polikarpov I-16] \ P2 Chaika + Pooshka [IL2 Stormovik]	1003AB/1/5
+ssideki2	0061	3C6E	P1 POWE FULL TEA	P1 Select PowerUp : Full Team	104484/1/0
+ssideki2	0061	3C6E	P1 POWE ATTACK	P1 Select PowerUp : Attack	104484/1/1
+ssideki2	0061	3C6E	P1 POWE DEFENSE	P1 Select PowerUp : Defense	104484/1/2
+ssideki2	0061	3C6E	P1 POWE SPEED	P1 Select PowerUp : Speed	104484/1/3
+ssideki2	0061	3C6E	P1 POWE TEAMWORK	P1 Select PowerUp : Teamwork	104484/1/4
+ssideki2	0061	3C6E	P1 POWE ACE STRI	P1 Select PowerUp : Ace Striker	104484/1/5
+ssideki2	0061	3C6E	P2 POWE FULL TEA	P2 Select PowerUp : Full Team	1044A4/1/0
+ssideki2	0061	3C6E	P2 POWE ATTACK	P2 Select PowerUp : Attack	1044A4/1/1
+ssideki2	0061	3C6E	P2 POWE DEFENSE	P2 Select PowerUp : Defense	1044A4/1/2
+ssideki2	0061	3C6E	P2 POWE SPEED	P2 Select PowerUp : Speed	1044A4/1/3
+superspy	0011	B441	WEAP MACHINE GUN	Select Weapon : Machine Gun	101856/1/F
+superspy	0011	B441	WEAPON PISTOL	Select Weapon : Pistol	101856/1/0
+svc	0269	D6D2	SECRET HEAVEN AT	Select Secret Ending Stage : Heaven (Athena)	10CDE8/1/F
+svc	0269	D6D2	SECRET HELL RED	Select Secret Ending Stage : Hell (Red Arremer)	10CDE8/1/1F
+svc	0269	D6D2	SECRET NOTHING B	Select Secret Ending Stage : Nothing (Bad End)	10CDE8/1/FF
+svc	0269	D6D2	P1 CHAR KYO	P1 Select Character : Kyo	10AC30/1/0
+turfmast	0200	B925	WIND PO NO WIND	Select Wind Power : No Wind	106FE1/1/0
+turfmast	0200	B925	WIND PO FULL WIN	Select Wind Power : Full Wind	106FE1/1/13
+turfmast	0200	B925	SHOT PO 1 LINE G	Select Shot Power : 1 Line (Green)	106FE7/1/4
+turfmast	0200	B925	SHOT PO 2 LINES	Select Shot Power : 2 Lines (Green)	106FE7/1/8
+turfmast	0200	B925	SHOT PO 3 LINES	Select Shot Power : 3 Lines (Green)	106FE7/1/C
+turfmast	0200	B925	SHOT PO 4 LINES	Select Shot Power : 4 Lines (Green)	106FE7/1/10
+turfmast	0200	B925	SHOT PO 5 LINES	Select Shot Power : 5 Lines (Green)	106FE7/1/14
+turfmast	0200	B925	SHOT PO 6 LINES	Select Shot Power : 6 Lines (Green)	106FE7/1/18
+turfmast	0200	B925	CLUB 1W 260 YARD	Select Club : 1W (260 Yards)	106FDF/1/0
+turfmast	0200	B925	CLUB 3W 240 YARD	Select Club : 3W (240 Yards)	106FDF/1/1
+turfmast	0200	B925	CLUB 4W 230 YARD	Select Club : 4W (230 Yards)	106FDF/1/2
+turfmast	0200	B925	CLUB 1I 220 YARD	Select Club : 1I (220 Yards)	106FDF/1/3
+viewpoin	0051	691F	P1 INFI INF PLAS	P1 Select Infinite Bombs : Infinite Plasma Bombs	108D8F/1/1
+viewpoin	0051	691F	P1 INFI INF FIRE	P1 Select Infinite Bombs : Infinite Fire Bombs	108D8F/1/2
+viewpoin	0051	691F	P1 INFI INF HOMI	P1 Select Infinite Bombs : Infinite Homing Bombs	108D8F/1/3
+viewpoin	0051	691F	P2 INFI INF PLAS	P2 Select Infinite Bombs : Infinite Plasma Bombs	1090E3/1/1
+viewpoin	0051	691F	P2 INFI INF FIRE	P2 Select Infinite Bombs : Infinite Fire Bombs	1090E3/1/2
+viewpoin	0051	691F	P2 INFI INF HOMI	P2 Select Infinite Bombs : Infinite Homing Bombs	1090E3/1/3
+wakuwak7	0225	7F39	P1 CHAR RAI	P1 Select Character : Rai	106997/1/0
+wakuwak7	0225	7F39	P1 CHAR ARINA	P1 Select Character : Arina	106997/1/1
+wakuwak7	0225	7F39	P1 CHAR SLASH	P1 Select Character : Slash	106997/1/2
+wakuwak7	0225	7F39	P1 CHAR DANDY-J	P1 Select Character : Dandy-J	106997/1/3
+wakuwak7	0225	7F39	P1 CHAR TESS	P1 Select Character : Tess	106997/1/4
+wakuwak7	0225	7F39	P1 CHAR MAURU	P1 Select Character : Mauru	106997/1/5
+wakuwak7	0225	7F39	P2 CHAR RAI	P2 Select Character : Rai	1069A1/1/0
+wakuwak7	0225	7F39	P2 CHAR ARINA	P2 Select Character : Arina	1069A1/1/1
+wakuwak7	0225	7F39	P2 CHAR SLASH	P2 Select Character : Slash	1069A1/1/2
+wakuwak7	0225	7F39	P2 CHAR DANDY-J	P2 Select Character : Dandy-J	1069A1/1/3
+wakuwak7	0225	7F39	P2 CHAR TESS	P2 Select Character : Tess	1069A1/1/4
+wh1	0053	783E	P1 CHAR DRAGON	P1 Select Character : Dragon	10600C/1/1
+wh1	0053	783E	P1 CHAR HANZO	P1 Select Character : Hanzo	10600C/1/2
+wh1	0053	783E	P1 CHAR MUSCLE P	P1 Select Character : Muscle Power	10600C/1/3
+wh1	0053	783E	P1 CHAR J. CARN	P1 Select Character : J. Carn	10600C/1/4
+wh1	0053	783E	P1 CHAR JANNE	P1 Select Character : Janne	10600C/1/5
+wh1	0053	783E	P1 CHAR RASPUTIN	P1 Select Character : Rasputin	10600C/1/6
+wh1	0053	783E	P2 CHAR DRAGON	P2 Select Character : Dragon	10610C/1/1
+wh1	0053	783E	P2 CHAR HANZO	P2 Select Character : Hanzo	10610C/1/2
+wh1	0053	783E	P2 CHAR MUSCLE P	P2 Select Character : Muscle Power	10610C/1/3
+wh1	0053	783E	P2 CHAR J. CARN	P2 Select Character : J. Carn	10610C/1/4
+wjammers	0065	2657	COURT BEACH	Select Court : Beach	100324/1/0
+wjammers	0065	2657	COURT LAWN	Select Court : Lawn	100324/1/1
+wjammers	0065	2657	COURT TILES	Select Court : Tiles	100324/1/2
+wjammers	0065	2657	COURT CONCRETE	Select Court : Concrete	100324/1/3
+wjammers	0065	2657	COURT CLAY	Select Court : Clay	100324/1/4
+wjammers	0065	2657	COURT STADIUM	Select Court : Stadium	100324/1/5

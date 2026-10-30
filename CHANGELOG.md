@@ -8,8 +8,9 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 
 ### Added
 
-- 1,119 cheats imported from the MAME XML Cheats Collection (Pugsy and contributors): 154 games and
-  1,260 cheats in all, among them one-shot cheats that switch themselves off once applied.
+- 1,568 cheats imported from the MAME XML Cheats Collection (Pugsy and contributors): 154 games and
+  1,709 cheats in all, among them one-shot cheats that switch themselves off once applied, and
+  one entry per value for selections, six values at most.
   Imported cheats are checked not to freeze the game, not proven one by one.
 - Cheats for 46 more games, 77 cheats: INFINITE LIVES for 26 action games, P2 INF. LIVES for 23
   action games (P2 playing alone), P1 INFINITE LIFE for five

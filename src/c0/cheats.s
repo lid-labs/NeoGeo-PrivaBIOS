@@ -349,7 +349,7 @@ _cheats_table:
         | ART OF FIGHTING. Measured: round seconds $108406 (BCD, $60 at start; forced, 60 on
         | screen, and the game ends like the witness run); P1's life $1092CD ($60 at start, 0 at
         | KO; forced, gauge full, no game over in 8,000 frames, the witness run ends at 6,079).
-        JEU     0x0044, 0x42B6, 12
+        JEU     0x0044, 0x42B6, 16
         CHEAT   "INFINITE TIME",   0x108406, 1, 0x60
         CHEAT   "P1 INFINITE LIFE", 0x1092CD, 1, 0x60
         CHEAT   "P2 INF ENERGY", 0x1093CD, 1, 0x60
@@ -362,13 +362,17 @@ _cheats_table:
         UNEFOIS "P1 DRAIN ALL POW", 0x1094A4, 1, 0x00
         UNEFOIS "P2 DRAIN ALL POW", 0x1095A4, 1, 0x00
         UNEFOIS "FINISH THIS FIGH", 0x108406, 1, 0x00
+        CHEAT   "PERM WI P1", 0x10840A, 1, 0x90
+        CHEAT   "PERM WI P2", 0x10840A, 1, 0x91
+        CHEAT   "P1 CHAR RYO SAKA", 0x1092C2, 2, 0x0000
+        CHEAT   "P1 CHAR ROBERT G", 0x1092C2, 2, 0x0001
         | THE KING OF FIGHTERS '94. Measured: the frame countdown of the second $10882F (50 → 0,
         | then −1 to the seconds $10882E); forced to 50, TIME stays 60 and the end-of-round
         | countdown, which writes $10882E without going through it, runs. Forcing $10882E itself
         | freezes the game at KO (measured: gauge empty, nothing follows any more). P1's life
         | $108221 ($CF at start; forced, gauge full, no game over in 9,000 frames, the witness run
         | ends at 8,466).
-        JEU     0x0055, 0x4489, 10
+        JEU     0x0055, 0x4489, 12
         CHEAT   "INFINITE TIME",   0x10882F, 1, 0x32
         CHEAT   "P1 INFINITE LIFE", 0x108221, 1, 0xCF
         CHEAT   "P2 INF ENERGY", 0x108421, 1, 0xCF
@@ -379,6 +383,8 @@ _cheats_table:
         UNEFOIS "FINISH ROUND NOW", 0x10882E, 1, 0x00
         UNEFOIS "P1 PLAY WITH RUG", 0x108231, 1, 0x08
         UNEFOIS "P2 PLAY WITH RUG", 0x108431, 1, 0x08
+        CHEAT   "MAI S B BOUNCE", 0x10C6E2, 1, 0x00
+        CHEAT   "MAI S B NEVER BO", 0x10C6E2, 1, 0x01
         | THE CATALOGUE OF 2026-10-25: one or two cheats per game, each found and proven like those
         | above (standalone record `measured/2026-10-25-cheats-table.tsv`: method, measurement, effect
         | seen on screen, jig; the search, `2026-10-25-cheats-recherche.tsv`), and enabled through the
@@ -387,7 +393,7 @@ _cheats_table:
         | THE KING OF FIGHTERS '95: like kof94, the frame countdown of the second ($32 to 0) next to
         | the seconds $10A836 (BCD), which we do not force (forced, the round no longer starts); P1's
         | life $CF at the start of the round.
-        JEU     0x0084, 0x0A7E, 10
+        JEU     0x0084, 0x0A7E, 16
         CHEAT   "INFINITE TIME",   0x10A837, 1, 0x32
         CHEAT   "P1 INFINITE LIFE", 0x108221, 1, 0xCF
         CHEAT   "BOSS CODE + TIME", 0x100000, 1, 0x04
@@ -398,6 +404,12 @@ _cheats_table:
         UNEFOIS "P1 DRAIN ALL ENR", 0x108221, 1, 0x00
         UNEFOIS "P2 DRAIN ALL ENR", 0x108421, 1, 0x00
         UNEFOIS "FINISH ROUND NOW", 0x10A836, 1, 0x00
+        CHEAT   "P1 1ST HEIDERN", 0x10A843, 1, 0x00
+        CHEAT   "P1 1ST RALF", 0x10A843, 1, 0x01
+        CHEAT   "P1 1ST CLARK", 0x10A843, 1, 0x02
+        CHEAT   "P1 1ST ATHENA", 0x10A843, 1, 0x03
+        CHEAT   "P1 1ST KENSOU", 0x10A843, 1, 0x04
+        CHEAT   "P1 1ST CHIN", 0x10A843, 1, 0x05
         | THE KING OF FIGHTERS '99: the frame countdown of the second, seconds at $10A7E6.
         | On 2026-10-29: $108422, the damage taken by P1 (0 at the round, rises with hits; forced to 0).
         JEU     0x0251, 0xB157, 16
@@ -454,15 +466,42 @@ _cheats_table:
         UNEFOIS "P2 DRAIN ALL ENR", 0x108439, 1, 0x00
         UNEFOIS "P1 DRAIN ALL POW", 0x1082E3, 1, 0x00, 0x1081E8, 1, 0x00
         | SAMURAI SHODOWN: the seconds, BCD, 99 at start.
-        JEU     0x0045, 0x39BC, 3
+        JEU     0x0045, 0x39BC, 15
         CHEAT   "INFINITE TIME",   0x100A08, 1, 0x99
         UNEFOIS "FINISH THIS ROUN", 0x100A09, 1, 0x00
         UNEFOIS "GOTO BOSS FIGHT", 0x100A93, 1, 0x0C
+        CHEAT   "P1 CHAR HAOHMARU", 0x10100B, 1, 0x00
+        CHEAT   "P1 CHAR NAKORURU", 0x10100B, 1, 0x01
+        CHEAT   "P1 CHAR HANZO", 0x10100B, 1, 0x02
+        CHEAT   "P1 CHAR GALFORD", 0x10100B, 1, 0x03
+        CHEAT   "P1 CHAR WANG-FU", 0x10100B, 1, 0x04
+        CHEAT   "P1 CHAR UKYO", 0x10100B, 1, 0x05
+        CHEAT   "P2 CHAR HAOHMARU", 0x10102B, 1, 0x00
+        CHEAT   "P2 CHAR NAKORURU", 0x10102B, 1, 0x01
+        CHEAT   "P2 CHAR HANZO", 0x10102B, 1, 0x02
+        CHEAT   "P2 CHAR GALFORD", 0x10102B, 1, 0x03
+        CHEAT   "P2 CHAR WANG-FU", 0x10102B, 1, 0x04
+        CHEAT   "P2 CHAR UKYO", 0x10102B, 1, 0x05
         | SAMURAI SHODOWN II: the seconds, BCD, 99 at start.
-        JEU     0x0063, 0xB2EF, 1
+        JEU     0x0063, 0xB2EF, 16
         CHEAT   "INFINITE TIME",   0x100AC6, 1, 0x99
+        CHEAT   "BACKGRO HAOHMARU", 0x100AD9, 1, 0x00
+        CHEAT   "BACKGRO NAKORURU", 0x100AD9, 1, 0x01
+        CHEAT   "BACKGRO HANZO", 0x100AD9, 1, 0x02
+        CHEAT   "BACKGRO GALFORD", 0x100AD9, 1, 0x03
+        CHEAT   "BACKGRO WAN-FU", 0x100AD9, 1, 0x04
+        CHEAT   "BACKGRO UKYO", 0x100AD9, 1, 0x05
+        CHEAT   "P1 CHAR HAOHMARU", 0x100D0B, 1, 0x00
+        CHEAT   "P1 CHAR NAKORURU", 0x100D0B, 1, 0x01
+        CHEAT   "P1 CHAR HANZO", 0x100D0B, 1, 0x02
+        CHEAT   "P1 CHAR GALFORD", 0x100D0B, 1, 0x03
+        CHEAT   "P1 CHAR WAN-FU", 0x100D0B, 1, 0x04
+        CHEAT   "P1 CHAR UKYO", 0x100D0B, 1, 0x05
+        CHEAT   "P2 CHAR HAOHMARU", 0x100D1B, 1, 0x00
+        CHEAT   "P2 CHAR NAKORURU", 0x100D1B, 1, 0x01
+        CHEAT   "P2 CHAR HANZO", 0x100D1B, 1, 0x02
         | SAMURAI SHODOWN IV: the frame countdown of the second ($3C), seconds at $108368.
-        JEU     0x0222, 0x2643, 10
+        JEU     0x0222, 0x2643, 16
         CHEAT   "INFINITE TIME",   0x108369, 1, 0x3C
         CHEAT   "INFINITE TIME 2", 0x108368, 1, 0x61
         CHEAT   "P1 INF ENERGY", 0x108443, 1, 0xFC
@@ -473,8 +512,14 @@ _cheats_table:
         CHEAT   "P2 POWER GAUGE", 0x108758, 1, 0x00
         UNEFOIS "P1 DRAIN ALL ENR", 0x108443, 1, 0x00
         UNEFOIS "P2 DRAIN ALL ENR", 0x108643, 1, 0x00
+        CHEAT   "P1 COLO A COLOUR", 0x10832A, 1, 0x00
+        CHEAT   "P1 COLO B COLOUR", 0x10832A, 1, 0x01
+        CHEAT   "P1 PLAY SLASH", 0x108324, 1, 0x00
+        CHEAT   "P1 PLAY BUST", 0x108324, 1, 0x01
+        CHEAT   "P1 CONT HUMAN CO", 0x108320, 1, 0xFF
+        CHEAT   "P1 CONT CPU CONT", 0x108320, 1, 0x00
         | SAMURAI SHODOWN V: the seconds, BCD.
-        JEU     0x0270, 0x1B2F, 14
+        JEU     0x0270, 0x1B2F, 16
         CHEAT   "INFINITE TIME",   0x10836A, 1, 0x60
         CHEAT   "P1 INF ENERGY", 0x108445, 1, 0x7D
         CHEAT   "P1 BLUE ENRG GAU", 0x1085FE, 1, 0x7C
@@ -489,8 +534,10 @@ _cheats_table:
         UNEFOIS "P1 DRAIN ALL ENR", 0x108445, 1, 0x00
         UNEFOIS "P2 DRAIN ALL ENR", 0x108655, 1, 0x00
         UNEFOIS "FINISH THIS ROUN", 0x10836B, 1, 0x00
+        CHEAT   "P1 CHAR HAOHMARU", 0x108322, 1, 0x00
+        CHEAT   "P1 CHAR NAKORURU", 0x108322, 1, 0x01
         | SAMURAI SHODOWN V SPECIAL: the seconds, BCD.
-        JEU     0x0272, 0x1851, 15
+        JEU     0x0272, 0x1851, 16
         CHEAT   "INFINITE TIME",   0x10836A, 1, 0x60
         CHEAT   "P1 INFINITE LIFE", 0x10854E, 1, 0x11
         CHEAT   "P1 INF ENERGY", 0x108445, 1, 0x7D
@@ -506,8 +553,9 @@ _cheats_table:
         UNEFOIS "P1 DRAIN ALL ENR", 0x108445, 1, 0x00
         UNEFOIS "P2 DRAIN ALL ENR", 0x108655, 1, 0x00
         UNEFOIS "FINISH THIS ROUN", 0x10836B, 1, 0x00
+        CHEAT   "P1 CHAR HAOHMARU", 0x108322, 1, 0x00
         | FATAL FURY 3: the seconds, BCD.
-        JEU     0x0069, 0xEF51, 11
+        JEU     0x0069, 0xEF51, 16
         CHEAT   "INFINITE TIME",   0x105680, 1, 0x60
         CHEAT   "P1 INF ENERGY", 0x100489, 1, 0x78
         CHEAT   "P2 INF ENERGY", 0x100589, 1, 0x78
@@ -519,6 +567,11 @@ _cheats_table:
         UNEFOIS "FINISH THIS ROUN", 0x105680, 1, 0x00
         UNEFOIS "P1 ROUNDS WON 2", 0x105666, 1, 0x02
         UNEFOIS "P2 ROUNDS WON 2", 0x105667, 1, 0x02
+        CHEAT   "P1 COLO A COLOUR", 0x105624, 1, 0x00
+        CHEAT   "P1 COLO D COLOUR", 0x105624, 1, 0x01
+        CHEAT   "P2 COLO A COLOUR", 0x105625, 1, 0x00
+        CHEAT   "P2 COLO D COLOUR", 0x105625, 1, 0x01
+        CHEAT   "PERM. B SOUND BE", 0x105627, 1, 0x01
         | FATAL FURY SPECIAL: the seconds, BCD.
         JEU     0x0058, 0x189F, 8
         CHEAT   "INFINITE TIME",   0x10092A, 1, 0x60
@@ -530,14 +583,25 @@ _cheats_table:
         UNEFOIS "P1 PLAY WITH RYO", 0x101E93, 1, 0x10
         UNEFOIS "P2 PLAY WITH RYO", 0x101F93, 1, 0x10
         | THE LAST BLADE: the seconds, BCD.
-        JEU     0x0234, 0xB3E9, 5
+        JEU     0x0234, 0xB3E9, 16
         CHEAT   "INFINITE TIME",   0x10E32B, 1, 0x60
         UNEFOIS "STORY PART 1 STA", 0x10AC43, 1, 0x06
         UNEFOIS "STORY PART 2 STA", 0x10AC43, 1, 0x07
         UNEFOIS "FIRST BOSS", 0x10AC43, 1, 0x08
         UNEFOIS "FINAL BOSS.", 0x10AC43, 1, 0x09
+        CHEAT   "P1 CHAR KAEDE", 0x10EAAD, 1, 0x00
+        CHEAT   "P1 CHAR MORIYA", 0x10EAAD, 1, 0x01
+        CHEAT   "P1 CHAR YUKI", 0x10EAAD, 1, 0x02
+        CHEAT   "P1 CHAR OKINA", 0x10EAAD, 1, 0x03
+        CHEAT   "P1 CHAR AKARI", 0x10EAAD, 1, 0x04
+        CHEAT   "P1 CHAR JUZOH", 0x10EAAD, 1, 0x05
+        CHEAT   "P2 CHAR KAEDE", 0x10EAAF, 1, 0x00
+        CHEAT   "P2 CHAR MORIYA", 0x10EAAF, 1, 0x01
+        CHEAT   "P2 CHAR YUKI", 0x10EAAF, 1, 0x02
+        CHEAT   "P2 CHAR OKINA", 0x10EAAF, 1, 0x03
+        CHEAT   "P2 CHAR AKARI", 0x10EAAF, 1, 0x04
         | ART OF FIGHTING 2: the seconds, BCD, the same cell as aof.
-        JEU     0x0056, 0x2DFA, 12
+        JEU     0x0056, 0x2DFA, 16
         CHEAT   "INFINITE TIME",   0x108406, 1, 0x60
         CHEAT   "P1 INF ENERGY", 0x1092ED, 1, 0x60
         CHEAT   "P2 INF ENERGY", 0x1093ED, 1, 0x60
@@ -550,14 +614,28 @@ _cheats_table:
         UNEFOIS "FINISH THIS FIGH", 0x108406, 1, 0x00
         UNEFOIS "NEXT FIGHT BOSS", 0x108429, 1, 0x0E
         UNEFOIS "NEXT FIGHT SPEC", 0x108429, 1, 0x0F
+        CHEAT   "PERM WI P1", 0x10840A, 1, 0x90
+        CHEAT   "PERM WI P2", 0x10840A, 1, 0x91
+        CHEAT   "P1 OUTF REGULAR", 0x1094F7, 1, 0x00
+        CHEAT   "P1 OUTF ALTERNAT", 0x1094F7, 1, 0x01
         | WORLD HEROES: the seconds, BCD, 99 at start.
-        JEU     0x0053, 0x783E, 6
+        JEU     0x0053, 0x783E, 16
         CHEAT   "INFINITE TIME",   0x10B008, 1, 0x99
         CHEAT   "P1 INF ENERGY", 0x10600A, 1, 0x68, 0x10602E, 1, 0x68
         CHEAT   "P2 INF ENERGY", 0x10610A, 1, 0x68, 0x10612E, 1, 0x68
         UNEFOIS "P1 DRAIN ALL ENR", 0x10600A, 1, 0x00, 0x10602E, 1, 0x00
         UNEFOIS "P2 DRAIN ALL ENR", 0x10610A, 1, 0x00, 0x10612E, 1, 0x00
         UNEFOIS "FINISH THIS ROUN", 0x10B008, 1, 0x01
+        CHEAT   "P1 CHAR DRAGON", 0x10600C, 1, 0x01
+        CHEAT   "P1 CHAR HANZO", 0x10600C, 1, 0x02
+        CHEAT   "P1 CHAR MUSCLE P", 0x10600C, 1, 0x03
+        CHEAT   "P1 CHAR J. CARN", 0x10600C, 1, 0x04
+        CHEAT   "P1 CHAR JANNE", 0x10600C, 1, 0x05
+        CHEAT   "P1 CHAR RASPUTIN", 0x10600C, 1, 0x06
+        CHEAT   "P2 CHAR DRAGON", 0x10610C, 1, 0x01
+        CHEAT   "P2 CHAR HANZO", 0x10610C, 1, 0x02
+        CHEAT   "P2 CHAR MUSCLE P", 0x10610C, 1, 0x03
+        CHEAT   "P2 CHAR J. CARN", 0x10610C, 1, 0x04
         | WORLD HEROES 2: the seconds, BCD, 99 at start.
         JEU     0x0057, 0x1419, 8
         CHEAT   "INFINITE TIME",   0x10C109, 1, 0x99
@@ -569,7 +647,7 @@ _cheats_table:
         UNEFOIS "P2 DRAIN ALL ENR", 0x10610C, 2, 0x0000
         UNEFOIS "FINISH THIS ROUN", 0x10C109, 1, 0x01
         | SNK VS. CAPCOM: the seconds, BCD.
-        JEU     0x0269, 0xD6D2, 12
+        JEU     0x0269, 0xD6D2, 16
         CHEAT   "INFINITE TIME",   0x10AC14, 1, 0x60
         CHEAT   "INFINITE TIME 2", 0x10AC15, 1, 0x5B
         CHEAT   "INF TIME IN PSEL", 0x10CD6C, 1, 0x0F
@@ -582,6 +660,10 @@ _cheats_table:
         CHEAT   "P1 INF GUARD", 0x10A247, 1, 0x70
         CHEAT   "P2 INF EXCEED", 0x10D1DE, 2, 0x0258
         CHEAT   "P2 INF GUARD", 0x10A4C7, 1, 0x70
+        CHEAT   "SECRET HEAVEN AT", 0x10CDE8, 1, 0x0F
+        CHEAT   "SECRET HELL RED", 0x10CDE8, 1, 0x1F
+        CHEAT   "SECRET NOTHING B", 0x10CDE8, 1, 0xFF
+        CHEAT   "P1 CHAR KYO", 0x10AC30, 1, 0x00
         | BREAKERS REVENGE: the seconds, binary, 99 at start.
         JEU     0x0245, 0xB255, 10
         CHEAT   "INFINITE TIME",   0x107C27, 1, 0x63
@@ -596,13 +678,25 @@ _cheats_table:
         UNEFOIS "GOTO BOSS FIGHT", 0x1070D1, 1, 0x0A
         | KARNOV'S REVENGE: the seconds, binary, 99 at start.
         | On 2026-10-29: $103A74, the high byte of P1's life word ($0FFF at the highest).
-        JEU     0x0066, 0x6A32, 4
+        JEU     0x0066, 0x6A32, 16
         CHEAT   "INFINITE TIME",   0x103A70, 1, 0x63
         CHEAT   "P1 INFINITE LIFE", 0x103A74, 1, 0x0F
         CHEAT   "P1 INF ENERGY", 0x1037B7, 1, 0xFF, 0x1037B8, 1, 0xFF
         CHEAT   "P2 INF ENERGY", 0x1039B7, 1, 0xFF, 0x1039B8, 1, 0xFF
+        CHEAT   "P1 CHAR RAY", 0x103671, 1, 0x00
+        CHEAT   "P1 CHAR FEILIN", 0x103671, 1, 0x01
+        CHEAT   "P1 CHAR RYOKO", 0x103671, 1, 0x02
+        CHEAT   "P1 CHAR MATLOCK", 0x103671, 1, 0x03
+        CHEAT   "P1 CHAR SAMCHAY", 0x103671, 1, 0x04
+        CHEAT   "P1 CHAR LEE", 0x103671, 1, 0x05
+        CHEAT   "P2 CHAR RAY", 0x103871, 1, 0x00
+        CHEAT   "P2 CHAR FEILIN", 0x103871, 1, 0x01
+        CHEAT   "P2 CHAR RYOKO", 0x103871, 1, 0x02
+        CHEAT   "P2 CHAR MATLOCK", 0x103871, 1, 0x03
+        CHEAT   "P2 CHAR SAMCHAY", 0x103871, 1, 0x04
+        CHEAT   "P2 CHAR LEE", 0x103871, 1, 0x05
         | DOUBLE DRAGON: the seconds, BCD, 99 at start.
-        JEU     0x0082, 0x1CB9, 7
+        JEU     0x0082, 0x1CB9, 16
         CHEAT   "INFINITE TIME",   0x102242, 1, 0x99
         CHEAT   "INF CHAR SELECTI", 0x105BA3, 1, 0x78
         CHEAT   "P1 INF ENERGY", 0x100450, 1, 0x00
@@ -610,11 +704,20 @@ _cheats_table:
         UNEFOIS "P1 DRAIN ALL ENR", 0x100450, 1, 0x68
         UNEFOIS "P2 DRAIN ALL ENR", 0x100550, 1, 0x68
         UNEFOIS "UNLOCK SECRET CH", 0x108E84, 1, 0x01
+        CHEAT   "P1 CHAR MAX CHAR", 0x100510, 1, 0x68
+        CHEAT   "P1 CHAR MIN CHAR", 0x100510, 1, 0x00
+        CHEAT   "P2 CHAR MAX CHAR", 0x100610, 1, 0x68
+        CHEAT   "P2 CHAR MIN CHAR", 0x100610, 1, 0x00
+        CHEAT   "P1 CHAR BILLY", 0x100445, 1, 0x00
+        CHEAT   "P1 CHAR SUPER BI", 0x100445, 1, 0x01
+        CHEAT   "P1 CHAR JIMMY", 0x100445, 1, 0x02
+        CHEAT   "P1 CHAR SUPER JI", 0x100445, 1, 0x03
+        CHEAT   "P1 CHAR MARIAN", 0x100445, 1, 0x04
         | METAL SLUG 2: the lives, 2 at the start of the game (HUD 1UP=2).
         | On 2026-10-29, by known value (the HUD read at two frames, then the bytes that equal what it
         | displays): the mission time $1013B4, binary, 60. On 2026-10-30, by expected sequence in the
         | bomb scenario: the bombs $10C348, 10 at start ($10127C is only a copy of it).
-        JEU     0x0241, 0xBE57, 13
+        JEU     0x0241, 0xBE57, 16
         CHEAT   "INFINITE LIVES",  0x101276, 1, 0x02
         CHEAT   "INFINITE TIME",   0x1013B4, 1, 0x3C
         CHEAT   "INFINITE BOMBS",  0x10C348, 1, 0x0A
@@ -628,8 +731,11 @@ _cheats_table:
         CHEAT   "P2 INFINITE AMMO", 0x10C34F, 1, 0xFF
         CHEAT   "P1 INF CANNON", 0x10E8A1, 1, 0x0A
         CHEAT   "P2 INF CANNON", 0x10E8C5, 1, 0x0A
+        CHEAT   "P1 BODY NORMAL", 0x101525, 1, 0x00
+        CHEAT   "P1 BODY FAT BLOA", 0x101525, 1, 0x02
+        CHEAT   "P1 BODY MUMMY", 0x101525, 1, 0x03
         | METAL SLUG X: the lives, 2 at start.
-        JEU     0x0250, 0x92D4, 15
+        JEU     0x0250, 0x92D4, 16
         CHEAT   "INFINITE LIVES",  0x101288, 1, 0x02
         CHEAT   "INFINITE TIME", 0x1013DE, 1, 0x5A
         CHEAT   "P1 INF VEHICLE E", 0x10C621, 1, 0x30
@@ -645,8 +751,9 @@ _cheats_table:
         CHEAT   "P2 INF VEHICLE C", 0x10C64B, 1, 0x19
         UNEFOIS "P1 GET 50 PRISON", 0x10C5FD, 1, 0x32
         UNEFOIS "P2 GET 50 PRISON", 0x10C601, 1, 0x32
+        CHEAT   "P1 BODY NORMAL", 0x101557, 1, 0x01
         | METAL SLUG 3: the lives, 2 at start. The bombs (2026-10-30, bomb scenario): $10EAF5, 10.
-        JEU     0x0256, 0xE095, 13
+        JEU     0x0256, 0xE095, 16
         CHEAT   "INFINITE LIVES",  0x1002BB, 1, 0x02
         CHEAT   "INFINITE BOMBS",  0x10EAF5, 1, 0x0A
         CHEAT   "INFINITE TIME", 0x10ED78, 1, 0x99
@@ -660,10 +767,13 @@ _cheats_table:
         CHEAT   "P2 NO BOMB THROW", 0x10EAFE, 1, 0x00
         CHEAT   "P1 15 PRISONERS", 0x10ED05, 1, 0x0F
         CHEAT   "P2 15 PRISONERS", 0x10ED0D, 1, 0x0F
+        CHEAT   "P1 BOMB MORTAR G", 0x10EAF4, 1, 0x01
+        CHEAT   "P1 BOMB PETROL B", 0x10EAF4, 1, 0x02
+        CHEAT   "P1 BOMB ROCK", 0x10EAF4, 1, 0x03
         | METAL SLUG 4: the lives, 2 at start.
         | On 2026-10-29, by known value: the mission time $10ED5C, BCD, 60. The bombs
         | (2026-10-30, bomb scenario): $10EDED, 10.
-        JEU     0x0263, 0xD875, 14
+        JEU     0x0263, 0xD875, 16
         CHEAT   "INFINITE LIVES",  0x100A89, 1, 0x02
         CHEAT   "INFINITE TIME",   0x10ED5C, 1, 0x60
         CHEAT   "P2 INF. LIVES",   0x100CFC, 1, 0x02
@@ -678,8 +788,10 @@ _cheats_table:
         CHEAT   "P2 NO BOMB THROW", 0x10EDF7, 1, 0x00
         CHEAT   "P1 INFINITE ARMS", 0x10EDF2, 2, 0xFFFF
         CHEAT   "P2 INFINITE ARMS", 0x10EE02, 2, 0xFFFF
+        CHEAT   "P1 BOMB NORMAL", 0x10EDEC, 1, 0x01
+        CHEAT   "P1 BOMB FIRE", 0x10EDEC, 1, 0x02
         | METAL SLUG 5: the lives, 2 at start. The bombs (2026-10-30, bomb scenario): $10D457, 10.
-        JEU     0x0268, 0x1581, 15
+        JEU     0x0268, 0x1581, 16
         CHEAT   "INFINITE LIVES",  0x100A41, 1, 0x02
         CHEAT   "P2 INF. LIVES",   0x1050C2, 1, 0x05
         CHEAT   "INFINITE BOMBS",  0x10D457, 1, 0x0A
@@ -695,6 +807,7 @@ _cheats_table:
         CHEAT   "P1 15 PRISONERS", 0x10DDDD, 1, 0x0F
         CHEAT   "P2 INF BULLETS", 0x10D46C, 2, 0xFFFF
         CHEAT   "P2 INF CANNONS", 0x10DD0B, 1, 0x63
+        CHEAT   "P1 BOMB NORMAL", 0x10D456, 1, 0x01
         | PULSTAR: the lives, 2 at start.
         JEU     0x0089, 0xA232, 4
         CHEAT   "INFINITE LIVES",  0x10132A, 1, 0x02
@@ -752,7 +865,7 @@ _cheats_table:
         CHEAT   "P2 INFINITE SHOT", 0x1042DE, 2, 0x0000
         CHEAT   "P2 INF POD SHOT", 0x1042E0, 2, 0x0000
         | MAGICIAN LORD: the lives, 2 at start.
-        JEU     0x0005, 0x9330, 9
+        JEU     0x0005, 0x9330, 16
         CHEAT   "INFINITE LIVES",  0x103B00, 1, 0x02
         CHEAT   "P2 INF. LIVES",   0x103C00, 1, 0x02
         CHEAT   "INFINITE TIME", 0x1039FC, 2, 0x0005, 0x1039FE, 2, 0xDBFF
@@ -762,8 +875,15 @@ _cheats_table:
         CHEAT   "P2 INVINCIBILITY", 0x103C09, 1, 0x9F
         CHEAT   "P1 INF POWER", 0x103B04, 1, 0x02
         CHEAT   "P2 INF POWER", 0x103C04, 1, 0x02
+        CHEAT   "P1 CHAR MAGICIAN", 0x103B05, 1, 0x01
+        CHEAT   "P1 CHAR SHINOBI", 0x103B05, 1, 0x0D
+        CHEAT   "P1 CHAR WATERMAN", 0x103B05, 1, 0x09
+        CHEAT   "P1 CHAR SAMURAI", 0x103B05, 1, 0x0E
+        CHEAT   "P1 CHAR DRAGON W", 0x103B05, 1, 0x05
+        CHEAT   "P1 CHAR POSEIDON", 0x103B05, 1, 0x0A
+        CHEAT   "P2 CHAR MAGICIAN", 0x103C05, 1, 0x01
         | STRIKERS 1945 PLUS: the lives, 2 at start.
-        JEU     0x0254, 0xD5FF, 11
+        JEU     0x0254, 0xD5FF, 16
         CHEAT   "INFINITE LIVES",  0x1000E9, 1, 0x02
         CHEAT   "P2 INF LIVES", 0x100145, 1, 0x09
         CHEAT   "P1 MAX FIREPOWER", 0x1000ED, 1, 0x04
@@ -775,6 +895,11 @@ _cheats_table:
         CHEAT   "MISSION 1 LEVEL", 0x1002FB, 1, 0x00
         CHEAT   "P1 INF SUPER SHO", 0x1000F5, 1, 0x08, 0x1000F1, 1, 0x08
         CHEAT   "P2 INF SUPER SHO", 0x100151, 1, 0x08, 0x10014D, 1, 0x08
+        CHEAT   "P1 PLAN P38 LIGH", 0x1000E7, 1, 0x01
+        CHEAT   "P1 PLAN F5U FLYI", 0x1000E7, 1, 0x02
+        CHEAT   "P1 PLAN SPITFIRE", 0x1000E7, 1, 0x03
+        CHEAT   "P1 PLAN TA-152 F", 0x1000E7, 1, 0x04
+        CHEAT   "P1 PLAN ZERO FIG", 0x1000E7, 1, 0x05
         | ZED BLADE: the lives, 3 at start.
         JEU     0x0076, 0x9553, 16
         CHEAT   "INFINITE LIVES",  0x100229, 1, 0x03
@@ -823,7 +948,7 @@ _cheats_table:
         CHEAT   "P1 THE SPRING", 0x107014, 1, 0x01
         CHEAT   "P1 THE SWIN FIN", 0x107015, 1, 0x01
         | CAPTAIN TOMADAY: the lives, 2 at the highest; the witness run loses the game at frame 3831.
-        JEU     0x0249, 0xE6CD, 9
+        JEU     0x0249, 0xE6CD, 16
         CHEAT   "INFINITE LIVES",  0x104026, 1, 0x02
         CHEAT   "P2 INF. LIVES",   0x101399, 1, 0x02
         CHEAT   "P1 INF LIVES", 0x10137D, 1, 0x0A
@@ -833,17 +958,32 @@ _cheats_table:
         CHEAT   "P1 MAX POW LEFT", 0x1041AB, 1, 0x05
         CHEAT   "P2 MAX POW RIGHT", 0x1043F1, 1, 0x05
         CHEAT   "P2 MAX POW LEFT", 0x10439B, 1, 0x05
+        CHEAT   "P1 SHIP ORIGINAL", 0x104135, 1, 0x00
+        CHEAT   "P1 SHIP WINGED S", 0x104135, 1, 0x01
+        CHEAT   "P1 SHIP MINI SHI", 0x104135, 1, 0x02
+        CHEAT   "P1 SHIP BIG SHIP", 0x104135, 1, 0x03
+        CHEAT   "P1 SHIP CARROT S", 0x104135, 1, 0x04
+        CHEAT   "P1 SHIP FISH SHI", 0x104135, 1, 0x05
+        CHEAT   "P2 SHIP ORIGINAL", 0x104325, 1, 0x00
         | GANRYU: the lives, 3 at the highest; the witness run loses the game at frame 4912. The time,
         | $100453, binary, 99 at the highest: forced alone, TIME stays at 99 on the HUD.
-        JEU     0x0252, 0x0111, 6
+        JEU     0x0252, 0x0111, 14
         CHEAT   "INFINITE LIVES",  0x1004A1, 1, 0x03
         CHEAT   "INFINITE TIME",   0x100453, 1, 0x63
         CHEAT   "P2 INF LIVES", 0x1004C1, 1, 0x07
         CHEAT   "INVINCIBILITY", 0x109D11, 1, 0x01
         CHEAT   "P1 INF WEAPONS", 0x100497, 1, 0x63
         CHEAT   "P2 INF WEAPONS", 0x1004B7, 1, 0x63
+        CHEAT   "P1 WEAP NORMAL", 0x100499, 1, 0x01
+        CHEAT   "P1 WEAP SHURIKEN", 0x100499, 1, 0x02
+        CHEAT   "P1 WEAP DYNAMITE", 0x100499, 1, 0x03
+        CHEAT   "P1 WEAP FLYING B", 0x100499, 1, 0x04
+        CHEAT   "P2 WEAP NORMAL", 0x1004B9, 1, 0x01
+        CHEAT   "P2 WEAP SHURIKEN", 0x1004B9, 1, 0x02
+        CHEAT   "P2 WEAP DYNAMITE", 0x1004B9, 1, 0x03
+        CHEAT   "P2 WEAP FLYING B", 0x1004B9, 1, 0x04
         | NINJA COMBAT: the lives, 3 at the highest; the witness run loses the game at frame 5956.
-        JEU     0x0009, 0x8C0D, 14
+        JEU     0x0009, 0x8C0D, 16
         CHEAT   "INFINITE LIVES",  0x102402, 1, 0x03
         CHEAT   "P1 INFINITE TIME", 0x101818, 2, 0x7FFF
         CHEAT   "P2 INFINITE TIME", 0x101828, 2, 0x7FFF
@@ -858,6 +998,8 @@ _cheats_table:
         CHEAT   "P1 MAXIMUM SPEED", 0x1018C1, 1, 0x02, 0x102635, 1, 0x02
         CHEAT   "P2 INF CONTINUES", 0x101821, 1, 0x64
         CHEAT   "P2 MAXIMUM SPEED", 0x1018E1, 1, 0x02, 0x102685, 1, 0x02
+        CHEAT   "P1 CHAR JOE", 0x10262E, 1, 0x00
+        CHEAT   "P1 CHAR MUSASHI", 0x10262E, 1, 0x01
         | NEO BOMBERMAN: the lives, 2 at the highest; the witness run loses the game at frame 2500.
         JEU     0x0093, 0x5602, 2
         CHEAT   "INFINITE LIVES",  0x101658, 1, 0x02
@@ -900,7 +1042,7 @@ _cheats_table:
         UNEFOIS "P1 GET BLUE SPHE", 0x102D29, 1, 0x01
         UNEFOIS "P1 GET PINK SPHE", 0x102D29, 1, 0x02
         | SENGOKU 3: the lives, 2 at the highest; the witness run loses the game at frame 7669.
-        JEU     0x0261, 0x83B6, 15
+        JEU     0x0261, 0x83B6, 16
         CHEAT   "INFINITE LIVES",  0x1083E1, 1, 0x02
         CHEAT   "P2 INF. LIVES",   0x1083FF, 1, 0x02
         CHEAT   "INFINITE TIME", 0x108457, 1, 0x63
@@ -916,9 +1058,10 @@ _cheats_table:
         CHEAT   "P1 INF MAGIC", 0x1083E3, 1, 0x38
         CHEAT   "P2 INF THROWING", 0x108409, 1, 0x09
         CHEAT   "P2 INF MAGIC", 0x108401, 1, 0x38
+        CHEAT   "P1 WEAP SYURIKEN", 0x1083EA, 1, 0x00
         | SHOCK TROOPERS 2ND SQUAD: the lives, 3 at the highest; the witness run loses the game at
         | frame 4699.
-        JEU     0x0246, 0x5240, 11
+        JEU     0x0246, 0x5240, 16
         CHEAT   "INFINITE LIVES",  0x10905B, 1, 0x03
         CHEAT   "P2 INF. LIVES",   0x10915B, 1, 0x03
         CHEAT   "INFINITE TIME", 0x108F7B, 1, 0x99
@@ -930,6 +1073,11 @@ _cheats_table:
         CHEAT   "P2 INFINITE AMMO", 0x109116, 1, 0x40
         CHEAT   "P1 INF GRENADES", 0x10901F, 1, 0x0A
         CHEAT   "P2 INF GRENADES", 0x10911F, 1, 0x0A
+        CHEAT   "P1 WEAP NORMAL S", 0x109015, 1, 0x00
+        CHEAT   "P1 WEAP FIRE SHO", 0x109015, 1, 0x04
+        CHEAT   "P1 WEAP ROUND SH", 0x109015, 1, 0x08
+        CHEAT   "P1 WEAP MISSILE", 0x109015, 1, 0x0C
+        CHEAT   "P1 WEAP BOOMERAN", 0x109015, 1, 0x10
         | AERO FIGHTERS 2: the lives, 2 at the highest; the witness run loses the game at frame 6646.
         JEU     0x0075, 0xECD1, 10
         CHEAT   "INFINITE LIVES",  0x100615, 1, 0x02
@@ -943,7 +1091,7 @@ _cheats_table:
         CHEAT   "P1 RAPID FIRE", 0x10E5C5, 1, 0x00
         CHEAT   "P2 RAPID FIRE", 0x10E5CA, 1, 0x00
         | AERO FIGHTERS 3: the lives, 2 at the highest; the witness run loses the game at frame 2517.
-        JEU     0x0097, 0x63E9, 9
+        JEU     0x0097, 0x63E9, 15
         CHEAT   "INFINITE LIVES",  0x10E89B, 1, 0x02
         CHEAT   "P2 INF LIVES", 0x10E8F1, 1, 0x05
         CHEAT   "P1 INVINCIBILITY", 0x10E8BF, 1, 0x01
@@ -953,6 +1101,12 @@ _cheats_table:
         CHEAT   "ENEMIES CAN T FI", 0x10EA57, 1, 0x01
         CHEAT   "P1 RAPID FIRE", 0x10EA3C, 1, 0x00
         CHEAT   "P2 RAPID FIRE", 0x10EA42, 1, 0x00
+        CHEAT   "CHARACT P1 KEATO", 0x1003AB, 1, 0x00
+        CHEAT   "CHARACT P1 BLAZE", 0x1003AB, 1, 0x01
+        CHEAT   "CHARACT P1 HIEN", 0x1003AB, 1, 0x02
+        CHEAT   "CHARACT P1 MAO M", 0x1003AB, 1, 0x03
+        CHEAT   "CHARACT P1 CHAIK", 0x1003AB, 1, 0x04
+        CHEAT   "CHARACT P1 SPANK", 0x1003AB, 1, 0x05
         | SPIN MASTER: the lives, 2 at the highest; the witness run loses the game at frame 9562.
         JEU     0x0062, 0x915F, 9
         CHEAT   "INFINITE LIVES",  0x105015, 1, 0x02
@@ -966,11 +1120,13 @@ _cheats_table:
         UNEFOIS "DRAIN BOSS ENRG", 0x106CE2, 1, 0x01
         | THE SUPER SPY: 8 at the highest; ASSUMED lives, perhaps the energy (the cheat removes the
         | game over); the witness run loses the game at frame 9666.
-        JEU     0x0011, 0xB441, 4
+        JEU     0x0011, 0xB441, 6
         CHEAT   "INFINITE LIVES",  0x10181F, 1, 0x08
         CHEAT   "INF KNIFE POWER", 0x101878, 1, 0x10
         CHEAT   "INF PISTOL AMMO", 0x1017F6, 2, 0x0999
         CHEAT   "INF M. GUN AMMO", 0x101854, 2, 0x0999
+        CHEAT   "WEAP MACHINE GUN", 0x101856, 1, 0x0F
+        CHEAT   "WEAPON PISTOL", 0x101856, 1, 0x00
         | TWINKLE STAR SPRITES: the lives, 3 at the highest; the witness run loses the game at frame
         | 9296. P2's (2026-10-30, P2 alone): $10D005; $100540, the cell ruled out on 2026-10-29, is
         | only a copy of it (game over under the cheat).
@@ -991,13 +1147,19 @@ _cheats_table:
         UNEFOIS "P2 GET AN INST 2", 0x10D088, 1, 0x20
         UNEFOIS "P2 GET AN INST 3", 0x10D088, 1, 0x30
         | VIEWPOINT: the lives, 3 at the highest; the witness run loses the game at frame 5989.
-        JEU     0x0051, 0x691F, 6
+        JEU     0x0051, 0x691F, 12
         CHEAT   "INFINITE LIVES",  0x108D99, 1, 0x03
         CHEAT   "P2 INF. LIVES",   0x1090ED, 1, 0x03
         CHEAT   "P1 INVINCIBILITY", 0x108D3C, 1, 0x08
         CHEAT   "P2 INVINCIBILITY", 0x109090, 1, 0x08
         CHEAT   "P1 FAST FULL CHA", 0x108D97, 1, 0x50
         CHEAT   "P2 FAST FULL CHA", 0x1090EB, 1, 0x50
+        CHEAT   "P1 INFI INF PLAS", 0x108D8F, 1, 0x01
+        CHEAT   "P1 INFI INF FIRE", 0x108D8F, 1, 0x02
+        CHEAT   "P1 INFI INF HOMI", 0x108D8F, 1, 0x03
+        CHEAT   "P2 INFI INF PLAS", 0x1090E3, 1, 0x01
+        CHEAT   "P2 INFI INF FIRE", 0x1090E3, 1, 0x02
+        CHEAT   "P2 INFI INF HOMI", 0x1090E3, 1, 0x03
         | ZUPAPA!: the lives, 3 at the highest; the witness run loses the game at frame 6482.
         JEU     0x0070, 0xEC13, 16
         CHEAT   "INFINITE LIVES",  0x1002C1, 1, 0x03
@@ -1021,7 +1183,7 @@ _cheats_table:
         | forced); P1's bars seen full on the HUD banners, P2's dented.
         | THE KING OF FIGHTERS '96: $108422, the damage taken by P1, forced to 0. The time, by known
         | value: $10A837, the frame countdown (forcing the seconds blocks the end of the round).
-        JEU     0x0214, 0xEB0F, 13
+        JEU     0x0214, 0xEB0F, 16
         CHEAT   "P1 INFINITE LIFE", 0x108422, 1, 0x00
         CHEAT   "INFINITE TIME",   0x10A837, 1, 0x32
         CHEAT   "P1 INF ENERGY", 0x108239, 1, 0x67
@@ -1035,6 +1197,9 @@ _cheats_table:
         CHEAT   "P2 NEVER GET DIZ", 0x10843F, 1, 0x67
         CHEAT   "P2 NEVER GET GUA", 0x108447, 1, 0x67
         CHEAT   "P2 GUARD BAR NEV", 0x10844C, 1, 0x10
+        CHEAT   "P1 COLO A COLOUR", 0x10A849, 1, 0x00
+        CHEAT   "P1 COLO D COLOUR", 0x10A849, 1, 0x01
+        CHEAT   "P1 COLO A COLO 2", 0x10A84A, 1, 0x00
         | NINJA MASTER'S: $100050, P1's life, $D0 at the highest. The time: $10C021; the doubt of
         | 2026-10-25 (characters frozen under forcing) lifted on 2026-10-30: the game goes on, and only a
         | P1 that does not strike keeps the round endless (`measured/2026-10-30-cheats-table.tsv`).
@@ -1076,13 +1241,23 @@ _cheats_table:
         | forced alone; the timer's area computed on the pictures (the
         | pixels frozen under the cheat, changing in the witness run). Value: the highest of the record.
         | FIGHT FEVER: the seconds, BCD.
-        JEU     0x0060, 0x06A2, 6
+        JEU     0x0060, 0x06A2, 16
         CHEAT   "INFINITE TIME",   0x108110, 1, 0x99
         CHEAT   "P1 INF ENERGY", 0x10C602, 1, 0x78
         CHEAT   "P2 INF ENERGY", 0x10C702, 1, 0x78
         UNEFOIS "P1 DRAIN ALL ENR", 0x10C602, 1, 0x00
         UNEFOIS "P2 DRAIN ALL ENR", 0x10C702, 1, 0x00
         UNEFOIS "FINISH ROUND NOW", 0x108110, 1, 0x00
+        CHEAT   "P1 CHAR HAN BAED", 0x10C6B0, 1, 0x00
+        CHEAT   "P1 CHAR MIYUKI", 0x10C6B0, 1, 0x01
+        CHEAT   "P1 CHAR ROPHEN H", 0x10C6B0, 1, 0x02
+        CHEAT   "P1 CHAR GOLRIO", 0x10C6B0, 1, 0x03
+        CHEAT   "P1 CHAR NICK COM", 0x10C6B0, 1, 0x04
+        CHEAT   "P1 CHAR CHINTAO", 0x10C6B0, 1, 0x05
+        CHEAT   "P2 CHAR HAN BAED", 0x10C7B0, 1, 0x00
+        CHEAT   "P2 CHAR MIYUKI", 0x10C7B0, 1, 0x01
+        CHEAT   "P2 CHAR ROPHEN H", 0x10C7B0, 1, 0x02
+        CHEAT   "P2 CHAR GOLRIO", 0x10C7B0, 1, 0x03
         | MATRIMELEE: the seconds, binary.
         JEU     0x0266, 0x5F99, 6
         CHEAT   "INFINITE TIME",   0x10B90B, 1, 0x3C
@@ -1110,7 +1285,7 @@ _cheats_table:
         UNEFOIS "FIGHT ALFRED NEX", 0x107BB5, 1, 0x0A
         UNEFOIS "GOTO ENDING NEXT", 0x107BB5, 1, 0x0B
         | SAMURAI SHODOWN III: the seconds, BCD.
-        JEU     0x0087, 0xE4CB, 10
+        JEU     0x0087, 0xE4CB, 16
         CHEAT   "INFINITE TIME",   0x10849E, 1, 0x99
         CHEAT   "P1 INF ENERGY", 0x108573, 1, 0x80
         CHEAT   "P2 INF ENERGY", 0x108673, 1, 0x80
@@ -1121,6 +1296,12 @@ _cheats_table:
         UNEFOIS "P1 DRAIN ALL POW", 0x10857C, 1, 0x00
         UNEFOIS "P2 DRAIN ALL POW", 0x10867C, 1, 0x00
         UNEFOIS "FINISH THIS ROUN", 0x10849E, 1, 0x00
+        CHEAT   "P1 CHAR BEGINNER", 0x108472, 1, 0x00
+        CHEAT   "P1 CHAR MEDIUM G", 0x108472, 1, 0x01
+        CHEAT   "P1 CHAR UPPER GR", 0x108472, 1, 0x02
+        CHEAT   "P2 CHAR BEGINNER", 0x108473, 1, 0x00
+        CHEAT   "P2 CHAR MEDIUM G", 0x108473, 1, 0x01
+        CHEAT   "P2 CHAR UPPER GR", 0x108473, 1, 0x02
         | WORLD HEROES 2 JET: the seconds, BCD.
         JEU     0x0064, 0x8B26, 9
         CHEAT   "INFINITE TIME",   0x10C109, 1, 0x99
@@ -1133,7 +1314,7 @@ _cheats_table:
         UNEFOIS "P2 DRAIN ALL ENR", 0x10610C, 2, 0x0000
         UNEFOIS "FINISH THIS ROUN", 0x10C109, 1, 0x01
         | KING OF THE MONSTERS 2: the seconds, BCD.
-        JEU     0x0039, 0x9C61, 7
+        JEU     0x0039, 0x9C61, 15
         CHEAT   "INFINITE TIME",   0x1013D2, 1, 0x70
         CHEAT   "P1 INF ENERGY", 0x101417, 1, 0x40
         CHEAT   "P2 INF ENERGY", 0x101517, 1, 0x40
@@ -1141,11 +1322,19 @@ _cheats_table:
         CHEAT   "P2 INF LIVES", 0x1013B9, 1, 0x09
         UNEFOIS "P1 MAX POW NOW!", 0x1013E3, 1, 0x02
         UNEFOIS "P2 MAX POW NOW!", 0x1014E3, 1, 0x02
+        CHEAT   "P1 CHAR SUPER GE", 0x1013DC, 1, 0x00
+        CHEAT   "P1 CHAR ATOMIC G", 0x1013DC, 1, 0x01
+        CHEAT   "P1 CHAR CYBER WO", 0x1013DC, 1, 0x02
+        CHEAT   "P1 CHAR HUGE FRO", 0x1013DC, 1, 0x04
+        CHEAT   "P2 CHAR SUPER GE", 0x1014DC, 1, 0x00
+        CHEAT   "P2 CHAR ATOMIC G", 0x1014DC, 1, 0x01
+        CHEAT   "P2 CHAR CYBER WO", 0x1014DC, 1, 0x02
+        CHEAT   "P2 CHAR HUGE FRO", 0x1014DC, 1, 0x04
         | THE TIMERS OF FIGHTING GAMES FOUND ON 2026-10-29 AND PROVED ON 2026-10-30: same
         | search; the catalogue judges them on the digits' pixels only (the scenery scrolls behind),
         | or earlier in the round. Value: the highest of the record.
         | ART OF FIGHTING 3.
-        JEU     0x0096, 0xC5DF, 12
+        JEU     0x0096, 0xC5DF, 16
         CHEAT   "INFINITE TIME",   0x10DF0F, 1, 0x3C
         CHEAT   "P1 INF ENERGY", 0x100468, 1, 0x10, 0x100469, 1, 0x00
         CHEAT   "P2 INF ENERGY", 0x100568, 1, 0x10, 0x100569, 1, 0x00
@@ -1158,6 +1347,10 @@ _cheats_table:
         UNEFOIS "FINISH THIS ROUN", 0x10DF0F, 1, 0x00
         UNEFOIS "GO TO FIRST BOSS", 0x104BEB, 1, 0x07
         UNEFOIS "GO TO FINAL BOSS", 0x104BEB, 1, 0x08
+        CHEAT   "BIRTHDA ROBERT", 0x10E260, 2, 0x0000
+        CHEAT   "BIRTHDA RYO", 0x10E260, 2, 0x0001
+        CHEAT   "BIRTHDA KARMAN", 0x10E260, 2, 0x0002
+        CHEAT   "BIRTHDA KASUMI", 0x10E260, 2, 0x0003
         | BREAKERS.
         JEU     0x0230, 0x9C95, 10
         CHEAT   "INFINITE TIME",   0x107C0B, 1, 0x63
@@ -1171,15 +1364,25 @@ _cheats_table:
         UNEFOIS "P2 DRAIN ALL ENR", 0x107892, 1, 0x00
         UNEFOIS "GOTO BOSS FIGHT", 0x1070C5, 1, 0x09
         | FATAL FURY 2.
-        JEU     0x0047, 0xAED3, 6
+        JEU     0x0047, 0xAED3, 16
         CHEAT   "INFINITE TIME",   0x10092A, 1, 0x90
         CHEAT   "P1 INF ENERGY", 0x1003CB, 1, 0x60
         CHEAT   "P2 INF ENERGY", 0x1004CB, 1, 0x60
         UNEFOIS "P1 DRAIN ALL ENR", 0x1003CB, 1, 0x00
         UNEFOIS "P2 DRAIN ALL ENR", 0x1004CB, 1, 0x00
         UNEFOIS "FINISH ROUND NOW", 0x10092A, 1, 0x00
+        CHEAT   "STAGE TERRY U.S.", 0x10AAD5, 1, 0x01
+        CHEAT   "STAGE ANDY ITALY", 0x10AAD5, 1, 0x02
+        CHEAT   "STAGE JOE THAILA", 0x10AAD5, 1, 0x03
+        CHEAT   "STAGE BIG BEAR A", 0x10AAD5, 1, 0x04
+        CHEAT   "STAGE JUBEI JAPA", 0x10AAD5, 1, 0x05
+        CHEAT   "STAGE CHENG HONG", 0x10AAD5, 1, 0x06
+        CHEAT   "P1 CHAR TERRY", 0x10419B, 1, 0x01
+        CHEAT   "P1 CHAR ANDY", 0x10419B, 1, 0x02
+        CHEAT   "P1 CHAR JOE", 0x10419B, 1, 0x03
+        CHEAT   "P1 CHAR BIG BEAR", 0x10419B, 1, 0x04
         | THE KING OF FIGHTERS '98.
-        JEU     0x0242, 0x8F29, 7
+        JEU     0x0242, 0x8F29, 16
         CHEAT   "INFINITE TIME",   0x10A83B, 1, 0x32
         CHEAT   "P1 INF ENERGY", 0x108239, 1, 0x67
         CHEAT   "P2 INF ENERGY", 0x108439, 1, 0x67
@@ -1187,12 +1390,23 @@ _cheats_table:
         CHEAT   "P1 NEVER GET GUA", 0x108247, 1, 0x67
         CHEAT   "P2 NEVER GET DIZ", 0x10843F, 1, 0x67
         CHEAT   "P2 NEVER GET GUA", 0x108447, 1, 0x67
+        CHEAT   "P1 MODE ADVANCED", 0x10A84C, 1, 0x00
+        CHEAT   "P1 MODE EXTRA MO", 0x10A84C, 1, 0x01
+        CHEAT   "P2 MODE ADVANCED", 0x10A85D, 1, 0x00
+        CHEAT   "P2 MODE EXTRA MO", 0x10A85D, 1, 0x01
+        CHEAT   "P1 FIRS CHAR A", 0x10A854, 1, 0x00
+        CHEAT   "P1 FIRS CHAR B", 0x10A854, 1, 0x01
+        CHEAT   "P1 FIRS CHAR C", 0x10A854, 1, 0x02
+        CHEAT   "P1 SECO CHAR A", 0x10A855, 1, 0x00
+        CHEAT   "P1 SECO CHAR B", 0x10A855, 1, 0x01
         | SAVAGE REIGN.
-        JEU     0x0059, 0xF782, 2
+        JEU     0x0059, 0xF782, 4
         CHEAT   "INFINITE TIME",   0x1084A8, 1, 0x60
         UNEFOIS "FINISH THIS ROUN", 0x1084A8, 1, 0x00
+        CHEAT   "CHARACT KING LEO", 0x1043C3, 1, 0x0A
+        CHEAT   "CHARACT ANGRY CH", 0x1043C3, 1, 0x0B
         | GAROU: MARK OF THE WOLVES.
-        JEU     0x0253, 0x6078, 14
+        JEU     0x0253, 0x6078, 16
         CHEAT   "INFINITE TIME",   0x107490, 1, 0x60
         CHEAT   "P1 INF ENERGY", 0x10048E, 1, 0x78
         CHEAT   "P2 INF ENERGY", 0x10058E, 1, 0x78
@@ -1207,6 +1421,8 @@ _cheats_table:
         UNEFOIS "FINISH THIS ROUN", 0x107490, 1, 0x00
         UNEFOIS "CURRENT NORMAL L", 0x107439, 1, 0x08
         UNEFOIS "CURRENT SURVIVAL", 0x107439, 1, 0x0E
+        CHEAT   "P1 CHAR A COLOUR", 0x107432, 1, 0x00
+        CHEAT   "P1 CHAR B COLOUR", 0x107432, 1, 0x01
         | WORLD HEROES PERFECT.
         JEU     0x0090, 0x5FA2, 16
         CHEAT   "INFINITE TIME",   0x10C109, 1, 0x99
@@ -1226,13 +1442,23 @@ _cheats_table:
         UNEFOIS "P2 WINS NOW!", 0x10C123, 1, 0xF0
         UNEFOIS "P2 WINS NOW! 2", 0x10C122, 1, 0xF0
         | THE LAST BLADE 2.
-        JEU     0x0243, 0xB546, 6
+        JEU     0x0243, 0xB546, 16
         CHEAT   "INFINITE TIME",   0x10E595, 1, 0x61
         CHEAT   "P1 INVINCIBILITY", 0x10E4B2, 1, 0x01, 0x10E44C, 1, 0x01
         CHEAT   "P2 INVINCIBILITY", 0x10E4B3, 1, 0x01, 0x10E450, 1, 0x01
         UNEFOIS "FINISH THIS FIGH", 0x10E595, 1, 0x00
         UNEFOIS "GO TO CHAR BOSS", 0x10E581, 1, 0x06
         UNEFOIS "GO TO FINAL BOSS", 0x10E581, 1, 0x07
+        CHEAT   "CONSTAN SHIMIJI", 0x10E57D, 1, 0x00
+        CHEAT   "CONSTAN BATTLE O", 0x10E57D, 1, 0x01
+        CHEAT   "CONSTAN 13 PORTT", 0x10E57D, 1, 0x02
+        CHEAT   "CONSTAN VILLAGE", 0x10E57D, 1, 0x03
+        CHEAT   "CONSTAN THE GRAV", 0x10E57D, 1, 0x04
+        CHEAT   "CONSTAN FOREST O", 0x10E57D, 1, 0x05
+        CHEAT   "P1 CHAR KAEDE", 0x10BD59, 1, 0x00
+        CHEAT   "P1 CHAR MORIYA", 0x10BD59, 1, 0x01
+        CHEAT   "P1 CHAR YUKI", 0x10BD59, 1, 0x02
+        CHEAT   "P1 CHAR OKINA", 0x10BD59, 1, 0x03
         | GOWCAIZER.
         JEU     0x0094, 0x4B34, 6
         CHEAT   "INFINITE TIME",   0x1062E1, 1, 0x3C
@@ -1245,7 +1471,7 @@ _cheats_table:
         | v0, v0 − 1… from 30, 50, 59, 60, 90 or 99 (`bench/cheats-recherche.py`, filtre_suite), forced
         | alone; the digits' area computed on the pictures of the forcing.
         | BURNING FIGHT: the time, BCD, 60; slow, judged in the counter genre.
-        JEU     0x0018, 0xA9E4, 8
+        JEU     0x0018, 0xA9E4, 14
         CHEAT   "INFINITE TIME",   0x10D002, 1, 0x60
         CHEAT   "INF CHAR SELECT", 0x103D72, 1, 0x99
         CHEAT   "P1 INF ENERGY", 0x100221, 1, 0xFF
@@ -1254,11 +1480,17 @@ _cheats_table:
         CHEAT   "P2 INF LIVES", 0x1002B0, 1, 0x09
         CHEAT   "INF CONTINUES", 0x103E78, 1, 0xFF
         UNEFOIS "FINISH THIS STAG", 0x1001BE, 1, 0x05
+        CHEAT   "P1 CHAR RYU", 0x103D35, 1, 0x00
+        CHEAT   "P1 CHAR DUKE", 0x103D35, 1, 0x01
+        CHEAT   "P1 CHAR BILLY", 0x103D35, 1, 0x02
+        CHEAT   "P2 CHAR RYU", 0x103D55, 1, 0x00
+        CHEAT   "P2 CHAR DUKE", 0x103D55, 1, 0x01
+        CHEAT   "P2 CHAR BILLY", 0x103D55, 1, 0x02
         | THE LIVES BY EXPECTED SEQUENCE IN THE JUMP SCENARIO, 2026-10-29: P1 moves forward jumping
         | without shooting (the user's idea, to die quickly); the byte that follows exactly 3, 2, 1…
         | (or from 1 to 5), forced alone from frame 700: no more game over, the witness run loses its own.
         | ALPHA MISSION II: the lives, 2 at start.
-        JEU     0x0007, 0x799C, 10
+        JEU     0x0007, 0x799C, 16
         CHEAT   "INFINITE LIVES",  0x1010F2, 1, 0x02
         CHEAT   "P2 INF. LIVES",   0x1011F2, 1, 0x02
         CHEAT   "P1 SPEC WEAP POW", 0x1010DD, 1, 0x18
@@ -1269,6 +1501,12 @@ _cheats_table:
         CHEAT   "P2 MAXIMUM GOLD", 0x1011B0, 2, 0x9999
         CHEAT   "P2 RAPID FIRE LA", 0x10118D, 1, 0x00
         CHEAT   "P2 RAPID FIRE MI", 0x1011A6, 1, 0x00
+        CHEAT   "P1 LASE NORMAL", 0x1010A0, 1, 0x03
+        CHEAT   "P1 LASE NORMAL+1", 0x1010A0, 1, 0x02
+        CHEAT   "P1 LASE NORMAL+2", 0x1010A0, 1, 0x01
+        CHEAT   "P1 LASE NORMAL+3", 0x1010A0, 1, 0x00
+        CHEAT   "P1 MISS NORMAL", 0x1010A1, 1, 0x03
+        CHEAT   "P1 MISS NORMAL+1", 0x1010A1, 1, 0x02
         | CROSSED SWORDS: the lives, 5 at start.
         JEU     0x0037, 0xB3BC, 10
         CHEAT   "INFINITE LIVES",  0x10405C, 1, 0x05
@@ -1343,7 +1581,7 @@ _cheats_table:
         CHEAT   "P2 INFINITE FIRE", 0x1021EE, 2, 0x9999
         CHEAT   "P2 INF GRENADES", 0x1021F4, 2, 0x9999
         | IRONCLAD: the lives, 5 at start (expected sequence, action scenario).
-        JEU     0x0220, 0xD34D, 7
+        JEU     0x0220, 0xD34D, 16
         CHEAT   "INFINITE LIVES",  0x10B113, 1, 0x05
         CHEAT   "P1 INF ENERGY", 0x10027D, 1, 0x04
         CHEAT   "P2 INF ENERGY", 0x101F7D, 1, 0x04
@@ -1351,8 +1589,17 @@ _cheats_table:
         CHEAT   "P2 MAXIMUM POWER", 0x108C15, 1, 0x0C
         CHEAT   "P1 MAXIMUM LEVEL", 0x108A17, 1, 0x20
         CHEAT   "P2 MAXIMUM LEVEL", 0x108C17, 1, 0x20
+        CHEAT   "P1 L-AR LASER", 0x108A55, 1, 0x02
+        CHEAT   "P1 L-AR H. MISSI", 0x108A55, 1, 0x04
+        CHEAT   "P1 L-AR FIRE ARM", 0x108A55, 1, 0x06
+        CHEAT   "P1 R-AR DRILL", 0x108A71, 1, 0x02
+        CHEAT   "P1 R-AR CHAINSAW", 0x108A71, 1, 0x04
+        CHEAT   "P1 R-AR STAB BAL", 0x108A71, 1, 0x06
+        CHEAT   "P2 L-AR LASER", 0x108C55, 1, 0x02
+        CHEAT   "P2 L-AR H. MISSI", 0x108C55, 1, 0x04
+        CHEAT   "P2 L-AR FIRE ARM", 0x108C55, 1, 0x06
         | MUTATION NATION: the lives, 3 at start (expected sequence, action scenario).
-        JEU     0x0014, 0x7834, 8
+        JEU     0x0014, 0x7834, 16
         CHEAT   "INFINITE LIVES",  0x102530, 1, 0x03
         CHEAT   "INFINITE TIME", 0x101562, 1, 0x63
         CHEAT   "P1 INF ENERGY", 0x102019, 1, 0x40
@@ -1361,6 +1608,14 @@ _cheats_table:
         CHEAT   "P2 INVINCIBILITY", 0x10212E, 1, 0x03
         CHEAT   "P1 INF ATTACK IT", 0x10153F, 1, 0x05
         CHEAT   "P2 INF ATTACK IT", 0x101541, 1, 0x05
+        CHEAT   "P1 SPEC NONE", 0x10153E, 1, 0x00
+        CHEAT   "P1 SPEC A", 0x10153E, 1, 0x01
+        CHEAT   "P1 SPEC B", 0x10153E, 1, 0x02
+        CHEAT   "P1 SPEC C", 0x10153E, 1, 0x03
+        CHEAT   "P1 SPEC D", 0x10153E, 1, 0x04
+        CHEAT   "P2 SPEC NONE", 0x101540, 1, 0x00
+        CHEAT   "P2 SPEC A", 0x101540, 1, 0x01
+        CHEAT   "P2 SPEC B", 0x101540, 1, 0x02
         | P2'S LIVES, 2026-10-29: P2 plays alone (its coin, its START; scenarios action2 and saut2
         | of `bench/cheats-recherche.py`), expected-sequence filter, each candidate forced alone: no
         | more game over. Kept, the cell that is not P1's (which also holds in several
@@ -1384,9 +1639,23 @@ _cheats_table:
         CHEAT   "P2 INFINITE TIME", 0x10D6AD, 1, 0x14
         UNEFOIS "FINISH THIS ROUN", 0x10D5D7, 1, 0x08, 0x10D600, 2, 0x0000
         | PUZZLE BOBBLE.
-        JEU     0x0083, 0x19FA, 2
+        JEU     0x0083, 0x19FA, 16
         CHEAT   "NO GAME OVER",     0x102284, 1, 0x02
         UNEFOIS "QUICK FINISH CHE", 0x105A9D, 1, 0x00, 0x105AB1, 1, 0x00
+        CHEAT   "P1 HELP ENABLED", 0x108287, 1, 0x01
+        CHEAT   "P1 HELP DISABLED", 0x108287, 1, 0x00
+        CHEAT   "P2 HELP ENABLED", 0x108323, 1, 0x01
+        CHEAT   "P2 HELP DISABLED", 0x108323, 1, 0x00
+        CHEAT   "P1 PERM BLUE", 0x10821F, 1, 0x00
+        CHEAT   "P1 PERM RED", 0x10821F, 1, 0x01
+        CHEAT   "P1 PERM YELLOW", 0x10821F, 1, 0x02
+        CHEAT   "P1 PERM GREEN", 0x10821F, 1, 0x03
+        CHEAT   "P1 PERM PURPLE", 0x10821F, 1, 0x04
+        CHEAT   "P1 PERM ORANGE", 0x10821F, 1, 0x05
+        CHEAT   "P1 PERM BLUE 2", 0x10823D, 1, 0x00
+        CHEAT   "P1 PERM RED 2", 0x10823D, 1, 0x01
+        CHEAT   "P1 PERM YELLOW 2", 0x10823D, 1, 0x02
+        CHEAT   "P1 PERM GREEN 2", 0x10823D, 1, 0x03
         | POWER SPIKES II.
         JEU     0x0068, 0xB80B, 8
         CHEAT   "NO GAME OVER",     0x102D4A, 1, 0x02
@@ -1398,21 +1667,29 @@ _cheats_table:
         UNEFOIS "P2 DRAIN ALL ENR", 0x1018FB, 1, 0x00, 0x102CD7, 1, 0x00
         UNEFOIS "FINISH GAME NOW!", 0x102B4D, 1, 0x01, 0x102B4B, 1, 0x00
         | QUIZ MEITANTEI NEO & GEO.
-        JEU     0x0042, 0xBE81, 6
+        JEU     0x0042, 0xBE81, 12
         CHEAT   "NO GAME OVER",     0x101AC4, 1, 0x03
         CHEAT   "P2 INF LIVES", 0x101FC4, 1, 0x05
         CHEAT   "RAPIDSHOT QUIZ G", 0x101A2B, 1, 0x00
         CHEAT   "INFINITE GOLD", 0x100956, 1, 0xFF, 0x100957, 1, 0xFF
         CHEAT   "ANSWER A CORRECT", 0x100977, 1, 0x00
         UNEFOIS "ANSWER ENDS QUIZ", 0x10097B, 1, 0x01, 0x101AC6, 1, 0x00
+        CHEAT   "PERM. A 3 ANSWER", 0x100990, 1, 0x01
+        CHEAT   "PERM. A 2 ANSWER", 0x100990, 1, 0x02
+        CHEAT   "PERM. A 1 ANSWER", 0x100990, 1, 0x03
+        CHEAT   "PERM. N 1", 0x10097B, 1, 0x01
+        CHEAT   "PERM. N 3", 0x10097B, 1, 0x03
+        CHEAT   "PERM. N 5", 0x10097B, 1, 0x05
         | QUIZ DAISOUSA SEN.
-        JEU     0x0023, 0x3ECF, 6
+        JEU     0x0023, 0x3ECF, 8
         CHEAT   "NO GAME OVER",     0x1022B3, 1, 0x03
         CHEAT   "P2 INF LIVES", 0x1023B3, 1, 0x04
         CHEAT   "2 GOOD ANSWERS N", 0x105A65, 1, 0x00
         CHEAT   "ANSWER A CORRECT", 0x105A8E, 1, 0x00
         CHEAT   "P1 INF CONTINUES", 0x1022A1, 1, 0x64
         CHEAT   "P2 INF CONTINUES", 0x1023A1, 1, 0x64
+        CHEAT   "PERM. A 3 ANSWER", 0x105A72, 1, 0x03
+        CHEAT   "PERM. A 2 ANSWER", 0x105A72, 1, 0x02
         | QUIZ KING OF FIGHTERS.
         JEU     0x0080, 0x7AA7, 6
         CHEAT   "NO GAME OVER",     0x10150A, 1, 0x03
@@ -1459,9 +1736,23 @@ _cheats_table:
         | ON 2026-10-30, the same search by expected sequence, in the action scenario; judged by the
         | menu at frame 1500, or as soon as the game starts (trally 2600, zintrckb 2500).
         | GURURIN.
-        JEU     0x0067, 0x97E7, 2
+        JEU     0x0067, 0x97E7, 16
         CHEAT   "NO GAME OVER",     0x101C17, 1, 0x02
         CHEAT   "NO MORE LEVEL GA", 0x101C5D, 1, 0x00
+        CHEAT   "P1 PERM CLEAR", 0x101D03, 1, 0x00
+        CHEAT   "P1 PERM PINK", 0x101D03, 1, 0x01
+        CHEAT   "P1 PERM YELLOW", 0x101D03, 1, 0x02
+        CHEAT   "P1 PERM PURPLE", 0x101D03, 1, 0x03
+        CHEAT   "P1 PERM RED", 0x101D03, 1, 0x04
+        CHEAT   "P1 PERM GREY", 0x101D03, 1, 0x05
+        CHEAT   "P1 PERM CLEAR 2", 0x101D23, 1, 0x00
+        CHEAT   "P1 PERM PINK 2", 0x101D23, 1, 0x01
+        CHEAT   "P1 PERM YELLOW 2", 0x101D23, 1, 0x02
+        CHEAT   "P1 PERM PURPLE 2", 0x101D23, 1, 0x03
+        CHEAT   "P1 PERM RED 2", 0x101D23, 1, 0x04
+        CHEAT   "P1 PERM GREY 2", 0x101D23, 1, 0x05
+        CHEAT   "P1 PERM CLEAR 3", 0x101D43, 1, 0x00
+        CHEAT   "P1 PERM PINK 3", 0x101D43, 1, 0x01
         | THRASH RALLY.
         JEU     0x0038, 0x5FF9, 2
         CHEAT   "NO GAME OVER",     0x107105, 1, 0x05
@@ -1487,11 +1778,25 @@ _cheats_table:
         | counts down from 60 or 99 and is reset at each round (filtre_suite), seen frozen on the
         | images under the cheat; the digits' zone searched on the images of a CAT_DENSE run.
         | THE KING OF FIGHTERS 2003.
-        JEU     0x0271, 0x0F9A, 2
+        JEU     0x0271, 0x0F9A, 16
         CHEAT   "INFINITE TIME",   0x107D62, 1, 0x60
         UNEFOIS "FINISH THIS ROUN", 0x107D62, 1, 0x00
+        CHEAT   "P1 CHAR ASH", 0x107D0C, 1, 0x00
+        CHEAT   "P1 CHAR DUOLON", 0x107D0C, 1, 0x01
+        CHEAT   "P1 CHAR SHEN", 0x107D0C, 1, 0x02
+        CHEAT   "P1 CHAR TERRY", 0x107D0C, 1, 0x03
+        CHEAT   "P1 CHAR JOE", 0x107D0C, 1, 0x04
+        CHEAT   "P1 CHAR TIZOC", 0x107D0C, 1, 0x05
+        CHEAT   "P1 CHAR ASH 2", 0x107D0D, 1, 0x00
+        CHEAT   "P1 CHAR DUOLON 2", 0x107D0D, 1, 0x01
+        CHEAT   "P1 CHAR SHEN 2", 0x107D0D, 1, 0x02
+        CHEAT   "P1 CHAR TERRY 2", 0x107D0D, 1, 0x03
+        CHEAT   "P1 CHAR JOE 2", 0x107D0D, 1, 0x04
+        CHEAT   "P1 CHAR TIZOC 2", 0x107D0D, 1, 0x05
+        CHEAT   "P1 CHAR ASH 3", 0x107D0E, 1, 0x00
+        CHEAT   "P1 CHAR DUOLON 3", 0x107D0E, 1, 0x01
         | REAL BOUT FATAL FURY.
-        JEU     0x0095, 0x8E2F, 13
+        JEU     0x0095, 0x8E2F, 16
         CHEAT   "INFINITE TIME",   0x106AA8, 1, 0x60
         CHEAT   "P1 INF ENERGY", 0x100489, 1, 0xC0
         CHEAT   "P2 INF ENERGY", 0x100589, 1, 0xC0
@@ -1505,6 +1810,9 @@ _cheats_table:
         UNEFOIS "FINISH THIS ROUN", 0x106AA8, 1, 0x00
         UNEFOIS "LEFT WALL WILL C", 0x10969F, 1, 0x00
         UNEFOIS "RIGHT WALL WILL", 0x1096A1, 1, 0x00
+        CHEAT   "STAGE SOUTH TOWN", 0x106A33, 1, 0x01
+        CHEAT   "STAGE SOUTH TO 2", 0x106A33, 1, 0x02
+        CHEAT   "STAGE SOUTH TO 3", 0x106A33, 1, 0x03
         | KIZUNA ENCOUNTER: the fight only starts around frame 2700.
         JEU     0x0216, 0x073D, 5
         CHEAT   "INFINITE TIME",   0x10892A, 1, 0x99
@@ -1514,7 +1822,7 @@ _cheats_table:
         UNEFOIS "P2 DRAIN ALL ENR", 0x108513, 1, 0x00
         | THE KING OF FIGHTERS '97: the frame countdown of the second, as kof96 and kof98; forcing
         | the seconds $10A83A instead freezes the game at KO.
-        JEU     0x0232, 0xFC0D, 9
+        JEU     0x0232, 0xFC0D, 16
         CHEAT   "INFINITE TIME",   0x10A83B, 1, 0x32
         CHEAT   "P1 INF ENERGY", 0x108239, 1, 0x67
         CHEAT   "P2 INF ENERGY", 0x108439, 1, 0x67
@@ -1524,6 +1832,13 @@ _cheats_table:
         CHEAT   "P1 NEVER GET GUA", 0x108247, 1, 0x67
         CHEAT   "P2 NEVER GET DIZ", 0x10843F, 1, 0x67
         CHEAT   "P2 NEVER GET GUA", 0x108447, 1, 0x67
+        CHEAT   "P1 MODE ADVANCED", 0x10A849, 1, 0x00
+        CHEAT   "P1 MODE EXTRA MO", 0x10A849, 1, 0x01
+        CHEAT   "P2 MODE ADVANCED", 0x10A85A, 1, 0x00
+        CHEAT   "P2 MODE EXTRA MO", 0x10A85A, 1, 0x01
+        CHEAT   "P1 FIRS CHAR A", 0x10A851, 1, 0x00
+        CHEAT   "P1 FIRS CHAR B", 0x10A851, 1, 0x01
+        CHEAT   "P1 FIRS CHAR C", 0x10A851, 1, 0x02
         | The games below come from the MAME XML Cheats Collection (`bench/cheats-importer.py`),
         | not proven one by one here.
         JEU     0x0030, 0xAC3A, 4
@@ -1541,12 +1856,23 @@ _cheats_table:
         UNEFOIS "P2 DRAIN ALL ENR", 0x100166, 1, 0x00, 0x100167, 1, 0x00
         JEU     0x0036, 0xD5F1, 1
         CHEAT   "INF MOVE TIME", 0x1000FD, 1, 0xEF
-        JEU     0x0259, 0xA494, 5
+        JEU     0x0259, 0xA494, 16
         CHEAT   "INFINITE TIME", 0x1044C9, 1, 0x06, 0x1044CB, 1, 0x00
         CHEAT   "P1 MAX MIRACLE P", 0x10444C, 1, 0x80, 0x104461, 1, 0x03
         CHEAT   "P2 MAX MIRACLE P", 0x104476, 1, 0x80, 0x10448B, 1, 0x03
         UNEFOIS "P1 GET NO POW NO", 0x10444C, 1, 0x00, 0x104461, 1, 0x00
         UNEFOIS "P2 GET NO POW NO", 0x104476, 1, 0x00, 0x10448B, 1, 0x00
+        CHEAT   "P1 CHAR CHINTA", 0x1041AF, 1, 0x00
+        CHEAT   "P1 CHAR SIREN", 0x1041AF, 1, 0x01
+        CHEAT   "P1 CHAR HIROMU", 0x1041AF, 1, 0x02
+        CHEAT   "P1 CHAR BLOODY W", 0x1041AF, 1, 0x03
+        CHEAT   "P1 CHAR SIMON", 0x1041AF, 1, 0x04
+        CHEAT   "P1 CHAR SURYA", 0x1041AF, 1, 0x05
+        CHEAT   "P2 CHAR CHINTA", 0x1041B1, 1, 0x00
+        CHEAT   "P2 CHAR SIREN", 0x1041B1, 1, 0x01
+        CHEAT   "P2 CHAR HIROMU", 0x1041B1, 1, 0x02
+        CHEAT   "P2 CHAR BLOODY W", 0x1041B1, 1, 0x03
+        CHEAT   "P2 CHAR SIMON", 0x1041B1, 1, 0x04
         JEU     0x0002, 0xEF35, 8
         CHEAT   "INFINITE TIME", 0x10004A, 1, 0x59
         CHEAT   "INFINITE INNINGS", 0x101083, 1, 0x09
@@ -1581,7 +1907,7 @@ _cheats_table:
         CHEAT   "P2 INF LIVES", 0x1020AF, 1, 0x04
         CHEAT   "P1 INF BOMBS", 0x10219F, 1, 0x03
         CHEAT   "P2 INF BOMBS", 0x1021A1, 1, 0x03
-        JEU     0x0033, 0xA9A5, 9
+        JEU     0x0033, 0xA9A5, 15
         CHEAT   "P1 INF ENERGY", 0x1003B8, 2, 0x6060
         CHEAT   "P2 INF ENERGY", 0x1004B8, 2, 0x6060
         CHEAT   "INF ENERGY CPU", 0x1005B8, 2, 0x6060
@@ -1591,6 +1917,12 @@ _cheats_table:
         UNEFOIS "P2 DRAIN ALL ENR", 0x1004B8, 2, 0x0101
         UNEFOIS "DRAIN ALL ENRG N", 0x1005B8, 2, 0x0101
         UNEFOIS "FINISH THIS ROUN", 0x1042F3, 1, 0x01
+        CHEAT   "P1 CHAR TERRY BO", 0x100331, 1, 0x01
+        CHEAT   "P1 CHAR ANDY BOG", 0x100331, 1, 0x02
+        CHEAT   "P1 CHAR JOE HIGA", 0x100331, 1, 0x03
+        CHEAT   "P1 CHAR DUCK KIN", 0x100331, 1, 0x04
+        CHEAT   "P1 CHAR MICHAEL", 0x100331, 1, 0x06
+        CHEAT   "P2 CHAR TERRY BO", 0x100431, 1, 0x01
         JEU     0x0034, 0x6160, 4
         CHEAT   "INFINITE TIME", 0x100AD8, 1, 0x99, 0x100AD9, 1, 0x99
         CHEAT   "P1 SCORE 00", 0x104368, 1, 0x00, 0x104369, 1, 0x00
@@ -1622,14 +1954,24 @@ _cheats_table:
         CHEAT   "INFINITE LIVES", 0x10808F, 1, 0x03
         JEU     0x0048, 0x4DD5, 1
         CHEAT   "INF MOVE TIME", 0x108418, 1, 0x05
-        JEU     0x0021, 0xB9B7, 6
+        JEU     0x0021, 0xB9B7, 16
         CHEAT   "P1 INF CONTINUES", 0x10090C, 1, 0x64
         CHEAT   "P1 MIN PIECE SPE", 0x100642, 1, 0x00, 0x100643, 1, 0x00
         CHEAT   "P1 MAX L-BALL", 0x100904, 1, 0x0C
         CHEAT   "P2 INF CONTINUES", 0x100C1C, 1, 0x64
         CHEAT   "P2 MIN PIECE SPE", 0x100952, 1, 0x00, 0x100953, 1, 0x00
         CHEAT   "P2 MAX L-BALL", 0x100C14, 1, 0x0C
-        JEU     0x0262, 0xCFA8, 9
+        CHEAT   "P1 PERM RED", 0x100673, 1, 0x00
+        CHEAT   "P1 PERM PURPLE", 0x100673, 1, 0x01
+        CHEAT   "P1 PERM ORANGE", 0x100673, 1, 0x02
+        CHEAT   "P1 PERM BLUE", 0x100673, 1, 0x03
+        CHEAT   "P1 PERM YELLOW", 0x100673, 1, 0x04
+        CHEAT   "P1 PERM GREEN", 0x100673, 1, 0x05
+        CHEAT   "P2 PERM RED", 0x100983, 1, 0x00
+        CHEAT   "P2 PERM PURPLE", 0x100983, 1, 0x01
+        CHEAT   "P2 PERM ORANGE", 0x100983, 1, 0x02
+        CHEAT   "P2 PERM BLUE", 0x100983, 1, 0x03
+        JEU     0x0262, 0xCFA8, 16
         CHEAT   "INFINITE TIME", 0x10A7D3, 1, 0x46
         CHEAT   "P1 INF ENERGY", 0x108239, 1, 0x66
         CHEAT   "P2 INF ENERGY", 0x108439, 1, 0x66
@@ -1639,6 +1981,13 @@ _cheats_table:
         UNEFOIS "P1 DRAIN ALL ENR", 0x108239, 1, 0x00
         UNEFOIS "P2 DRAIN ALL ENR", 0x108439, 1, 0x00
         UNEFOIS "FINISH THIS ROUN", 0x10A7D2, 1, 0x00, 0x10A7D3, 1, 0x01
+        CHEAT   "P1 CHAR K", 0x10A7E6, 1, 0x00
+        CHEAT   "P1 CHAR MAXIMA", 0x10A7E6, 1, 0x01
+        CHEAT   "P1 CHAR WHIP", 0x10A7E6, 1, 0x02
+        CHEAT   "P1 CHAR LIN", 0x10A7E6, 1, 0x03
+        CHEAT   "P1 CHAR KYO", 0x10A7E6, 1, 0x04
+        CHEAT   "P1 CHAR BENIMARU", 0x10A7E6, 1, 0x05
+        CHEAT   "P1 CHAR K 2", 0x10A7E7, 1, 0x00
         JEU     0x0016, 0x5114, 8
         CHEAT   "INF ENRG ENEMY 1", 0x10226B, 1, 0x3C
         CHEAT   "INF ENRG ENEMY 2", 0x10236B, 1, 0x3C
@@ -1668,11 +2017,23 @@ _cheats_table:
         CHEAT   "P1 PLAY AS BLACK", 0x100117, 1, 0x0A, 0x100805, 1, 0x09
         CHEAT   "P2 QUOTA 200", 0x100A6B, 1, 0xC8
         CHEAT   "P2 PLAY AS BLACK", 0x100118, 1, 0x0A, 0x100905, 1, 0x09
-        JEU     0x0233, 0xFB9F, 4
+        JEU     0x0233, 0xFB9F, 16
         CHEAT   "NO MORE LEVEL GA", 0x100626, 1, 0x00
         CHEAT   "UNLOCK SECRET CH", 0x100112, 2, 0x0303
         CHEAT   "P1 QUOTA 200", 0x100611, 1, 0xC8
         CHEAT   "P2 QUOTA 200", 0x100651, 1, 0xC8
+        CHEAT   "P1 CARD FOOL", 0x1000FA, 1, 0x00
+        CHEAT   "P1 CARD MAGICIAN", 0x1000FA, 1, 0x01
+        CHEAT   "P1 CARD HIGH PRI", 0x1000FA, 1, 0x02
+        CHEAT   "P1 CARD EMPRESS", 0x1000FA, 1, 0x03
+        CHEAT   "P1 CARD EMPEROR", 0x1000FA, 1, 0x04
+        CHEAT   "P1 CARD HIEROPHA", 0x1000FA, 1, 0x05
+        CHEAT   "P2 CARD FOOL", 0x1000FB, 1, 0x00
+        CHEAT   "P2 CARD MAGICIAN", 0x1000FB, 1, 0x01
+        CHEAT   "P2 CARD HIGH PRI", 0x1000FB, 1, 0x02
+        CHEAT   "P2 CARD EMPRESS", 0x1000FB, 1, 0x03
+        CHEAT   "P2 CARD EMPEROR", 0x1000FB, 1, 0x04
+        CHEAT   "P2 CARD HIEROPHA", 0x1000FB, 1, 0x05
         JEU     0x0004, 0xACC8, 2
         CHEAT   "INF MAIN GAME TI", 0x10019D, 1, 0xFF
         CHEAT   "INF MOVE TIME", 0x100227, 1, 0xFF
@@ -1700,7 +2061,7 @@ _cheats_table:
         CHEAT   "P2 INF GOLDS IN", 0x10B8C8, 1, 0x09
         CHEAT   "P2 INF BISHOPS I", 0x10B8C9, 1, 0x09
         CHEAT   "P2 INF ROOKS IN", 0x10B8CA, 1, 0x09
-        JEU     0x0001, 0xD38B, 7
+        JEU     0x0001, 0xD38B, 13
         CHEAT   "P1 INVINCIBILITY", 0x1010F0, 1, 0x02
         CHEAT   "P2 INVINCIBILITY", 0x1011F0, 1, 0x02
         CHEAT   "P1 INFINITE AMMO", 0x1010E7, 1, 0x99
@@ -1708,6 +2069,12 @@ _cheats_table:
         CHEAT   "INF CONTINUES", 0x10A625, 1, 0x64
         CHEAT   "P1 INF GRENADES", 0x1010ED, 1, 0x99
         CHEAT   "P2 INF GRENADES", 0x1011ED, 1, 0x99
+        CHEAT   "P1 WEAP FLAMETHR", 0x1010E6, 1, 0x02
+        CHEAT   "P1 WEAP BAZOOKA", 0x1010E6, 1, 0x08
+        CHEAT   "P1 WEAP MACHINE", 0x1010E6, 1, 0x01
+        CHEAT   "P2 WEAP FLAMETHR", 0x1011E6, 1, 0x02
+        CHEAT   "P2 WEAP BAZOOKA", 0x1011E6, 1, 0x08
+        CHEAT   "P2 WEAP MACHINE", 0x1011E6, 1, 0x01
         JEU     0x0244, 0xAB34, 5
         CHEAT   "INFINITE TIME", 0x10517C, 1, 0x00, 0x10517B, 1, 0x00
         CHEAT   "P1 SCORE 0", 0x1051EA, 1, 0x00
@@ -1743,15 +2110,41 @@ _cheats_table:
         CHEAT   "P1 INF LIVES", 0x10823D, 1, 0x63
         CHEAT   "P2 INF LIVES", 0x10824B, 1, 0x63
         UNEFOIS "FINISH THIS STAG", 0x10820B, 1, 0x00
-        JEU     0x0235, 0xCFF1, 3
+        JEU     0x0235, 0xCFF1, 16
         CHEAT   "INF TIME SOLO", 0x107D23, 1, 0x78
         CHEAT   "INF CONTINUES", 0x100219, 1, 0x64
         UNEFOIS "LEVEL 39 WHEN LE", 0x1001E5, 1, 0x25
-        JEU     0x0202, 0xCF3A, 3
+        CHEAT   "P1 PERM BLUE", 0x1023B5, 1, 0x01
+        CHEAT   "P1 PERM RED", 0x1023B5, 1, 0x02
+        CHEAT   "P1 PERM ORANGE", 0x1023B5, 1, 0x03
+        CHEAT   "P1 PERM GREEN", 0x1023B5, 1, 0x04
+        CHEAT   "P1 PERM YELLOW", 0x1023B5, 1, 0x05
+        CHEAT   "P1 PERM GREY", 0x1023B5, 1, 0x06
+        CHEAT   "P1 PERM BLUE 2", 0x10212B, 1, 0x01
+        CHEAT   "P1 PERM RED 2", 0x10212B, 1, 0x02
+        CHEAT   "P1 PERM ORANGE 2", 0x10212B, 1, 0x03
+        CHEAT   "P1 PERM GREEN 2", 0x10212B, 1, 0x04
+        CHEAT   "P1 PERM YELLOW 2", 0x10212B, 1, 0x05
+        CHEAT   "P1 PERM GREY 2", 0x10212B, 1, 0x06
+        CHEAT   "P2 PERM BLUE", 0x104B9D, 1, 0x01
+        JEU     0x0202, 0xCF3A, 16
         CHEAT   "INF TIME SOLO", 0x107D23, 1, 0x78
         CHEAT   "INF CONTINUES", 0x100219, 1, 0x64
         UNEFOIS "LEVEL 39 WHEN LE", 0x1001E5, 1, 0x25
-        JEU     0x0223, 0x2249, 14
+        CHEAT   "P1 PERM BLUE", 0x1023B5, 1, 0x01
+        CHEAT   "P1 PERM RED", 0x1023B5, 1, 0x02
+        CHEAT   "P1 PERM ORANGE", 0x1023B5, 1, 0x03
+        CHEAT   "P1 PERM GREEN", 0x1023B5, 1, 0x04
+        CHEAT   "P1 PERM YELLOW", 0x1023B5, 1, 0x05
+        CHEAT   "P1 PERM GREY", 0x1023B5, 1, 0x06
+        CHEAT   "P1 PERM BLUE 2", 0x10212B, 1, 0x01
+        CHEAT   "P1 PERM RED 2", 0x10212B, 1, 0x02
+        CHEAT   "P1 PERM ORANGE 2", 0x10212B, 1, 0x03
+        CHEAT   "P1 PERM GREEN 2", 0x10212B, 1, 0x04
+        CHEAT   "P1 PERM YELLOW 2", 0x10212B, 1, 0x05
+        CHEAT   "P1 PERM GREY 2", 0x10212B, 1, 0x06
+        CHEAT   "P2 PERM BLUE", 0x104B9D, 1, 0x01
+        JEU     0x0223, 0x2249, 16
         CHEAT   "P1 INF SELECT TI", 0x102588, 1, 0x0A
         CHEAT   "P2 INF SELECT TI", 0x102688, 1, 0x0A
         CHEAT   "P1 INF ENERGY", 0x10048B, 1, 0xC0
@@ -1766,6 +2159,8 @@ _cheats_table:
         UNEFOIS "FINISH THIS ROUN", 0x106AB4, 1, 0x00
         UNEFOIS "GOTO BOSS KRAUSE", 0x106A35, 1, 0x09
         UNEFOIS "GOTO SECRET BOSS", 0x106A35, 1, 0x0A
+        CHEAT   "P1 COLO A COLOUR", 0x106A2C, 1, 0x00
+        CHEAT   "P1 COLO D COLOUR", 0x106A2C, 1, 0x01
         JEU     0x0006, 0x9D17, 7
         CHEAT   "INF TIME - W.G.P", 0x1000F8, 1, 0x99
         CHEAT   "INF TIME - STORY", 0x10011B, 1, 0x99
@@ -1780,7 +2175,7 @@ _cheats_table:
         UNEFOIS "TIME UP NOW!", 0x1065AB, 1, 0x00
         UNEFOIS "P1 DRAIN ALL POW", 0x105FD2, 2, 0x0000
         UNEFOIS "P2 DRAIN ALL POW", 0x105FDA, 2, 0x0000
-        JEU     0x0017, 0x836D, 14
+        JEU     0x0017, 0x836D, 16
         CHEAT   "P1 CHANGE TIME N", 0x100365, 1, 0x60
         CHEAT   "P1 CHANGE TIME S", 0x100367, 1, 0x60
         CHEAT   "P1 CHANGE TIME D", 0x100369, 1, 0x60
@@ -1795,7 +2190,9 @@ _cheats_table:
         CHEAT   "P2 PERMANENT WEA", 0x100480, 1, 0x04
         CHEAT   "P1 TRANSFORMATIO", 0x100336, 1, 0x0F
         CHEAT   "P2 TRANSFORMATIO", 0x100436, 1, 0x0F
-        JEU     0x0238, 0xE4F2, 15
+        CHEAT   "P1 WEAP NONE", 0x1002F9, 1, 0x00
+        CHEAT   "P1 WEAP RED SPHE", 0x1002F9, 1, 0x01
+        JEU     0x0238, 0xE4F2, 16
         CHEAT   "INFINITE TIME", 0x108D01, 1, 0x99
         CHEAT   "P1 INF ENERGY", 0x1001B5, 1, 0x80
         CHEAT   "P2 INF ENERGY", 0x1021B5, 1, 0x80
@@ -1811,6 +2208,7 @@ _cheats_table:
         CHEAT   "P2 INF SPEC AM 3", 0x108FCB, 1, 0x63
         CHEAT   "P1 INF CREDITS H", 0x108342, 1, 0x99
         CHEAT   "P2 INF CREDITS H", 0x108343, 1, 0x99
+        CHEAT   "P1 NORM NORMAL G", 0x108DB9, 1, 0x00
         JEU     0x0031, 0x0B89, 12
         CHEAT   "INFINITE TIME", 0x10BDB9, 1, 0x59, 0x10BDB8, 1, 0x99
         CHEAT   "P1 MAX ENERGY", 0x10B3A8, 1, 0x60
@@ -1824,13 +2222,23 @@ _cheats_table:
         UNEFOIS "FINISH THIS GAME", 0x10BDB9, 1, 0x00, 0x10BDB8, 1, 0x00
         UNEFOIS "P1 SET SCORE 99", 0x10B3A2, 1, 0x63
         UNEFOIS "P2 SET SCORE 99", 0x10B3A4, 1, 0x63
-        JEU     0x0061, 0x3C6E, 6
+        JEU     0x0061, 0x3C6E, 16
         CHEAT   "INFINITE TIME", 0x1067A4, 1, 0x00, 0x1067A3, 1, 0x00
         CHEAT   "P1 WIN TOSS", 0x100884, 1, 0x07
         CHEAT   "P1 SCORE 0", 0x1044C4, 1, 0x00
         CHEAT   "P2 SCORE 0", 0x1044C8, 1, 0x00
         UNEFOIS "P1 SET SCORE 99", 0x1044C4, 1, 0x63
         UNEFOIS "P2 SET SCORE 99", 0x1044C8, 1, 0x63
+        CHEAT   "P1 POWE FULL TEA", 0x104484, 1, 0x00
+        CHEAT   "P1 POWE ATTACK", 0x104484, 1, 0x01
+        CHEAT   "P1 POWE DEFENSE", 0x104484, 1, 0x02
+        CHEAT   "P1 POWE SPEED", 0x104484, 1, 0x03
+        CHEAT   "P1 POWE TEAMWORK", 0x104484, 1, 0x04
+        CHEAT   "P1 POWE ACE STRI", 0x104484, 1, 0x05
+        CHEAT   "P2 POWE FULL TEA", 0x1044A4, 1, 0x00
+        CHEAT   "P2 POWE ATTACK", 0x1044A4, 1, 0x01
+        CHEAT   "P2 POWE DEFENSE", 0x1044A4, 1, 0x02
+        CHEAT   "P2 POWE SPEED", 0x1044A4, 1, 0x03
         JEU     0x0081, 0xA84D, 5
         CHEAT   "INFINITE TIME", 0x10517C, 1, 0x00, 0x10517B, 1, 0x00
         CHEAT   "P1 SCORE 0", 0x1051EA, 1, 0x00
@@ -1891,28 +2299,69 @@ _cheats_table:
         CHEAT   "INFINITE STROKES", 0x100106, 1, 0x01
         CHEAT   "P1 INF HOLES", 0x10022C, 1, 0x63
         CHEAT   "P2 INF HOLES", 0x1002AC, 1, 0x63
-        JEU     0x0200, 0xB925, 4
+        JEU     0x0200, 0xB925, 16
         CHEAT   "P1 INF STROKES", 0x107006, 1, 0x01
         CHEAT   "P1 INF HOLES", 0x10D572, 1, 0x63
         CHEAT   "P2 INF STROKES", 0x10702C, 1, 0x01
         CHEAT   "P2 INF HOLES", 0x10D5D2, 1, 0x63
-        JEU     0x0225, 0x7F39, 5
+        CHEAT   "WIND PO NO WIND", 0x106FE1, 1, 0x00
+        CHEAT   "WIND PO FULL WIN", 0x106FE1, 1, 0x13
+        CHEAT   "SHOT PO 1 LINE G", 0x106FE7, 1, 0x04
+        CHEAT   "SHOT PO 2 LINES", 0x106FE7, 1, 0x08
+        CHEAT   "SHOT PO 3 LINES", 0x106FE7, 1, 0x0C
+        CHEAT   "SHOT PO 4 LINES", 0x106FE7, 1, 0x10
+        CHEAT   "SHOT PO 5 LINES", 0x106FE7, 1, 0x14
+        CHEAT   "SHOT PO 6 LINES", 0x106FE7, 1, 0x18
+        CHEAT   "CLUB 1W 260 YARD", 0x106FDF, 1, 0x00
+        CHEAT   "CLUB 3W 240 YARD", 0x106FDF, 1, 0x01
+        CHEAT   "CLUB 4W 230 YARD", 0x106FDF, 1, 0x02
+        CHEAT   "CLUB 1I 220 YARD", 0x106FDF, 1, 0x03
+        JEU     0x0225, 0x7F39, 16
         CHEAT   "P1 INF ENERGY", 0x10014A, 1, 0xFF, 0x10014B, 1, 0xE4
         CHEAT   "P2 INF ENERGY", 0x10028A, 1, 0xFF, 0x10028B, 1, 0xE4
         UNEFOIS "P1 DRAIN ALL ENR", 0x10014A, 1, 0x00, 0x10014B, 1, 0x00
         UNEFOIS "P2 DRAIN ALL ENR", 0x10028A, 1, 0x00, 0x10028B, 1, 0x00
         UNEFOIS "FINISH THIS ROUN", 0x100B02, 1, 0x00
-        JEU     0x0065, 0x2657, 6
+        CHEAT   "P1 CHAR RAI", 0x106997, 1, 0x00
+        CHEAT   "P1 CHAR ARINA", 0x106997, 1, 0x01
+        CHEAT   "P1 CHAR SLASH", 0x106997, 1, 0x02
+        CHEAT   "P1 CHAR DANDY-J", 0x106997, 1, 0x03
+        CHEAT   "P1 CHAR TESS", 0x106997, 1, 0x04
+        CHEAT   "P1 CHAR MAURU", 0x106997, 1, 0x05
+        CHEAT   "P2 CHAR RAI", 0x1069A1, 1, 0x00
+        CHEAT   "P2 CHAR ARINA", 0x1069A1, 1, 0x01
+        CHEAT   "P2 CHAR SLASH", 0x1069A1, 1, 0x02
+        CHEAT   "P2 CHAR DANDY-J", 0x1069A1, 1, 0x03
+        CHEAT   "P2 CHAR TESS", 0x1069A1, 1, 0x04
+        JEU     0x0065, 0x2657, 12
         CHEAT   "INF SET TIME", 0x10008D, 1, 0x99
         CHEAT   "P1 SCORE 0", 0x100873, 1, 0x00
         CHEAT   "P2 SCORE 0", 0x1008F3, 1, 0x00
         UNEFOIS "FINISH SET NOW!", 0x10008D, 1, 0x00
         UNEFOIS "P1 SET SCORE 99", 0x100873, 1, 0x99
         UNEFOIS "P2 SET SCORE 99", 0x1008F3, 1, 0x99
+        CHEAT   "COURT BEACH", 0x100324, 1, 0x00
+        CHEAT   "COURT LAWN", 0x100324, 1, 0x01
+        CHEAT   "COURT TILES", 0x100324, 1, 0x02
+        CHEAT   "COURT CONCRETE", 0x100324, 1, 0x03
+        CHEAT   "COURT CLAY", 0x100324, 1, 0x04
+        CHEAT   "COURT STADIUM", 0x100324, 1, 0x05
         | The games below come from the MAME XML Cheats Collection (`bench/cheats-importer.py`),
         | not proven one by one here.
-        JEU     0x0247, 0xC16D, 1
+        JEU     0x0247, 0xC16D, 13
         UNEFOIS "FINISH THIS ROUN", 0x1037AE, 1, 0x01
+        CHEAT   "P1 CHAR CHINTA N", 0x1033ED, 1, 0x00
+        CHEAT   "P1 CHAR SIREN", 0x1033ED, 1, 0x01
+        CHEAT   "P1 CHAR SAIMON", 0x1033ED, 1, 0x02
+        CHEAT   "P1 CHAR MR. JUST", 0x1033ED, 1, 0x03
+        CHEAT   "P1 CHAR BLOODY W", 0x1033ED, 1, 0x04
+        CHEAT   "P1 CHAR BOSS", 0x1033ED, 1, 0x05
+        CHEAT   "P2 CHAR CHINTA N", 0x1033EF, 1, 0x00
+        CHEAT   "P2 CHAR SIREN", 0x1033EF, 1, 0x01
+        CHEAT   "P2 CHAR SAIMON", 0x1033EF, 1, 0x02
+        CHEAT   "P2 CHAR MR. JUST", 0x1033EF, 1, 0x03
+        CHEAT   "P2 CHAR BLOODY W", 0x1033EF, 1, 0x04
+        CHEAT   "P2 CHAR BOSS", 0x1033EF, 1, 0x05
         JEU     0x0218, 0x636F, 3
         UNEFOIS "P1 DRAIN ALL ENR", 0x109089, 1, 0x00
         UNEFOIS "P2 DRAIN ALL ENR", 0x109361, 1, 0x00

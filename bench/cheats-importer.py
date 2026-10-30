@@ -9,7 +9,8 @@
 
 Only what the engine can do is kept: a cheat with at most two unconditional writes to work RAM (a
 .pd counts as its two words), every frame or once (UNEFOIS). The cheats already in the table come
-first, a game never exceeds CH_MAX, and a cell is not forced twice nor set twice to one value.
+first, a game never exceeds CH_MAX, and a cell is not forced twice nor set twice to one value. A
+cheat with a list of values becomes one entry per value, PAR_LISTE at most, when room is left.
 """
 import collections
 import re
@@ -17,12 +18,14 @@ import sys
 import xml.etree.ElementTree as E
 
 CH_MAX = 16
+PAR_LISTE = 6
+PARAM = re.compile(r"^\s*maincpu\.p([bw])@([0-9A-Fa-f]+)\s*=\s*param\s*$")
 ACTION = re.compile(r"^\s*maincpu\.p([bwd])@([0-9A-Fa-f]+)\s*=\s*([0-9A-Fa-f]+)\s*$")
 # When a game has more cheats than room, the usual ones go first.
 PRIORITE = ["time", "energy|life|health", "lives", "invinc", "power|pow|gauge", "bomb|ammo|weapon", "."]
 ABREGES = [("INFINITE", "INF"), ("ALWAYS HAVE ", ""), ("ALWAYS ", ""), ("MAXIMUM", "MAX"), ("MINIMUM", "MIN"),
            ("ENERGY", "ENRG"), ("POWER", "POW"), ("WEAPON", "WEAP"), ("CHARACTER", "CHAR"), ("SPECIAL", "SPEC"),
-           ("AMMUNITION", "AMMO"), ("CONTINUES", "CONT"), ("ENABLE ", ""), ("PLAYER ", "P"), ("INVINCIBILITY", "INVINCIBLE")]
+           ("SELECT ", ""), ("AMMUNITION", "AMMO"), ("CONTINUES", "CONT"), ("ENABLE ", ""), ("PLAYER ", "P"), ("INVINCIBILITY", "INVINCIBLE")]
 
 
 def ecritures(cheat):
@@ -55,6 +58,30 @@ def ecritures(cheat):
     return w, etats == {"on"}
 
 
+def liste(cheat):
+    """A cheat with a list of values: [(item, writes)], the same cell for all; empty otherwise."""
+    p = cheat.find("parameter")
+    ss = cheat.findall("script")
+    if p is None or len(ss) != 1 or ss[0].get("state", "run") != "run" or ss[0].get("condition"):
+        return []
+    aa = ss[0].findall("action")
+    m = len(aa) == 1 and not aa[0].get("condition") and PARAM.match(aa[0].text or "")
+    if not m:
+        return []
+    t, adr = {"b": 1, "w": 2}[m[1]], int(m[2], 16)
+    if not 0x100000 <= adr <= 0x10F2FF or (t == 2 and adr & 1):
+        return []
+    r = []
+    for i in p.findall("item")[:PAR_LISTE]:
+        try:
+            val = int(i.get("value", ""), 0)
+        except ValueError:
+            continue
+        if val <= (0xFF if t == 1 else 0xFFFF) and (i.text or "").strip():
+            r.append((i.text.strip(), [(adr, t, val)]))
+    return r
+
+
 def nom(desc, pris):
     """A name of at most 16 characters, unique in the game."""
     n = re.sub(r"[^A-Z0-9 &+\-.!/]", " ", desc.upper())
@@ -84,6 +111,13 @@ def lire(chemin):
     c = [(x.get("desc", "").strip(), ecritures(x)) for x in r.findall("cheat")]
     c = [(d, *e) for d, e in c if d and e]
     return sorted(c, key=lambda x: (x[2], rang(x[0])))
+
+
+def lire_listes(chemin):
+    """The lists of values of a game, the shortest first: [(desc, [(item, writes)])]."""
+    r = E.fromstring(open(chemin, errors="replace").read())
+    c = [(x.get("desc", "").strip(), liste(x)) for x in r.findall("cheat")]
+    return sorted([x for x in c if x[0] and x[1]], key=lambda x: len(x[1]))
 
 
 def ligne(n, w, unefois):
@@ -139,6 +173,21 @@ def main():
                 b["cases"] |= {a for a, _, _ in w}
             add.append(ligne(n, w, unefois))
             journal.append(f"{j}\t{cle[0]:04X}\t{cle[1]:04X}\t{n}\t{desc}\t" + " ".join(f"{a:06X}/{t}/{v:X}" for a, t, v in w))
+        try:
+            listes = lire_listes(f"{rep}/{j}.xml")
+        except (OSError, E.ParseError):
+            listes = []
+        for desc, items in listes:
+            if any(a in b["cases"] for a, _, _ in items[0][1]):
+                continue
+            for item, w in items[:max(0, CH_MAX - b["nb"] - len(add))]:
+                base = re.sub(r"\bSELECT\b ?", "", desc.upper()).strip()
+                n = nom(f"{base[:7].rstrip()} {item}", pris)
+                if not n:
+                    continue
+                add.append(ligne(n, w, False))
+                journal.append(f"{j}\t{cle[0]:04X}\t{cle[1]:04X}\t{n}\t{desc} : {item}\t" + " ".join(f"{a:06X}/{t}/{v:X}" for a, t, v in w))
+            b["cases"] |= {a for _, w in items for a, _, _ in w}
         if not add:
             continue
         if cle in blocs:
