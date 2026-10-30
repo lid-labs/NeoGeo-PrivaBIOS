@@ -28,7 +28,7 @@
 | registers »), et dans la P-ROM fixe : lue telle que le jeu la voit. SUPPOSÉ : qu'une autre
 | révision du même NGH déplace au moins un de ces pointeurs ; aucune n'est dans le corpus, et
 | mesuré seulement que les 21 jeux qui bootent ont des couples NGH/EMPREINTE distincts, puis les
-| 32 du catalogue du 2026-10-25, dont les NGH le sont déjà (`measured/2026-10-25-cheats-table.tsv`).
+| 81 jeux de la table le 2026-10-29, aux NGH tous distincts (`measured/2026-10-2[59]-cheats-table.tsv`).
 |
 | LES ÉTATS, $10FB00-$10FB07 : CH_ENTREE (.l, la première fiche du jeu, 0 sans entrée), CH_NB
 | (.w), CH_ETATS (.w, un bit par cheat, bit 0 = la première fiche). Zone mesurée libre : des taps
@@ -342,8 +342,10 @@ _cheats_table:
         CHEAT   "INFINITE TIME",   0x10A837, 1, 0x32
         CHEAT   "P1 INFINITE LIFE", 0x108221, 1, 0xCF
         | THE KING OF FIGHTERS '99 : le décompte de trames de la seconde, secondes en $10A7E6.
-        JEU     0x0251, 0xB157, 1
+        | Le 2026-10-29 : $108422, les dégâts subis par P1 (0 au round, montent aux coups ; forcé à 0).
+        JEU     0x0251, 0xB157, 2
         CHEAT   "INFINITE TIME",   0x10A7E7, 1, 0x32
+        CHEAT   "P1 INFINITE LIFE", 0x108422, 1, 0x00
         | THE KING OF FIGHTERS 2000 : les secondes, BCD.
         JEU     0x0257, 0xE65C, 1
         CHEAT   "INFINITE TIME",   0x10A7E6, 1, 0x60
@@ -390,14 +392,19 @@ _cheats_table:
         JEU     0x0245, 0xB255, 1
         CHEAT   "INFINITE TIME",   0x107C27, 1, 0x63
         | KARNOV'S REVENGE : les secondes, binaire, 99 au départ.
-        JEU     0x0066, 0x6A32, 1
+        | Le 2026-10-29 : $103A74, l'octet haut du mot de la vie de P1 ($0FFF au plus haut).
+        JEU     0x0066, 0x6A32, 2
         CHEAT   "INFINITE TIME",   0x103A70, 1, 0x63
+        CHEAT   "P1 INFINITE LIFE", 0x103A74, 1, 0x0F
         | DOUBLE DRAGON : les secondes, BCD, 99 au départ.
         JEU     0x0082, 0x1CB9, 1
         CHEAT   "INFINITE TIME",   0x102242, 1, 0x99
         | METAL SLUG 2 : les vies, 2 au départ de la partie (HUD 1UP=2).
-        JEU     0x0241, 0xBE57, 1
+        | Le 2026-10-29, par valeur connue (le HUD lu à deux trames, puis les octets qui valent ce qu'il
+        | affiche) : le temps de mission $1013B4, binaire, 60.
+        JEU     0x0241, 0xBE57, 2
         CHEAT   "INFINITE LIVES",  0x101276, 1, 0x02
+        CHEAT   "INFINITE TIME",   0x1013B4, 1, 0x3C
         | METAL SLUG X : les vies, 2 au départ.
         JEU     0x0250, 0x92D4, 1
         CHEAT   "INFINITE LIVES",  0x101288, 1, 0x02
@@ -405,34 +412,235 @@ _cheats_table:
         JEU     0x0256, 0xE095, 1
         CHEAT   "INFINITE LIVES",  0x1002BB, 1, 0x02
         | METAL SLUG 4 : les vies, 2 au départ.
-        JEU     0x0263, 0xD875, 1
+        | Le 2026-10-29, par valeur connue : le temps de mission $10ED5C, BCD, 60.
+        JEU     0x0263, 0xD875, 3
         CHEAT   "INFINITE LIVES",  0x100A89, 1, 0x02
+        CHEAT   "INFINITE TIME",   0x10ED5C, 1, 0x60
+        CHEAT   "P2 INF. LIVES",   0x100CFC, 1, 0x02
         | METAL SLUG 5 : les vies, 2 au départ.
-        JEU     0x0268, 0x1581, 1
+        JEU     0x0268, 0x1581, 2
         CHEAT   "INFINITE LIVES",  0x100A41, 1, 0x02
+        CHEAT   "P2 INF. LIVES",   0x1050C2, 1, 0x05
         | PULSTAR : les vies, 2 au départ.
-        JEU     0x0089, 0xA232, 1
+        JEU     0x0089, 0xA232, 2
         CHEAT   "INFINITE LIVES",  0x10132A, 1, 0x02
+        CHEAT   "P2 INF. LIVES",   0x10132B, 1, 0x02
         | BLAZING STAR : les vies, 2 au départ.
-        JEU     0x0239, 0xA454, 1
+        JEU     0x0239, 0xA454, 2
         CHEAT   "INFINITE LIVES",  0x101BA1, 1, 0x02
+        CHEAT   "P2 INF. LIVES",   0x101BA3, 1, 0x02
         | ANDRO DUNOS : les vies, 3 au départ.
         JEU     0x0049, 0x03FF, 1
         CHEAT   "INFINITE LIVES",  0x100343, 1, 0x03
         | GHOST PILOTS : les vies, 3 au départ.
-        JEU     0x0020, 0xA0C5, 1
+        JEU     0x0020, 0xA0C5, 2
         CHEAT   "INFINITE LIVES",  0x103F37, 1, 0x03
+        CHEAT   "P2 INF. LIVES",   0x103FB7, 1, 0x03
         | LAST RESORT : les vies, 2 au départ.
-        JEU     0x0024, 0x03A4, 1
+        JEU     0x0024, 0x03A4, 2
         CHEAT   "INFINITE LIVES",  0x108030, 1, 0x02
+        CHEAT   "P2 INF. LIVES",   0x107596, 1, 0x02
         | MAGICIAN LORD : les vies, 2 au départ.
-        JEU     0x0005, 0x9330, 1
+        JEU     0x0005, 0x9330, 2
         CHEAT   "INFINITE LIVES",  0x103B00, 1, 0x02
+        CHEAT   "P2 INF. LIVES",   0x103C00, 1, 0x02
         | STRIKERS 1945 PLUS : les vies, 2 au départ.
         JEU     0x0254, 0xD5FF, 1
         CHEAT   "INFINITE LIVES",  0x1000E9, 1, 0x02
         | ZED BLADE : les vies, 3 au départ.
-        JEU     0x0076, 0x9553, 1
+        JEU     0x0076, 0x9553, 2
         CHEAT   "INFINITE LIVES",  0x100229, 1, 0x03
+        CHEAT   "P2 INF. LIVES",   0x100029, 1, 0x03
+        | LES VIES DES JEUX D'ACTION, le 2026-10-29 (`bench/cheats-recherche.py`, sous-commande action :
+        | un relevé du scénario action filtré, puis chaque candidat forcé seul dès la trame 700, contre
+        | un témoin). Retenue : la cellule dont le forçage ôte toute fin de partie en 12 000 trames sans
+        | figer l'image, quand le témoin perd la sienne ; la valeur est la plus haute du relevé. Relevés
+        | et autres candidats : `measured/2026-10-29-cheats-action-recherche.tsv`. Les trames du
+        | témoin citées ci-dessous sont celles du forçage par lua, pas celles du menu.
+        | BANG BANG BUSTERS : les vies, 4 au plus haut ; le témoin perd la partie à la trame 4860.
+        JEU     0x0071, 0xE928, 2
+        CHEAT   "INFINITE LIVES",  0x106907, 1, 0x04
+        CHEAT   "P2 INF. LIVES",   0x106967, 1, 0x04
+        | BLUE'S JOURNEY : les vies, 2 au plus haut ; le témoin perd la partie à la trame 3846.
+        JEU     0x0022, 0xC32D, 2
+        CHEAT   "INFINITE LIVES",  0x107000, 1, 0x02
+        CHEAT   "P2 INF. LIVES",   0x107400, 1, 0x02
+        | CAPTAIN TOMADAY : les vies, 2 au plus haut ; le témoin perd la partie à la trame 3831.
+        JEU     0x0249, 0xE6CD, 2
+        CHEAT   "INFINITE LIVES",  0x104026, 1, 0x02
+        CHEAT   "P2 INF. LIVES",   0x101399, 1, 0x02
+        | GANRYU : les vies, 3 au plus haut ; le témoin perd la partie à la trame 4912. Le temps,
+        | $100453, binaire, 99 au plus haut : forcé seul, TIME reste à 99 au HUD.
+        JEU     0x0252, 0x0111, 2
+        CHEAT   "INFINITE LIVES",  0x1004A1, 1, 0x03
+        CHEAT   "INFINITE TIME",   0x100453, 1, 0x63
+        | NINJA COMBAT : les vies, 3 au plus haut ; le témoin perd la partie à la trame 5956.
+        JEU     0x0009, 0x8C0D, 1
+        CHEAT   "INFINITE LIVES",  0x102402, 1, 0x03
+        | NEO BOMBERMAN : les vies, 2 au plus haut ; le témoin perd la partie à la trame 2500.
+        JEU     0x0093, 0x5602, 1
+        CHEAT   "INFINITE LIVES",  0x101658, 1, 0x02
+        | NEO MR. DO! : les vies, 2 au plus haut ; le témoin perd la partie à la trame 5227.
+        JEU     0x0207, 0x94A1, 2
+        CHEAT   "INFINITE LIVES",  0x10465B, 1, 0x02
+        CHEAT   "P2 INF. LIVES",   0x10465D, 1, 0x02
+        | PREHISTORIC ISLE 2 : les vies, 3 au plus haut ; le témoin perd la partie à la trame 5119.
+        JEU     0x0255, 0x8E0D, 2
+        CHEAT   "INFINITE LIVES",  0x105055, 1, 0x03
+        CHEAT   "P2 INF. LIVES",   0x1062D5, 1, 0x03
+        | SENGOKU 2 : les vies, 3 au plus haut ; le témoin perd la partie à la trame 4646.
+        JEU     0x0040, 0xCEF6, 2
+        CHEAT   "INFINITE LIVES",  0x1001AF, 1, 0x03
+        CHEAT   "P2 INF. LIVES",   0x1001B1, 1, 0x03
+        | SENGOKU 3 : les vies, 2 au plus haut ; le témoin perd la partie à la trame 7669.
+        JEU     0x0261, 0x83B6, 2
+        CHEAT   "INFINITE LIVES",  0x1083E1, 1, 0x02
+        CHEAT   "P2 INF. LIVES",   0x1083FF, 1, 0x02
+        | SHOCK TROOPERS 2ND SQUAD : les vies, 3 au plus haut ; le témoin perd la partie à la trame
+        | 4699.
+        JEU     0x0246, 0x5240, 2
+        CHEAT   "INFINITE LIVES",  0x10905B, 1, 0x03
+        CHEAT   "P2 INF. LIVES",   0x10915B, 1, 0x03
+        | AERO FIGHTERS 2 : les vies, 2 au plus haut ; le témoin perd la partie à la trame 6646.
+        JEU     0x0075, 0xECD1, 2
+        CHEAT   "INFINITE LIVES",  0x100615, 1, 0x02
+        CHEAT   "P2 INF. LIVES",   0x100619, 1, 0x02
+        | AERO FIGHTERS 3 : les vies, 2 au plus haut ; le témoin perd la partie à la trame 2517.
+        JEU     0x0097, 0x63E9, 1
+        CHEAT   "INFINITE LIVES",  0x10E89B, 1, 0x02
+        | SPIN MASTER : les vies, 2 au plus haut ; le témoin perd la partie à la trame 9562.
+        JEU     0x0062, 0x915F, 2
+        CHEAT   "INFINITE LIVES",  0x105015, 1, 0x02
+        CHEAT   "P2 INF. LIVES",   0x10503D, 1, 0x02
+        | THE SUPER SPY : 8 au plus haut ; SUPPOSÉ des vies, peut-être l'énergie (le cheat ôte la
+        | fin de partie) ; le témoin perd la partie à la trame 9666.
+        JEU     0x0011, 0xB441, 1
+        CHEAT   "INFINITE LIVES",  0x10181F, 1, 0x08
+        | TWINKLE STAR SPRITES : les vies, 3 au plus haut ; le témoin perd la partie à la trame
+        | 9296.
+        JEU     0x0224, 0xC6FE, 1
+        CHEAT   "INFINITE LIVES",  0x103745, 1, 0x03
+        | VIEWPOINT : les vies, 3 au plus haut ; le témoin perd la partie à la trame 5989.
+        JEU     0x0051, 0x691F, 2
+        CHEAT   "INFINITE LIVES",  0x108D99, 1, 0x03
+        CHEAT   "P2 INF. LIVES",   0x1090ED, 1, 0x03
+        | ZUPAPA! : les vies, 3 au plus haut ; le témoin perd la partie à la trame 6482.
+        JEU     0x0070, 0xEC13, 1
+        CHEAT   "INFINITE LIVES",  0x1002C1, 1, 0x03
+        | LES VIES DE P1 DE JEUX DE COMBAT, le 2026-10-29 (`bench/cheats-recherche.py` releve, puis
+        | bisecter en scénario actif ou faible : P1 tape un peu, et gagne au temps quand sa vie est
+        | forcée) ; les barres de P1 vues pleines sur les bandeaux du HUD, celle de P2 entamée.
+        | THE KING OF FIGHTERS '96 : $108422, les dégâts subis par P1, forcés à 0. Le temps, par valeur
+        | connue : $10A837, le décompte de trames (forcer les secondes bloque la fin du round).
+        JEU     0x0214, 0xEB0F, 2
+        CHEAT   "P1 INFINITE LIFE", 0x108422, 1, 0x00
+        CHEAT   "INFINITE TIME",   0x10A837, 1, 0x32
+        | NINJA MASTER'S : $100050, la vie de P1, $D0 au plus haut.
+        JEU     0x0217, 0x4720, 1
+        CHEAT   "P1 INFINITE LIFE", 0x100050, 1, 0xD0
+        | RAGE OF THE DRAGONS : $1023E6, la vie de P1, $10 au plus haut. Le temps, par valeur connue :
+        | $106B11, les secondes, binaire.
+        JEU     0x0264, 0x8D79, 2
+        CHEAT   "P1 INFINITE LIFE", 0x1023E6, 1, 0x10
+        CHEAT   "INFINITE TIME",   0x106B11, 1, 0x3C
+        | LES CHRONOMÈTRES DE JEUX DE COMBAT, le 2026-10-29, par valeur connue : le TIME du HUD lu à
+        | trois trames, puis les octets de la RAM qui valent ces nombres aux mêmes trames, chacun
+        | forcé seul ; la zone du chronomètre calculée sur les images (les
+        | pixels figés sous cheat, changeants au témoin). Valeur : la plus haute du relevé.
+        | FIGHT FEVER : les secondes, BCD.
+        JEU     0x0060, 0x06A2, 1
+        CHEAT   "INFINITE TIME",   0x108110, 1, 0x99
+        | MATRIMELEE : les secondes, binaire.
+        JEU     0x0266, 0x5F99, 1
+        CHEAT   "INFINITE TIME",   0x10B90B, 1, 0x3C
+        | REAL BOUT FATAL FURY 2 : les secondes, BCD.
+        JEU     0x0240, 0x7F97, 1
+        CHEAT   "INFINITE TIME",   0x107C28, 1, 0x60
+        | SAMURAI SHODOWN III : les secondes, BCD.
+        JEU     0x0087, 0xE4CB, 1
+        CHEAT   "INFINITE TIME",   0x10849E, 1, 0x99
+        | WORLD HEROES 2 JET : les secondes, BCD.
+        JEU     0x0064, 0x8B26, 1
+        CHEAT   "INFINITE TIME",   0x10C109, 1, 0x99
+        | KING OF THE MONSTERS 2 : les secondes, BCD.
+        JEU     0x0039, 0x9C61, 1
+        CHEAT   "INFINITE TIME",   0x1013D2, 1, 0x70
+        | LES TEMPS DE JEUX D'ACTION PAR SUITE ATTENDUE, le 2026-10-29 : l'octet qui suit exactement
+        | v0, v0 − 1… depuis 30, 50, 59, 60, 90 ou 99 (`bench/cheats-recherche.py`, filtre_suite), forcé
+        | seul ; la zone des chiffres calculée sur les images du forçage.
+        | BURNING FIGHT : le temps, BCD, 60 ; lent, jugé dans le genre compteur.
+        JEU     0x0018, 0xA9E4, 1
+        CHEAT   "INFINITE TIME",   0x10D002, 1, 0x60
+        | LES VIES PAR SUITE ATTENDUE EN SCÉNARIO SAUT, le 2026-10-29 : P1 avance en sautant sans tirer
+        | (l'idée de l'utilisateur, pour mourir vite) ; l'octet qui suit exactement 3, 2, 1… (ou depuis
+        | 1 à 5), forcé seul dès la trame 700 : plus de fin de partie, le témoin perd la sienne.
+        | ALPHA MISSION II : les vies, 2 au départ.
+        JEU     0x0007, 0x799C, 2
+        CHEAT   "INFINITE LIVES",  0x1010F2, 1, 0x02
+        CHEAT   "P2 INF. LIVES",   0x1011F2, 1, 0x02
+        | CROSSED SWORDS : les vies, 5 au départ.
+        JEU     0x0037, 0xB3BC, 2
+        CHEAT   "INFINITE LIVES",  0x10405C, 1, 0x05
+        CHEAT   "P2 INF. LIVES",   0x1040DC, 1, 0x05
+        | EIGHT MAN : les vies, 3 au départ.
+        JEU     0x0025, 0xBDFA, 2
+        CHEAT   "INFINITE LIVES",  0x100CF7, 1, 0x03
+        CHEAT   "P2 INF. LIVES",   0x10131B, 1, 0x02
+        | NIGHTMARE IN THE DARK : les vies, 3 au départ.
+        JEU     0x0260, 0x3085, 2
+        CHEAT   "INFINITE LIVES",  0x100055, 1, 0x03
+        CHEAT   "P2 INF. LIVES",   0x10028B, 1, 0x03
+        | ROBO ARMY : les vies, 2 au départ.
+        JEU     0x0032, 0x95B5, 1
+        CHEAT   "INFINITE LIVES",  0x1000D2, 1, 0x02
+        | CYBER-LIP : les vies, 2 au départ (suite attendue, scénario action).
+        JEU     0x0010, 0x6484, 1
+        CHEAT   "INFINITE LIVES",  0x10209D, 1, 0x02
+        | IRONCLAD : les vies, 5 au départ (suite attendue, scénario action).
+        JEU     0x0220, 0xD34D, 1
+        CHEAT   "INFINITE LIVES",  0x10B113, 1, 0x05
+        | MUTATION NATION : les vies, 3 au départ (suite attendue, scénario action).
+        JEU     0x0014, 0x7834, 1
+        CHEAT   "INFINITE LIVES",  0x102530, 1, 0x03
+        | LES VIES DE P2, le 2026-10-29 : P2 joue seul (sa pièce, son START ; scénarios action2 et saut2
+        | de `bench/cheats-recherche.py`), filtre de suite attendue, chaque candidat forcé seul : plus
+        | de fin de partie. Retenue, la cellule qui n'est pas celle de P1 (qui tient aussi chez plusieurs
+        | jeux) : souvent celle de P1 à un décalage de structure, + $80, + $100, + 2… Ajoutées en dernière
+        | fiche des jeux d'action ci-dessus.
+        | LES AUTRES FAMILLES (puzzle, quiz, sport), le 2026-10-29 : relevé du scénario action, filtre de
+        | suite attendue, chaque candidat forcé seul dès la trame 700. NO GAME OVER : la cellule dont le
+        | forçage ôte la fin de partie ; SUPPOSÉ, ce qu'elle compte (des vies, une ligne de bulles, des
+        | continues) : seul l'effet est prouvé, d'où ce nom. Et INFINITE TIME, par la suite du temps.
+        | CHIBI MARUKO-CHAN DELUXE QUIZ.
+        JEU     0x0206, 0x88FB, 1
+        CHEAT   "NO GAME OVER",     0x101303, 1, 0x03
+        | PUZZLE BOBBLE 2.
+        JEU     0x0248, 0x5F90, 1
+        CHEAT   "NO GAME OVER",     0x1057CA, 1, 0x02
+        | PUZZLE BOBBLE.
+        JEU     0x0083, 0x19FA, 1
+        CHEAT   "NO GAME OVER",     0x102284, 1, 0x02
+        | POWER SPIKES II.
+        JEU     0x0068, 0xB80B, 1
+        CHEAT   "NO GAME OVER",     0x102D4A, 1, 0x02
+        | QUIZ MEITANTEI NEO & GEO.
+        JEU     0x0042, 0xBE81, 1
+        CHEAT   "NO GAME OVER",     0x101AC4, 1, 0x03
+        | QUIZ DAISOUSA SEN.
+        JEU     0x0023, 0x3ECF, 1
+        CHEAT   "NO GAME OVER",     0x1022B3, 1, 0x03
+        | QUIZ KING OF FIGHTERS.
+        JEU     0x0080, 0x7AA7, 1
+        CHEAT   "NO GAME OVER",     0x10150A, 1, 0x03
+        | SUPER SIDEKICKS.
+        JEU     0x0052, 0xFEF0, 1
+        CHEAT   "INFINITE TIME",    0x108ED3, 1, 0x59
+        | STREET HOOP.
+        JEU     0x0079, 0x6DB5, 2
+        CHEAT   "NO GAME OVER",     0x102D21, 1, 0x02
+        CHEAT   "INFINITE TIME",    0x101A53, 1, 0x59
+        | TECMO WORLD SOCCER 96.
+        JEU     0x0086, 0xCB1D, 1
+        CHEAT   "NO GAME OVER",     0x1014D7, 1, 0x05
         FIN_TABLE
         .balign 2

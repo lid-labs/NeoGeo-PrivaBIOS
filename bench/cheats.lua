@@ -19,7 +19,8 @@
 --   C_OUT      dossier de sortie (obligatoire) ; journal C_OUT/cheats.txt
 --   C_ENTREES  « a-b:bouton » (tenu des trames a à b) ou « a-b%p:bouton » (tenu la première
 --              moitié de chaque période de p trames entre a et b), virgules. Boutons : piece,
---              START, haut, bas, gauche, droite, A, B, C, D
+--              START, haut, bas, gauche, droite, A, B, C, D ; pour P2, pieceDeux, startDeux,
+--              droiteDeux, aDeux, bDeux, cDeux (des lettres seules : le motif est %a+)
 --   C_APPUIS   « trame:bouton », 3 trames chacun (mode menu, comme `menu.lua`)
 --   C_MENU     trame où TEST est tenu, 40 trames (mode menu) ; « a,b » pour deux ouvertures
 --   C_SUIVRE   « adr:taille » (hex), virgules : valeurs écrites au journal toutes les C_PAS trames
@@ -57,6 +58,9 @@ local champs = {
   gauche = F(":edge:joy:JOY1", "P1 Left"), droite = F(":edge:joy:JOY1", "P1 Right"),
   A = F(":edge:joy:JOY1", "P1 A"), B = F(":edge:joy:JOY1", "P1 B"),
   C = F(":edge:joy:JOY1", "P1 C"), D = F(":edge:joy:JOY1", "P1 D"),
+  pieceDeux = F(":AUDIO_COIN", "Coin 2"), startDeux = F(":edge:joy:START", "2 Players Start"),
+  droiteDeux = F(":edge:joy:JOY2", "P2 Right"), aDeux = F(":edge:joy:JOY2", "P2 A"),
+  bDeux = F(":edge:joy:JOY2", "P2 B"), cDeux = F(":edge:joy:JOY2", "P2 C"),
 }
 for k, c in pairs(champs) do assert(c, "champ MAME introuvable : " .. k) end
 local test = F(":TEST", "Service Mode")

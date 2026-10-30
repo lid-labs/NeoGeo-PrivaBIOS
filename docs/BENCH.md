@@ -26,6 +26,8 @@ The scripts' own documentation is in their headers (in French). This page is the
 | `test_generer_contrats.py` | Tests of the contract generator (synthetic traces, no MAME). |
 | `generer-contrats.py` | Turns a bus trace from the co-simulator into contracts (`specs/traces/`). |
 | `generer-sinus.py` | Generates `src/c0/sinus.s`; `--verifier` checks the versioned file. |
+| `cheats-catalogue.sh` | Each cheat of the table turned ON through the in-game menu, against a witness run. |
+| `cheats-recherche.py` | The search for new cheats: RAM recorded and filtered, then candidates forced one by one. |
 | `*.lua` | MAME jigs: each measures one behaviour (taps on reads and writes, frame hashes, inputs). |
 | `tiers/construire.sh` | Builds the free third-party BIOSes (NeoPen, neogeo-bios) at pinned commits, for comparison. |
 

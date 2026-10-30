@@ -17,24 +17,33 @@
 #          distinctes : un KO, ou le décor que laissent voir certains cadres, en ajoutent sous cheat
 #          comme au témoin. En complément, la cellule vaut la valeur de la table, ou une de moins
 #          (le jeu a décompté depuis le dernier appel du moteur), sur au moins RAM_MIN des relevés.
-# Dans les deux genres, le tap du mode menu de `cheats.lua` exige que le moteur du BIOS n'ait écrit
+#   compteur  un nombre du HUD qui ne bouge plus : un temps de mission qui ne perd
+#          1 que toutes les ~256 trames (le 2026-10-29). Comme temps, sur le rectangle des chiffres,
+#          mais de T + 200 à FIN, et d'autres seuils : le compte du témoin ne change que quelques
+#          fois. Sous cheat, la même image sur au moins COMPTEUR_ON_MIN des relevés ; au témoin, deux
+#          images au moins, la plus fréquente sur moins de COMPTEUR_ON_MIN.
+# Dans tous les genres, le tap du mode menu de `cheats.lua` exige que le moteur du BIOS n'ait écrit
 # que l'adresse du cheat, et qu'il n'ait rien écrit au témoin.
 #
-# LES ENTRÉES. « f » (combat) : pièce à 400, START à 500, A toutes les 60 trames de 600 à 3500,
+# LES ENTRÉES. « k » et « l » : « x » et « j » joués par P2 seul (sa pièce à 400, son START à 500) ;
+# le menu reste aux commandes de P1. « x » : le scénario action de `cheats-recherche.py` (A toutes les 6 trames, droite, B et C).
+# « j » (sauter pour mourir) : pièce, START, puis droite tenue et B toutes les 20 trames,
+# sans tirer : P1 fonce en sautant dans les ennemis.
+# « f » (combat) : pièce à 400, START à 500, A toutes les 60 trames de 600 à 3500,
 # droite tenue à partir de 2000 ; « s » (tir, action) : pièce, START, A toutes les 60 trames, droite
 # tenue à partir de 1000, C toutes les 400 trames à partir de 1500. Le joueur ne joue pas : il meurt,
 # il perd ses rounds. Aucune entrée planifiée de T − 10 à T + 150 : le menu reçoit les siennes.
 #
 # LA CADENCE. --jobs runs MAME à la fois (défaut : le nombre de cœurs moins deux ; un MAME n'occupe
 # qu'un cœur, et chaque run a son dossier, donc leur nombre ne change aucun verdict). Les runs
-# partent les plus longs d'abord (FIN décroissante) : douze des treize « vies » à 12 000 trames,
-# en fin de table, partaient en dernier et faisaient attendre tout le monde à la fin. Pas de cache ici : le témoin ouvre et ferme le
+# partent les plus longs d'abord (FIN décroissante) : les « vies », de 12 000 à 20 000 trames, auraient
+# fait attendre tout le monde à la fin. Pas de cache ici : le témoin ouvre et ferme le
 # menu de NOTRE BIOS, il dépend de l'image comme le run du cheat.
 #
 # Salle blanche : aucune base de cheats tierce, aucun code de jeu lu ni tracé ; le PC ne sert qu'à
 # dire si une écriture vient du BIOS. MAME sans fenêtre, un dossier de cfg et de NVRAM par run.
-# Mesures et seuils : measured/2026-10-25-cheats-table.tsv (une ligne par cheat) et
-# measured/2026-10-25-cheats-catalogue.tsv (les verdicts de ce script).
+# Mesures et seuils : measured/2026-10-25-cheats-table.tsv et 2026-10-29-cheats-table.tsv (une ligne
+# par cheat), 2026-10-25-cheats-catalogue.tsv et 2026-10-29-cheats-catalogue.tsv (les verdicts).
 set -u
 
 ICI="$(cd "$(dirname "$0")" && pwd)"
@@ -63,6 +72,7 @@ mkdir -p "$WORK"; ROMS="$(cd "$ROMS" && pwd)"; WORK="$(cd "$WORK" && pwd)"
 TEMPS_ON_MIN=0.6
 TEMPS_TEMOIN_MAX=0.35
 RAM_MIN=0.9
+COMPTEUR_ON_MIN=0.9
 
 # jeu  k  nom  adr  valeur  genre  entrées  T  FIN  zone(x0,y0,x1,y1)  pixels de la zone
 # Les pixels : « brut », toutes les couleurs (un chronomètre dans un cadre opaque) ; « clair »,
@@ -106,6 +116,83 @@ lresort	0	INFINITE LIVES	108030	02	vies	s	1500	12000	-	-
 maglord	0	INFINITE LIVES	103B00	02	vies	s	1500	12000	-	-
 s1945p	0	INFINITE LIVES	1000E9	02	vies	s	1500	12000	-	-
 zedblade	0	INFINITE LIVES	100229	03	vies	s	1500	12000	-	-
+b2b	0	INFINITE LIVES	106907	04	vies	s	1500	12000	-	-
+bjourney	0	INFINITE LIVES	107000	02	vies	s	1500	12000	-	-
+ctomaday	0	INFINITE LIVES	104026	02	vies	s	1500	12000	-	-
+ganryu	0	INFINITE LIVES	1004A1	03	vies	s	1500	12000	-	-
+ncombat	0	INFINITE LIVES	102402	03	vies	s	1500	12000	-	-
+neobombe	0	INFINITE LIVES	101658	02	vies	s	1500	12000	-	-
+neomrdo	0	INFINITE LIVES	10465B	02	vies	s	1500	12000	-	-
+preisle2	0	INFINITE LIVES	105055	03	vies	s	1500	12000	-	-
+sengoku2	0	INFINITE LIVES	1001AF	03	vies	s	1500	20000	-	-
+sengoku3	0	INFINITE LIVES	1083E1	02	vies	s	1500	12000	-	-
+shocktr2	0	INFINITE LIVES	10905B	03	vies	s	1500	12000	-	-
+sonicwi2	0	INFINITE LIVES	100615	02	vies	s	1500	12000	-	-
+sonicwi3	0	INFINITE LIVES	10E89B	02	vies	s	1500	12000	-	-
+spinmast	0	INFINITE LIVES	105015	02	vies	s	1500	12000	-	-
+superspy	0	INFINITE LIVES	10181F	08	vies	s	1500	12000	-	-
+twinspri	0	INFINITE LIVES	103745	03	vies	s	1500	12000	-	-
+viewpoin	0	INFINITE LIVES	108D99	03	vies	s	1500	12000	-	-
+zupapa	0	INFINITE LIVES	1002C1	03	vies	s	1500	12000	-	-
+mslug2	1	INFINITE TIME	1013B4	3C	compteur	s	1500	4000	145,8,175,31	jaune
+mslug4	1	INFINITE TIME	10ED5C	60	compteur	s	1500	4000	145,8,175,31	jaune
+burningf	0	INFINITE TIME	10D002	60	compteur	s	1500	4000	145,33,174,47	brut
+alpham2	0	INFINITE LIVES	1010F2	02	vies	j	1500	12000	-	-
+crsword	0	INFINITE LIVES	10405C	05	vies	j	1500	12000	-	-
+eightman	0	INFINITE LIVES	100CF7	03	vies	j	1500	12000	-	-
+nitd	0	INFINITE LIVES	100055	03	vies	j	1500	12000	-	-
+roboarmy	0	INFINITE LIVES	1000D2	02	vies	j	1500	12000	-	-
+cyberlip	0	INFINITE LIVES	10209D	02	vies	x	1500	12000	-	-
+ironclad	0	INFINITE LIVES	10B113	05	vies	x	1500	12000	-	-
+mutnat	0	INFINITE LIVES	102530	03	vies	x	1500	12000	-	-
+marukodq	0	NO GAME OVER	101303	03	vies	x	800	12000	-	-
+pbobbl2n	0	NO GAME OVER	1057CA	02	vies	x	800	12000	-	-
+pbobblen	0	NO GAME OVER	102284	02	vies	x	800	12000	-	-
+pspikes2	0	NO GAME OVER	102D4A	02	vies	x	800	12000	-	-
+quizdai2	0	NO GAME OVER	101AC4	03	vies	x	800	12000	-	-
+quizdais	0	NO GAME OVER	1022B3	03	vies	x	800	12000	-	-
+quizkof	0	NO GAME OVER	10150A	03	vies	x	800	12000	-	-
+ssideki	0	INFINITE TIME	108ED3	59	temps	x	1500	2800	160,17,174,30	brut
+strhoop	0	NO GAME OVER	102D21	02	vies	x	800	12000	-	-
+strhoop	1	INFINITE TIME	101A53	59	temps	x	1500	2800	145,193,174,206	brut
+twsoc96	0	NO GAME OVER	1014D7	05	vies	x	800	12000	-	-
+alpham2	1	P2 INF. LIVES	1011F2	02	vies	k	1500	13000	-	-
+b2b	1	P2 INF. LIVES	106967	04	vies	k	1500	13000	-	-
+bjourney	1	P2 INF. LIVES	107400	02	vies	k	1500	13000	-	-
+blazstar	1	P2 INF. LIVES	101BA3	02	vies	k	1500	13000	-	-
+crsword	1	P2 INF. LIVES	1040DC	05	vies	l	1500	13000	-	-
+ctomaday	1	P2 INF. LIVES	101399	02	vies	k	1500	13000	-	-
+eightman	1	P2 INF. LIVES	10131B	02	vies	l	1500	13000	-	-
+gpilots	1	P2 INF. LIVES	103FB7	03	vies	k	1500	13000	-	-
+lresort	1	P2 INF. LIVES	107596	02	vies	l	1500	13000	-	-
+maglord	1	P2 INF. LIVES	103C00	02	vies	k	1500	13000	-	-
+mslug4	2	P2 INF. LIVES	100CFC	02	vies	l	1500	13000	-	-
+mslug5	1	P2 INF. LIVES	1050C2	05	vies	k	1500	13000	-	-
+neomrdo	1	P2 INF. LIVES	10465D	02	vies	k	1500	13000	-	-
+nitd	1	P2 INF. LIVES	10028B	03	vies	l	1500	13000	-	-
+preisle2	1	P2 INF. LIVES	1062D5	03	vies	k	1500	13000	-	-
+pulstar	1	P2 INF. LIVES	10132B	02	vies	k	1500	13000	-	-
+sengoku2	1	P2 INF. LIVES	1001B1	03	vies	k	1500	13000	-	-
+sengoku3	1	P2 INF. LIVES	1083FF	02	vies	k	1500	13000	-	-
+shocktr2	1	P2 INF. LIVES	10915B	03	vies	l	1500	13000	-	-
+sonicwi2	1	P2 INF. LIVES	100619	02	vies	k	1500	13000	-	-
+spinmast	1	P2 INF. LIVES	10503D	02	vies	l	1500	13000	-	-
+viewpoin	1	P2 INF. LIVES	1090ED	03	vies	k	1500	13000	-	-
+zedblade	1	P2 INF. LIVES	100029	03	vies	k	1500	13000	-	-
+fightfev	0	INFINITE TIME	108110	99	temps	f	1900	3200	147,24,172,36	brut
+kof96	1	INFINITE TIME	10A837	32	temps	f	1900	3200	147,14,172,32	brut
+matrim	0	INFINITE TIME	10B90B	3C	temps	f	1900	3200	145,8,174,24	brut
+rbff2	0	INFINITE TIME	107C28	60	temps	f	1900	3200	145,16,175,31	brut
+rotd	1	INFINITE TIME	106B11	3C	temps	f	1900	3200	146,16,174,30	brut
+samsho3	0	INFINITE TIME	10849E	99	temps	f	1900	3200	145,40,175,55	brut
+wh2j	0	INFINITE TIME	10C109	99	temps	f	1900	3200	138,0,186,31	brut
+kotm2	0	INFINITE TIME	1013D2	70	temps	f	1900	3200	144,24,175,39	brut
+kof99	1	P1 INFINITE LIFE	108422	00	vies	f	1600	15000	-	-
+karnovr	1	P1 INFINITE LIFE	103A74	0F	vies	f	1600	15000	-	-
+kof96	0	P1 INFINITE LIFE	108422	00	vies	f	1600	15000	-	-
+ninjamas	0	P1 INFINITE LIFE	100050	D0	vies	f	1600	15000	-	-
+rotd	0	P1 INFINITE LIFE	1023E6	10	vies	f	1600	15000	-	-
+ganryu	1	INFINITE TIME	100453	63	temps	s	1500	2800	147,32,175,39	clair
 EOF
 )"
 
@@ -156,12 +243,17 @@ pixels() {
     rouge) echo "C_COULEUR=180,255,0,80,0,80" ;;
   esac
 }
-# entrees <f|s> <T> : le plan, coupé de T − 10 à T + 150.
+# entrees <T> <f|s|j|x|k|l> : le plan, coupé de T − 10 à T + 150.
 entrees() {
   local T=$1 a=$(( $1 - 10 )) b=$(( $1 + 150 )) out="400-407:piece,500-507:START" x
+  case "$2" in k|l) out="400-407:pieceDeux,500-507:startDeux" ;; esac
   case "$2" in
     f) x="600-3500%60:A 2000-40000:droite" ;;
     s) x="600-40000%60:A 1000-40000:droite 1500-40000%400:C" ;;
+    j) x="1000-40000:droite 1000-40000%20:B" ;;
+    x) x="600-40000%6:A 1000-40000:droite 1500-40000%300:B 1650-40000%400:C" ;;
+    k) x="600-40000%6:aDeux 1000-40000:droiteDeux 1500-40000%300:bDeux 1650-40000%400:cDeux" ;;
+    l) x="1000-40000:droiteDeux 1000-40000%20:bDeux" ;;
   esac
   local seg d f r bt
   for seg in $x; do
@@ -204,10 +296,11 @@ echo "runs : $(( $(date +%s) - T0 )) s"
 
 # ---- Le juge ----
 printf '%s\n' "$TABLE" > "$WORK/table.tsv"
-python3 -I -B - "$WORK/runs" "$JEUX" "$TEMPS_ON_MIN" "$TEMPS_TEMOIN_MAX" "$RAM_MIN" "$WORK/table.tsv" > "$WORK/catalogue.txt" <<'PY'
+python3 -I -B - "$WORK/runs" "$JEUX" "$TEMPS_ON_MIN" "$TEMPS_TEMOIN_MAX" "$RAM_MIN" "$WORK/table.tsv" "$COMPTEUR_ON_MIN" > "$WORK/catalogue.txt" <<'PY'
 import os, re, sys
 RUNS, JEUX = sys.argv[1], sys.argv[2].split()
 ON_MIN, TEM_MAX, RAM_MIN = float(sys.argv[3]), float(sys.argv[4]), float(sys.argv[5])
+CPT_ON = float(sys.argv[7])
 def lire(nom):
     d = os.path.join(RUNS, nom)
     rc = open(os.path.join(d, "rc")).read().strip()
@@ -248,14 +341,16 @@ for l in open(sys.argv[6], encoding="utf-8"):
         # Relue en fin de trame, une cellule forcée peut porter ce que le jeu vient d'en ôter (un
         # décompte d'une trame) avant que le moteur la rétablisse au SYSTEM_IO suivant.
         ram = sum(1 for v in vals if val - 1 <= v <= val) / max(1, len(vals))
-        if genre == "temps":
+        if genre in ("temps", "compteur"):
+            zf = fen if genre == "temps" else range(T + 200, FIN + 1)
             def dominante(x):
-                z = [x["zone"][n] for n in fen if n in x["zone"]]
+                z = [x["zone"][n] for n in zf if n in x["zone"]]
                 return max(z.count(v) for v in set(z)) / len(z), len(set(z))
             (fo, no), (ft, nt) = dominante(on), dominante(te)
-            dit.append(f"chronomètre : son image la plus fréquente sur {fo:.2f} des relevés sous cheat ({no} images), {ft:.2f} au témoin ({nt}) ; ${adr} à ${val:02X} sur {ram:.2f}")
-            if fo < ON_MIN: raison.append(f"le chronomètre sous cheat n'a son image la plus fréquente que sur {fo:.2f} des relevés")
-            if ft > TEM_MAX: raison.append(f"le témoin garde la même image sur {ft:.2f} des relevés : la scène ne prouve rien")
+            dit.append(f"{'chronomètre' if genre == 'temps' else 'compteur'} : son image la plus fréquente sur {fo:.2f} des relevés sous cheat ({no} images), {ft:.2f} au témoin ({nt}) ; ${adr} à ${val:02X} sur {ram:.2f}")
+            on_min = ON_MIN if genre == "temps" else CPT_ON
+            if fo < on_min: raison.append(f"sous cheat, l'image la plus fréquente n'est que sur {fo:.2f} des relevés")
+            if (ft > TEM_MAX) if genre == "temps" else (ft >= CPT_ON or nt < 2): raison.append(f"le témoin garde la même image sur {ft:.2f} des relevés ({nt} images) : la scène ne prouve rien")
         else:
             fin_t = [n for n in sorted(te["user"]) if n > T and te["user"][n] != 2]
             fin_o = [n for n in sorted(on["user"]) if n > T and on["user"][n] != 2]
