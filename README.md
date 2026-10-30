@@ -28,6 +28,20 @@ Status: in testing.
 Sprixe BIOS was developed under the working name ReBIOS; that name still appears in dated notes and
 in the backup RAM signature.
 
+## Why another BIOS?
+
+UniBIOS is the reference on the Neo Geo, and Razoola's work has served players for two decades.
+Sprixe BIOS takes a different path: written from scratch, GPL-3.0, with its whole source open.
+
+- Autofire as a setting: A, B, C and D one by one, remembered for each game.
+- Game settings changed from the in-game menu, during play.
+- Settings of a game that has never been launched: the editor saves a clean entry.
+- A boot screen drawn only with the BIOS font, nothing from the cartridge's graphics.
+- No continue and silent demo for the whole cabinet.
+
+It is a young project: a beta for MVS boards, tested on one real board so far.
+The detail is in [`docs/COMPARISON.md`](docs/COMPARISON.md).
+
 ## Screenshots
 
 Taken under MAME 0.286 from the image this repository builds (SHA-256 `18da0b0a…`; the boot screen

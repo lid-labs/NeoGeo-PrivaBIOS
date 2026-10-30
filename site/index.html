@@ -5,7 +5,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Sprixe BIOS is a free, open-source (GPL-3.0) BIOS for the Neo Geo MVS, written from scratch as an alternative to UniBIOS: in-game menu, per-game autofire, cheats, free play, soft-DIPs, memory card manager and hardware tests." />
+    <meta name="description" content="Sprixe BIOS is a free, open-source (GPL-3.0) BIOS for the Neo Geo MVS, written from scratch: in-game menu, per-game autofire, cheats, free play, soft-DIPs, memory card manager and hardware tests." />
     <meta name="robots" content="index, follow, max-image-preview:large" />
     <meta name="theme-color" content="#0a1228" />
     <meta name="color-scheme" content="dark" />
@@ -58,7 +58,7 @@
 <div class="wrap">
   <header class="top">
     <a class="logo" href="#">SPRIXE BIOS<small>v0.1 beta</small></a>
-    <nav><a href="#features">Features</a><a href="#compare">Compare</a><a href="#method">Method</a><a href="#install">Install</a><a href="#faq">FAQ</a></nav>
+    <nav><a href="#features">Features</a><a href="#why">Why</a><a href="#method">Method</a><a href="#install">Install</a><a href="#faq">FAQ</a></nav>
   </header>
 
   <div class="hero">
@@ -94,23 +94,19 @@
     </div>
   </section>
 
-  <section id="compare">
-    <div class="kicker">Compare</div>
-    <h2>Next to UniBIOS 4.0</h2>
-    <div class="table" role="table">
-      <div class="row" role="row"><div>Feature</div><div>UniBIOS 4.0</div><div>Sprixe BIOS</div></div>
-      <div class="row"><div>Autofire</div><div><span class="v pt"><i>◐</i><span>Cheats, some games</span></span></div><div><span class="v pt"><i>◐</i><span>Setting, 89/164 games</span></span></div></div>
-      <div class="row"><div>Keeping players out</div><div><span class="v ok"><i>✓</i><span>Arcade Protect</span></span></div><div><span class="v ok"><i>✓</i><span>CHEATS/DEBUG OFF</span></span></div></div>
-      <div class="row"><div>Boot on flash carts</div><div><span class="v pt"><i>◐</i><span>Reported issues</span></span></div><div><span class="v pt"><i>◐</i><span>Awaiting hardware test</span></span></div></div>
-      <div class="row"><div>Multi-slot boards</div><div><span class="v pt"><i>◐</i><span>Documented sound bug</span></span></div><div><span class="v pt"><i>◐</i><span>MV-6F in MAME, real MV-2F</span></span></div></div>
-      <div class="row"><div>Soft-DIPs</div><div><span class="v pt"><i>◐</i><span>In test mode</span></span></div><div><span class="v ok"><i>✓</i><span>In game</span></span></div></div>
-      <div class="row"><div>Cartridge CRC32</div><div><span class="v ok"><i>✓</i><span>Yes</span></span></div><div><span class="v ok"><i>✓</i><span>Yes</span></span></div></div>
-      <div class="row"><div>Cheats</div><div><span class="v ok"><i>✓</i><span>1,570+</span></span></div><div><span class="v pt"><i>◐</i><span>139, for 97 games</span></span></div></div>
-      <div class="row"><div>VRAM viewer</div><div><span class="v ok"><i>✓</i><span>Yes</span></span></div><div><span class="v no"><i>✕</i><span>No</span></span></div></div>
-      <div class="row"><div>Systems</div><div><span class="v ok"><i>✓</i><span>MVS, AES, CD</span></span></div><div><span class="v pt"><i>◐</i><span>MVS only</span></span></div></div>
-      <div class="row"><div>Licence</div><div><span class="v pt"><i>◐</i><span>Personal use only</span></span></div><div><span class="v ok"><i>✓</i><span>GPL-3.0</span></span></div></div>
-    </div>
-    <p class="note">UniBIOS column from its official site, read on 2026-10-30, and forum reports where marked. <a href="https://github.com/lid-labs/sprixe-bios/blob/main/docs/COMPARISON.md">Full table with sources</a>.</p>
+  <section id="why">
+    <div class="kicker">Why</div>
+    <h2>Why another BIOS?</h2>
+    <p>UniBIOS is the reference on the Neo Geo, and Razoola's work has served players for two decades. Sprixe BIOS takes a different path: a BIOS written from scratch, GPL-3.0, with its whole source open to anyone who wants to read, fix or change it.</p>
+    <ul>
+      <li>Autofire as a setting: A, B, C and D one by one, at 10, 15 or 30 shots per second, remembered for each game.</li>
+      <li>Game settings changed from the in-game menu, during play.</li>
+      <li>Settings of a game that has never been launched: the editor shows its defaults and saves a clean entry.</li>
+      <li>A boot screen drawn only with the BIOS font, nothing from the cartridge's graphics.</li>
+      <li>No continue and silent demo for the whole cabinet.</li>
+    </ul>
+    <p>It is a young project: a beta for MVS boards, with a growing cheat list (139 for 97 games), tested on one real board so far. Your reports shape what comes next.</p>
+    <p class="note"><a href="https://github.com/lid-labs/sprixe-bios/blob/main/docs/COMPARISON.md">Detailed comparison with UniBIOS 4.0</a>.</p>
   </section>
 
   <section id="method">
