@@ -61,7 +61,7 @@ cartridge. The in-game menu and autofire screens are over Metal Slug (© SNK).
 - Per-game autofire: buttons A to D set one by one, at 10, 15 or 30 shots per second, remembered
   for each game. It only reaches games that read the controls through the BIOS
   (see [Compatibility](#compatibility)).
-- Cheats for 154 games (1,260 cheats): 141 found and proven here under MAME, 1,119 imported from the
+- Cheats for 154 games (1,709 cheats): 141 found and proven here under MAME, 1,568 imported from the
   MAME XML Cheats Collection and only checked not to freeze the game.
 - Soft-DIPs during a game (GAME SETTINGS in the in-game menu), and the soft-DIP editor at boot.
 - Soft-DIPs of a game never launched: the editor shows the cartridge defaults and saves a clean
@@ -174,7 +174,7 @@ Sebastian Klötzer, for testing every image on a real MV-2F board and reporting 
 not show.
 
 Pugsy and the contributors of the [MAME XML Cheats Collection](https://www.mamecheat.co.uk/), for
-the imported cheats. Their list is in `measured/2026-10-30-cheats-importes.tsv` and `-importes-2.tsv`. The collection
+the imported cheats. Their list is in `measured/2026-10-30-cheats-importes*.tsv`. The collection
 states no licence.
 
 ## License
