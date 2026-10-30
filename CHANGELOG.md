@@ -19,8 +19,9 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 - NO GAME OVER for Gururin, Thrash Rally and Zintrick, and P2 INF. LIVES for Twinkle Star Sprites
   (#23).
 - INFINITE LIVES for Ninja Commando (#24).
-- INFINITE TIME for The King of Fighters 2003, Real Bout Fatal Fury and Kizuna Encounter. 97 games and
-  139 cheats in all.
+- INFINITE TIME for The King of Fighters 2003, Real Bout Fatal Fury and Kizuna Encounter.
+- INFINITE TIME for The King of Fighters '97 and P1 INFINITE LIFE for Samurai Shodown V Special. 98 games
+  and 141 cheats in all.
 - `bench/cheats-catalogue.sh`: a `tres-clair` pixel mode (R + G + B > 700), for white digits over a
   light background.
 - `bench/cheats-recherche.py`, the tool that searches for cheats under MAME.
