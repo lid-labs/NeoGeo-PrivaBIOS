@@ -4,7 +4,7 @@ Everything here runs locally, under MAME, with **your own** ROM sets. This repos
 neither BIOS nor game, and never will. The scripts take paths as arguments; the examples below use
 `$ROMS` for a folder of **non-merged** MAME sets.
 
-The scripts' own documentation is in their headers (in French). This page is the map.
+The scripts' own documentation is in their headers. This page is the map.
 
 ## Requirements
 
@@ -57,7 +57,7 @@ runs of the same configuration give identical output, except the speed column.
 result; 4 (full run only), `parcours.sh`. A deliberate change of behaviour needs a new recorded
 result, not a looser threshold.
 
-As of 29 October 2026: 160 scenes and 206 mutations, all caught.
+As of 30 October 2026: 161 scenes and 207 mutations, all caught.
 
 Work directories, captures and MAME state are written under the work directory you pass, outside the
 repository.

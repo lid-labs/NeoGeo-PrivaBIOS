@@ -1,15 +1,15 @@
 #!/bin/bash
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Thibaut Lion
-# Verdict d'un relevé : « joue » ou « figé dès la trame N ».
+# Verdict of a record: "plays" or "frozen from frame N".
 #
-# Le critère exige que la signature d'image ne change plus pendant AU MOINS 500 trames jusqu'à la
-# fin du relevé. Un seul intervalle immobile ne suffit pas : un écran-titre, une pose ou un fondu
-# en produisent aussi. Une première version se contentait du dernier changement et a déclaré
-# League Bowling « figé 2 200 trames » alors que sa minuterie passait de 06 à 00 sous les yeux.
+# The criterion requires the picture signature to stop changing for AT LEAST 500 frames up to the
+# end of the record. A single still interval is not enough: a title screen, a pause or a fade
+# produce one too. A first version settled for the last change and declared League Bowling
+# "frozen 2,200 frames" while its timer went from 06 to 00 before our eyes.
 #
-# Ce verdict ne suffit PAS à lui seul : une image qui change peut rester noire. Croiser avec
-# vifs (pixels allumés) — voir docs/COMPATIBILITE.md, « Ce que le verdict ne dit pas ».
+# This verdict is NOT enough on its own: a picture that changes can stay black. Cross it with
+# vifs (lit pixels) — see docs/COMPATIBILITE.md, "What the verdict does not say".
 #
 #   verdict.sh <index.txt>
 set -u

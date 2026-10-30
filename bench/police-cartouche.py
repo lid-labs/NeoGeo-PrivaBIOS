@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Thibaut Lion
-"""Décode les captures de bench/police-cartouche.lua et classe chaque glyphe.
+"""Decodes the captures of bench/police-cartouche.lua and classifies each glyph.
 
-  bench/police-cartouche.py <dossier-run-du-jeu> <png-planche>  -> imprime une ligne JSON de résultats
-  bench/police-cartouche.py --octets "<hex …>" <dossier-run-du-jeu> <png-planche> [<dossier-témoin>]
-      -> la mire de P_OCTETS (police-cartouche.lua) : chaque octet en 8×16 à $300/$400 + b,
-         classé identique / vide / autre contre le SFIX (sfix-vide : le SFIX n'y a pas de trait).
-         La planche : le SFIX en haut, la S ROM dessous, un octet par colonne. Avec un témoin
-         (un run de la même liste sous P_BANQUE=1), « banques » compare le SFIX des deux runs :
-         le trait de $300/$400 + b est-il celui de $100/$200 + b ?
+  bench/police-cartouche.py <game-run-dir> <sheet-png>  -> prints one JSON line of results
+  bench/police-cartouche.py --octets "<hex …>" <game-run-dir> <sheet-png> [<witness-dir>]
+      -> the test pattern of P_OCTETS (police-cartouche.lua): each byte in 8×16 at $300/$400 + b,
+         classified identique / vide / autre against the SFIX (sfix-vide: the SFIX has no stroke there).
+         The sheet: the SFIX on top, the S ROM below, one byte per column. With a witness
+         (a run of the same list under P_BANQUE=1), "banques" compares the SFIX of the two runs:
+         is the stroke of $300/$400 + b that of $100/$200 + b?
 """
 import json, sys, zlib, struct
 import numpy as np
 
 GLYPHES = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ :-/."
-# octets stockés par pixels() : B, G, R
+# bytes stored by pixels(): B, G, R
 MAG, CYA, JAU = (255, 0, 255), (255, 255, 0), (0, 255, 255)
 
 
@@ -29,7 +29,7 @@ def eq(a, c):
 
 
 def decode(d, src):
-    """Carte d'index 0-15 de l'écran entier ; -1 = incohérent (fond qui imite une couleur)."""
+    """Map of indices 0-15 of the whole screen; -1 = inconsistent (background imitating a colour)."""
     t = charge(d, f"{src}-t")
     nz = eq(t, JAU)
     idx = np.zeros((224, 320), np.int16)
@@ -45,7 +45,7 @@ def decode(d, src):
 
 
 def cases(idx):
-    """glyphe -> (carte 8x8, carte 8x16) d'index."""
+    """glyph -> (8x8 map, 8x16 map) of indices."""
     r = {}
     for i, ch in enumerate(GLYPHES):
         col, k = 4 + i % 21, i // 21
@@ -57,11 +57,11 @@ def cases(idx):
 
 
 def hausdorff(a, b):
-    """Distance de Hausdorff entre deux masques non vides, en pixels, minimisée sur un décalage
-    de -1 à +1 pixel sur chaque axe : le plus grand écart entre un pixel de trait de l'un et le
-    plus proche pixel de trait de l'autre. Elle tolère une autre épaisseur et un autre dessin du
-    même caractère (un trait fin dans un trait gras coûte 1), mais pas un trait manquant ou en
-    trop, qui laisse des pixels loin de tout."""
+    """Hausdorff distance between two non-empty masks, in pixels, minimised over a shift
+    of -1 to +1 pixel on each axis: the largest gap between a stroke pixel of one and the
+    nearest stroke pixel of the other. It tolerates another thickness and another drawing of the
+    same character (a thin stroke inside a bold stroke costs 1), but not a missing or extra
+    stroke, which leaves pixels far from everything."""
     pa = np.argwhere(a)
     pb = np.argwhere(b)
     best = 1e9
@@ -77,8 +77,8 @@ SEUIL = 2.0  # pixels
 
 
 def classe(ch, cart, sfix_tous, k):
-    """identique / lisible / vide / autre, sur le masque du trait (index 1) ;
-    le trait du SFIX est l'index 1 (measured/2026-10-20-sfix-glyphes.tsv, point 6)."""
+    """identique / lisible / vide / autre, on the stroke mask (index 1);
+    the SFIX stroke is index 1 (measured/2026-10-20-sfix-glyphes.tsv, point 6)."""
     mc = cart == 1
     ms = sfix_tous[ch][k] == 1
     if (cart == -1).any():
@@ -87,9 +87,9 @@ def classe(ch, cart, sfix_tous, k):
         return "identique", 1.0
     if not mc.any():
         return "vide", 0.0
-    # lisible : un trait à SEUIL pixels au plus de celui du SFIX, au sens de Hausdorff. L'espace
-    # du SFIX n'a pas de trait : un trait à sa place est « autre ». Le verdict se confirme à l'œil
-    # sur la planche ; il ne dit pas que le caractère est le bon, seulement qu'il en a la forme.
+    # lisible: a stroke at most SEUIL pixels from the SFIX one, in the Hausdorff sense. The SFIX
+    # space has no stroke: a stroke in its place is "autre". The verdict is confirmed by eye
+    # on the sheet; it does not say the character is the right one, only that it has its shape.
     if not ms.any():
         return "autre", -1.0
     h = hausdorff(mc, ms)
@@ -106,12 +106,12 @@ def png(chemin, rgb):
                 + bloc(b"IDAT", zlib.compress(brut, 9)) + bloc(b"IEND", b""))
 
 
-# couleurs de la planche : 0 noir, 1 blanc (le trait), 2 gris foncé, 3-15 bleu, -1 rouge
+# sheet colours: 0 black, 1 white (the stroke), 2 dark grey, 3-15 blue, -1 red
 COUL = {0: (0, 0, 0), 1: (255, 255, 255), 2: (70, 70, 70), -1: (255, 0, 0)}
 
 
 def planche(chemin, cart, sfix, verdicts):
-    """Deux bandes par taille : SFIX en haut, S ROM dessous, un liseré coloré par verdict."""
+    """Two strips per size: SFIX on top, S ROM below, a coloured edge per verdict."""
     Z = 3
     teinte = {"identique": (0, 160, 0), "lisible": (0, 90, 200), "vide": (90, 90, 90),
               "autre": (220, 120, 0), "incoherent": (255, 0, 0)}
@@ -134,9 +134,9 @@ def planche(chemin, cart, sfix, verdicts):
 
 
 def octets(liste, d, sortie, temoin=None):
-    """La mire de P_OCTETS : même découpe que police-cartouche.lua (21 par rangée, colonnes 4 à
-    24, lignes 8-9, 12-13…). Égalité exacte du trait seulement : la question est « la S ROM porte-
-    t-elle ce glyphe du SFIX ? », pas « en a-t-elle un dessin voisin »."""
+    """The test pattern of P_OCTETS: same layout as police-cartouche.lua (21 per row, columns 4 to
+    24, lines 8-9, 12-13…). Exact equality of the stroke only: the question is "does the S ROM carry
+    this SFIX glyph?", not "does it have a similar drawing of it"."""
     c, s = decode(d, "cart"), decode(d, "sfix")
     r, bandes = {}, []
     for i, h in enumerate(liste):
@@ -190,7 +190,7 @@ def main():
         for ch in GLYPHES:
             verdicts[k][ch] = classe(ch, c[ch][k], s, k)
     planche(sortie, c, s, verdicts)
-    # index présents dans la mire, par source et par taille (pour le rapport)
+    # indices present in the test pattern, by source and by size (for the report)
     def index(src, k):
         return sorted({int(v) for ch in GLYPHES for v in np.unique(src[ch][k])})
     print(json.dumps({

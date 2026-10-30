@@ -1,66 +1,66 @@
 | SPDX-License-Identifier: GPL-3.0-or-later
 | Copyright (C) 2026 Thibaut Lion
 | ==================================================================================
-| LE JUKEBOX — ouvert depuis l'écran TEST (`dip.s`, ligne JUKEBOX), hors partie : il
-| envoie au pilote son de la cartouche le code qu'on choisit. Le BIOS n'a pas de programme
-| Z80 à lui.
+| THE JUKEBOX — opened from the TEST screen (`dip.s`, JUKEBOX line), outside a game: it
+| sends to the cartridge's sound driver the code one chooses. The BIOS has no Z80 program
+| of its own.
 |
-| AUCUN ORACLE : ni le BIOS de référence ni un BIOS tiers ne sont lus, ni le code Z80 des
-| cartouches. La remise est « Couche 3 → le jukebox, le 2026-10-21 »
-| (`docs/RELECTURE-CONTRATS.md`). « mesuré » : un relevé nommé ; « lu dans » : une page du
-| NeoGeo Development Wiki ; « SUPPOSÉ » : ni l'un ni l'autre.
+| NO ORACLE: neither the reference BIOS nor a third-party BIOS is read, nor the Z80 code of the
+| cartridges. The hand-over is "Couche 3 → le jukebox, le 2026-10-21"
+| (`docs/RELECTURE-CONTRATS.md`). "measured": a named record; "read in": a page of the
+| NeoGeo Development Wiki; "ASSUMED": neither one nor the other.
 |
-| APPEL : `jsr _jukebox` depuis `dip.s`, %a1 = le bloc soft-DIP de la cartouche (0 s'il est
-| refusé), d'où le nom du jeu. Tous les registres rendus. À l'appel, l'état est celui de
-| l'écran TEST : REG_BRDFIX (police de la carte), le pilote du jeu en boucle en RAM après
-| la poignée de main $01 de `dip.s`, palettes 1-4 de `dip.s` posées dans la banque 0, IRQ
-| masquées. Au retour, le même état, sauf la palette 5 laissée à zéro : `dip.s` n'emploie
-| que 1-4, `tests.s` et `plantage.s` posent les leurs avant usage (lu dans le code).
+| CALL: `jsr _jukebox` from `dip.s`, %a1 = the cartridge's soft-DIP block (0 if it is
+| refused), from which the game's name. All registers returned. On call, the state is that of
+| the TEST screen: REG_BRDFIX (the board's font), the game's driver looping in RAM after
+| the $01 handshake of `dip.s`, palettes 1-4 of `dip.s` set in bank 0, IRQs
+| masked. On return, the same state, except palette 5 left at zero: `dip.s` only uses
+| 1-4, `tests.s` and `plantage.s` set their own before use (read in the code).
 |
-| L'ENTRÉE. REG_CRTFIX rend la M1 de la cartouche au Z80 et la S ROM au plan fixe (lu dans
-| « Memory mapped registers ») ; $03, « soft reset » du Z80, « within 100ms », sans
-| réponse (lu dans « 68k/Z80 communication ») ; puis 8 trames (~135 ms) avant le premier
-| code, comme `menu.s`. Le texte est donc dans la POLICE DE LA CARTOUCHE, aux places du
-| SFIX, en 8×8 (tuile = ASCII) : mesuré, `measured/2026-10-21-police-cartouche.tsv`, 20 jeux
-| identiques au SFIX sur 0-9, A-Z, espace, « : - / . », trally lisible, kof2003 sans rien
-| (ses cases sont des aplats d'index 2) : sur kof2003 l'écran est noir, le son marche.
-| Seuls ces caractères sont employés (pas de « $ » : non mesuré).
-| L'EFFACEMENT : chaque case reçoit la tuile $020 sous la palette 5, dont les 16 entrées
-| sont mises à zéro. Quel que soit le dessin de $020 dans la S ROM, tout index non nul y
-| est noir, comme le fond ; la tuile $FF de FIX_CLEAR n'est pas mesurée sous la S ROM.
-| Le trait à l'index 1 (même relevé) : les palettes 1-4 de `dip.s` portent leur couleur
-| dans l'entrée 1, du noir dans 2 à 15.
+| THE ENTRY. REG_CRTFIX gives the cartridge's M1 back to the Z80 and the S ROM to the fix layer
+| (read in "Memory mapped registers"); $03, Z80 "soft reset", "within 100ms", without
+| reply (read in "68k/Z80 communication"); then 8 frames (~135 ms) before the first
+| code, like `menu.s`. The text is therefore in the CARTRIDGE'S FONT, at the places of the
+| SFIX, in 8×8 (tile = ASCII): measured, `measured/2026-10-21-police-cartouche.tsv`, 20 games
+| identical to the SFIX on 0-9, A-Z, space, ": - / .", trally readable, kof2003 with nothing
+| (its cells are flat fills of index 2): on kof2003 the screen is black, the sound works.
+| Only these characters are used (no "$": not measured).
+| THE CLEARING: each cell receives tile $020 under palette 5, whose 16 entries
+| are set to zero. Whatever the drawing of $020 in the S ROM, any non-zero index is
+| black there, like the background; tile $FF of FIX_CLEAR is not measured under the S ROM.
+| The stroke at index 1 (same record): palettes 1-4 of `dip.s` carry their colour
+| in entry 1, black in 2 to 15.
 |
-| LES CODES. Lu dans « 68k/Z80 communication » : trois codes sont réservés au système —
-| $01 (préparer un changement de slot : le pilote coupe le son, répond $01 et boucle en
-| RAM), $02 (musique de l'eye-catcher, sans réponse), $03 (reset). La page ne donne aucune
-| table des autres, dont le sens dépend du pilote. Ils sont SAUTÉS : le numéro passe de
-| $00 à $04 et de $04 à $00 ; les 253 autres, $00 compris, s'envoient tels quels.
-| « PLAY 07 FIRST IF SILENT » : mesuré (jig `bench/jukebox.lua`, 2026-10-21), aof, kof98,
-| kof2003 ne déclenchent après le $03, avant $07, que $7F ; $07 éteint mslug : on ne
-| l'envoie donc pas d'office, l'aide le dit.
-| COUPER LE SON (B) : la page ne documente aucun code d'arrêt ; on relance le pilote par
-| $03 puis 8 trames. SUPPOSÉ : qu'un pilote fraîchement relancé se taise.
+| THE CODES. Read in "68k/Z80 communication": three codes are reserved for the system —
+| $01 (prepare a slot switch: the driver cuts the sound, replies $01 and loops in
+| RAM), $02 (eye-catcher music, without reply), $03 (reset). The page gives no
+| table of the others, whose meaning depends on the driver. They are SKIPPED: the number goes from
+| $00 to $04 and from $04 to $00; the 253 others, $00 included, are sent as they are.
+| "PLAY 07 FIRST IF SILENT": measured (jig `bench/jukebox.lua`, 2026-10-21), aof, kof98,
+| kof2003 trigger after the $03, before $07, only $7F; $07 switches mslug off: it is therefore
+| not sent by default, the help says so.
+| CUTTING THE SOUND (B): the page documents no stop code; the driver is restarted by
+| $03 then 8 frames. ASSUMED: that a freshly restarted driver goes silent.
 |
-| LES COMMANDES, P1, actives à l'état bas (lu dans « Memory mapped registers » : REG_P1CNT
-| bits 0-5 haut, bas, gauche, droite, A, B ; REG_STATUS_B bit 0 START P1). Haut/bas : ±1,
-| gauche/droite : ±16, avec répétition tenue (20 trames puis toutes les 4 : choix, 256 crans
-| un à un seraient longs). A : envoie le code à REG_SOUND. B : coupe. START : sortie.
+| THE CONTROLS, P1, active low (read in "Memory mapped registers": REG_P1CNT
+| bits 0-5 up, down, left, right, A, B; REG_STATUS_B bit 0 START P1). Up/down: ±1,
+| left/right: ±16, with held repeat (20 frames then every 4: a choice, 256 notches
+| one by one would be long). A: sends the code to REG_SOUND. B: cuts. START: exit.
 |
-| L'ÉCONOMISEUR D'ÉCRAN, le 2026-10-27 (DECISIONS §25, décision de l'utilisateur : copier
-| UniBIOS 4.0). MESURÉ chez lui (`measured/2026-10-27-attentes-reference.tsv`) : dans son JUKEBOX
-| PLAYER seulement, l'écran devient entièrement noir ~7 220 trames (~2 min) après la dernière entrée,
-| la musique continue, une touche rend l'écran. Ici : INACTIF trames sans aucune entrée de P1 (les
-| huit de REG_P1CNT, START), les entrées 1 des palettes 1-4 — les seules couleurs de cet écran, le
-| reste étant noir — sont mises à zéro, juste après le passage de la ligne $1F0 ; le Z80 n'est pas
-| touché. Une entrée tenue les rend, et cette trame-là ne fait rien d'autre : ni code, ni pas, ni
-| sortie ; tenue ensuite, elle n'a plus de front. Les quatre couleurs sont gardées dans %a1 et %a3.
+| THE SCREEN SAVER, on 2026-10-27 (DECISIONS §25, the user's decision: copy
+| UniBIOS 4.0). MEASURED on it (`measured/2026-10-27-attentes-reference.tsv`): in its JUKEBOX
+| PLAYER only, the screen goes entirely black ~7,220 frames (~2 min) after the last input,
+| the music continues, a key brings the screen back. Here: INACTIF frames without any P1 input (the
+| eight of REG_P1CNT, START), entries 1 of palettes 1-4 — the only colours of this screen, the
+| rest being black — are set to zero, just after the passing of line $1F0; the Z80 is not
+| touched. A held input brings them back, and that frame does nothing else: no code, no step, no
+| exit; held afterwards, it no longer has an edge. The four colours are kept in %a1 and %a3.
 |
-| LA SORTIE. La poignée de main $01 de `menu.s` (envoi, une trame, lecture de l'écho,
-| 60 fois au plus — l'écho n'est lu qu'une trame après l'envoi : la dernière réponse du
-| pilote peut déjà valoir $01), une trame, REG_BRDFIX. Le pilote est alors dans sa boucle
-| en RAM, comme `dip.s` l'avait laissé ; `dip.s` fera à sa sortie REG_CRTFIX et $03 comme
-| sans jukebox.
+| THE EXIT. The $01 handshake of `menu.s` (send, one frame, read of the echo,
+| 60 times at most — the echo is read only one frame after the send: the driver's last
+| reply may already be $01), one frame, REG_BRDFIX. The driver is then in its loop
+| in RAM, as `dip.s` had left it; `dip.s` will do REG_CRTFIX and $03 at its exit as
+| without jukebox.
 | ==================================================================================
 
         .section .haut, "ax"
@@ -77,8 +77,8 @@
         .equ    CRTFIX,   0x3A001B
         .equ    PALETTES, 0x400000
 
-        .equ    PAL_VIDE, 5             | la palette d'effacement, toute à zéro
-        | La mise en page, en cases du plan fixe ($7000 + 32 × colonne + ligne).
+        .equ    PAL_VIDE, 5             | the clearing palette, all at zero
+        | The layout, in fix layer cells ($7000 + 32 × column + line).
         .equ    CASE_TITRE, 0x7000 + 3 * 32 + 4
         .equ    CASE_NOM,   0x7000 + 3 * 32 + 6
         .equ    CASE_SON,   0x7000 + 3 * 32 + 12
@@ -87,18 +87,18 @@
         .equ    CASE_AIDE2, 0x7000 + 3 * 32 + 24
         .equ    CASE_AIDE3, 0x7000 + 3 * 32 + 26
         .equ    CASE_AIDE4, 0x7000 + 3 * 32 + 27
-        .equ    DELAI1,   20            | trames avant la répétition
-        .equ    DELAI2,   4             | trames entre deux répétitions
-        .equ    INACTIF,  7100          | trames sans entrée avant l'écran noir : ~2 min à 59,185 Hz
+        .equ    DELAI1,   20            | frames before the repeat
+        .equ    DELAI2,   4             | frames between two repeats
+        .equ    INACTIF,  7100          | frames without input before the black screen: ~2 min at 59.185 Hz
 
-| %d7 : le code ; %d5 : les boutons de la trame d'avant ; %d6 : le compte de répétition ;
-| %a0 : REG_VRAMRW ; %a5 : le bloc soft-DIP.
+| %d7: the code; %d5: the previous frame's buttons; %d6: the repeat count;
+| %a0: REG_VRAMRW; %a5: the soft-DIP block.
 _jukebox:
         movem.l %d0-%d7/%a0-%a6, -(%sp)
         movea.l %a1, %a5
         lea     VRAMRW, %a0
 
-        | L'ENTRÉE : la cartouche au Z80, son pilote relancé, l'écran sous sa S ROM.
+        | THE ENTRY: the cartridge to the Z80, its driver restarted, the screen under its S ROM.
         bsr     .Lsync
         move.b  %d0, CRTFIX
         move.b  #0x03, SOUND
@@ -109,10 +109,10 @@ _jukebox:
         move.w  #1, VRAMMOD
         move.w  #0x7000, VRAMADDR
         move.w  #(PAL_VIDE << 12) + 0x020, %d0
-        move.w  #1280 - 1, %d1          | 18 cycles par tour : au-dessus des 12 (« VRAM »)
+        move.w  #1280 - 1, %d1          | 18 cycles per turn: above the 12 ("VRAM")
 2:      move.w  %d0, (%a0)
         dbra    %d1, 2b
-        move.w  #32, VRAMMOD            | une écriture = une colonne
+        move.w  #32, VRAMMOD            | one write = one column
         move.w  #CASE_TITRE, %d1
         lea     .Ltxt_titre, %a2
         moveq   #L_TITRE, %d4
@@ -120,7 +120,7 @@ _jukebox:
         bsr     .Lecrire
         move.l  %a5, %d0
         beq.s   3f
-        move.w  #CASE_NOM, %d1          | le nom du jeu, octets $00-$0F du bloc
+        move.w  #CASE_NOM, %d1          | the game's name, bytes $00-$0F of the block
         movea.l %a5, %a2
         moveq   #16, %d4
         move.w  #0x3000, %d3
@@ -152,25 +152,25 @@ _jukebox:
         bsr     .Lecrire
         moveq   #0, %d7
         bsr     .Lcode
-        bsr     .Lattendre              | le pilote repart avant le premier code
+        bsr     .Lattendre              | the driver restarts before the first code
         moveq   #0, %d5
-        bsr     .Lentrees               | un bouton déjà tenu (le A qui ouvre) ne compte pas
-        moveq   #0, %d6                 | 0 : pas de répétition armée (voir LES DIRECTIONS)
-        moveq   #0, %d3                 | %d3 : les trames sans entrée (L'ÉCONOMISEUR)
+        bsr     .Lentrees               | a button already held (the A that opens) does not count
+        moveq   #0, %d6                 | 0: no repeat armed (see THE DIRECTIONS)
+        moveq   #0, %d3                 | %d3: the frames without input (THE SCREEN SAVER)
 
-| LA BOUCLE, une trame par tour.
+| THE LOOP, one frame per turn.
 .Lboucle:
         bsr     .Lsync
-        bsr     .Lentrees               | %d0 les fronts, %d5 l'état
-        | L'ÉCONOMISEUR (voir l'en-tête) : %d3 s'arrête à INACTIF, l'écran noir.
-        move.l  %d0, %d1                | les fronts gardés
-        jsr     _panneau_p1             | %d0 : P1, manette ou panneau traduit (`panneau.s`)
+        bsr     .Lentrees               | %d0 the edges, %d5 the state
+        | THE SCREEN SAVER (see the header): %d3 stops at INACTIF, the screen black.
+        move.l  %d0, %d1                | the edges kept
+        jsr     _panneau_p1             | %d0: P1, joystick or translated panel (`panneau.s`)
         exg     %d0, %d1
         not.b   %d1
-        or.b    %d5, %d1                | C et D comptent aussi, que `.Lentrees` ne lit pas
+        or.b    %d5, %d1                | C and D count too, which `.Lentrees` does not read
         bne.s   8f
         cmpi.w  #INACTIF, %d3
-        bcc.s   9f                      | déjà noir
+        bcc.s   9f                      | already black
         addq.w  #1, %d3
         cmpi.w  #INACTIF, %d3
         bcs.s   9f
@@ -178,25 +178,25 @@ _jukebox:
         bra     .Lboucle
 8:      cmpi.w  #INACTIF, %d3
         bcs.s   7f
-        bsr     .Lrallumer              | la trame du réveil ne fait rien d'autre
+        bsr     .Lrallumer              | the wake-up frame does nothing else
         moveq   #0, %d3
         moveq   #0, %d6
         bra     .Lboucle
 7:      moveq   #0, %d3
 9:      btst    #6, %d0
         bne     .Lsortie
-        btst    #4, %d0                 | A : le code au pilote
+        btst    #4, %d0                 | A: the code to the driver
         beq.s   1f
         move.b  %d7, SOUND
         bra     .Lboucle
-1:      btst    #5, %d0                 | B : le pilote relancé
+1:      btst    #5, %d0                 | B: the driver restarted
         beq.s   2f
         move.b  #0x03, SOUND
         bsr     .Lattendre
         bra     .Lboucle
-        | LES DIRECTIONS : un front agit et arme DELAI1 ; tenues, elles agissent quand le
-        | compte tombe à zéro, puis toutes les DELAI2 trames. %d6 à 0, rien n'est armé : une
-        | direction déjà tenue à l'ouverture ne répète jamais avant d'avoir été relâchée.
+        | THE DIRECTIONS: an edge acts and arms DELAI1; held, they act when the
+        | count falls to zero, then every DELAI2 frames. %d6 at 0, nothing is armed: a
+        | direction already held at opening never repeats before having been released.
 2:      move.b  %d0, %d2
         andi.b  #0x0F, %d2
         beq.s   3f
@@ -206,26 +206,26 @@ _jukebox:
         andi.b  #0x0F, %d2
         beq     .Lboucle
         tst.w   %d6
-        beq     .Lboucle                | rien d'armé
+        beq     .Lboucle                | nothing armed
         subq.w  #1, %d6
         bne     .Lboucle
         moveq   #DELAI2, %d6
-4:      moveq   #1, %d1                 | haut
+4:      moveq   #1, %d1                 | up
         btst    #0, %d2
         bne.s   5f
-        moveq   #-1, %d1                | bas
+        moveq   #-1, %d1                | down
         btst    #1, %d2
         bne.s   5f
-        moveq   #16, %d1                | droite
+        moveq   #16, %d1                | right
         btst    #3, %d2
         bne.s   5f
-        moveq   #-16, %d1               | gauche
+        moveq   #-16, %d1               | left
 5:      add.b   %d1, %d7                | modulo 256
         cmpi.b  #1, %d7
         bcs.s   6f
         cmpi.b  #3, %d7
         bhi.s   6f
-        moveq   #4, %d7                 | $01-$03 réservés : sautés dans le sens du pas
+        moveq   #4, %d7                 | $01-$03 reserved: skipped in the direction of the step
         tst.b   %d1
         bpl.s   6f
         moveq   #0, %d7
@@ -233,19 +233,19 @@ _jukebox:
         bsr     .Lcode
         bra     .Lboucle
 
-| LA SORTIE : le pilote en boucle en RAM, puis la police de la carte (voir l'en-tête).
+| THE EXIT: the driver looping in RAM, then the board's font (see the header).
 .Lsortie:
         moveq   #60 - 1, %d4
 1:      move.b  #0x01, SOUND
         bsr     .Lsync
         cmpi.b  #0x01, SOUND
         dbeq    %d4, 1b
-        bsr     .Lsync                  | une trame pour que le pilote entre en boucle
+        bsr     .Lsync                  | one frame for the driver to enter its loop
         move.b  %d0, BRDFIX
         movem.l (%sp)+, %d0-%d7/%a0-%a6
         rts
 
-| L'ÉCRAN NOIR, puis rendu : les entrées 1 des palettes 1-4, gardées dans %a1 (1, 2) et %a3 (3, 4).
+| THE BLACK SCREEN, then restored: entries 1 of palettes 1-4, kept in %a1 (1, 2) and %a3 (3, 4).
 | Clobbers %d1.
 .Leteindre:
         move.w  PALETTES + 1 * 32 + 2, %d1
@@ -272,10 +272,10 @@ _jukebox:
         move.w  %d1, PALETTES + 3 * 32 + 2
         rts
 
-| LES BOUTONS. Bits : 0 haut, 1 bas, 2 gauche, 3 droite, 4 A, 5 B, 6 START. %d5 l'état
-| d'avant, mis à jour ; %d0 les fronts. Clobbers %d1, %d2.
+| THE BUTTONS. Bits: 0 up, 1 down, 2 left, 3 right, 4 A, 5 B, 6 START. %d5 the previous
+| state, updated; %d0 the edges. Clobbers %d1, %d2.
 .Lentrees:
-        jsr     _panneau_p1             | %d0 : P1, manette ou panneau traduit (`panneau.s`)
+        jsr     _panneau_p1             | %d0: P1, joystick or translated panel (`panneau.s`)
         move.b  %d0, %d2
         not.b   %d2
         andi.b  #0x3F, %d2
@@ -290,7 +290,7 @@ _jukebox:
         move.b  %d2, %d5
         rts
 
-| LE CODE %d7, deux chiffres hexadécimaux sous la palette 2. Clobbers %d0, %d1, %a2.
+| THE CODE %d7, two hexadecimal digits under palette 2. Clobbers %d0, %d1, %a2.
 .Lcode:
         lea     .Lchiffres, %a2
         move.w  #CASE_CODE, VRAMADDR
@@ -309,15 +309,15 @@ _jukebox:
         move.w  %d1, (%a0)
         rts
 
-| HUIT TRAMES (~135 ms), après un $03 : « within 100ms ». Clobbers %d0, %d4.
+| EIGHT FRAMES (~135 ms), after a $03: "within 100ms". Clobbers %d0, %d4.
 .Lattendre:
         moveq   #8 - 1, %d4
 1:      bsr.s   .Lsync
         dbra    %d4, 1b
         rts
 
-| ÉCRIRE %d4 caractères de %a2 à partir de la case %d1, REG_VRAMMOD à 32, comme `dip.s`.
-| %d3 : palette << 12. Hors de $20-$7E, une espace. Clobbers %d2, %d4, %a2.
+| WRITE %d4 characters of %a2 from cell %d1, REG_VRAMMOD at 32, like `dip.s`.
+| %d3: palette << 12. Outside $20-$7E, a space. Clobbers %d2, %d4, %a2.
 .Lecrire:
         move.w  %d1, VRAMADDR
         subq.w  #1, %d4
@@ -333,9 +333,9 @@ _jukebox:
         dbra    %d4, 1b
         rts
 
-| LE PASSAGE DE LA LIGNE $1F0, comme `dip.s` ; watchdog à chaque tour. Clobbers %d0.
-| BORNÉE à SYNC_TOURS tours par attente, ≈ 2 trames, ligne vue ou non : le compte est dans
-| `ecran.s`, dont c'est la copie identique.
+| THE PASSING OF LINE $1F0, like `dip.s`; watchdog at each turn. Clobbers %d0.
+| BOUNDED to SYNC_TOURS turns per wait, ≈ 2 frames, line seen or not: the count is in
+| `ecran.s`, of which this is the identical copy.
         .equ    SYNC_TOURS, 5800
 .Lsync:
         move.l  %d1, -(%sp)
@@ -355,7 +355,7 @@ _jukebox:
         rts
 
 | ----------------------------------------------------------------------------------
-| LES DONNÉES : les seuls caractères mesurés dans la police des cartouches.
+| THE DATA: the only characters measured in the cartridges' font.
         .balign 2
 .Lchiffres:
         .ascii  "0123456789ABCDEF"

@@ -1,73 +1,73 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 -- Copyright (C) 2026 Thibaut Lion
--- Jig du multi-slot, sans fenêtre : ce que le BIOS fait sur une carte à plusieurs emplacements
--- (la machine `neogeo` de MAME est une MV-6F, `-cart1` … `-cart6`). Mesure seulement : il ne
--- presse que les entrées qu'on lui donne, et ne touche à rien d'autre — sauf, si on le lui
--- demande, les octets que MS_POSER écrit dans la RAM du jeu.
+-- Multi-slot jig, no window: what the BIOS does on a board with several slots
+-- (MAME's `neogeo` machine is an MV-6F, `-cart1` … `-cart6`). Measurement only: it
+-- presses only the inputs it is given, and touches nothing else — except, if asked
+-- to, the bytes that MS_POSER writes into the game's RAM.
 --
 --   SDL_VIDEODRIVER=dummy SDL_MAC_BACKGROUND_APP=1 MS_OUT=<sortie.tsv> \
 --   mame neogeo -bios euro -hashpath <mame>/hash -rompath $ROMS \
 --     -cart1 puzzledp -cart2 aof -video none -sound none -nothrottle \
 --     -nvram_directory <neuf> -autoboot_script bench/multislot.lua
 --
--- Les jeux se nomment par la liste logicielle `neogeo` ; sans `-hashpath` vers le `hash/` de
--- MAME, elle est introuvable et `-cart1 puzzledp` échoue (« No such file or directory »).
+-- The games are named through the `neogeo` software list; without `-hashpath` to MAME's
+-- `hash/`, it cannot be found and `-cart1 puzzledp` fails ("No such file or directory").
 --
--- Réglages par l'environnement, un lua d'autoboot ne recevant pas d'arguments :
---   MS_OUT        TSV de sortie (obligatoire), une ligne par évènement
---   MS_FIN        dernière trame (défaut 6000) ; la machine s'arrête juste après
---   MS_ENTREES    entrées à presser, « trame:nom[:durée] » séparées par des virgules, durée 8 par
---                 défaut. Noms : piece, start, start2, suivant, precedent (les deux boutons de
---                 choix du jeu d'une MVS, « Next Game » / « Previous Game » chez MAME), a, test
---   MS_IMAGES     trames où écrire l'écran brut (bgra, 320 × 224) dans MS_DIR, séparées par des
---                 virgules
---   MS_DIR        dossier des captures (défaut : celui de MS_OUT)
---   MS_CAPT_USER  n : une capture n trames après chaque remise de la main à l'entrée USER
---                 ($000122), 60 au plus — l'écran du jeu que le BIOS vient de lancer
---   MS_PLAFOND    lignes au plus par adresse bruyante (défaut 200, voir « le bruit »)
---   MS_SONDE_PROM 1 : relève aussi les plages de la P-ROM de la cartouche que le BIOS lit
---   MS_DETAIL     <de>-<a> : chaque lecture du BIOS hors de sa ROM et de la RAM de travail, sur
---                 ces trames (voir plus bas)
---   MS_SONDE_M1   1 : la M1 que voit le Z80 (slot reconnu), sous REG_CRTFIX seulement (voir plus bas)
---   MS_LECT_JEU   1 : les lectures que fait le JEU dans $D00000-$D003FF (zone système de la backup
---                 RAM), comptées par adresse et sorties au bilan (genre R, « lu par jeu ») — pour
---                 savoir si un jeu lit une cellule que le BIOS y tient
---   MS_PLAGES     1 : les sauvegardes de jeu, en plages par trame (genre P, voir plus bas), et
---                 chaque entrée de SYSTEM_RETURN avec son code (ligne E « C00444 »)
---   MS_VIDAGES    trames où écrire la zone de sauvegarde du jeu servi et son bloc de backup RAM,
---                 en hexadécimal, dans MS_DIR (voir plus bas)
---   MS_POSER      <trame>@<adresse>=<octets hex>, séparés par des virgules : écrit ces octets
---                 dans la RAM de travail du jeu en fin de trame (voir plus bas)
---   MS_SUIVRE     adresses hexadécimales d'octets de RAM ou de backup RAM, séparées par des
---                 virgules ($100000-$10FFFF et $D00000-$D0FFFF seulement) : en fin de trame, une
---                 ligne E par octet dont la valeur a changé — le crédit $D00034, le mode et la
---                 demande $10FDAF/$10FDAE à travers un geste, sans dépendre de qui les écrit
+-- Settings through the environment, since an autoboot lua receives no arguments:
+--   MS_OUT        output TSV (mandatory), one line per event
+--   MS_FIN        last frame (default 6000); the machine stops just after
+--   MS_ENTREES    inputs to press, "frame:name[:duration]" separated by commas, duration 8 by
+--                 default. Names: piece, start, start2, suivant, precedent (the two game
+--                 selection buttons of an MVS, "Next Game" / "Previous Game" in MAME), a, test
+--   MS_IMAGES     frames at which to write the raw screen (bgra, 320 × 224) into MS_DIR, separated by
+--                 commas
+--   MS_DIR        folder of the captures (default: that of MS_OUT)
+--   MS_CAPT_USER  n: a capture n frames after each hand-over of control to the USER entry
+--                 ($000122), 60 at most — the screen of the game the BIOS has just launched
+--   MS_PLAFOND    lines at most per noisy address (default 200, see "the noise")
+--   MS_SONDE_PROM 1: also records the ranges of the cartridge's P-ROM that the BIOS reads
+--   MS_DETAIL     <de>-<a>: each read by the BIOS outside its ROM and the work RAM, over
+--                 these frames (see below)
+--   MS_SONDE_M1   1: the M1 the Z80 sees (slot recognised), under REG_CRTFIX only (see below)
+--   MS_LECT_JEU   1: the reads the GAME makes in $D00000-$D003FF (system zone of the backup
+--                 RAM), counted per address and output in the summary (kind R, "lu par jeu") — to
+--                 know whether a game reads a cell that the BIOS keeps there
+--   MS_PLAGES     1: the game saves, as ranges per frame (kind P, see below), and
+--                 each entry of SYSTEM_RETURN with its code (line E "C00444")
+--   MS_VIDAGES    frames at which to write the save zone of the served game and its backup RAM block,
+--                 in hexadecimal, into MS_DIR (see below)
+--   MS_POSER      <trame>@<adresse>=<octets hex>, separated by commas: writes these bytes
+--                 into the game's work RAM at the end of the frame (see below)
+--   MS_SUIVRE     hexadecimal addresses of RAM or backup RAM bytes, separated by
+--                 commas ($100000-$10FFFF and $D00000-$D0FFFF only): at the end of the frame, one
+--                 E line per byte whose value has changed — the credit $D00034, the mode and the
+--                 request $10FDAF/$10FDAE through a gesture, without depending on who writes them
 --
--- CE QUI EST RELEVÉ — des adresses de registres et de RAM avec les valeurs écrites ; ce jig ne
--- consigne aucun PC ni aucun octet lu dans la ROM du BIOS (`docs/DECISIONS.md` §8). Le PC n'est lu que pour dire QUI
--- écrit (bios s'il est dans $C00000-$C1FFFF, jeu sinon), et ce côté seul est écrit :
---   - les écritures sur $380000-$3800FF (REG_SLOT à $380021, sorties EL/LED…) et sur les bascules
---     système $3A0000-$3A001F (BRDFIX, CRTFIX, SWPROM, SRAMLOCK…) ;
---   - REG_SOUND : chaque écriture, et par trame le nombre de lectures et combien rendaient $01,
---     l'écho de « 68k/Z80 communication » ;
---   - par trame, le nombre de lectures de REG_STATUS_B ($380000), REG_P1CNT / REG_DIPSW
---     ($300000/1), REG_SYSTYPE ($300081) et REG_STATUS_A ($320001), quand il change ;
---   - les lectures de l'en-tête de cartouche $000100-$00013F faites par le BIOS, avec le slot
---     que désigne le NGH lu à $000108 (comparé à celui de chaque région `:cslotN:maincpu` : seule
---     la ROM des JEUX est relue) ; la lecture de $000122, l'entrée USER, avec la demande et le
---     mode du moment ;
---   - les écritures en backup RAM : une par une sur $D00000-$D003FF, résumées au-delà de 400 par
---     trame (un remplissage : compte et valeurs distinctes), comptées par trame au-delà ; une
---     valeur qui pourrait former une adresse de la ROM du BIOS sort « retenu » (voir le garde) ;
---   - les écritures sur quelques variables du BIOS ($10FCEF, $10FD80-$10FD83, $10FDAE, $10FDAF,
---     $10FEE1), une ligne quand la valeur change pour un écrivain donné ;
---   - en fin de trame : le côté qui a la main quand il change, et le slot dont MAME sert alors la
---     P-ROM (le NGH à $000108, relu par le jig hors des taps) quand il change.
+-- WHAT IS RECORDED — register and RAM addresses with the values written; this jig logs
+-- no PC nor any byte read in the BIOS ROM (`docs/DECISIONS.md` §8). The PC is read only to tell WHO
+-- writes (bios if it is in $C00000-$C1FFFF, game otherwise), and only that side is written:
+--   - the writes to $380000-$3800FF (REG_SLOT at $380021, EL/LED outputs…) and to the system
+--     latches $3A0000-$3A001F (BRDFIX, CRTFIX, SWPROM, SRAMLOCK…);
+--   - REG_SOUND: each write, and per frame the number of reads and how many returned $01,
+--     the echo of "68k/Z80 communication";
+--   - per frame, the number of reads of REG_STATUS_B ($380000), REG_P1CNT / REG_DIPSW
+--     ($300000/1), REG_SYSTYPE ($300081) and REG_STATUS_A ($320001), when it changes;
+--   - the reads of the cartridge header $000100-$00013F made by the BIOS, with the slot
+--     that the NGH read at $000108 designates (compared with that of each region `:cslotN:maincpu`: only
+--     the ROM of the GAMES is reread); the read of $000122, the USER entry, with the request and the
+--     mode of the moment;
+--   - the writes to backup RAM: one by one on $D00000-$D003FF, summarised beyond 400 per
+--     frame (a fill: count and distinct values), counted per frame beyond that; a
+--     value that could form an address of the BIOS ROM comes out "retenu" (see the guard);
+--   - the writes to a few BIOS variables ($10FCEF, $10FD80-$10FD83, $10FDAE, $10FDAF,
+--     $10FEE1), one line when the value changes for a given writer;
+--   - at the end of the frame: the side that has control when it changes, and the slot whose
+--     P-ROM MAME then serves (the NGH at $000108, reread by the jig outside the taps) when it changes.
 --
--- Colonnes : trame, fraction de trame écoulée (l'écran ne donne pas sa ligne à lua, l'horloge de
--- la machine si), genre (W écriture, R lecture, E état, I entrée, B bilan du bruit), adresse,
--- valeur, dernière valeur écrite dans REG_SLOT, note. Les lignes mises en tampon (backup RAM,
--- en-tête) sortent en fin de trame : trier sur (trame, fraction) pour la chronologie.
+-- Columns: frame, fraction of the frame elapsed (the screen does not give its line to lua, the
+-- machine's clock does), kind (W write, R read, E state, I input, B noise summary), address,
+-- value, last value written to REG_SLOT, note. The buffered lines (backup RAM,
+-- header) come out at the end of the frame: sort on (frame, fraction) for the chronology.
 if _G.MULTISLOT then return end
 _G.MULTISLOT = {}
 local G = _G.MULTISLOT
@@ -86,7 +86,7 @@ local cpu = m.devices[":maincpu"]
 local p = cpu.spaces["program"]
 local ecran = m.screens:at(1)
 
--- Le NGH de chaque cartouche montée, lu dans la ROM du jeu ($108, mot BCD de l'en-tête).
+-- The NGH of each mounted cartridge, read in the game's ROM ($108, BCD word of the header).
 local ngh = {}
 for k = 1, 6 do
   local r = m.memory.regions[":cslot" .. k .. ":maincpu"]
@@ -118,7 +118,7 @@ local function ligne(genre, adr, val, note)
 end
 local function cote() return (cpu.state["PC"].value & 0xFFFFFF) >= 0xC00000 and "bios" or "jeu" end
 
--- Un tap reçoit l'adresse paire du mot et le masque des octets touchés : on rend chaque octet.
+-- A tap receives the even address of the word and the mask of the bytes touched: each byte is returned.
 local function octets(off, data, mask, fn)
   if mask & 0xFF00 ~= 0 then fn(off, (data >> 8) & 0xFF) end
   if mask & 0x00FF ~= 0 then fn(off + 1, data & 0xFF) end
@@ -135,10 +135,10 @@ local NOMS = {
   [0x3A001F] = "REG_PALBANK1",
 }
 
--- LE BRUIT. Une adresse réécrite à l'identique ne fait pas de ligne, et une adresse qui en a
--- déjà fait PLAFOND n'en fait plus : ses écritures se comptent et sortent en fin de run (genre
--- « B »). Sans cela, les sorties EL/LED et les compteurs de la backup RAM, réécrits à chaque
--- trame, font 99 % du relevé. REG_SLOT et les bascules de ROM échappent aux deux filtres.
+-- THE NOISE. An address rewritten identically makes no line, and an address that has
+-- already made PLAFOND lines makes no more: its writes are counted and come out at the end of the run (kind
+-- "B"). Without that, the EL/LED outputs and the backup RAM counters, rewritten at each
+-- frame, make up 99% of the record. REG_SLOT and the ROM latches escape both filters.
 local der_val, n_lig, tues, ident = {}, {}, {}, {}
 local function plafond(adr)
   n_lig[adr] = (n_lig[adr] or 0) + 1
@@ -153,12 +153,12 @@ end
 local LIBRES = { [0x380021] = true, [0x3A000B] = true, [0x3A001B] = true, [0x3A0013] = true,
   [0x3A0003] = true }
 
--- MS_SONDE_M1=1 : QUELLE M1 LE Z80 VOIT, juste avant chaque écriture de REG_SLOT, REG_BRDFIX,
--- REG_CRTFIX ou REG_SOUND et en fin de trame ; une ligne E « Z80:0000 » quand ça change. Sous
--- REG_CRTFIX seulement : les 256 premiers octets de l'espace du Z80 sont comparés à ceux de la
--- région `:cslotN:audiocpu` de chaque cartouche montée, et seul le slot reconnu sort. Sous
--- REG_BRDFIX, c'est la SM1 de la carte, une ROM SNK : rien n'est lu (`docs/DECISIONS.md` §8).
--- Le tap passe AVANT l'écriture qu'il voit : la ligne dit l'état qu'elle va changer.
+-- MS_SONDE_M1=1: WHICH M1 THE Z80 SEES, just before each write to REG_SLOT, REG_BRDFIX,
+-- REG_CRTFIX or REG_SOUND and at the end of the frame; an E line "Z80:0000" when it changes. Under
+-- REG_CRTFIX only: the first 256 bytes of the Z80's space are compared with those of the
+-- region `:cslotN:audiocpu` of each mounted cartridge, and only the recognised slot comes out. Under
+-- REG_BRDFIX, it is the board's SM1, an SNK ROM: nothing is read (`docs/DECISIONS.md` §8).
+-- The tap runs BEFORE the write it sees: the line tells the state that the write is going to change.
 local SONDE_M1 = os.getenv("MS_SONDE_M1") == "1"
 local fixe, m1_avant = "brd", nil
 local z80 = SONDE_M1 and m.devices[":audiocpu"].spaces["program"]
@@ -190,8 +190,8 @@ G.t_io = p:install_write_tap(0x380000, 0x3800FF, "ms_io", function(off, data, ma
     end
   end)
 end)
--- Les bascules système vont par paires, le bit 4 de l'adresse faisant la donnée (« Memory
--- mapped registers ») : la « valeur » filtrée est donc la moitié de la paire touchée.
+-- The system latches go in pairs, bit 4 of the address being the data ("Memory
+-- mapped registers"): the filtered "value" is therefore the half of the pair touched.
 G.t_sys = p:install_write_tap(0x3A0000, 0x3A001F, "ms_sys", function(off, data, mask)
   if interne then return end
   octets(off, data, mask, function(a, v)
@@ -206,12 +206,12 @@ G.t_sys = p:install_write_tap(0x3A0000, 0x3A001F, "ms_sys", function(off, data, 
   end)
 end)
 
--- Les lectures de registres d'état se comptent par trame ; le compte ne fait une ligne que quand
--- il diffère de celui de la trame précédente. Leur valeur est une entrée, pas un fait du BIOS.
+-- The reads of status registers are counted per frame; the count makes a line only when
+-- it differs from that of the previous frame. Their value is an input, not a fact of the BIOS.
 local lect, lect_avant = {}, {}
 local function compter(nom) lect[nom] = (lect[nom] or 0) + 1 end
 
--- REG_SOUND : écritures une par une, lectures comptées par trame.
+-- REG_SOUND: writes one by one, reads counted per frame.
 local son_lect, son_echo = 0, 0
 G.t_sonw = p:install_write_tap(0x320000, 0x320001, "ms_sonw", function(off, data, mask)
   if interne then return end
@@ -228,8 +228,8 @@ G.t_sonr = p:install_read_tap(0x320000, 0x320001, "ms_sonr", function(off, data,
   end
   if mask & 0x00FF ~= 0 then compter("320001 REG_STATUS_A") end
 end)
--- REG_STATUS_B porte les boutons de choix du jeu : sa valeur lue (une entrée de la carte, pas un
--- octet du BIOS) fait une ligne quand elle change, pour voir si un geste arrive jusqu'au 68000.
+-- REG_STATUS_B carries the game selection buttons: its value read (an input of the board, not a
+-- byte of the BIOS) makes a line when it changes, to see whether a gesture reaches the 68000.
 local stb_avant
 G.t_stb = p:install_read_tap(0x380000, 0x380001, "ms_stb", function(off, data, mask)
   if interne then return end
@@ -248,10 +248,10 @@ G.t_st = p:install_read_tap(0x300080, 0x300081, "ms_st", function(off, data, mas
   if not interne then compter("300081 REG_SYSTYPE") end
 end)
 
--- L'en-tête de cartouche lu par le BIOS : une ligne par lecture, au plus 64 par trame (au-delà,
--- un résumé). À $000108, le slot que désigne le NGH lu — la valeur n'est écrite que si elle ne
--- désigne aucune cartouche montée, c'est-à-dire ce que MAME rend pour un emplacement vide.
--- Les lectures de la cartouche elle-même ne sont que comptées.
+-- The cartridge header read by the BIOS: one line per read, at most 64 per frame (beyond that,
+-- a summary). At $000108, the slot that the NGH read designates — the value is written only if it
+-- designates no mounted cartridge, that is, what MAME returns for an empty slot.
+-- The reads by the cartridge itself are only counted.
 local ent_tampon, ent_n, ent_jeu, ent_jeu_avant = {}, 0, 0, 0
 G.t_ent = p:install_read_tap(0x000100, 0x00013F, "ms_ent", function(off, data, mask)
   if interne then return end
@@ -273,8 +273,8 @@ G.t_ent = p:install_read_tap(0x000100, 0x00013F, "ms_ent", function(off, data, m
   if ent_n <= 64 then ent_tampon[#ent_tampon + 1] = { trame, fraction(), off, reg_slot, note } end
 end)
 
--- MS_SONDE_PROM=1 : toute lecture de $000000-$0FFFFF faite PAR LE BIOS, résumée par trame en
--- plages de 256 octets. Coûteux, le tap voyant chaque lecture du jeu : pour une passe courte.
+-- MS_SONDE_PROM=1: every read of $000000-$0FFFFF made BY THE BIOS, summarised per frame in
+-- ranges of 256 bytes. Costly, the tap seeing every read by the game: for a short pass.
 local prom = {}
 if os.getenv("MS_SONDE_PROM") == "1" then
   G.t_prom = p:install_read_tap(0x000000, 0x0FFFFF, "ms_prom", function(off, data, mask)
@@ -284,9 +284,9 @@ if os.getenv("MS_SONDE_PROM") == "1" then
   end)
 end
 
--- MS_DETAIL=<de>-<a> : pendant ces trames, chaque lecture faite par le BIOS hors de sa ROM et de
--- la RAM de travail (P-ROM, zone banquée, registres, palette, carte mémoire, backup RAM), une
--- ligne par lecture, adresse seule. Pour voir ce que le BIOS interroge autour d'un geste.
+-- MS_DETAIL=<de>-<a>: during these frames, each read made by the BIOS outside its ROM and
+-- the work RAM (P-ROM, banked zone, registers, palette, memory card, backup RAM), one
+-- line per read, address only. To see what the BIOS queries around a gesture.
 local det_de, det_a = (os.getenv("MS_DETAIL") or ""):match("^(%d+)-(%d+)$")
 det_de, det_a = tonumber(det_de), tonumber(det_a)
 if det_de then
@@ -304,21 +304,21 @@ if det_de then
   G.d4 = tap_detail(0xD00000, 0xD0FFFF)
 end
 
--- UN CHANGEMENT DE SLOT EFFACE LES TAPS DE LA CARTOUCHE. MAME réinstalle les gestionnaires de
--- $000000-$0FFFFF et de la zone banquée sur le slot choisi, et ce faisant écrase les taps posés
--- dessus : mesuré, aucune lecture d'en-tête n'était plus vue après la première écriture de
--- REG_SLOT, alors que la backup RAM recevait le NGH du slot suivant. Le tap de REG_SLOT ne peut
--- pas les reposer lui-même (il passe AVANT l'écriture) : il lève un drapeau, et le tap posé sur
--- la ROM du BIOS les réinstalle à la deuxième lecture qui suit — la première peut être le
--- préchargement de l'instruction suivante, fait avant l'écriture. Ce tap ne relève RIEN : il ne
--- sert que de signal, et ni l'adresse ni la valeur qu'il voit ne sortent du jig.
+-- A SLOT CHANGE ERASES THE CARTRIDGE TAPS. MAME reinstalls the handlers of
+-- $000000-$0FFFFF and of the banked zone on the selected slot, and in doing so overwrites the taps set
+-- on them: measured, no header read was seen any more after the first write to
+-- REG_SLOT, while the backup RAM received the NGH of the next slot. The REG_SLOT tap cannot
+-- set them again itself (it runs BEFORE the write): it raises a flag, and the tap set on
+-- the BIOS ROM reinstalls them at the second read that follows — the first may be the
+-- prefetch of the next instruction, done before the write. This tap records NOTHING: it
+-- serves only as a signal, and neither the address nor the value it sees leave the jig.
 local function retaper()
   G.retaper = false
   for _, k in ipairs({ "t_ent", "t_prom", "d1", "d2" }) do if G[k] then G[k]:reinstall() end end
 end
--- Avec MS_PLAGES, chaque entrée de SYSTEM_RETURN sort aussi une ligne E « C00444 » (point
--- d'entrée public) portant le code que le jeu laisse dans BIOS_SYSRET_STATUS ($10FD81, RAM) :
--- une par trame au plus, le préchargement pouvant relire l'adresse.
+-- With MS_PLAGES, each entry of SYSTEM_RETURN also outputs an E line "C00444" (public entry
+-- point) carrying the code the game leaves in BIOS_SYSRET_STATUS ($10FD81, RAM):
+-- one per frame at most, the prefetch being able to reread the address.
 G.t_signal = p:install_read_tap(0xC00000, 0xC1FFFF, "ms_signal", function(off)
   if off == 0xC00444 and G.pl_ecouter then
     if os.getenv("MS_PLAGES") == "1" and G.sysret_trame ~= trame then
@@ -335,19 +335,19 @@ G.t_signal = p:install_read_tap(0xC00000, 0xC1FFFF, "ms_signal", function(off)
   if G.attente <= 0 then retaper() end
 end)
 
--- MS_PLAGES=1 : LES SAUVEGARDES DE JEU. Ce que le BIOS lit et écrit, par trame, en plages
--- contiguës d'octets : dans la backup RAM dès $D00320, où commence la première sauvegarde
--- (mesuré ; ses écritures sous $D00400 sortent aussi ligne à ligne), et dans la RAM de travail du
--- jeu $100000-$10F2FF, lectures et écritures. Une ligne « P » par plage : début et fin, nombre
--- d'accès, et pour une écriture la somme sur 16 bits des octets écrits — de quoi dire qu'une
--- recopie emporte ce qu'elle a lu, sans sortir un octet. Les valeurs sont celles du
--- jeu (sa RAM, sa sauvegarde), jamais un octet de la ROM du BIOS (`docs/DECISIONS.md` §8).
--- La RAM de travail n'est écoutée que pendant que le BIOS a la main : du boot à la première
--- remise ($000122 lue par le BIOS), puis de chaque entrée de SYSTEM_RETURN ($C00444, point
--- d'entrée public, vu par le tap-signal plus bas et non relevé) à la remise suivante — sinon
--- chaque accès du jeu passerait par lua. Une remise ferme l'écoute à la fin de sa trame.
+-- MS_PLAGES=1: THE GAME SAVES. What the BIOS reads and writes, per frame, in contiguous
+-- ranges of bytes: in the backup RAM from $D00320, where the first save begins
+-- (measured; its writes below $D00400 also come out line by line), and in the game's work
+-- RAM $100000-$10F2FF, reads and writes. One "P" line per range: start and end, number
+-- of accesses, and for a write the 16-bit sum of the bytes written — enough to tell that a
+-- copy carries what it read, without outputting a byte. The values are those of the
+-- game (its RAM, its save), never a byte of the BIOS ROM (`docs/DECISIONS.md` §8).
+-- The work RAM is listened to only while the BIOS has control: from boot to the first
+-- hand-over ($000122 read by the BIOS), then from each entry of SYSTEM_RETURN ($C00444, public
+-- entry point, seen by the signal tap further down and not recorded) to the next hand-over — otherwise
+-- every access by the game would go through lua. A hand-over closes the listening at the end of its frame.
 local PLAGES = os.getenv("MS_PLAGES") == "1"
-local pl = { bw = {}, br = {}, rw = {}, rr = {} }   -- adresse → compte ; bw/rw : et somme
+local pl = { bw = {}, br = {}, rw = {}, rr = {} }   -- address → count; bw/rw: and sum
 local pl_somme = { bw = {}, rw = {} }
 local function pl_note(t, a, v)
   pl[t][a] = (pl[t][a] or 0) + 1
@@ -399,16 +399,16 @@ if PLAGES then
   end)
 end
 
--- Backup RAM. Le plafond seul, pas le filtre des réécritures à l'identique : une réécriture y est
--- un fait (le relevé du 2026-10-16 en montre une), et le test mémoire du premier boot laisse
--- dans chaque octet une valeur qu'une écriture utile peut répéter — filtrée, elle disparaîtrait
--- (mesuré : $D00047 manquait au relevé). Les compteurs réécrits à chaque trame atteignent le
--- plafond en quelques secondes, et leur compte sort au bilan.
--- Le tampon de la trame sort ligne à ligne, sauf un remplissage, résumé en une ligne : plus de
--- REMPLI écritures dans la trame (le test mémoire en fait 1 024, le
--- premier boot de la référence avec quatre cartouches ~250). Deux zones sortent quand même ligne
--- à ligne, c'en est l'objet : $D00040-$D0005F (nombre de slots, drapeau du logo) et
--- $D00100-$D001FF (date, slot choisi, comptabilité, table des slots et ce qui la suit).
+-- Backup RAM. The cap alone, not the filter of identical rewrites: a rewrite there is
+-- a fact (the record of 2026-10-16 shows one), and the memory test of the first boot leaves
+-- in each byte a value that a useful write may repeat — filtered, it would disappear
+-- (measured: $D00047 was missing from the record). The counters rewritten at each frame reach the
+-- cap in a few seconds, and their count comes out in the summary.
+-- The frame's buffer comes out line by line, except a fill, summarised in one line: more than
+-- REMPLI writes in the frame (the memory test makes 1,024, the
+-- first boot of the reference with four cartridges ~250). Two zones still come out line
+-- by line, they are the point of it: $D00040-$D0005F (number of slots, logo flag) and
+-- $D00100-$D001FF (date, selected slot, bookkeeping, slot table and what follows it).
 local REMPLI = 400
 local function utile(a) return (a >= 0xD00040 and a <= 0xD0005F) or (a >= 0xD00100 and a <= 0xD001FF) end
 local bram_n, bram_vals, bram_hors, bram_tampon = 0, {}, 0, {}
@@ -430,7 +430,7 @@ G.t_bram = p:install_write_tap(0xD00000, 0xD0FFFF, "ms_bram", function(off, data
   end)
 end)
 
--- Variables du BIOS : une ligne quand la valeur change pour un écrivain donné.
+-- BIOS variables: one line when the value changes for a given writer.
 local SUIVIES = { [0x10FCEF] = "BIOS_SLOTCHECK", [0x10FD80] = "BIOS_SYSTEM_MODE",
   [0x10FD81] = "BIOS_SYSRET_STATUS", [0x10FD82] = "BIOS_MVS_FLAG", [0x10FD83] = "BIOS_COUNTRY_CODE",
   [0x10FDAE] = "BIOS_USER_REQUEST", [0x10FDAF] = "BIOS_USER_MODE", [0x10FEE1] = "BIOS_FRAME_SKIP" }
@@ -441,12 +441,12 @@ local function tap_var(debut, fin)
     octets(off, data, mask, function(a, v)
       if not SUIVIES[a] then return end
       local qui = cote()
-      -- LA MAIN REPRISE SANS SYSTEM_RETURN. Mesuré (référence, le 2026-10-22) : à SELECT, le
-      -- BIOS écrit BIOS_SYSRET_STATUS ← $04 ou $05 et reprend la main sans que le jeu entre
-      -- par $C00444 (la pièce, $06, fait de même ; elle n'est pas ouverte ici, pour que les
-      -- relevés des lots d'avant se rejouent à l'identique). MS_PLAGES ouvre donc aussi
-      -- l'écoute de la RAM de travail sur ces deux écritures, sans quoi la sauvegarde du jeu
-      -- sortant n'y paraîtrait que du côté de la backup RAM.
+      -- CONTROL TAKEN BACK WITHOUT SYSTEM_RETURN. Measured (reference, on 2026-10-22): at SELECT, the
+      -- BIOS writes BIOS_SYSRET_STATUS ← $04 or $05 and takes back control without the game entering
+      -- through $C00444 (the coin, $06, does the same; it is not opened here, so that the
+      -- records of earlier batches replay identically). MS_PLAGES therefore also opens
+      -- the listening of the work RAM on these two writes, without which the save of the outgoing
+      -- game would appear there only on the backup RAM side.
       if a == 0x10FD81 and qui == "bios" and (v == 4 or v == 5) and G.pl_ecouter then
         G.pl_ecouter(true) G.pl_fermer = false
       end
@@ -462,7 +462,7 @@ G.t_v2 = tap_var(0x10FD80, 0x10FD83)
 G.t_v3 = tap_var(0x10FDAE, 0x10FDAF)
 G.t_v4 = tap_var(0x10FEE0, 0x10FEE1)
 
--- Entrées.
+-- Inputs.
 local function F(pt, n) local x = m.ioport.ports[pt] return x and x.fields[n] end
 local CHAMPS = {
   piece = F(":AUDIO_COIN", "Coin 1"), start = F(":edge:joy:START", "1 Player Start"),
@@ -508,11 +508,11 @@ local function vider_trame()
   end
   prom = {}
 
-  -- LE GARDE DE §8. Une valeur écrite en backup RAM peut être une adresse de la ROM du BIOS
-  -- (un pointeur sauvegardé). Dans la trame, un octet $C0 ou $C1 suivi de deux octets écrits aux
-  -- adresses suivantes forme une valeur de $C00000-$C1FFFF : ces trois octets, et l'octet fort
-  -- qui les précède s'il a été écrit, sortent « retenu ». Grossier exprès — mesuré, il retient
-  -- surtout $D00020-$D00022, réécrits à chaque trame, qui ne sont peut-être que des bits d'état.
+  -- THE GUARD OF §8. A value written to backup RAM may be an address of the BIOS ROM
+  -- (a saved pointer). Within the frame, a byte $C0 or $C1 followed by two bytes written at the
+  -- following addresses forms a value of $C00000-$C1FFFF: these three bytes, and the high byte
+  -- that precedes them if it was written, come out "retenu". Deliberately coarse — measured, it withholds
+  -- mostly $D00020-$D00022, rewritten at each frame, which are perhaps only status bits.
   local vu, retenu = {}, {}
   for _, e in ipairs(bram_tampon) do vu[e[3]] = e[4] end
   for a, v in pairs(vu) do
@@ -540,8 +540,8 @@ local function vider_trame()
   bram_n, bram_vals, bram_hors, bram_tampon = 0, {}, 0, {}
 end
 
--- MS_LECT_JEU=1 : chaque lecture de $D00000-$D003FF dont le PC est hors de la ROM du BIOS, comptée
--- par octet lu. Rien n'est écrit qu'au bilan : l'adresse et le compte, jamais la valeur.
+-- MS_LECT_JEU=1: each read of $D00000-$D003FF whose PC is outside the BIOS ROM, counted
+-- per byte read. Nothing is written except in the summary: the address and the count, never the value.
 local lect_jeu = {}
 if os.getenv("MS_LECT_JEU") == "1" then
   G.t_ljeu = p:install_read_tap(0xD00000, 0xD003FF, "ms_ljeu", function(off, data, mask)
@@ -564,11 +564,11 @@ local function bilan()
   end
 end
 
--- MS_VIDAGES=<trame>,<trame>… : en fin de ces trames, la zone de sauvegarde du jeu servi
--- (pointeur $00010E et taille $000112 de l'en-tête de sa cartouche) et son bloc de backup RAM
--- ($D00320 + $1000 × l'index de bloc de son entrée de $D00124), en hexadécimal, dans
--- MS_DIR/zone-fNNNNN.hex. Ce sont des octets du JEU (sa RAM, sa sauvegarde), jamais de la ROM
--- du BIOS (`docs/DECISIONS.md` §8) : de quoi voir un score retrouvé d'un boot à l'autre.
+-- MS_VIDAGES=<trame>,<trame>…: at the end of these frames, the save zone of the served game
+-- (pointer $00010E and size $000112 of its cartridge header) and its backup RAM block
+-- ($D00320 + $1000 × the block index of its entry in $D00124), in hexadecimal, into
+-- MS_DIR/zone-fNNNNN.hex. These are bytes of the GAME (its RAM, its save), never of the BIOS
+-- ROM (`docs/DECISIONS.md` §8): enough to see a score found again from one boot to the next.
 local vidages = {}
 for n in (os.getenv("MS_VIDAGES") or ""):gmatch("%d+") do vidages[tonumber(n)] = true end
 local function vider_zone()
@@ -593,9 +593,9 @@ local function vider_zone()
   ligne("E", "-", "-", string.format("vidage zone-f%05d", trame))
 end
 
--- MS_POSER=<trame>@<adresse>=<octets hex>,… : en fin de ces trames, écrit ces octets dans la RAM
--- de travail du JEU ($100000-$10F2FF seulement) — un score posé dans sa zone de sauvegarde, pour
--- voir si le BIOS l'emporte d'un boot à l'autre. Le seul geste du jig qui touche la machine.
+-- MS_POSER=<trame>@<adresse>=<octets hex>,…: at the end of these frames, writes these bytes into the
+-- GAME's work RAM ($100000-$10F2FF only) — a score set in its save zone, to
+-- see whether the BIOS carries it from one boot to the next. The only action of the jig that touches the machine.
 local poses = {}
 for t, a, h in (os.getenv("MS_POSER") or ""):gmatch("(%d+)@(%x+)=(%x+)") do
   poses[#poses + 1] = { t = tonumber(t), a = tonumber(a, 16), h = h }
@@ -611,9 +611,9 @@ local function poser()
   end
 end
 
--- MS_SUIVRE=<adresse>,… : la valeur de ces octets en fin de trame, une ligne E quand elle change.
--- Des valeurs de RAM et de backup RAM, lues par le jig hors des taps ; jamais la ROM du BIOS
--- (`docs/DECISIONS.md` §8) : une adresse hors des deux zones est ignorée.
+-- MS_SUIVRE=<adresse>,…: the value of these bytes at the end of the frame, an E line when it changes.
+-- Values of RAM and backup RAM, read by the jig outside the taps; never the BIOS ROM
+-- (`docs/DECISIONS.md` §8): an address outside the two zones is ignored.
 local suivies, suivi_avant = {}, {}
 for h in (os.getenv("MS_SUIVRE") or ""):gmatch("%x+") do
   local a = tonumber(h, 16)
@@ -638,7 +638,7 @@ emu.register_frame_done(function()
   sonde_m1("la fin de trame")
   vider_trame()
 
-  -- L'état en fin de trame : qui a la main, quel slot MAME sert.
+  -- The state at the end of the frame: who has control, which slot MAME serves.
   local c = cote()
   if c ~= main_a then main_a = c ligne("E", "-", c, "main") end
   interne = true

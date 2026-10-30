@@ -1,629 +1,737 @@
 #!/bin/bash
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Thibaut Lion
-# Le parcours du joueur : chaque fonction visible du BIOS jouée sous MAME, et jugée sur ce que
-# verrait et entendrait un joueur — l'image de l'écran et le son produit —, pas sur l'état
-# interne du BIOS. Une valeur du jeu lue en RAM, ou un évènement du bus, n'y vient qu'en
-# complément. Un verdict PASS/FAIL par scène ; sortie non nulle si une scène échoue.
+# The player's path: each visible function of the BIOS played under MAME, and judged on what a
+# player would see and hear (the screen image and the sound produced), not on the internal state
+# of the BIOS. A game value read in RAM, or a bus event, only comes in as a complement. One
+# PASS/FAIL verdict per scene; non-zero exit if a scene fails.
 #
 #   bench/parcours.sh [options] <dossier-roms> <dossier-travail>
 #
-#   --image <sp1>        l'image à jouer (défaut : construite depuis --sources)
-#   --sources <dossier>  sources à construire (défaut : src/c0) ; une copie jetable est acceptée,
-#                        c'est ainsi que le parcours s'éprouve par mutation
+#   --image <sp1>        the image to play (default: built from --sources)
+#   --sources <dir>      sources to build (default: src/c0); a throwaway copy is accepted,
+#                        that is how the player's path is put to the test by mutation
 #                        (`bench/parcours-mutations.py`)
-#   --scenes "<noms>"    un sous-ensemble des scènes (défaut : toutes) ; seuls leurs runs tournent
-#   --ref <tsv>          le relevé des seuils (défaut : measured/2026-10-23-parcours.tsv)
-#   --ref-aes <tsv>      celui des scènes du mode AES (défaut : measured/2026-10-23-parcours-aes.tsv)
-#   --ref-couv <tsv>     celui des scènes de la couverture
-#                        (défaut : measured/2026-10-23-parcours-couverture-scenes.tsv)
-#   --ref-menu <tsv>     celui des scènes du menu en jeu complet, GAME SETTINGS et MEMORY EDITOR
-#                        (défaut : measured/2026-10-23-menu-en-jeu-complet.tsv)
-#   --ref-carte <tsv>    celui des scènes du gestionnaire de carte mémoire
-#                        (défaut : measured/2026-10-24-parcours-carte.tsv)
-#   --ref-borne <tsv>    celui des scènes des réglages de la borne
-#                        (défaut : measured/2026-10-25-parcours-borne.tsv)
-#   --ref-cheats <tsv>   celui des scènes du catalogue des cheats et de CHEATS/DEBUG
-#                        (défaut : measured/2026-10-25-parcours-cheats.tsv)
-#   --ref-dip <tsv>      celui des commutateurs de la carte et du geste sans bouton TEST
-#                        (défaut : measured/2026-10-25-parcours-dip-free-play.tsv)
-#   --ref-ssideki <tsv>  celui de la scène demo-ssideki
-#                        (défaut : measured/2026-10-25-parcours-ssideki.tsv)
-#   --ref-crc <tsv>      celui des scènes du CRC32 de la cartouche et des debug dips
-#                        (défaut : measured/2026-10-25-parcours-crc-debug.tsv)
-#   --ref-dip28 <tsv>    celui des commutateurs 2, 3 et 8 de la carte
-#                        (défaut : measured/2026-10-27-parcours-dip-2-8.tsv)
-#   --ref-af <tsv>       celui de l'autofire (défaut : measured/2026-10-27-parcours-autofire.tsv)
-#   --ref-garanties <tsv> celui des garanties sur les défauts d'UniBIOS
-#                        (défaut : measured/2026-10-27-parcours-garanties.tsv)
-#   --ref-sinus <tsv>    celui de la table du sinus (défaut : measured/2026-10-28-parcours-sinus.tsv)
-#   --ref-panneau <tsv>  celui des menus au panneau de mahjong (défaut : measured/2026-10-28-parcours-panneau.tsv)
-#   --jobs <n>           runs MAME en parallèle (défaut : le nombre de cœurs moins deux). Un MAME
-#                        n'occupe qu'un cœur ; les runs sont déterministes et chacun a son dossier,
-#                        donc le nombre de runs simultanés ne change aucun verdict
-#   --hashpath <dossier> le `hash/` de MAME, pour la liste logicielle du multi-slot
-#   --cache <dossier>    garde les runs TÉMOINS (BIOS SNK, ROMs d'origine) et les reprend quand rien
-#                        de ce dont ils dépendent n'a changé (voir `lancer`). Sans cette option, rien
-#                        n'est gardé ni repris
+#   --scenes "<names>"   a subset of the scenes (default: all); only their runs run
+#   --ref <tsv>          the record of the thresholds (default: measured/2026-10-23-parcours.tsv)
+#   --ref-aes <tsv>      the one of the AES mode scenes (default: measured/2026-10-23-parcours-aes.tsv)
+#   --ref-couv <tsv>     the one of the coverage scenes
+#                        (default: measured/2026-10-23-parcours-couverture-scenes.tsv)
+#   --ref-menu <tsv>     the one of the scenes of the full in-game menu, GAME SETTINGS and MEMORY EDITOR
+#                        (default: measured/2026-10-23-menu-en-jeu-complet.tsv)
+#   --ref-carte <tsv>    the one of the scenes of the memory card manager
+#                        (default: measured/2026-10-24-parcours-carte.tsv)
+#   --ref-borne <tsv>    the one of the scenes of the cabinet settings
+#                        (default: measured/2026-10-25-parcours-borne.tsv)
+#   --ref-cheats <tsv>   the one of the scenes of the cheat catalogue and of CHEATS/DEBUG
+#                        (default: measured/2026-10-25-parcours-cheats.tsv)
+#   --ref-dip <tsv>      the one of the board switches and of the gesture without a TEST button
+#                        (default: measured/2026-10-25-parcours-dip-free-play.tsv)
+#   --ref-ssideki <tsv>  the one of the demo-ssideki scene
+#                        (default: measured/2026-10-25-parcours-ssideki.tsv)
+#   --ref-crc <tsv>      the one of the scenes of the cartridge CRC32 and of the debug dips
+#                        (default: measured/2026-10-25-parcours-crc-debug.tsv)
+#   --ref-dip28 <tsv>    the one of board switches 2, 3 and 8
+#                        (default: measured/2026-10-27-parcours-dip-2-8.tsv)
+#   --ref-af <tsv>       the one of the autofire (default: measured/2026-10-27-parcours-autofire.tsv)
+#   --ref-garanties <tsv> the one of the guarantees on UniBIOS defects
+#                        (default: measured/2026-10-27-parcours-garanties.tsv)
+#   --ref-sinus <tsv>    the one of the sine table (default: measured/2026-10-28-parcours-sinus.tsv)
+#   --ref-panneau <tsv>  the one of the menus on the mahjong panel (default: measured/2026-10-28-parcours-panneau.tsv)
+#   --jobs <n>           MAME runs in parallel (default: the number of cores minus two). A MAME
+#                        occupies only one core; the runs are deterministic and each has its own
+#                        directory, so the number of simultaneous runs changes no verdict
+#   --hashpath <dir>     MAME's `hash/`, for the multi-slot software list
+#   --cache <dir>        keeps the WITNESS runs (SNK BIOS, original ROMs) and reuses them when nothing
+#                        they depend on has changed (see `lancer`). Without this option, nothing
+#                        is kept or reused
 #
-# Il faut aof, puzzledp, b2b, kof98, ncombat et neogeo dans <dossier-roms>, mslug pour les scènes bf-banque, bf-crc-banque et dip-vierge, ng_mv1 pour sans-cartouche, ng_mv2f pour les scènes dip-* et geste-*, kizuna pour dip-4p et dip-4p-off, janshin pour dip-mahjong, dip-mj-off, af-mahjong et les scènes pn-*, viewpoin pour af-tir, af-sauve et af-off, wh2 pour scores-gel, mslug2 pour cheats-vies et crc-banques, kof94 pour dd-effet, dd-off et dd-connu, ssideki pour demo-ssideki, alpham2 pour alpha-trajectoire et preisle2 pour howto-preisle2, non-merged (`docs/BENCH.md`,
-# piège 1) ; kof98 et ncombat ne tournent que sur la MV-6F, leur romset lu tel quel.
-# Le dossier de travail reçoit l'image, les romsets substitués (seul sp-s2.sp1 remplacé, comme
-# `matrice.sh`), un dossier par run (son.txt, images, son.wav, mame.log, rc) et parcours.txt.
-# Pour la colonne de référence des scènes aes-*, un aes.zip recopié de neo-epo.bin et 000-lo.lo
-# de neogeo.zip (le set `aes` de MAME, -bios asia ; aucun aes.zip dans le dossier de ROMs).
+# aof, puzzledp, b2b, kof98, ncombat and neogeo are needed in <roms-dir>, mslug for the scenes
+# bf-banque, bf-crc-banque and dip-vierge, ng_mv1 for sans-cartouche, ng_mv2f for the dip-* and
+# geste-* scenes, kizuna for dip-4p and dip-4p-off, janshin for dip-mahjong, dip-mj-off, af-mahjong
+# and the pn-* scenes, viewpoin for af-tir, af-sauve and af-off, wh2 for scores-gel, mslug2 for
+# cheats-vies and crc-banques, kof94 for dd-effet, dd-off and dd-connu, ssideki for demo-ssideki,
+# alpham2 for alpha-trajectoire and preisle2 for howto-preisle2, non-merged (`docs/BENCH.md`,
+# pitfall 1); kof98 and ncombat only run on the MV-6F, their romset read as is.
+# The work directory receives the image, the substituted romsets (only sp-s2.sp1 replaced, like
+# `matrice.sh`), one directory per run (son.txt, images, son.wav, mame.log, rc) and parcours.txt.
+# For the reference column of the aes-* scenes, an aes.zip copied from neo-epo.bin and 000-lo.lo
+# of neogeo.zip (MAME's `aes` set, -bios asia; no aes.zip in the ROMs directory).
 #
-# LES INSTRUMENTS. `son.lua` joue les entrées et relève, par trame : l'empreinte de l'image
-# entière et de rectangles choisis, les key-on du YM2610 (FM, ADPCM-A, ADPCM-B), le côté qui a
-# la main en fin de trame (une suite « BIOS » est une pause), le rectangle du plan fixe écrit
-# par le BIOS ; il écrit les images demandées. `-wavwrite` enregistre le SON MIXÉ que MAME
-# produit, `-sound none` ou pas : c'est lui qu'on mesure (RMS sur une fenêtre). `jukebox.lua`,
-# `autotests.lua` et `multislot.lua` jouent leurs écrans. Tous les runs de notre image doivent
-# sortir de MAME en 0 et porter « WRONG CHECKSUMS » ; le témoin SNK, ne pas le porter.
+# THE INSTRUMENTS. `son.lua` plays the inputs and records, per frame: the hash of the whole image
+# and of chosen rectangles, the key-ons of the YM2610 (FM, ADPCM-A, ADPCM-B), the side that holds
+# control at the end of the frame (a "BIOS" run of frames is a pause), the rectangle of the fix
+# layer written by the BIOS; it writes the requested images. `-wavwrite` records the MIXED SOUND
+# that MAME produces, `-sound none` or not: that is what is measured (RMS over a window).
+# `jukebox.lua`, `autotests.lua` and `multislot.lua` play their screens. All runs of our image
+# must exit MAME with 0 and carry "WRONG CHECKSUMS"; the SNK witness must not carry it.
 #
-# LES SCÈNES et leur critère. Les seuils chiffrés sont dans le relevé (--ref), colonne seuil,
-# avec la mesure de l'image de main du 2026-10-23 à côté ; « case » = 8 × 8 pixels, l'écran en
-# a 40 × 28. Jeu aof sauf mention contraire.
-#   boot-ecran    sans entrée, l'image de la trame 100, la ligne CLOCK masquée (elle porte la
-#                 date de l'hôte), a l'empreinte du relevé ; et le plan fixe porte SPRIXE BIOS,
+# THE SCENES and their criterion. The numeric thresholds are in the record (--ref), threshold
+# column, with the measurement of the image at hand of 2026-10-23 next to it; "cell" = 8 × 8
+# pixels, the screen has 40 × 28 of them. Game aof unless stated otherwise.
+#   boot-ecran    without input, the image of frame 100, the CLOCK line masked (it carries the
+#                 host date), has the hash of the record; and the fix layer carries SPRIXE BIOS,
 #                 sprixe.dev/bios, v0.1 BETA, SYSTEM MVS, REGION EUROPE, CARD NONE, GAME NGH 0044.
-#   boot-saut     A à la trame 60 : la pause du boot finit au plus tard à la trame « fin_max »,
-#                 contre au moins « fin_min » sans A ; à la trame 100, moins de « reste_max » des
-#                 pixels allumés de l'écran de boot le sont encore à l'identique.
-#   calendrier    la ligne CLOCK de l'écran de boot porte la date de l'hôte au moment du run,
-#                 MM/DD/YY et le jour.
-#   carte         avec une carte mémoire (-memc), l'image de la trame 100 diffère de celle sans
-#                 carte sur la ligne CARD seule, d'au moins « cases_min » cases ; texte INSERTED.
-#   demo-son      la démo sans pièce, trames 600-3600 : RMS du son et key-on, rapportés au même
-#                 run sous le BIOS SNK (-bios euro, romset d'origine), au moins « rms_ratio_min »
-#                 et « keyon_ratio_min ».
-#   partie-credit une pièce à la trame 400 : à la trame 450, l'image diffère de la démo sans
-#                 pièce d'au moins « titre_min » cases (le titre) ; une seconde pièce à 420 :
-#                 l'image diffère de celle à une pièce sur le texte du bas seul (y ≥ 152 :
-#                 « PUSH 1P OR 2P START BUTTON » et CREDITS 02), pas sur le logo.
-#   partie-start  START à la trame 500 : à la trame 1400, au moins « cases_min » cases diffèrent
-#                 de la démo (la partie, pas la démo).
-#   fin-demo      partie perdue sans entrée, plus de crédit : la démo reprend — de la trame
-#                 3000 à 9000, au moins « trames_min » trames sont celles de la démo sans pièce,
-#                 à un décalage unique (la partie finit vers la trame 6960).
-#   fin-titre     deux pièces, une partie perdue : au moins « trames_min » trames après la
-#                 partie sont des images du titre (CREDIT 01) vu après la pièce du run à un
-#                 crédit, trames 405-499.
-#   scores        puzzledp, un score de joueur posé en RAM du jeu (1ST 1234560 SPX, comme
-#                 2026-10-22-sauvegarde-jeu-seul-puzzledp.tsv), MAME quitté puis relancé sur la
-#                 même NVRAM ; contre le même chemin sans la pose : l'écran BEST PLAYERS de la
-#                 trame 4900 diffère sur la ligne 1ST seule (y 48-79), d'au moins « cases_min »
-#                 cases.
-#   dip-temps     l'éditeur, ROUND TIME 60 → 65 : en partie, trame 3000, l'image diffère de
-#                 celle de l'éditeur quitté sans changement dans le chronomètre seul
-#                 (x 144-183, y 8-31) ; le plan fixe de l'éditeur portait « ROUND TIME 65 ».
-#   dip-langue    l'éditeur, LANGUAGE ENGLISH → SPANISH : 754 trames après la remise, le texte
-#                 de l'histoire diffère (y 152-215) d'au moins « cases_min » cases, et l'image
-#                 ailleurs d'au plus « hors_max ».
-#   region        l'éditeur, REGION EUROPE → JAPAN : la machine repart (RESET), l'écran de
-#                 boot dit JAPAN, et 754 trames après la remise le texte de l'histoire
-#                 (y 128-215) diffère de l'européen d'au moins « cases_min » cases.
-#   autotests     un défaut injecté en RAM de travail ($108000, bit 3, comme
-#                 2026-10-21-autotests.tsv) : WORK RAM FAIL AT 00108000, les trois autres OK.
-#                 Le run sain est l'étage 3c de `non-regression.sh`.
-#   tests-sauvegarde  aof DÉJÀ INSCRIT (NVRAM de tests-sauv-set : premier boot, sauvegarde faite), les
-#                 autotests sans défaut depuis l'écran TEST, START : à la remise ($10FD80 ← $82), la zone de
-#                 sauvegarde du jeu (pointeur $10E, taille $112) est égale à son bloc en backup RAM
-#                 (2026-10-28-work-ram-restauree.tsv). Sur NVRAM neuve, la scène autotests ne restaurait rien
-#                 à détruire : c'est pourquoi elle n'a pas vu le défaut.
-#   jukebox       codes 7F, 21, 25 ($07 avant chacun) : pour chacun, le son de la fenêtre de
-#                 réponse a un RMS d'au moins « rms_min », et au moins « gain_min » fois celui
-#                 de la fenêtre de contrôle (+1), et la puce compte plus de déclenchements.
-#   menu-hud      TEST tenu en partie : pendant la pause, hors du cadre du menu (le rectangle
-#                 du plan fixe écrit par le BIOS), au plus « hors_max » cases diffèrent de
-#                 l'image d'avant le cadre ; dans le cadre, au moins « cadre_min » de ses cases.
-#   menu-reprise  après RESUME, au moins « egales_min » des 1 500 trames sont l'image du
-#                 témoin sans menu, décalée de la durée de la pause.
-#   menu-son      après RESUME, trames +30 à +1530 contre le témoin décalé : RMS et key-on au
-#                 moins « rms_ratio_min » et « keyon_ratio_min ».
-#   cheats        INFINITE TIME et P1 INFINITE LIFE mis à ON, RESUME : de +300 à +1500 après la
-#                 reprise, les chiffres du chronomètre (x 146-173, y 10-29) et la barre de vie de
-#                 P1 (x 62-142, y 17-22) ne changent pas, alors qu'ils changent au témoin sur la
-#                 même durée ; en complément, $108406 et $1092CD valent $60 (`cheats.s`) sur au
-#                 moins « ram_min » des 1 200 trames, relus en fin de trame. Pas
-#                 avant +300 : le chronomètre affiché perd une seconde (60 → 59) avant de se
-#                 figer, mesuré à +181.
-#   restart       RESTART GAME : un RESET, puis au moins « egales_min » des 380 trames qui
-#                 suivent sont celles d'une mise sous tension (l'écran de boot, puis le jeu).
-#   ms-demo       MV-6F, b2b et puzzledp, sans entrée : la démo passe au slot 1, et l'image
-#                 60 trames après sa remise est une image de la démo de puzzledp seul
-#                 (trames +50 à +70 de sa remise en démo).
-#   ms-select     une pièce, SELECT P1 au titre de b2b : remise au slot 1 en demande 3, et
-#                 60 trames après, l'image diffère du titre de puzzledp seul de « cases_max »
-#                 cases au plus (le décompte du départ forcé).
-#   ms-garde      deux fronts de SELECT, le second pendant le DEMO_END de b2b : un seul
-#                 DEMO_END lu et un seul REG_SLOT écrit (complément, la garde de DECISIONS §10),
-#                 et la même image que sous un SELECT simple.
-#   LE MODE AES (DECISIONS §11), seuils dans --ref-aes. Témoin : le BIOS AES de SNK, `aes -bios
-#   asia -cart aof` (run aes-snk, START à 1000), et notre image en mode MVS. Les deux BIOS ne
-#   rendent pas la démo à la même trame (476 contre ~184, la référence jouant son eyecatcher) :
-#   on compare au meilleur décalage, comme fin-demo.
-#   aes-bascule   l'éditeur, MODE MVS → AES (« haut » quatre fois, droite), START : l'éditeur
-#                 montrait « MODE AES », la machine repart (RESET), l'écran de boot dit SYSTEM
-#                 AES ; puis, MAME relancé sur la même NVRAM sans aucune entrée (run aes-demo),
-#                 l'écran de boot de la trame 100 dit encore AES, et il diffère de celui d'une
-#                 mise sous tension en MVS sur la ligne SYSTEM seule (la ligne CLOCK ignorée),
-#                 d'au moins « cases_min » cases.
-#   aes-demo      la démo en mode AES : au moins « snk_min » de ses 500 premières trames après la
-#                 remise sont des images du témoin SNK AES (avant son START), à un décalage
-#                 unique ; au plus « mvs_max » sont des images de la démo du mode MVS, au
-#                 meilleur décalage (« PUSH START BUTTON » au lieu d'« INSERT COIN », plus de
-#                 « CREDIT 00 »).
-#   aes-start     START à 1000 sans pièce : à la trame 1400, au moins « cases_min » cases
-#                 diffèrent de la démo sans START (la partie part, pas de crédit demandé).
-#   aes-menu      même run : de 1030 à 2400, au moins « egales_min » trames sont celles du témoin
-#                 SNK AES au même instant après son START (le menu GAME LEVEL, la suite).
-#   aes-piece     une pièce à 1000 en mode AES : de 1000 à 2400, au moins « egales_min » trames
-#                 sont celles de la démo sans pièce, et les key-on de 1000 à 1300 diffèrent d'au
-#                 plus « keyon_max » (ni titre ni COIN_SOUND).
-#   aes-retour    depuis la NVRAM AES, l'éditeur, MODE → MVS (gauche), START : l'éditeur montrait
-#                 « MODE MVS », RESET, SYSTEM MVS ; de 600 à 1099 (START sans pièce à 1000
-#                 compris), au moins « demo_min » trames sont des images de la démo MVS à un
-#                 décalage unique ; la pièce de 1100 mène au titre : au moins « titre_min »
-#                 trames de 1100 à 1400 sont des images du titre du run partie (405-499).
-#   LA COUVERTURE, le 2026-10-23 : chaque fonction du BIOS qu'aucune scène ne jugeait
-#   (`measured/2026-10-23-parcours-couverture.tsv`, l'inventaire), seuils dans --ref-couv. Le
-#   témoin est le BIOS SNK de la même région ou de la même machine quand il existe.
-#   dip-defauts   ROUND TIME 60 → 65, puis RESET TO DEFAULTS (haut deux fois, A) : l'éditeur
-#                 revenait à 60, et la trame 3000 est celle de l'éditeur quitté sans changement.
-#   dip-mmss      ncombat sur la MV-6F, PLAY TIME 03:00 → 03:01 (un temps MM:SS) : aux trames
-#                 1300, 2000, 3000, seul le TIME du HUD change (une seconde de plus).
-#   dip-fois      puzzledp, CONTINUE INFINITE → WITHOUT par A (le maximum repart au minimum) :
-#                 le titre d'après la partie perdue vient « avance_min » trames plus tôt au moins
-#                 (l'écran CONTINUE n'a pas lieu).
-#   region-europe, region-japon, region-usa   la démo sans entrée de la région (Europe : NVRAM
-#                 neuve ; Japon, USA : posés à l'éditeur) : au moins « temoin_min » des 1 000
-#                 trames qui suivent la remise sont celles du BIOS SNK de cette région, au
-#                 meilleur décalage, au plus « autre_max » celles d'une autre région.
-#   autotests-palette, -vram, -backup   un défaut injecté comme 2026-10-21-autotests.tsv (pal0,
-#                 vram-bas, bram) : le test visé dit FAIL AT <adresse>, les trois autres OK.
-#   tests-entrees INPUT TEST : quatorze entrées (P1 : directions, A-D, START ; P2 : A, START ;
-#                 pièce 1, SERVICE, TEST) allument chacune leurs cases, au plus « cases_max »,
-#                 disjointes ; START tenu 80 trames rend le menu des tests.
-#   tests-barres  COLOR BARS : page 1, trois barres rouge, verte, bleue de 15 pas croissants
-#                 (pixels lus sur l'image) ; A, page 2, trois barres grises ; START, le menu.
-#   tests-grille  CROSSHATCH : les 1 120 cases sont la grille (blanc aux colonnes 0, 4 … 36, 39 et
-#                 aux lignes 2, 6 … 26, 29, noir ailleurs) ; START, le menu ; EXIT, l'écran TEST.
-#   jukebox-pas   « haut » (+1, $01-$03 sautés), droite (+16), gauche (−16), bas (−1) : l'écran
-#                 montre 00, 07, 27, 17, 27, 21 ; START rend l'écran TEST, START lance le jeu.
-#   jukebox-repete « haut » tenu 60 trames : au moins « crans_min » crans.
-#   jukebox-stop  le code 21 joué, B : RMS après B au plus « ratio_max » de celui du même run
-#                 sans B (jukebox-b0).
-#   cheats-off    INFINITE TIME ON puis OFF dans la même pause, RESUME : le chronomètre repart.
-#   partie-p2     deux pièces, START P2 au titre : au moins « snk_min » des trames 500-2999 sont
-#                 celles du BIOS SNK au même instant, au plus « p1_max » celles d'un START P1.
-#   partie-p2-joint une pièce et START P2 en pleine partie : P2 se joint, comme sous SNK.
-#   depart-force  une pièce, rien d'autre : le jeu part seul « trames » ± « tolerance » trames
-#                 après le titre, puis les trames sont celles du BIOS SNK au meilleur décalage.
-#   piece-son     même run : RMS des 56 trames du titre au moins « rms_ratio_min » du BIOS SNK
-#                 (le son de la pièce, que COIN_SOUND fait jouer au jeu).
-#   carte-sauve   aof, carte neuve (-memc) : partie perdue, MEMORY CARD SAVE → YES ; MAME relancé
-#                 avec la même carte : MEMORY CARD LOAD, puis la partie reprise. Au moins
-#                 « snk_min » trames égales au BIOS SNK sur sa propre carte, au plus « neuve_max »
-#                 à une carte neuve (CARD, CARD_ERROR qui formate, la sauvegarde, la relecture).
-#   ms-select-p2  trois cartouches, SELECT P2 au titre de b2b : le slot précédent, aof, en titre.
-#   ms-seule      une cartouche seule sur la MV-6F, SELECT au titre : rien ne change (écart voulu).
-#   aes-ms-select le mode AES sur la MV-6F, SELECT en démo : le slot 1, la démo de puzzledp, comme
-#                 sous le BIOS AES de SNK (`aes -cart puzzledp`), jamais son titre.
-#   aes-pause     le mode AES, SELECT en partie (aof, MV-6F) : la pause du jeu, « PAUSE », comme
-#                 sous le BIOS AES de SNK avec le même SELECT.
-#   aes-logo      le mode AES, kof98 ($114 = 1) : la demande 1, son animation de boot, comme sous
-#                 le BIOS AES de SNK.
-#   aes-fin       le mode AES, STORY MODE perdu : la démo (01/02) après le game over, celle du
-#                 BIOS AES de SNK après le sien, pas celle du mode MVS.
-#   aes-texte     même partie : le message de P2 en haut à droite, « PUSH START » comme sous le
-#                 BIOS AES de SNK — au moins « trames_min » trames du combat sont une image du
-#                 témoin, et chaque état tenu (≥ 10 trames d'une même image de la zone) en est une,
-#                 au plus « etats_hors_max » ne l'étant pas. Un défaut corrigé le 2026-10-23 :
-#                 CREDIT_CHECK refusait la demande de P2 en mode AES, et aof affichait « INSERT
-#                 COIN » (measured/2026-10-23-aes-credit.tsv).
-#   LA COUVERTURE, second lot (le 2026-10-23, même relevé --ref-couv) :
-#   carte-chercher CARD $01 provoqué (`forcer.lua`, comme `carte-diff.sh`) sur la carte que le
-#                 BIOS SNK a sauvée (run carte-sauve-snk), NGH $0044 puis $0066 : l'interface
-#                 après l'appel, que le jeu relit, égale à celle du BIOS SNK à « octets_max »
-#                 près, la carte inchangée, et le masque différent pour les deux NGH.
-#   carte-supprimer CARD $04 sur la même carte : la carte égale à celle du BIOS SNK ; aof relancé
-#                 dessus, au moins « snk_min » des trames 500-2499 égales au BIOS SNK relancé sur
-#                 la sienne, au plus « sauve_max » à la carte où la sauvegarde est encore.
-#   carte-nom     CARD $06 (le nom : 16 octets de BIOS_CARD_START) : la carte égale à celle du
-#                 BIOS SNK ; puis CARD $07 de la carte écrite, dans un tampon que rien n'a rempli :
-#                 le nom relu et la réponse égaux au BIOS SNK, qui relit le nom écrit.
-#   tests-p2      INPUT TEST sur la MV-6F (la machine qui a SELECT) : B, C, D, haut, bas, gauche,
-#                 droite de P2, SELECT P1 et P2 allument chacun les cases de leur élément, et
-#                 rien d'autre (« cases_hors_max »).
-#   tests-dip     même run : les huit commutateurs de la carte, posés un à un par les champs :DSW
-#                 de MAME (J_DSW de `son.lua`), allument chacun son chiffre et lui seul.
-#   dip-sans-donnees l'éditeur sur une fixture (une copie du romset d'aof dont seul le pointeur
-#                 européen de l'en-tête 68k est refusé, voir plus bas) : SOFT DIP SETTINGS et NO
-#                 SOFT DIP DATA, au plus « lignes_max » lignes (la région, CABINET SETTINGS, SCORE RESET, la carte, le
-#                 mode, les tests, le jukebox, la remise), aucune de ROUND TIME que le témoin (run langue) montre ; START
-#                 rend la main au jeu.
-#   LE MENU EN JEU COMPLET, le 2026-10-23 (GAME SETTINGS, MEMORY EDITOR, les gels ; seuils dans --ref-menu). Le menu s'ouvre à
-#   2357 sur la partie d'aof (TEST 2337-2376) ; témoin : le run partie, ou l'éditeur du boot réglé de même (temps1, langue,
-#   temps-nc1, fois1). « R » : la trame du RESET de RESTART GAME, 2418 sur ncombat et sur puzzledp, mesurées et exigées.
-#   gs-compte     ROUND TIME 60 → 65 en partie, RESUME : au round suivant, au moins « trames_min » trames montrent un chronomètre
-#                 que seul ROUND TIME 65 montre (des images de temps1 que le témoin n'a jamais) — l'effet est pris sans relance.
-#   gs-defauts    la même chose, puis RESET TO DEFAULTS : ROUND TIME 60 à l'écran, et au plus « trames_max » de ces trames.
-#   gs-choix      LANGUAGE → SPANISH, puis la ligne RESTART GAME : un RESET, et 754 trames après la remise le texte de l'histoire
-#                 diffère de l'anglais d'au moins « cases_min » cases, et l'image de l'espagnol posé au boot d'au plus
-#                 « espagnol_max » (le réglage enregistré en backup RAM, relu par le boot).
-#   gs-mmss       ncombat (MV-6F), PLAY TIME 03:00 → 03:01, RESTART GAME : à R + 1300, 2000, 3000, le TIME du HUD est celui de
-#                 temps-nc1 et pas celui de temps-nc0, au plus « hors_max » cases d'écart en tout.
-#   gs-fois       puzzledp, CONTINUE INFINITE → WITHOUT par A, RESTART GAME : le titre d'après la partie perdue vient au moins
-#                 « avance_min » (dip-fois) trames plus tôt qu'avec CONTINUE, à « ecart_max » près de fois1.
-#   gs-sans-donnees, gs-banque   GAME SETTINGS sur la fixture nosd (pointeur refusé) et sur la fixture banque (pointeur à
-#                 $00200100, que l'éditeur du boot accepte et que GAME SETTINGS refuse en partie) : NO SOFT DIP DATA, au plus
-#                 « lignes_max » lignes ; RESUME rend la main.
-#   me-ecran      l'éditeur mémoire après GOTO 108400, et après une page : la première ligne porte les huit octets que lua lit
-#                 en RAM à la même trame, et les adresses vont de 8 en 8.
-#   me-goto       GOTO 108400 : le curseur et la première ligne ; puis GOTO avec droite, gauche, haut : 109465 ; GOTO renoncé
-#                 par B : le curseur ne bouge pas.
-#   me-octet, me-ligne, me-page   droite six fois (108406) puis gauche (−1) ; bas (+8) puis haut (−8) ; B tenu et bas (+$40,
-#                 la fenêtre aussi) puis B tenu et haut (−$40) : le curseur affiché.
-#   me-repete     « bas » tenu 60 trames : au moins « crans_min » lignes.
-#   me-poke       SET VALUE sur $108406 : $40, $41, $40 à l'écran, A écrit ; A, haut, B renonce ($108406 reste $40). Après
-#                 RESUME, le HUD d'aof montre 39 (le décompte suivant : il ne redessine pas à l'écriture) sur au moins
-#                 « trames_min » des 600 trames, le témoin aucune au même instant.
-#   me-gel        deux gels ($108406, $1092CD) : chronomètre et vie de P1 figés de +300 à +1500, le témoin les voit changer.
-#   me-liste      même run : FROZEN 108406:60 1092CD:60 à l'écran.
-#   me-degel      un gel, RESUME ; le menu rouvert, D le retire : FROZEN NONE, le chronomètre figé entre les deux pauses, et
-#                 qui change après la seconde.
-#   me-borne      GOTO 10FD84 (BIOS_GAME_DIP) : READ ONLY ; A n'ouvre pas SET VALUE, D ne gèle rien, $10FD84 inchangé.
-#   LE BUS FLOTTANT, le 2026-10-24 : sur une vraie carte, la P-ROM de la cartouche ne répond que sous
-#   REG_CRTFIX (`docs/ESSAI-MATERIEL.md`, retour du 2026-10-24). Chaque scène joue un écran de l'écran
-#   TEST deux fois, sous `bus-flottant.lua` chargé par `son.lua` (J_FLOTTANT) : sous le modèle du
-#   matériel, puis libre (BF_LIBRE, le MAME d'origine), le témoin. Critère : aucune lecture flottante,
-#   ni du BIOS ni du jeu, aucun reset, CHAQUE trame de l'intervalle à l'empreinte du témoin, et les
-#   intitulés lisibles à l'écran (mots du plan fixe). Sans seuil : tout est exact.
-#   bf-editeur    aof : l'éditeur, ROUND TIME 60 → 61 et LANGUAGE → SPANISH (deux lignes réécrites),
-#                 START : ART OF FIGHTING, ROUND TIME, LANGUAGE SPANISH ; le jeu reprend la main.
-#   bf-banque     mslug sur la MV-6F, son bloc dans la zone banquée ($2783D0) : CONTINUE ON → OFF par A,
-#                 START : METAL SLUG, DIFFICULTY, CONTINUE OFF.
-#   bf-tests      aof : HARDWARE TESTS, CROSSHATCH, START, EXIT (l'éditeur redessiné), START.
-#   bf-jukebox    aof : JUKEBOX, un code, START (l'éditeur redessiné), START.
-#   sans-cartouche ng_mv1 sans cartouche, sous le modèle, 1 500 trames sans entrée : aucun reset, aucune
-#                 lecture flottante, chaque trame finie dans le BIOS, HARDWARE TESTS aux trames 700 et
-#                 1400 (400 jusqu'au 2026-10-28 : la détection attend désormais ~270 trames une cartouche
-#                 qui tarde, voir flash-cart). Jusqu'au 2026-10-24, le slot 0 vide recevait la main et le
-#                 watchdog relançait la carte toutes les 192 trames (`c0.s`, `_sans_cartouche`). Mutation :
-#                 cartouche-absente-servie.
-#   flash-cart    aof, sous le modèle, la cartouche muette sur ses 30 premières trames (BF_ABSENTE), comme
-#                 un flash cart qui charge son menu : GAME NGH ..... 0044 sur l'écran de boot, aucun
-#                 reset, le jeu a la main. Retour du matériel du 2026-10-28 : NeoSD Pro et BackBit arrêtés
-#                 sur l'écran de boot, GAME NGH 0000 (`c0.s`, ATTENTE_CARTE). Mutation : carte-lente-ignoree.
-#   LE GESTIONNAIRE DE LA CARTE MÉMOIRE, le 2026-10-24 (`src/c0/gestion-carte.s`, seuils dans --ref-carte) : l'écran
-#   TEST, « haut » cinq fois (MEMORY CARD, juste avant MODE), A. Jugé sur le plan fixe décodé et, quand la carte
-#   change, sur la carte que MAME écrit à la sortie (-memc), comparée à celle du BIOS SNK après la même commande
-#   CARD (`forcer.lua`), puis sur ce qu'aof en fait relancé dessus. Deux cartes de départ : celle que le BIOS SNK a
-#   sauvée (run carte-sauve-snk : la sauvegarde d'aof, un bloc), et une FIXTURE fabriquée ici au format de « Memory
-#   card » (plus bas) : quatorze sauvegardes, dont aof (NGH $0044, un bloc), un NGH qu'aucun jeu inscrit ne porte
-#   ($0202, trois blocs chaînés), douze d'un bloc, une entrée libre entre deux prises ; 16 blocs pris, 11 libres.
-#   cm-liste      la fixture : 0044 00 01 ART OF FIGHTING, 0202 01 03 sans nom, puis les douze ; treize lignes
-#                 visibles ; « bas » quinze fois : la liste défile, EXIT en dernière ligne visible ; START rend
-#                 l'écran TEST (MEMORY CARD choisie), START le jeu.
-#   cm-libres     même run : FREE BLOCKS 11.
-#   cm-effacer    la carte SNK : A, A (DELETE 0044-00?, puis DELETED) : la ligne d'aof disparaît, FREE BLOCKS 27 ;
-#                 la carte écrite égale à « octets_max » près à celle du BIOS SNK après CARD $04 (run cop-supp-snk) ;
-#                 aof relancé dessus : au moins « snk_min » des trames 500-2499 égales au BIOS SNK relancé sur la
-#                 sienne (cop-supp-relu-snk), au plus « sauve_max » à la carte où la sauvegarde est encore.
-#   cm-annuler    même départ : A, B : CANCELLED, la ligne d'aof toujours là, la carte écrite égale à l'octet à
-#                 celle de départ.
-#   cm-formater   même départ : FORMAT CARD, A, A : FORMATTED, FREE BLOCKS 27, plus aucune sauvegarde ; la carte égale
-#                 à « octets_max » près à celle du BIOS SNK après CARD $00 (run cop-fmt-snk).
-#   cm-non-formatee une carte neuve (le fichier que MAME crée) : CARD NOT FORMATTED ; A, A sur FORMAT CARD :
-#                 FORMATTED, FREE BLOCKS 27.
-#   cm-sans-carte sans carte : NO CARD ; A sur FORMAT CARD : NO CARD à la ligne des messages, rien d'autre ; EXIT rend
-#                 l'écran TEST.
-#   cm-protegee   la fixture, la protection lue par `carte-protegee.lua` (MAME n'en a pas) : WRITE PROTECTED sous
-#                 l'état ; A sur une sauvegarde, puis sur FORMAT CARD : WRITE PROTECTED, et la carte écrite égale à
-#                 l'octet à la fixture.
-#   cm-insertion  la fixture, lue « absente » jusqu'à la trame 399 (`carte-protegee.lua`), l'écran ouvert à 320 :
-#                 NO CARD à 350, puis la liste et FREE BLOCKS 11 à 420, sans geste. Puis A sur aof (DELETE 0044-00?),
-#                 la carte retirée de 450 à 469 et remise : la confirmation abandonnée (aucun message à 480), A
-#                 redemande DELETE au lieu d'effacer, B renonce ; la carte écrite égale à la fixture à « octets_max »
-#                 près. Avant le 2026-10-25, la confirmation survivait au changement de carte et A effaçait la ligne.
-#   bf-carte      la fixture, l'écran ouvert, une ligne plus bas, A puis B, START, START, sous `bus-flottant.lua`
-#                 comme les scènes bf-* : aucune lecture flottante, chaque trame égale au témoin libre, ART OF FIGHTING
-#                 et FREE BLOCKS 11 lisibles — le nom vient de la backup RAM, pas de la cartouche.
-#   aes-scores    les scores en mode AES (DECISIONS §11, D5 : pas de demande 0 à chaque mise sous tension) : puzzledp mis
-#                 en AES par l'éditeur, le score de la scène scores posé à 1500, MAME relancé sur la même NVRAM ; contre le
-#                 même chemin sans la pose, l'écran BEST PLAYERS de la trame 4900 diffère sur la ligne 1ST seule, d'au moins
-#                 « cases_min » cases, et l'écran de boot dit SYSTEM AES (measured/2026-10-24-scores-aes.tsv).
-#   scores-gel    SCORE RESET (DECISIONS : la date gelée, `src/c0/cal.s`) : wh2 sur la MV-6F, l'horloge rendue par
-#                 `horloge.lua` (MAME ne laisse pas choisir sa date). Au premier boot, le 2026-10-01, l'éditeur : SCORE
-#                 RESET laissé à ON (sg-a-on) ou passé à OFF (sg-a-off, « haut » six fois, droite), START ; les initiales
-#                 SPX posées en tête de BEST HEROES ($10E004, la zone de sauvegarde du jeu), sauvées par le BIOS. Puis MAME
-#                 relancé sur chaque NVRAM : le même jour (sg-b-meme), 38 jours plus tard (sg-b-saut, sg-b-gel). Le
-#                 témoin : sur au moins « trames_min » trames, l'écran BEST HEROES du saut diffère de celui du même jour
-#                 (wh2 a remis sa table d'usine). Le critère : à OFF, chacune de ces trames est celle du même jour, aucune
-#                 celle du saut ; la ligne CLOCK de l'écran de boot dit pourtant 11/08/26, la vraie date
-#                 (measured/2026-10-24-scores-date.tsv).
-#   LES RÉGLAGES DE LA BORNE, le 2026-10-25 (`src/c0/reglages.s`, `io.s`, le sous-écran CABINET SETTINGS de `dip.s` ;
-#   seuils dans --ref-borne). L'écran TEST, « haut » sept fois (CABINET SETTINGS, juste avant SCORE RESET), A. Les
-#   réglages sont posés par un run bo-set-* (l'éditeur, puis START), et jugés sur MAME relancé sur sa NVRAM, contre un
-#   run bo-set-0 qui fait le même chemin sans rien changer. Les témoins du BIOS SNK en free play portent J_DSW=1:40
-#   (le commutateur « Free Play » de la carte, OFF par défaut, chaque run ayant son cfg) ; leurs entrées sont
-#   décalées de 567 trames, l'écart de leur remise en démo (751) à la nôtre (184), vérifié par le juge.
-#   bo-ecran      la liste : CABINET SETTINGS choisie après « haut » sept fois, juste avant SCORE RESET, suivie de MEMORY
-#                 CARD, MODE, HARDWARE TESTS, JUKEBOX, RESET TO DEFAULTS (les chemins « haut » une à six fois
-#                 inchangés) ; A : CABINET SETTINGS, trois lignes, FREE PLAY OFF, NO CONTINUE OFF, DEMO SOUND ON,
-#                 START:BACK ; droite, bas A, bas droite : ON, ON, OFF ; START : la liste, sur CABINET SETTINGS ; START :
-#                 enregistré ($D0021D à 7, en complément) et la main au jeu.
-#   ab-ecran      la liste : ABOUT choisie après « haut » huit fois, juste avant CABINET SETTINGS (les chemins « haut »
-#                 une à sept fois inchangés) ; A : l'écran ABOUT, le nom et la version, le copyright, l'absence de garantie,
-#                 la GPL version 3 ou ultérieure, l'adresse du source, le testeur du matériel, START:BACK ; START : la
-#                 liste, sur ABOUT ; START : la main au jeu.
-#   bo-free-play  FREE PLAY ON, START sans pièce à 1000 : au moins « snk_min » des trames 1001-3099 sont celles du BIOS SNK
-#                 en free play au même instant après sa remise, la partie ; trame 1400, au moins « cases_min » cases
-#                 diffèrent de la démo de bo-dm0 ; aucun crédit. La démo d'avant : au moins « temoin_min » trames de la
-#                 démo SNK en free play (« PUSH 1P OR 2P START BUTTON »), au plus « autre_max » de la démo sans réglage.
-#   bo-fp-p2      START P2 à 1000 en démo : les deux joueurs partent, comme sous le BIOS SNK en free play — au moins
-#                 « snk_min » trames égales au même instant, au plus « p1_max » à celles d'un START P1 (bo-fp).
-#   bo-fp-joint   START P1 à 1000, START P2 à 2000 sans pièce : P2 se joint, au moins « snk_min » trames de 2001 à 3099
-#                 égales au BIOS SNK en free play, au plus « seul_max » à la partie sans P2 (bo-fp).
-#   bo-no-continue NO CONTINUE ON : deux pièces, START, la partie perdue, START à 6300 pendant le décompte de continue
-#                 d'aof (BIOS_PLAYER_MOD1 à 2 de 6116 à 6716) : refusé — au moins « fin_min » des trames 6400-8699 sont
-#                 celles de partie2 (le même chemin sans ce START : game over, le titre), au plus « cont_max » celles de
-#                 bo-cont (le START pris, sans le réglage : la partie continue) ; le crédit reste à 01.
-#   bo-demo-muette DEMO SOUND OFF, contre bo-dm0 : la démo 600-2989 a un RMS d'au plus « demo_max » fois celui du témoin et
-#                 au plus « keyon_max » key-on ; une pièce à 3000, le titre 3010-3289 au moins « titre_min » fois (sa
-#                 musique) ; START à 3300, la partie 3400-4399 au moins « partie_min » fois ; après le game over, la démo
-#                 suivante de nouveau au plus « demo_max » fois.
-#   bo-aes        le mode AES : les trois réglages posés à ON / ON / OFF, puis MODE AES dans le même écran ; CABINET
-#                 SETTINGS rouvert dit MVS ONLY trois fois et A n'y change rien. MAME relancé en AES (STORY MODE perdu,
-#                 START à 7500 pendant le continue, BIOS_PLAYER_MOD1 à 2 de 7338 à 7938) : le continue est pris — au moins
-#                 « cont_min » trames de 7500 à 8799 égales à bo-aes-cont (les mêmes entrées sans réglage), au plus
-#                 « fin_max » à aes-histoire (sans ce START) ; la démo 300-989 a un RMS d'au moins « demo_min » fois celui
-#                 de bo-aes-cont : NO CONTINUE et DEMO SOUND sont inertes en AES, FREE PLAY masqué.
-#   bf-borne      sous `bus-flottant.lua`, comme les scènes bf-* : CABINET SETTINGS, FREE PLAY → ON, START, START :
-#                 aucune lecture flottante, chaque trame égale au témoin libre, le sous-écran et ART OF FIGHTING lisibles.
-#   LE CATALOGUE DES CHEATS ET CHEATS/DEBUG, le 2026-10-25 (`src/c0/cheats.s`, `menu.s`, la quatrième ligne de CABINET SETTINGS ;
-#   seuils dans --ref-cheats). Le catalogue entier est joué par `bench/cheats-catalogue.sh` ; ici, un de ses jeux.
-#   cheats-vies  mslug2, INFINITE LIVES mis à ON par le menu en jeu (TEST 1500-1539, « bas » deux fois, A, RESUME) : de 1700 à
-#                 9000, l'image du compteur de vies du HUD (« 1UP=2 », x 22-56, y 28-38) garde la même valeur sur au moins
-#                 « hud_on_min » des trames, et au plus « hud_temoin_max » au témoin qui ouvre et ferme le même menu sans
-#                 rien changer ; le témoin perd la partie (BIOS_USER_MODE quitte 2, l'écran CONTINUE), la partie sous cheat
-#                 dure jusqu'à 9000 ; le menu montrait « INFINITE LIVES ON ».
-#   bo-cd-menu    CHEATS/DEBUG → OFF (CABINET SETTINGS, « bas » trois fois, droite), aof relancé : le menu en jeu de 2357 n'a ni
-#                 ligne de cheat ni MEMORY EDITOR (le run cheats, au réglage par défaut, montre les deux), RESUME, RESTART GAME
-#                 et GAME SETTINGS restent ; « haut » depuis RESUME mène à GAME SETTINGS, « bas » de là à RESUME.
-#   LA GRILLE DE $C03000, le 2026-10-25 (`src/c0/grille.s` ; seuils dans --ref-ssideki).
-#   demo-ssideki  ssideki sur la MV-6F, la démo sans pièce : de 400 à 2399 trames après la remise
-#                 (REMISE de son.lua), le nombre d'images différentes et de key-on, rapportés aux mêmes
-#                 trames du témoin SNK (ssideki, -bios euro, romset d'origine), au moins « images_ratio_min »
-#                 et « keyon_ratio_min ». Figée après l'intro du stade, la démo ne refait que ses
-#                 dernières images : le titre, KICK OFF et le match de démo n'arrivent pas.
-#   bo-cd-gel     même réglage, un gel posé par lua à 2400 dans la RAM du moteur (GL_MASQUE, $108406 à $60 : ce que D de
-#                 l'éditeur mémoire aurait laissé) : le chronomètre d'aof change de +300 à +1500, et $108406 ne vaut $60 que
-#                 sur au plus « ram_max » des 1 200 trames ; le même gel au réglage par défaut (bo-cd-gel-on) fige le
-#                 chronomètre — la pose agit, et c'est le réglage qui l'éteint.
-#   La quatrième ligne s'ajoute aux scènes bo-ecran (CHEATS/DEBUG ON par défaut) et bo-aes (en mode AES, elle reste ON et ne
-#   dit pas MVS ONLY).
-#   LES COMMUTATEURS DE LA CARTE ET LE GESTE SANS BOUTON TEST, le 2026-10-25 (`src/c0/io.s`, `dip.s`, `menu.s` ; seuils
-#   dans --ref-dip). Sur la MV-2F (`ng_mv2f -cart1 aof`, celle de l'essai sur matériel, qui a un champ SELECT), NVRAM neuve. Chaque
-#   run pose ses commutateurs par J_DSW, OFF compris (« 1:00 ») ; les autres scènes n'en posent aucun, chaque run ayant
-#   son cfg : MAME les y laisse à OFF, leur défaut.
-#   dip-free-play le commutateur 7 (« Free Play ») à ON, START à 1600 sans pièce : de 1601 à 2400, au moins « cases_min »
-#                 cases diffèrent de la démo au même commutateur à la trame 2000 (la partie), et le crédit reste à 00 ; la
-#                 démo d'avant diffère de celle du commutateur à OFF sur au moins « demo_min » des trames 600-1599
-#                 (« PUSH 1P OR 2P START BUTTON » au lieu d'« INSERT COIN » : CREDIT_CHECK ne refuse plus), et elle est
-#                 celle du BIOS SNK au même commutateur sur au moins « snk_min » trames (meilleur décalage : leurs démos
-#                 ne partent pas à la même trame), celle du BIOS SNK à OFF sur au plus « snk_off_max ».
-#   dip-fp-p2     même commutateur, START P2 à 1600 : BIOS_START_FLAG à $03 (les deux joueurs, complément), et au
-#                 moins « diff_min » des trames 1601-2400 diffèrent de celles d'un START P1.
-#   dip-fp-refus  le témoin : commutateur à OFF, START à 1600 sans pièce : refusé, au moins « egales_min » des trames
-#                 1601-2400 sont celles de la démo à OFF sans START.
-#   dip-fp-chaud  le commutateur basculé à la trame 1200 : OFF → ON, au moins « apres_min » des trames 1210-1599 sont
-#                 celles de la démo à ON, et START à 1600 lance la partie (mode 2) ; ON → OFF, autant de celles de la
-#                 démo à OFF, et START refusé (mode 1). Les deux démos ont entre elles au plus « temoins_max » trames
-#                 égales : sans cela, la bascule ne se verrait pas.
-#   dip-fp-reglage le commutateur 7 à OFF (posé) et FREE PLAY ON dans CABINET SETTINGS (NVRAM de bo-set-fp, aof) : START à
-#                 1000 sans pièce lance la partie (mode 2), la trame 1400 diffère de la démo de bo-dm0 d'au moins
-#                 « cases_min » cases : l'un ou l'autre suffit.
-#   dip-fp-cabinet le commutateur 7 à ON, TEST tenu au boot, CABINET SETTINGS : FREE PLAY dit DIP, droite n'y change
-#                 rien (DIP encore), START, START : $D0021D reste à 0 (complément).
-#   dip-setting   le commutateur 1 (« Setting Mode ») à ON, aucune touche : l'écran TEST (SOFT DIP SETTINGS) à 500 ;
-#                 START à 600 en sort : le commutateur encore à ON, DIP SWITCH 1 IS ON à 650, puis la main au jeu, au
-#                 moins « avert_min » trames après START. Rebasculé à OFF à 550 (ds-bascule) : pas d'avertissement, pas
-#                 même une trame (le plan fixe relevé à chaque trame de 600 à 650), la
-#                 main au jeu moins de « direct_max » trames après START. À OFF dès le boot (posé, le témoin) : pas
-#                 d'écran TEST, la main au jeu avant 300.
-#   geste-boot    START et SELECT de P1 tenus de 20 à 220 : l'écran TEST à 300 ; START seul, puis SELECT seul (les
-#                 témoins, le geste partiel) : pas d'écran TEST, la main au jeu avant 300. L'adaptateur BlueRetro
-#                 (BAS bref à 17, puis START, SELECT, A, B, C et D tenus de 20 à 80) : pas d'écran TEST, la main au jeu
-#                 avant 300 ; START, SELECT et A tenus de 20 à 220 : l'écran TEST à 300, comme le geste seul.
-#   geste-jeu     en partie (free play), START et SELECT de P1 tenus de 1700 à 1760 : IN-GAME MENU à 1800, le
-#                 jeu en pause ; START seul, puis SELECT seul (les témoins) : aucune pause, pas de menu. L'adaptateur
-#                 (BAS bref à 1697, puis START, SELECT, A, B, C et D de 1700 à 1760) : aucune pause, pas de menu, et le
-#                 compte du geste (MN_COMPTE) n'atteint pas 20 ; START, SELECT et A de 1700 à 1760 : le menu et la pause.
-#   geste-partie  aof, mslug, samsho4 et ssideki joués sur la MV-2F (free play, START à 1000, puis A, B, C, D, START et
-#                 les directions tapés de 1100 à 6000, droite tenue par moments ; jamais SELECT) : de la partie jusqu'à
-#                 6000, le compte du geste (MN_COMPTE, $10F800, la RAM du BIOS, `menu.s`) n'atteint jamais « compte_max »
-#                 et aucune pause d'au moins « pause_min » trames — le geste n'est jamais fait par accident. Le run gj (le
-#                 geste fait) sert de témoin à l'instrument : son compte atteint 20, le seuil d'ouverture.
-#   LES INTITULÉS EN RÉGION JAPAN, le 2026-10-27 (measured/2026-10-27-intitules-japon.tsv ; sans seuil : tout est
-#   exact). ssideki et bstars, leur romset, notre image substituée ; la région posée par l'éditeur (gauche deux fois : JAPAN,
-#   une fois : USA), START, la machine repart. Le plan fixe brut (J_TUILES de son.lua).
-#   japon-intitules l'écran TEST du boot en JAPAN (TEST tenu de 560 à 1000, après la relance) : chaque intitulé du témoin,
-#                 le BIOS SNK japonais (sa suite d'octets, banque $3), se retrouve tel quel dans une rangée de notre écran :
-#                 un octet au même glyphe dans les deux banques ($20-$5E, $61-$7B) en 8×8, en $100 + b ou en $300 + b,
-#                 tout autre en $300 + b. Des suites, pas des positions : les deux écrans n'ont pas la même mise en page.
-#   gs-japon      GAME SETTINGS de ssideki en JAPAN (pièce 1300, START 1400, TEST 2000-2039, « haut » deux fois, A) : les
-#                 huit lignes de la liste sont celles du même chemin en USA, au caractère près (les intitulés du bloc USA,
-#                 les valeurs du bloc japonais, ici égales) ; aucune tuile des banques $3/$4 dans le cadre.
-#   gs-japon-garde bstars, dont les blocs Japon et USA n'ont pas la même structure : en JAPAN, aucun intitulé de la liste
-#                 n'est un intitulé du bloc USA (vu en USA par le même chemin), et aucune tuile $3/$4 dans le cadre.
-#   LE CRC32 DE LA CARTOUCHE ET LES DEBUG DIPS, le 2026-10-25 (`src/c0/crc.s`, ligne CARTRIDGE CRC de HARDWARE TESTS ;
-#   `src/c0/debug.s`, cinquième ligne de CABINET SETTINGS ; seuils dans --ref-crc). Les CRC attendus sont calculés HORS DE MAME,
-#   depuis le zip du romset, par `bench/crc-cartouche.py` ; le temps du calcul est borné par le relevé.
-#   crc-fixe      aof : HARDWARE TESTS, « haut » deux fois (CARTRIDGE CRC, juste avant EXIT), A : READING FIXED pendant le calcul,
-#                 puis FIXED 1024K et le CRC de `crc-cartouche.py`, BANKS NONE, DONE au plus tard à la trame « fin_max » ;
-#                 START rend le menu des tests sur CARTRIDGE CRC, START l'écran TEST, START le jeu.
-#   crc-banques   mslug2 : FIXED et BANKS 2 X 1024K, les CRC de `crc-cartouche.py`, qui sont aussi ceux des fichiers p1 et sp2
-#                 de `-listxml` ; DONE au plus tard à « fin_max » ; le jeu repart après les trois START.
-#   crc-miroir    aof, sa P-ROM servie en miroir par `crc-miroir.lua` (une carte qui ne décode pas A19) : FIXED 0512K et le
-#                 CRC du fichier 044-p1.p1 de `-listxml`, BANKS NONE.
-#   crc-flottant  aof, sa fenêtre des banques ne lisant que $5700 par `crc-flottant.lua` (une cartouche sans puce de
-#                 banques, mesuré sur ssideki le 2026-10-29) : FIXED et son CRC comme crc-fixe, BANKS NONE.
-#   bf-crc        aof, comme crc-fixe, sous `bus-flottant.lua`, comme les scènes bf-* : aucune lecture flottante, chaque trame
-#                 égale au témoin libre, le CRC attendu à l'écran.
-#   bf-crc-banque mslug sur la MV-6F, de même : les banques lues sous REG_CRTFIX, FIXED et BANKS 1 X 1024K attendus.
-#   dd-effet      kof94 : CABINET SETTINGS, « bas » quatre fois (DEBUG DIPS), A : l'écran des seize bits, tous à 0 ; A met DIP 1
-#                 bit 0 à 1 ; bas, droite, A, A : DIP 2 bit 1 mis puis ôté ; START : la ligne dit 0100. Le jeu : de 600 à 6000,
-#                 le bas de l'écran (x 120-215, y 184-221 : DEBUG OBJE, CH CODE, ACT CODE) diffère du témoin dd-0 (le même
-#                 chemin sans A) sur au moins « zone_min » trames ; $100000 a son bit 0 sur au moins « ram_min » trames (complément),
-#                 et le premier octet du bloc de sauvegarde ($D00320) ne l'a jamais : le masque ne part pas en backup RAM.
-#   dd-connu      kof94 DÉJÀ INSCRIT (NVRAM de dd-set : premier boot, sauvegarde faite), le chemin de dd-1 : à la remise
-#                 ($10FD80 ← $82), $100000 a son bit 0. La sauvegarde est restaurée après l'éditeur ; sans le
-#                 masque reposé après elle, elle l'écrasait jusqu'au premier SYSTEM_IO.
-#   dd-off        kof94 : DIP 1 bit 0 mis, puis CHEATS/DEBUG → OFF dans le même sous-écran : DEBUG DIPS dit OFF et A ne l'ouvre
-#                 plus ; le jeu, de 400 à 6000, a chaque trame égale au témoin dd-0off (le même chemin sans le bit), et $100000
-#                 n'a jamais son bit 0.
-#   LES COMMUTATEURS 2, 3 ET 8 DE LA CARTE, le 2026-10-27 (`src/c0/io.s`, `c0.s`, `ecran.s` ; seuils dans
-#   --ref-dip28 ; ce que font les BIOS de référence : measured/2026-10-27-dip-2-8.tsv). Commutateurs posés par J_DSW.
-#   dip-gel       aof sur la MV-2F, free play (commutateur 7), START à 1600, le commutateur 8 à ON de 2000 à 2300 : au moins
-#                 « figees_min » des trames 2003-2299 égales à la précédente (le run sans gel, gel0 : au plus « figees_off_max »),
-#                 le témoin SNK de même ; de 2310 à 2799, au moins « reprise_min » trames égales à celles du run sans gel 300
-#                 trames plus tôt (le jeu reprend où il était) ; le YM2610 écrit au moins « ym_ratio_min » fois ce que
-#                 fait le run sans gel (le son laissé au Z80) ; mode 2 et aucun RESET pendant le gel.
-#   dip-gel-off   commutateur 8 à OFF : au plus « figees_off_max » trames figées en partie (gel0) ; au boot (ds0), pas de
-#                 message, la main au jeu avant 300.
-#   dip-gel-boot  à ON dès la trame 1, OFF à 1000 : DIP SWITCH 8 IS ON et SET IT OFF TO CONTINUE à 500, aucune main au jeu
-#                 avant 1000, puis la main au plus « reprise_max » trames après ; le témoin SNK, écran noir, rend la main
-#                 après 1000 aussi.
-#   dip-mahjong   la machine janshin de MAME (panneau de mahjong en P1), commutateur 3 à ON : B du panneau à 1700, sur
-#                 l'écran du choix de mode, change au moins « diff_min » des trames 1702-2099 au regard du run sans B (le
-#                 témoin, BIOS SNK japonais, de même). En complément, les 19 touches seules puis A+H+PON et A+B : chacune
-#                 dans sa rangée ($10FD95-$10FD97, tenue) et dans son front ($10FDA1-$10FDA3, une trame), comme la référence
-#                 (relevé, section 8) ; BIOS_P1STATUS à 3. Basculé à ON en démo (aof, MV-2F) : 3 à la pièce, pas avant.
-#   dip-mj-off    même machine, commutateur 3 à OFF : B ne change aucune trame (au moins « egales_min » égales au run sans
-#                 B) ; les touches des rangées A-G et H-N lues comme un joystick dans BIOS_P1CURRENT, PON à REACH non ;
-#                 BIOS_P1STATUS à 0.
-#   dip-4p        kizuna sur la MV-2F, commutateur 2 à ON : $10FEF8 à 2, et le bas de l'écran à la trame 900 a au moins
-#                 « cases_min » cases allumées de plus qu'à OFF (un second compteur CREDIT) ; le témoin, le BIOS SNK
-#                 japonais (l'européen ne le lit pas), de même à la trame 1460. Basculé à ON en démo : 2 à la pièce.
-#   dip-4p-off    commutateur 2 à OFF : $10FEF8 à 0 ; rebasculé à OFF en démo : 0 à la pièce.
-#   L'AUTOFIRE, le 2026-10-27 (`src/c0/autofire.s`, `io.s`, `menu.s` ; seuils dans --ref-af ; la liste des jeux :
-#   measured/2026-10-27-autofire.tsv). viewpoin (le turbo y est vu, relevé), en partie : TEST tenu 1000-1039, le menu en
-#   jeu, « haut » trois fois (AUTOFIRE), A, puis sur BUTTON A une touche K à 1069, START, « bas » trois fois (RESUME), A ;
-#   A tenu de 1300 à 2299, ou tapé deux trames sur quatre (le motif du turbo à 15 tirs/s). K = A bascule ; gauche et
-#   droite, là où elles ne changent rien, gardent au témoin le même chemin dans le menu.
-#   af-tir        A mis à ON (af-t), A tenu : de 1300 à 2399, au moins « egales_min » trames égales au run où A est tapé au
-#                 motif sans turbo (af-m), et au moins « diff_min » qui diffèrent du run où A est tenu sans turbo (af-r) ;
-#                 l'écran disait AUTOFIRE, BUTTON A OFF puis ON. En complément, BIOS_P1CURRENT ($10FD95) suit le motif
-#                 (A vu deux trames, pas deux) sur au moins « ram_min » des trames 1302-2299.
-#   af-sauve      MAME relancé sur la NVRAM d'af-t, sans rien changer (droite sur ON) : l'écran dit BUTTON A ON, et au
-#                 moins « egales_min » trames égales à af-t, au moins « diff_min » qui diffèrent d'af-sauve0 ; la fiche
-#                 de viewpoin (NGH $0051) en backup RAM ($D001B4) à la fin d'af-t.
-#   af-off        même NVRAM, A remis à OFF (af-sauve0) : au moins « egales_min » trames égales à af-r, A vu tenu en continu
-#                 ; MAME relancé sur sa NVRAM (af-relu), sans rien changer : de même — OFF enregistré ; l'écran
-#                 d'af-relu dit BUTTON A OFF avant sa touche, et la fiche de viewpoin n'est plus en $D001B4.
-#   af-mahjong    janshin, la fiche posée en backup RAM (J_BRAM, NGH $0048, A à ON), commutateur 3 à ON, la touche E du
-#                 panneau tenue de 1700 à 2099 : au moins « egales_min » des trames 1690-2099 égales au run sans fiche, et
-#                 $10FD95 (la rangée A-G) n'a que E sur 1702-2099 ; le témoin, commutateur 3 à OFF (E est A en joystick) :
-#                 au moins « bascules_min » bascules de A dans BIOS_P1CURRENT.
-#   LES GARANTIES SUR LES DÉFAUTS D'UNIBIOS, le 2026-10-27 (ATTENTES §2 ; seuils dans --ref-garanties).
-#   boot-graphismes aof, et la même cartouche aux C ROM et S ROM remplacées par du bruit (la fixture « brouille » : une
-#                 flashcart dont les graphismes ne sont pas encore lisibles), VRAM et palettes pleines de bruit à la mise
-#                 sous tension (`vram-hasard.lua`, comme le matériel) : de la trame qui suit la première écriture de
-#                 palette du BIOS jusqu'à la remise, au plus « differ_max » trames diffèrent ; après la remise, au moins
-#                 « jeu_min » des trames +5 à +504 diffèrent (le jeu, lui, lit ses graphismes : la fixture agit). Le
-#                 témoin : UniBIOS 4.0, mêmes deux cartouches, au moins « uni_min » des trames 60-249 diffèrent (son
-#                 logo, affiché de ~95 à ~250, dessiné avec les graphismes de la cartouche, se brouille).
-#   ms-son-slot2  la MV-6F, aof seul au slot 2 (-cart2), le slot 1 vide, sans entrée : le slot servi est le 1 ; trames
-#                 600-3600, RMS et key-on au moins « rms_ratio_min » et « keyon_ratio_min » du BIOS SNK sur la même
-#                 machine (le défaut d'UniBIOS 4.0 sur carte multi-slot : le son coupé hors du premier slot).
-#   dip-vierge    l'éditeur du boot sur une entrée jamais initialisée : une NVRAM où le slot 0 porte un autre NGH et
-#                 des octets quelconques dans les huit blocs soft-DIP et les noms (vierge-n), puis une où la table
-#                 connaît aof mais son bloc est quelconque (vierge-c), posées par J_BRAM ; ROUND TIME 60 → 65 comme
-#                 temps1. Contre le même chemin sur une NVRAM neuve (vierge-0) : l'éditeur à 250 et 330 a le même
-#                 plan fixe, le bloc enregistré ($D00220-$D0022F) est le même à l'octet, la trame 3000 diffère d'au
-#                 plus « cases_max » cases ; les blocs des autres entrées ne sont pas touchés. Ces deux NVRAM passent
-#                 par `_dip_valider` (DECISIONS §23 pt 5) : seul vierge-m juge l'éditeur lui-même. mslug sur la MV-6F,
-#                 son bloc dans la zone banquée, que `_dip_valider` laisse ; les octets de vierge-c posés (vierge-set-m),
-#                 CONTINUE ON → OFF comme bf-banque : l'éditeur à 250 et 330 et le bloc enregistré sont ceux du même
-#                 chemin sur une NVRAM neuve (vierge-m0).
-#   jukebox-veille le jukebox, le code 21 joué, plus aucune entrée (DECISIONS §25) : l'image de 7600 est l'écran
-#                 du jukebox, celle de 7800 entièrement noire ; le son de 7700-7990 a au moins « rms_ratio_min » du RMS du
-#                 témoin veille-0, que C tapé à 3000 et 6000 garde allumé ; HAUT à 8000 rend l'écran sans changer le
-#                 code (8050 : l'image de 7600), HAUT à 8100 le change (21 → 22).
-#   cm-copier     MEMORY CARD, C sur 0044-00 de la source : « CHANGE CARD AND PRESS A » ; la carte changée, A. Sur une
-#                 carte vide (cp-vide) : COPIED, et la carte porte 0044-00 aux octets de la source ; sur une carte qui l'a
-#                 déjà (cp-cible) : « OVERWRITE 0044-00? », A, COPIED, mêmes octets ; B renonce (cp-renonce) :
-#                 CANCELLED, puis A est un A ordinaire (DELETE ?). La source n'est jamais écrite, et la RAM du jeu posée
-#                 en $100000 et $1006BE ressort intacte (DECISIONS §26).
-#   tests-mahjong INPUT TEST, le commutateur 3 à ON (DECISIONS §24) : la page MAHJONG PANEL, chaque touche suivie
-#                 de 0 ou 1. Sur la manette d'aof, lue dans les trois rangées à la fois : A met E, L et REACH à 1, B met F
-#                 et M, haut met A, H et PON, START met START ; tout le reste à 0 ; START tenu rend le menu des tests.
-#                 Le commutateur passe à ON l'éditeur ouvert, juste avant INPUT TEST : les menus, ouverts à OFF, y restent
-#                 en manette (DECISIONS §30). Le panneau lui-même dans INPUT TEST n'est prouvé que par dip-mahjong (§24 pt 3).
-#   dip-corrompue la NVRAM de vierge-c (aof connu, son bloc soft-DIP quelconque) relancée SANS l'éditeur, pièce et
-#                 START comme temps0 : GAME_DIP à la trame 300 est celui du témoin (la même histoire sans les octets
-#                 posés), et au moins « egales_min » des trames 1000-2999 sont les siennes (DECISIONS §23 pt 5 :
-#                 `_dip_valider` à la relecture). Le bloc de la backup RAM porte toujours les octets posés.
-#   LA TABLE DU SINUS, le 2026-10-28 (`src/c0/sinus.s`, DECISIONS §18 ; seuils dans --ref-sinus). Leur romset,
-#   notre image substituée ; le témoin SNK, le romset d'origine (-bios euro).
-#   alpha-trajectoire alpham2, pièce 400, START 500, « haut » tenu 1600-1624 (le vaisseau mis en place), puis une des
-#                 huit directions tenue 20 trames dès 1640 : un run par direction. Le déplacement du vaisseau, de la
-#                 trame 1639 à 1675, lu sur les images (centre du cadre de ses couleurs, y 24-211), est celui du témoin
-#                 à « tol_px » pixels près, en x comme en y. Sous $FF, « haut » le mène aussi à droite.
-#   howto-preisle2 preisle2, pièce 400, START 500, sans autre entrée : l'écran HOW TO PLAY. L'image de la trame 1000
-#                 (l'objet à ramasser à l'écran) est celle du témoin, et au moins « egales_min » des trames 525-1825
-#                 le sont au même instant. Sous $FF, l'objet n'apparaît jamais.
-#   LES MENUS AU PANNEAU DE MAHJONG, le 2026-10-28 (`src/c0/panneau.s`, DECISIONS §30 ; seuils dans --ref-panneau).
-#   janshin, notre image ; aucun témoin : les références ne s'y comparent pas à l'image (leurs menus ne sont pas les nôtres),
-#   ce qu'elles font est dans measured/2026-10-28-panneau-menus-reference.tsv. Des états, lus au curseur « > » du plan fixe.
-#   pn-menu-on    l'éditeur du bouton TEST, commutateur 3 à ON : REGION à l'ouverture ; E quatre fois, MODE MVS ; I, PON, B
-#                 et C n'y changent rien ; F, HARDWARE TESTS ; A ouvre les autotests (WORK RAM).
-#   pn-menu-off   de même à OFF : A, H, A, H mènent à MODE MVS ; PON et F n'y changent rien ; B, HARDWARE TESTS ; E l'ouvre.
-#   pn-valeur     à ON, sur MODE : H le met à AES, G le remet à MVS (droite et gauche, l'éditeur de valeur).
-#   pn-verrou     le commutateur basculé à 268, l'éditeur ouvert (ON → OFF, puis OFF → ON) : le chemin de pn-menu-on, puis
-#                 celui de pn-menu-off, mènent toujours aux autotests (relu, E serait le bouton A sur REGION, A aussi).
-#   pn-jeu        le menu en jeu, commutateur 3 à ON, ouvert par TEST sur l'écran du choix de mode : F mène à RESTART GAME,
-#                 E à RESUME, A reprend ; B à 1800 change au moins « diff_min » des trames 1802-2199 au regard du même chemin
-#                 sans B (le jeu lit encore le panneau), aucune avant.
-#   L'écran de plantage n'est pas ici : l'étage 3a de `non-regression.sh` le juge.
+#   boot-saut     A at frame 60: the boot pause ends at the latest at frame "fin_max",
+#                 against at least "fin_min" without A; at frame 100, fewer than "reste_max" of
+#                 the lit pixels of the boot screen are still lit identically.
+#   calendrier    the CLOCK line of the boot screen carries the host date at the time of the run,
+#                 MM/DD/YY and the day.
+#   carte         with a memory card (-memc), the image of frame 100 differs from the one without
+#                 a card on the CARD line alone, by at least "cases_min" cells; text INSERTED.
+#   demo-son      the demo without a coin, frames 600-3600: RMS of the sound and key-ons, relative
+#                 to the same run under the SNK BIOS (-bios euro, original romset), at least
+#                 "rms_ratio_min" and "keyon_ratio_min".
+#   partie-credit a coin at frame 400: at frame 450, the image differs from the demo without a
+#                 coin by at least "titre_min" cells (the title); a second coin at 420:
+#                 the image differs from the one with one coin on the bottom text alone (y ≥ 152:
+#                 "PUSH 1P OR 2P START BUTTON" and CREDITS 02), not on the logo.
+#   partie-start  START at frame 500: at frame 1400, at least "cases_min" cells differ
+#                 from the demo (the game, not the demo).
+#   fin-demo      game lost without input, no more credit: the demo resumes; from frame
+#                 3000 to 9000, at least "trames_min" frames are those of the demo without a coin,
+#                 at a single offset (the game ends around frame 6960).
+#   fin-titre     two coins, one game lost: at least "trames_min" frames after the
+#                 game are images of the title (CREDIT 01) seen after the coin of the one-credit
+#                 run, frames 405-499.
+#   scores        puzzledp, a player score set in the game's RAM (1ST 1234560 SPX, like
+#                 2026-10-22-sauvegarde-jeu-seul-puzzledp.tsv), MAME quit then relaunched on the
+#                 same NVRAM; against the same path without the setting: the BEST PLAYERS screen of
+#                 frame 4900 differs on the 1ST line alone (y 48-79), by at least "cases_min"
+#                 cells.
+#   dip-temps     the editor, ROUND TIME 60 → 65: in game, frame 3000, the image differs from
+#                 the one of the editor quit without change in the timer alone
+#                 (x 144-183, y 8-31); the fix layer of the editor carried "ROUND TIME 65".
+#   dip-langue    the editor, LANGUAGE ENGLISH → SPANISH: 754 frames after the hand-over, the text
+#                 of the story differs (y 152-215) by at least "cases_min" cells, and the image
+#                 elsewhere by at most "hors_max".
+#   region        the editor, REGION EUROPE → JAPAN: the machine restarts (RESET), the boot
+#                 screen says JAPAN, and 754 frames after the hand-over the text of the story
+#                 (y 128-215) differs from the European one by at least "cases_min" cells.
+#   autotests     a defect injected in work RAM ($108000, bit 3, like
+#                 2026-10-21-autotests.tsv): WORK RAM FAIL AT 00108000, the three others OK.
+#                 The healthy run is stage 3c of `non-regression.sh`.
+#   tests-sauvegarde  aof ALREADY REGISTERED (NVRAM of tests-sauv-set: first boot, save done), the
+#                 self-tests without a defect from the TEST screen, START: at the hand-over ($10FD80 ← $82),
+#                 the game's save area (pointer $10E, size $112) is equal to its block in backup RAM
+#                 (2026-10-28-work-ram-restauree.tsv). On a fresh NVRAM, the autotests scene restored nothing
+#                 to destroy: that is why it did not see the defect.
+#   jukebox       codes 7F, 21, 25 ($07 before each): for each, the sound of the response
+#                 window has an RMS of at least "rms_min", and at least "gain_min" times that
+#                 of the control window (+1), and the chip counts more triggers.
+#   menu-hud      TEST held in game: during the pause, outside the frame of the menu (the rectangle
+#                 of the fix layer written by the BIOS), at most "hors_max" cells differ from
+#                 the image before the frame; inside the frame, at least "cadre_min" of its cells.
+#   menu-reprise  after RESUME, at least "egales_min" of the 1,500 frames are the image of the
+#                 witness without menu, shifted by the duration of the pause.
+#   menu-son      after RESUME, frames +30 to +1530 against the shifted witness: RMS and key-ons at
+#                 least "rms_ratio_min" and "keyon_ratio_min".
+#   cheats        INFINITE TIME and P1 INFINITE LIFE set to ON, RESUME: from +300 to +1500 after
+#                 resuming, the digits of the timer (x 146-173, y 10-29) and the life bar of
+#                 P1 (x 62-142, y 17-22) do not change, whereas they change in the witness over the
+#                 same duration; as a complement, $108406 and $1092CD equal $60 (`cheats.s`) on at
+#                 least "ram_min" of the 1,200 frames, read back at the end of the frame. Not
+#                 before +300: the displayed timer loses one second (60 → 59) before
+#                 freezing, measured at +181.
+#   restart       RESTART GAME: a RESET, then at least "egales_min" of the 380 frames that
+#                 follow are those of a power-on (the boot screen, then the game).
+#   ms-demo       MV-6F, b2b and puzzledp, without input: the demo goes to slot 1, and the image
+#                 60 frames after its hand-over is an image of the demo of puzzledp alone
+#                 (frames +50 to +70 of its hand-over in demo).
+#   ms-select     a coin, SELECT P1 at the title of b2b: hand-over to slot 1 in request 3, and
+#                 60 frames later, the image differs from the title of puzzledp alone by "cases_max"
+#                 cells at most (the countdown of the forced start).
+#   ms-garde      two edges of SELECT, the second during the DEMO_END of b2b: a single
+#                 DEMO_END read and a single REG_SLOT written (complement, the guard of DECISIONS §10),
+#                 and the same image as under a single SELECT.
+#   THE AES MODE (DECISIONS §11), thresholds in --ref-aes. Witness: SNK's AES BIOS, `aes -bios
+#   asia -cart aof` (run aes-snk, START at 1000), and our image in MVS mode. The two BIOSes do not
+#   hand over the demo at the same frame (476 against ~184, the reference playing its eyecatcher):
+#   we compare at the best offset, like fin-demo.
+#   aes-bascule   the editor, MODE MVS → AES ("up" four times, right), START: the editor
+#                 showed "MODE AES", the machine restarts (RESET), the boot screen says SYSTEM
+#                 AES; then, MAME relaunched on the same NVRAM without any input (run aes-demo),
+#                 the boot screen of frame 100 still says AES, and it differs from that of a
+#                 power-on in MVS on the SYSTEM line alone (the CLOCK line ignored),
+#                 by at least "cases_min" cells.
+#   aes-demo      the demo in AES mode: at least "snk_min" of its first 500 frames after the
+#                 hand-over are images of the SNK AES witness (before its START), at a single
+#                 offset; at most "mvs_max" are images of the demo of the MVS mode, at the
+#                 best offset ("PUSH START BUTTON" instead of "INSERT COIN", no more
+#                 "CREDIT 00").
+#   aes-start     START at 1000 without a coin: at frame 1400, at least "cases_min" cells
+#                 differ from the demo without START (the game starts, no credit asked for).
+#   aes-menu      same run: from 1030 to 2400, at least "egales_min" frames are those of the SNK
+#                 AES witness at the same instant after its START (the GAME LEVEL menu, what follows).
+#   aes-piece     a coin at 1000 in AES mode: from 1000 to 2400, at least "egales_min" frames
+#                 are those of the demo without a coin, and the key-ons from 1000 to 1300 differ by at
+#                 most "keyon_max" (neither title nor COIN_SOUND).
+#   aes-retour    from the AES NVRAM, the editor, MODE → MVS (left), START: the editor showed
+#                 "MODE MVS", RESET, SYSTEM MVS; from 600 to 1099 (START without a coin at 1000
+#                 included), at least "demo_min" frames are images of the MVS demo at a single
+#                 offset; the coin at 1100 leads to the title: at least "titre_min"
+#                 frames from 1100 to 1400 are images of the title of the partie run (405-499).
+#   THE COVERAGE, on 2026-10-23: each function of the BIOS that no scene judged
+#   (`measured/2026-10-23-parcours-couverture.tsv`, the inventory), thresholds in --ref-couv. The
+#   witness is the SNK BIOS of the same region or of the same machine when there is one.
+#   dip-defauts   ROUND TIME 60 → 65, then RESET TO DEFAULTS (up twice, A): the editor
+#                 came back to 60, and frame 3000 is that of the editor quit without change.
+#   dip-mmss      ncombat on the MV-6F, PLAY TIME 03:00 → 03:01 (an MM:SS time): at frames
+#                 1300, 2000, 3000, only the TIME of the HUD changes (one second more).
+#   dip-fois      puzzledp, CONTINUE INFINITE → WITHOUT by A (the maximum wraps to the minimum):
+#                 the title after the lost game comes at least "avance_min" frames earlier
+#                 (the CONTINUE screen does not take place).
+#   region-europe, region-japon, region-usa   the demo without input of the region (Europe: fresh
+#                 NVRAM; Japan, USA: set in the editor): at least "temoin_min" of the 1,000
+#                 frames that follow the hand-over are those of the SNK BIOS of that region, at the
+#                 best offset, at most "autre_max" those of another region.
+#   autotests-palette, -vram, -backup   a defect injected like 2026-10-21-autotests.tsv (pal0,
+#                 vram-bas, bram): the targeted test says FAIL AT <address>, the three others OK.
+#   tests-entrees INPUT TEST: fourteen inputs (P1: directions, A-D, START; P2: A, START;
+#                 coin 1, SERVICE, TEST) each light their cells, at most "cases_max",
+#                 disjoint; START held 80 frames brings back the tests menu.
+#   tests-barres  COLOR BARS: page 1, three red, green, blue bars of 15 increasing steps
+#                 (pixels read on the image); A, page 2, three grey bars; START, the menu.
+#   tests-grille  CROSSHATCH: the 1,120 cells are the grid (white at columns 0, 4 … 36, 39 and
+#                 at rows 2, 6 … 26, 29, black elsewhere); START, the menu; EXIT, the TEST screen.
+#   jukebox-pas   "up" (+1, $01-$03 skipped), right (+16), left (−16), down (−1): the screen
+#                 shows 00, 07, 27, 17, 27, 21; START brings back the TEST screen, START starts the game.
+#   jukebox-repete "up" held 60 frames: at least "crans_min" steps.
+#   jukebox-stop  code 21 played, B: RMS after B at most "ratio_max" of that of the same run
+#                 without B (jukebox-b0).
+#   cheats-off    INFINITE TIME ON then OFF in the same pause, RESUME: the timer runs again.
+#   partie-p2     two coins, START P2 at the title: at least "snk_min" of frames 500-2999 are
+#                 those of the SNK BIOS at the same instant, at most "p1_max" those of a START P1.
+#   partie-p2-joint a coin and START P2 in the middle of a game: P2 joins, as under SNK.
+#   depart-force  a coin, nothing else: the game starts by itself "trames" ± "tolerance" frames
+#                 after the title, then the frames are those of the SNK BIOS at the best offset.
+#   piece-son     same run: RMS of the 56 frames of the title at least "rms_ratio_min" of the SNK BIOS
+#                 (the sound of the coin, which COIN_SOUND makes the game play).
+#   carte-sauve   aof, fresh card (-memc): game lost, MEMORY CARD SAVE → YES; MAME relaunched
+#                 with the same card: MEMORY CARD LOAD, then the game resumed. At least
+#                 "snk_min" frames equal to the SNK BIOS on its own card, at most "neuve_max"
+#                 to a fresh card (CARD, CARD_ERROR which formats, the save, the read-back).
+#   ms-select-p2  three cartridges, SELECT P2 at the title of b2b: the previous slot, aof, at its title.
+#   ms-seule      a single cartridge on the MV-6F, SELECT at the title: nothing changes (deliberate
+#                 departure).
+#   aes-ms-select the AES mode on the MV-6F, SELECT in demo: slot 1, the demo of puzzledp, as
+#                 under SNK's AES BIOS (`aes -cart puzzledp`), never its title.
+#   aes-pause     the AES mode, SELECT in game (aof, MV-6F): the game's pause, "PAUSE", as
+#                 under SNK's AES BIOS with the same SELECT.
+#   aes-logo      the AES mode, kof98 ($114 = 1): request 1, its boot animation, as under
+#                 SNK's AES BIOS.
+#   aes-logo-fin  the AES mode, kof98 played and lost: after the game over, the demo, and request 1
+#                 not again (once per power-on, decision D5).
+#   aes-fin       the AES mode, STORY MODE lost: the demo (01/02) after the game over, that of
+#                 SNK's AES BIOS after its own, not that of the MVS mode.
+#   aes-texte     same game: P2's message at the top right, "PUSH START" as under
+#                 SNK's AES BIOS: at least "trames_min" frames of the fight are an image of the
+#                 witness, and each held state (≥ 10 frames of the same image of the area) is one,
+#                 at most "etats_hors_max" not being one. A defect fixed on 2026-10-23:
+#                 CREDIT_CHECK refused P2's request in AES mode, and aof displayed "INSERT
+#                 COIN" (measured/2026-10-23-aes-credit.tsv).
+#   THE COVERAGE, second batch (on 2026-10-23, same record --ref-couv):
+#   carte-chercher CARD $01 provoked (`forcer.lua`, like `carte-diff.sh`) on the card that the
+#                 SNK BIOS saved (run carte-sauve-snk), NGH $0044 then $0066: the interface
+#                 after the call, which the game reads back, equal to that of the SNK BIOS within
+#                 "octets_max", the card unchanged, and the mask different for the two NGHs.
+#   carte-supprimer CARD $04 on the same card: the card equal to that of the SNK BIOS; aof relaunched
+#                 on it, at least "snk_min" of frames 500-2499 equal to the SNK BIOS relaunched on
+#                 its own, at most "sauve_max" to the card where the save still is.
+#   carte-nom     CARD $06 (the name: 16 bytes of BIOS_CARD_START): the card equal to that of the
+#                 SNK BIOS; then CARD $07 from the written card, into a buffer that nothing filled:
+#                 the name read back and the response equal to the SNK BIOS, which reads back the
+#                 written name.
+#   tests-p2      INPUT TEST on the MV-6F (the machine that has SELECT): B, C, D, up, down, left,
+#                 right of P2, SELECT P1 and P2 each light the cells of their element, and
+#                 nothing else ("cases_hors_max").
+#   tests-dip     same run: the eight board switches, set one by one by MAME's :DSW
+#                 fields (J_DSW of `son.lua`), each light its digit and it alone.
+#   dip-sans-donnees the editor on a fixture (a copy of aof's romset in which only the European
+#                 pointer of the 68k header is refused, see below): SOFT DIP SETTINGS and NO
+#                 SOFT DIP DATA, at most "lignes_max" lines (the region, CABINET SETTINGS, SCORE
+#                 RESET, the card, the mode, the tests, the jukebox, the reset), none of ROUND TIME
+#                 that the witness (run langue) shows; START hands control back to the game.
+#   THE FULL IN-GAME MENU, on 2026-10-23 (GAME SETTINGS, MEMORY EDITOR, the freezes; thresholds in
+#   --ref-menu). The menu opens at 2357 on aof's game (TEST 2337-2376); witness: the partie run, or
+#   the boot editor set the same way (temps1, langue, temps-nc1, fois1). "R": the frame of the RESET
+#   of RESTART GAME, 2418 on ncombat and on puzzledp, measured and required.
+#   gs-compte     ROUND TIME 60 → 65 in game, RESUME: at the next round, at least "trames_min" frames
+#                 show a timer that only ROUND TIME 65 shows (images of temps1 that the witness
+#                 never has): the effect is taken without a relaunch.
+#   gs-defauts    the same thing, then RESET TO DEFAULTS: ROUND TIME 60 on screen, and at most
+#                 "trames_max" of those frames.
+#   gs-choix      LANGUAGE → SPANISH, then the RESTART GAME line: a RESET, and 754 frames after the
+#                 hand-over the text of the story differs from the English one by at least
+#                 "cases_min" cells, and from the image of Spanish set at boot by at most
+#                 "espagnol_max" (the setting stored in backup RAM, read back by the boot).
+#   gs-mmss       ncombat (MV-6F), PLAY TIME 03:00 → 03:01, RESTART GAME: at R + 1300, 2000, 3000,
+#                 the TIME of the HUD is that of temps-nc1 and not that of temps-nc0, at most
+#                 "hors_max" cells of difference in all.
+#   gs-fois       puzzledp, CONTINUE INFINITE → WITHOUT by A, RESTART GAME: the title after the lost
+#                 game comes at least "avance_min" (dip-fois) frames earlier than with CONTINUE,
+#                 within "ecart_max" of fois1.
+#   gs-sans-donnees, gs-banque   GAME SETTINGS on the nosd fixture (pointer refused) and on the
+#                 banque fixture (pointer at $00200100, which the boot editor accepts and GAME
+#                 SETTINGS refuses in game): NO SOFT DIP DATA, at most "lignes_max" lines; RESUME
+#                 hands control back.
+#   me-ecran      the memory editor after GOTO 108400, and after one page: the first line carries
+#                 the eight bytes that lua reads in RAM at the same frame, and the addresses go
+#                 in steps of 8.
+#   me-goto       GOTO 108400: the cursor and the first line; then GOTO with right, left, up:
+#                 109465; GOTO abandoned by B: the cursor does not move.
+#   me-octet, me-ligne, me-page   right six times (108406) then left (−1); down (+8) then up (−8);
+#                 B held and down (+$40, the window too) then B held and up (−$40): the cursor
+#                 displayed.
+#   me-repete     "down" held 60 frames: at least "crans_min" lines.
+#   me-poke       SET VALUE on $108406: $40, $41, $40 on screen, A writes; A, up, B abandons
+#                 ($108406 stays $40). After RESUME, aof's HUD shows 39 (the next countdown step:
+#                 it does not redraw on the write) on at least "trames_min" of the 600 frames, the
+#                 witness on none at the same instant.
+#   me-gel        two freezes ($108406, $1092CD): timer and P1's life frozen from +300 to +1500,
+#                 the witness sees them change.
+#   me-liste      same run: FROZEN 108406:60 1092CD:60 on screen.
+#   me-degel      one freeze, RESUME; the menu reopened, D removes it: FROZEN NONE, the timer
+#                 frozen between the two pauses, and changing after the second.
+#   me-borne      GOTO 10FD84 (BIOS_GAME_DIP): READ ONLY; A does not open SET VALUE, D freezes
+#                 nothing, $10FD84 unchanged.
+#   THE FLOATING BUS, on 2026-10-24: on a real board, the cartridge's P-ROM only answers under
+#   REG_CRTFIX (`docs/ESSAI-MATERIEL.md`, feedback of 2026-10-24). Each scene plays a screen of the
+#   TEST screen twice, under `bus-flottant.lua` loaded by `son.lua` (J_FLOTTANT): under the model
+#   of the hardware, then free (BF_LIBRE, the original MAME), the witness. Criterion: no floating
+#   read, neither by the BIOS nor by the game, no reset, EACH frame of the interval at the hash of
+#   the witness, and the labels legible on screen (words of the fix layer). No threshold:
+#   everything is exact.
+#   bf-editeur    aof: the editor, ROUND TIME 60 → 61 and LANGUAGE → SPANISH (two lines rewritten),
+#                 START: ART OF FIGHTING, ROUND TIME, LANGUAGE SPANISH; the game takes control back.
+#   bf-banque     mslug on the MV-6F, its block in the banked area ($2783D0): CONTINUE ON → OFF by
+#                 A, START: METAL SLUG, DIFFICULTY, CONTINUE OFF.
+#   bf-tests      aof: HARDWARE TESTS, CROSSHATCH, START, EXIT (the editor redrawn), START.
+#   bf-jukebox    aof: JUKEBOX, a code, START (the editor redrawn), START.
+#   sans-cartouche ng_mv1 without a cartridge, under the model, 1,500 frames without input: no
+#                 reset, no floating read, each frame ended in the BIOS, HARDWARE TESTS at frames
+#                 700 and 1400 (400 until 2026-10-28: detection now waits ~270 frames for a
+#                 cartridge that is late, see flash-cart). Until 2026-10-24, the empty slot 0
+#                 received control and the watchdog restarted the board every 192 frames
+#                 (`c0.s`, `_sans_cartouche`). Mutation: cartouche-absente-servie.
+#   flash-cart    aof, under the model, the cartridge silent for its first 30 frames (BF_ABSENTE),
+#                 like a flash cart loading its menu: GAME NGH ..... 0044 on the boot screen, no
+#                 reset, the game has control. Hardware feedback of 2026-10-28: NeoSD Pro and
+#                 BackBit stopped on the boot screen, GAME NGH 0000 (`c0.s`, ATTENTE_CARTE).
+#                 Mutation: carte-lente-ignoree.
+#   THE MEMORY CARD MANAGER, on 2026-10-24 (`src/c0/gestion-carte.s`, thresholds in --ref-carte):
+#   the TEST screen, "up" five times (MEMORY CARD, just before MODE), A. Judged on the decoded fix
+#   layer and, when the card changes, on the card that MAME writes on exit (-memc), compared with
+#   that of the SNK BIOS after the same CARD command (`forcer.lua`), then on what aof makes of it
+#   relaunched on it. Two starting cards: the one the SNK BIOS saved (run carte-sauve-snk: aof's
+#   save, one block), and a FIXTURE built here in the "Memory card" format (below): fourteen
+#   saves, among them aof (NGH $0044, one block), an NGH that no registered game carries ($0202,
+#   three chained blocks), twelve of one block, one free entry between two taken ones; 16 blocks
+#   taken, 11 free.
+#   cm-liste      the fixture: 0044 00 01 ART OF FIGHTING, 0202 01 03 without a name, then the
+#                 twelve; thirteen lines visible; "down" fifteen times: the list scrolls, EXIT on
+#                 the last visible line; START brings back the TEST screen (MEMORY CARD chosen),
+#                 START the game.
+#   cm-libres     same run: FREE BLOCKS 11.
+#   cm-effacer    the SNK card: A, A (DELETE 0044-00?, then DELETED): aof's line disappears, FREE
+#                 BLOCKS 27; the written card equal within "octets_max" to that of the SNK BIOS
+#                 after CARD $04 (run cop-supp-snk); aof relaunched on it: at least "snk_min" of
+#                 frames 500-2499 equal to the SNK BIOS relaunched on its own (cop-supp-relu-snk),
+#                 at most "sauve_max" to the card where the save still is.
+#   cm-annuler    same start: A, B: CANCELLED, aof's line still there, the written card equal to
+#                 the byte to the starting one.
+#   cm-formater   same start: FORMAT CARD, A, A: FORMATTED, FREE BLOCKS 27, no save left; the card
+#                 equal within "octets_max" to that of the SNK BIOS after CARD $00 (run cop-fmt-snk).
+#   cm-non-formatee a fresh card (the file that MAME creates): CARD NOT FORMATTED; A, A on FORMAT
+#                 CARD: FORMATTED, FREE BLOCKS 27.
+#   cm-sans-carte without a card: NO CARD; A on FORMAT CARD: NO CARD on the message line, nothing
+#                 else; EXIT brings back the TEST screen.
+#   cm-protegee   the fixture, the protection read by `carte-protegee.lua` (MAME has none): WRITE
+#                 PROTECTED under the status; A on a save, then on FORMAT CARD: WRITE PROTECTED, and
+#                 the written card equal to the byte to the fixture.
+#   cm-insertion  the fixture, read "absent" until frame 399 (`carte-protegee.lua`), the screen
+#                 opened at 320: NO CARD at 350, then the list and FREE BLOCKS 11 at 420, without a
+#                 gesture. Then A on aof (DELETE 0044-00?), the card removed from 450 to 469 and put
+#                 back: the confirmation abandoned (no message at 480), A asks DELETE again instead
+#                 of erasing, B abandons; the written card equal to the fixture within
+#                 "octets_max". Before 2026-10-25, the confirmation survived the card change and A
+#                 erased the line.
+#   bf-carte      the fixture, the screen opened, one line down, A then B, START, START, under
+#                 `bus-flottant.lua` like the bf-* scenes: no floating read, each frame equal to the
+#                 free witness, ART OF FIGHTING and FREE BLOCKS 11 legible: the name comes from the
+#                 backup RAM, not from the cartridge.
+#   aes-scores    the scores in AES mode (DECISIONS §11, D5: no request 0 at each power-on):
+#                 puzzledp put in AES by the editor, the score of the scores scene set at 1500, MAME
+#                 relaunched on the same NVRAM; against the same path without the setting, the BEST
+#                 PLAYERS screen of frame 4900 differs on the 1ST line alone, by at least
+#                 "cases_min" cells, and the boot screen says SYSTEM AES
+#                 (measured/2026-10-24-scores-aes.tsv).
+#   scores-gel    SCORE RESET (DECISIONS: the frozen date, `src/c0/cal.s`): wh2 on the MV-6F, the
+#                 clock rendered by `horloge.lua` (MAME does not let its date be chosen). At first
+#                 boot, on 2026-10-01, the editor: SCORE RESET left at ON (sg-a-on) or switched to
+#                 OFF (sg-a-off, "up" six times, right), START; the initials SPX set at the top of
+#                 BEST HEROES ($10E004, the game's save area), saved by the BIOS. Then MAME
+#                 relaunched on each NVRAM: the same day (sg-b-meme), 38 days later (sg-b-saut,
+#                 sg-b-gel). The witness: on at least "trames_min" frames, the BEST HEROES screen of
+#                 the jump differs from that of the same day (wh2 has restored its factory table).
+#                 The criterion: at OFF, each of these frames is that of the same day, none that of
+#                 the jump; the CLOCK line of the boot screen nevertheless says 11/08/26, the real
+#                 date (measured/2026-10-24-scores-date.tsv).
+#   THE CABINET SETTINGS, on 2026-10-25 (`src/c0/reglages.s`, `io.s`, the CABINET SETTINGS
+#   sub-screen of `dip.s`; thresholds in --ref-borne). The TEST screen, "up" seven times (CABINET
+#   SETTINGS, just before SCORE RESET), A. The settings are set by a bo-set-* run (the editor, then
+#   START), and judged on MAME relaunched on its NVRAM, against a bo-set-0 run that takes the same
+#   path without changing anything. The witnesses of the SNK BIOS in free play carry J_DSW=1:40
+#   (the board's "Free Play" switch, OFF by default, each run having its cfg); their inputs are
+#   shifted by 567 frames, the gap from their hand-over in demo (751) to ours (184), checked by the
+#   judge.
+#   bo-ecran      the list: CABINET SETTINGS chosen after "up" seven times, just before SCORE RESET,
+#                 followed by MEMORY CARD, MODE, HARDWARE TESTS, JUKEBOX, RESET TO DEFAULTS (the
+#                 "up" paths one to six times unchanged); A: CABINET SETTINGS, three lines, FREE
+#                 PLAY OFF, NO CONTINUE OFF, DEMO SOUND ON, START:BACK; right, down A, down right:
+#                 ON, ON, OFF; START: the list, on CABINET SETTINGS; START: stored ($D0021D at 7,
+#                 as a complement) and control to the game.
+#   ab-ecran      the list: ABOUT chosen after "up" eight times, just before CABINET SETTINGS (the
+#                 "up" paths one to seven times unchanged); A: the ABOUT screen, the name and the
+#                 version, the copyright, the absence of warranty, the GPL version 3 or later, the
+#                 address of the source, the hardware tester, START:BACK; START: the list, on
+#                 ABOUT; START: control to the game.
+#   bo-free-play  FREE PLAY ON, START without a coin at 1000: at least "snk_min" of frames
+#                 1001-3099 are those of the SNK BIOS in free play at the same instant after its
+#                 hand-over, the game; frame 1400, at least "cases_min" cells differ from the demo
+#                 of bo-dm0; no credit. The demo before: at least "temoin_min" frames of the SNK
+#                 demo in free play ("PUSH 1P OR 2P START BUTTON"), at most "autre_max" of the
+#                 demo without setting.
+#   bo-fp-p2      START P2 at 1000 in demo: both players start, as under the SNK BIOS in free play:
+#                 at least "snk_min" frames equal at the same instant, at most "p1_max" to those of
+#                 a START P1 (bo-fp).
+#   bo-fp-joint   START P1 at 1000, START P2 at 2000 without a coin: P2 joins, at least "snk_min"
+#                 frames from 2001 to 3099 equal to the SNK BIOS in free play, at most "seul_max" to
+#                 the game without P2 (bo-fp).
+#   bo-no-continue NO CONTINUE ON: two coins, START, the game lost, START at 6300 during aof's
+#                 continue countdown (BIOS_PLAYER_MOD1 at 2 from 6116 to 6716): refused; at least
+#                 "fin_min" of frames 6400-8699 are those of partie2 (the same path without this
+#                 START: game over, the title), at most "cont_max" those of bo-cont (the START
+#                 taken, without the setting: the game continues); the credit stays at 01.
+#   bo-demo-muette DEMO SOUND OFF, against bo-dm0: the demo 600-2989 has an RMS of at most
+#                 "demo_max" times that of the witness and at most "keyon_max" key-ons; a coin at
+#                 3000, the title 3010-3289 at least "titre_min" times (its music); START at 3300,
+#                 the game 3400-4399 at least "partie_min" times; after the game over, the next
+#                 demo again at most "demo_max" times.
+#   bo-aes        the AES mode: the three settings set to ON / ON / OFF, then MODE AES in the same
+#                 screen; CABINET SETTINGS reopened says MVS ONLY three times and A changes nothing
+#                 there. MAME relaunched in AES (STORY MODE lost, START at 7500 during the continue,
+#                 BIOS_PLAYER_MOD1 at 2 from 7338 to 7938): the continue is taken; at least
+#                 "cont_min" frames from 7500 to 8799 equal to bo-aes-cont (the same inputs without
+#                 setting), at most "fin_max" to aes-histoire (without this START); the demo 300-989
+#                 has an RMS of at least "demo_min" times that of bo-aes-cont: NO CONTINUE and DEMO
+#                 SOUND are inert in AES, FREE PLAY masked.
+#   bf-borne      under `bus-flottant.lua`, like the bf-* scenes: CABINET SETTINGS, FREE PLAY → ON,
+#                 START, START: no floating read, each frame equal to the free witness, the
+#                 sub-screen and ART OF FIGHTING legible.
+#   THE CHEAT CATALOGUE AND CHEATS/DEBUG, on 2026-10-25 (`src/c0/cheats.s`, `menu.s`, the fourth
+#   line of CABINET SETTINGS; thresholds in --ref-cheats). The whole catalogue is played by
+#   `bench/cheats-catalogue.sh`; here, one of its games.
+#   cheats-vies  mslug2, INFINITE LIVES set to ON by the in-game menu (TEST 1500-1539, "down"
+#                 twice, A, RESUME): from 1700 to 9000, the image of the HUD's lives counter
+#                 ("1UP=2", x 22-56, y 28-38) keeps the same value on at least "hud_on_min" of the
+#                 frames, and at most "hud_temoin_max" in the witness that opens and closes the same
+#                 menu without changing anything; the witness loses the game (BIOS_USER_MODE leaves
+#                 2, the CONTINUE screen), the game under cheat lasts until 9000; the menu showed
+#                 "INFINITE LIVES ON".
+#   bo-cd-menu    CHEATS/DEBUG → OFF (CABINET SETTINGS, "down" three times, right), aof relaunched:
+#                 the in-game menu of 2357 has neither a cheat line nor MEMORY EDITOR (the cheats
+#                 run, at the default setting, shows both), RESUME, RESTART GAME and GAME SETTINGS
+#                 remain; "up" from RESUME leads to GAME SETTINGS, "down" from there to RESUME.
+#   THE GRID OF $C03000, on 2026-10-25 (`src/c0/grille.s`; thresholds in --ref-ssideki).
+#   demo-ssideki  ssideki on the MV-6F, the demo without a coin: from 400 to 2399 frames after the
+#                 hand-over (REMISE of son.lua), the number of distinct images and of key-ons,
+#                 relative to the same frames of the SNK witness (ssideki, -bios euro, original
+#                 romset), at least "images_ratio_min" and "keyon_ratio_min". Frozen after the
+#                 intro of the stadium, the demo only replays its last images: the title, KICK
+#                 OFF and the demo match do not come.
+#   bo-cd-gel     same setting, a freeze set by lua at 2400 in the engine's RAM (GL_MASQUE,
+#                 $108406 at $60: what D of the memory editor would have left): aof's timer changes
+#                 from +300 to +1500, and $108406 only equals $60 on at most "ram_max" of the 1,200
+#                 frames; the same freeze at the default setting (bo-cd-gel-on) freezes the timer:
+#                 the setting acts, and it is the setting that turns it off.
+#   The fourth line is added to the scenes bo-ecran (CHEATS/DEBUG ON by default) and bo-aes (in
+#   AES mode, it stays ON and does not say MVS ONLY).
+#   THE BOARD SWITCHES AND THE GESTURE WITHOUT A TEST BUTTON, on 2026-10-25 (`src/c0/io.s`,
+#   `dip.s`, `menu.s`; thresholds in --ref-dip). On the MV-2F (`ng_mv2f -cart1 aof`, the one of
+#   the hardware trial, which has a SELECT field), fresh NVRAM. Each run sets its switches by
+#   J_DSW, OFF included ("1:00"); the other scenes set none, each run having its cfg: MAME leaves
+#   them at OFF there, their default.
+#   dip-free-play switch 7 ("Free Play") at ON, START at 1600 without a coin: from 1601 to 2400,
+#                 at least "cases_min" cells differ from the demo at the same switch at frame 2000
+#                 (the game), and the credit stays at 00; the demo before differs from that of the
+#                 switch at OFF on at least "demo_min" of frames 600-1599 ("PUSH 1P OR 2P START
+#                 BUTTON" instead of "INSERT COIN": CREDIT_CHECK no longer refuses), and it is that
+#                 of the SNK BIOS at the same switch on at least "snk_min" frames (best offset:
+#                 their demos do not start at the same frame), that of the SNK BIOS at OFF on at
+#                 most "snk_off_max".
+#   dip-fp-p2     same switch, START P2 at 1600: BIOS_START_FLAG at $03 (both players, complement),
+#                 and at least "diff_min" of frames 1601-2400 differ from those of a START P1.
+#   dip-fp-refus  the witness: switch at OFF, START at 1600 without a coin: refused, at least
+#                 "egales_min" of frames 1601-2400 are those of the demo at OFF without START.
+#   dip-fp-chaud  the switch flipped at frame 1200: OFF → ON, at least "apres_min" of frames
+#                 1210-1599 are those of the demo at ON, and START at 1600 starts the game (mode
+#                 2); ON → OFF, as many of those of the demo at OFF, and START refused (mode 1).
+#                 The two demos have between them at most "temoins_max" equal frames: without
+#                 that, the flip would not show.
+#   dip-fp-reglage switch 7 at OFF (set) and FREE PLAY ON in CABINET SETTINGS (NVRAM of
+#                 bo-set-fp, aof): START at 1000 without a coin starts the game (mode 2), frame 1400
+#                 differs from the demo of bo-dm0 by at least "cases_min" cells: either one is
+#                 enough.
+#   dip-fp-cabinet switch 7 at ON, TEST held at boot, CABINET SETTINGS: FREE PLAY says DIP, right
+#                 changes nothing there (DIP still), START, START: $D0021D stays at 0 (complement).
+#   dip-setting   switch 1 ("Setting Mode") at ON, no key: the TEST screen (SOFT DIP SETTINGS) at
+#                 500; START at 600 leaves it: the switch still at ON, DIP SWITCH 1 IS ON at 650,
+#                 then control to the game, at least "avert_min" frames after START. Flipped back
+#                 to OFF at 550 (ds-bascule): no warning, not even one frame (the fix layer
+#                 recorded at each frame from 600 to 650), control to the game less than
+#                 "direct_max" frames after START. At OFF from boot (set, the witness): no TEST
+#                 screen, control to the game before 300.
+#   geste-boot    START and SELECT of P1 held from 20 to 220: the TEST screen at 300; START alone,
+#                 then SELECT alone (the witnesses, the partial gesture): no TEST screen, control
+#                 to the game before 300. The BlueRetro adapter (brief DOWN at 17, then START,
+#                 SELECT, A, B, C and D held from 20 to 80): no TEST screen, control to the game
+#                 before 300; START, SELECT and A held from 20 to 220: the TEST screen at 300, like
+#                 the gesture alone.
+#   geste-jeu     in game (free play), START and SELECT of P1 held from 1700 to 1760: IN-GAME MENU
+#                 at 1800, the game paused; START alone, then SELECT alone (the witnesses): no
+#                 pause, no menu. The adapter (brief DOWN at 1697, then START, SELECT, A, B, C and D
+#                 from 1700 to 1760): no pause, no menu, and the gesture count (MN_COMPTE) does not
+#                 reach 20; START, SELECT and A from 1700 to 1760: the menu and the pause.
+#   geste-partie  aof, mslug, samsho4 and ssideki played on the MV-2F (free play, START at 1000,
+#                 then A, B, C, D, START and the directions tapped from 1100 to 6000, right held at
+#                 times; never SELECT): from the game until 6000, the gesture count (MN_COMPTE,
+#                 $10F800, the BIOS RAM, `menu.s`) never reaches "compte_max" and no pause of at
+#                 least "pause_min" frames: the gesture is never made by accident. The gj run (the
+#                 gesture made) serves as witness to the instrument: its count reaches 20, the
+#                 opening threshold.
+#   THE LABELS IN THE JAPAN REGION, on 2026-10-27 (measured/2026-10-27-intitules-japon.tsv; no
+#   threshold: everything is exact). ssideki and bstars, their romset, our image substituted; the
+#   region set by the editor (left twice: JAPAN, once: USA), START, the machine restarts. The raw
+#   fix layer (J_TUILES of son.lua).
+#   japon-intitules the TEST screen of the boot in JAPAN (TEST held from 560 to 1000, after the
+#                 relaunch): each label of the witness, the Japanese SNK BIOS (its byte sequence,
+#                 bank $3), is found as is in a row of our screen: a byte with the same glyph in
+#                 both banks ($20-$5E, $61-$7B) in 8×8, at $100 + b or at $300 + b, any other at
+#                 $300 + b. Sequences, not positions: the two screens do not have the same layout.
+#   gs-japon      GAME SETTINGS of ssideki in JAPAN (coin 1300, START 1400, TEST 2000-2039, "up"
+#                 twice, A): the eight lines of the list are those of the same path in USA, to the
+#                 character (the labels of the USA block, the values of the Japanese block, equal
+#                 here); no tile of banks $3/$4 in the frame.
+#   gs-japon-garde bstars, whose Japan and USA blocks do not have the same structure: in JAPAN, no
+#                 label of the list is a label of the USA block (seen in USA by the same path), and
+#                 no $3/$4 tile in the frame.
+#   THE CARTRIDGE CRC32 AND THE DEBUG DIPS, on 2026-10-25 (`src/c0/crc.s`, CARTRIDGE CRC line of
+#   HARDWARE TESTS; `src/c0/debug.s`, fifth line of CABINET SETTINGS; thresholds in --ref-crc). The
+#   expected CRCs are computed OUTSIDE MAME, from the romset's zip, by `bench/crc-cartouche.py`;
+#   the computation time is bounded by the record.
+#   crc-fixe      aof: HARDWARE TESTS, "up" twice (CARTRIDGE CRC, just before EXIT), A: READING
+#                 FIXED during the computation, then FIXED 1024K and the CRC of `crc-cartouche.py`,
+#                 BANKS NONE, DONE at the latest at frame "fin_max"; START brings back the tests
+#                 menu on CARTRIDGE CRC, START the TEST screen, START the game.
+#   crc-banques   mslug2: FIXED and BANKS 2 X 1024K, the CRCs of `crc-cartouche.py`, which are also
+#                 those of the p1 and sp2 files of `-listxml`; DONE at the latest at "fin_max"; the
+#                 game restarts after the three STARTs.
+#   crc-miroir    aof, its P-ROM served mirrored by `crc-miroir.lua` (a board that does not decode
+#                 A19): FIXED 0512K and the CRC of the 044-p1.p1 file of `-listxml`, BANKS NONE.
+#   crc-flottant  aof, its bank window reading only $5700 through `crc-flottant.lua` (a cartridge
+#                 without a bank chip, measured on ssideki on 2026-10-29): FIXED and its CRC like
+#                 crc-fixe, BANKS NONE.
+#   bf-crc        aof, like crc-fixe, under `bus-flottant.lua`, like the bf-* scenes: no floating
+#                 read, each frame equal to the free witness, the expected CRC on screen.
+#   bf-crc-banque mslug on the MV-6F, likewise: the banks read under REG_CRTFIX, FIXED and BANKS 1 X
+#                 1024K expected.
+#   dd-effet      kof94: CABINET SETTINGS, "down" four times (DEBUG DIPS), A: the screen of the
+#                 sixteen bits, all at 0; A sets DIP 1 bit 0 to 1; down, right, A, A: DIP 2 bit 1
+#                 set then cleared; START: the line says 0100. The game: from 600 to 6000, the
+#                 bottom of the screen (x 120-215, y 184-221: DEBUG OBJE, CH CODE, ACT CODE) differs
+#                 from the dd-0 witness (the same path without A) on at least "zone_min" frames;
+#                 $100000 has its bit 0 on at least "ram_min" frames (complement), and the first
+#                 byte of the save block ($D00320) never has it: the mask does not go to backup RAM.
+#   dd-connu      kof94 ALREADY REGISTERED (NVRAM of dd-set: first boot, save done), the path of
+#                 dd-1: at the hand-over ($10FD80 ← $82), $100000 has its bit 0. The save is
+#                 restored after the editor; without the mask set again after it, it overwrote it
+#                 until the first SYSTEM_IO.
+#   dd-off        kof94: DIP 1 bit 0 set, then CHEATS/DEBUG → OFF in the same sub-screen: DEBUG
+#                 DIPS says OFF and A no longer opens it; the game, from 400 to 6000, has each frame
+#                 equal to the dd-0off witness (the same path without the bit), and $100000 never
+#                 has its bit 0.
+#   BOARD SWITCHES 2, 3 AND 8, on 2026-10-27 (`src/c0/io.s`, `c0.s`, `ecran.s`; thresholds in
+#   --ref-dip28; what the reference BIOSes do: measured/2026-10-27-dip-2-8.tsv). Switches set by
+#   J_DSW.
+#   dip-gel       aof on the MV-2F, free play (switch 7), START at 1600, switch 8 at ON from 2000
+#                 to 2300: at least "figees_min" of frames 2003-2299 equal to the previous one (the
+#                 run without freeze, gel0: at most "figees_off_max"), the SNK witness likewise;
+#                 from 2310 to 2799, at least "reprise_min" frames equal to those of the run without
+#                 freeze 300 frames earlier (the game resumes where it was); the YM2610 writes at
+#                 least "ym_ratio_min" times what the run without freeze does (the sound left to
+#                 the Z80); mode 2 and no RESET during the freeze.
+#   dip-gel-off   switch 8 at OFF: at most "figees_off_max" frozen frames in game (gel0); at boot
+#                 (ds0), no message, control to the game before 300.
+#   dip-gel-boot  at ON from frame 1, OFF at 1000: DIP SWITCH 8 IS ON and SET IT OFF TO CONTINUE
+#                 at 500, no control to the game before 1000, then control at most "reprise_max"
+#                 frames after; the SNK witness, black screen, hands control back after 1000 too.
+#   dip-mahjong   MAME's janshin machine (mahjong panel on P1), switch 3 at ON: B of the panel at
+#                 1700, on the mode choice screen, changes at least "diff_min" of frames 1702-2099
+#                 compared with the run without B (the witness, Japanese SNK BIOS, likewise). As a
+#                 complement, the 19 keys alone then A+H+PON and A+B: each in its row
+#                 ($10FD95-$10FD97, held) and in its edge ($10FDA1-$10FDA3, one frame), like the
+#                 reference (record, section 8); BIOS_P1STATUS at 3. Flipped to ON in demo (aof,
+#                 MV-2F): 3 at the coin, not before.
+#   dip-mj-off    same machine, switch 3 at OFF: B changes no frame (at least "egales_min" equal to
+#                 the run without B); the keys of rows A-G and H-N read as a joystick in
+#                 BIOS_P1CURRENT, PON to REACH not; BIOS_P1STATUS at 0.
+#   dip-4p        kizuna on the MV-2F, switch 2 at ON: $10FEF8 at 2, and the bottom of the screen at
+#                 frame 900 has at least "cases_min" more lit cells than at OFF (a second CREDIT
+#                 counter); the witness, the Japanese SNK BIOS (the European one does not read it),
+#                 likewise at frame 1460. Flipped to ON in demo: 2 at the coin.
+#   dip-4p-off    switch 2 at OFF: $10FEF8 at 0; flipped back to OFF in demo: 0 at the coin.
+#   THE AUTOFIRE, on 2026-10-27 (`src/c0/autofire.s`, `io.s`, `menu.s`; thresholds in --ref-af;
+#   the list of games: measured/2026-10-27-autofire.tsv). viewpoin (turbo is seen there, record),
+#   in game: TEST held 1000-1039, the in-game menu, "up" three times (AUTOFIRE), A, then on BUTTON
+#   A a key K at 1069, START, "down" three times (RESUME), A; A held from 1300 to 2299, or tapped
+#   two frames out of four (the turbo pattern at 15 shots/s). K = A toggles; left and right, where
+#   they change nothing, keep the same path through the menu in the witness.
+#   af-tir        A set to ON (af-t), A held: from 1300 to 2399, at least "egales_min" frames equal
+#                 to the run where A is tapped in the pattern without turbo (af-m), and at least
+#                 "diff_min" that differ from the run where A is held without turbo (af-r); the
+#                 screen said AUTOFIRE, BUTTON A OFF then ON. As a complement, BIOS_P1CURRENT
+#                 ($10FD95) follows the pattern (A seen two frames, not two) on at least "ram_min"
+#                 of frames 1302-2299.
+#   af-sauve      MAME relaunched on the NVRAM of af-t, without changing anything (right on ON): the
+#                 screen says BUTTON A ON, and at least "egales_min" frames equal to af-t, at least
+#                 "diff_min" that differ from af-sauve0; the entry of viewpoin (NGH $0051) in
+#                 backup RAM ($D001B4) at the end of af-t.
+#   af-off        same NVRAM, A set back to OFF (af-sauve0): at least "egales_min" frames equal to
+#                 af-r, A seen held continuously; MAME relaunched on its NVRAM (af-relu), without
+#                 changing anything: likewise, OFF stored; the screen of af-relu says BUTTON A OFF
+#                 before its key, and the entry of viewpoin is no longer at $D001B4.
+#   af-mahjong    janshin, the entry set in backup RAM (J_BRAM, NGH $0048, A at ON), switch 3 at
+#                 ON, key E of the panel held from 1700 to 2099: at least "egales_min" of frames
+#                 1690-2099 equal to the run without the entry, and $10FD95 (row A-G) has only E
+#                 on 1702-2099; the witness, switch 3 at OFF (E is A as a joystick): at least
+#                 "bascules_min" toggles of A in BIOS_P1CURRENT.
+#   THE GUARANTEES ON UNIBIOS DEFECTS, on 2026-10-27 (ATTENTES §2; thresholds in --ref-garanties).
+#   boot-graphismes aof, and the same cartridge with the C ROMs and S ROM replaced by noise (the
+#                 "brouille" fixture: a flashcart whose graphics are not yet readable), VRAM and
+#                 palettes full of noise at power-on (`vram-hasard.lua`, like the hardware): from
+#                 the frame that follows the first palette write of the BIOS until the hand-over,
+#                 at most "differ_max" frames differ; after the hand-over, at least "jeu_min" of
+#                 frames +5 to +504 differ (the game, for its part, reads its graphics: the fixture
+#                 acts). The witness: UniBIOS 4.0, same two cartridges, at least "uni_min" of frames
+#                 60-249 differ (its logo, displayed from ~95 to ~250, drawn with the graphics of
+#                 the cartridge, gets scrambled).
+#   ms-son-slot2  the MV-6F, aof alone in slot 2 (-cart2), slot 1 empty, without input: the slot
+#                 served is 1; frames 600-3600, RMS and key-ons at least "rms_ratio_min" and
+#                 "keyon_ratio_min" of the SNK BIOS on the same machine (the UniBIOS 4.0 defect on a
+#                 multi-slot board: the sound cut outside the first slot).
+#   dip-vierge    the boot editor on a never-initialised entry: an NVRAM where slot 0 carries
+#                 another NGH and arbitrary bytes in the eight soft-DIP blocks and the names
+#                 (vierge-n), then one where the table knows aof but its block is arbitrary
+#                 (vierge-c), set by J_BRAM; ROUND TIME 60 → 65 like temps1. Against the same path
+#                 on a fresh NVRAM (vierge-0): the editor at 250 and 330 has the same fix layer, the
+#                 stored block ($D00220-$D0022F) is the same to the byte, frame 3000 differs by at
+#                 most "cases_max" cells; the blocks of the other entries are not touched. These two
+#                 NVRAMs go through `_dip_valider` (DECISIONS §23 pt 5): only vierge-m judges the
+#                 editor itself. mslug on the MV-6F, its block in the banked area, which
+#                 `_dip_valider` leaves alone; the bytes of vierge-c set (vierge-set-m), CONTINUE ON
+#                 → OFF like bf-banque: the editor at 250 and 330 and the stored block are those of
+#                 the same path on a fresh NVRAM (vierge-m0).
+#   jukebox-veille the jukebox, code 21 played, no more input (DECISIONS §25): the image of 7600
+#                 is the jukebox screen, that of 7800 entirely black; the sound of 7700-7990 has at
+#                 least "rms_ratio_min" of the RMS of the veille-0 witness, which C tapped at 3000
+#                 and 6000 keeps lit; UP at 8000 brings back the screen without changing the code
+#                 (8050: the image of 7600), UP at 8100 changes it (21 → 22).
+#   cm-copier     MEMORY CARD, C on 0044-00 of the source: "CHANGE CARD AND PRESS A"; the card
+#                 changed, A. On an empty card (cp-vide): COPIED, and the card carries 0044-00 with
+#                 the bytes of the source; on a card that already has it (cp-cible): "OVERWRITE
+#                 0044-00?", A, COPIED, same bytes; B abandons (cp-renonce): CANCELLED, then A is an
+#                 ordinary A (DELETE ?). The source is never written, and the game RAM set at
+#                 $100000 and $1006BE comes out intact (DECISIONS §26).
+#   tests-mahjong INPUT TEST, switch 3 at ON (DECISIONS §24): the MAHJONG PANEL page, each key
+#                 followed by 0 or 1. On aof's joystick, read in the three rows at once: A sets E, L
+#                 and REACH to 1, B sets F and M, up sets A, H and PON, START sets START; everything
+#                 else at 0; START held brings back the tests menu. The switch goes to ON with the
+#                 editor open, just before INPUT TEST: the menus, opened at OFF, stay on the
+#                 joystick there (DECISIONS §30). The panel itself in INPUT TEST is proven only by
+#                 dip-mahjong (§24 pt 3).
+#   dip-corrompue the NVRAM of vierge-c (aof known, its soft-DIP block arbitrary) relaunched
+#                 WITHOUT the editor, coin and START like temps0: GAME_DIP at frame 300 is that of
+#                 the witness (the same story without the bytes set), and at least "egales_min" of
+#                 frames 1000-2999 are its own (DECISIONS §23 pt 5: `_dip_valider` on read-back).
+#                 The block in backup RAM still carries the bytes set.
+#   THE SINE TABLE, on 2026-10-28 (`src/c0/sinus.s`, DECISIONS §18; thresholds in --ref-sinus).
+#   Their romset, our image substituted; the SNK witness, the original romset (-bios euro).
+#   alpha-trajectoire alpham2, coin 400, START 500, "up" held 1600-1624 (the ship put in place),
+#                 then one of the eight directions held 20 frames from 1640: one run per direction.
+#                 The movement of the ship, from frame 1639 to 1675, read on the images (centre of
+#                 the box of its colours, y 24-211), is that of the witness within "tol_px" pixels,
+#                 in x as in y. Under $FF, "up" also takes it to the right.
+#   howto-preisle2 preisle2, coin 400, START 500, without other input: the HOW TO PLAY screen. The
+#                 image of frame 1000 (the object to pick up on screen) is that of the witness, and
+#                 at least "egales_min" of frames 525-1825 are too at the same instant. Under $FF,
+#                 the object never appears.
+#   THE MENUS ON THE MAHJONG PANEL, on 2026-10-28 (`src/c0/panneau.s`, DECISIONS §30; thresholds in
+#   --ref-panneau). janshin, our image; no witness: the references are not compared with it on the
+#   image (their menus are not ours), what they do is in
+#   measured/2026-10-28-panneau-menus-reference.tsv. States, read at the ">" cursor of the fix layer.
+#   pn-menu-on    the editor of the TEST button, switch 3 at ON: REGION on opening; E four times,
+#                 MODE MVS; I, PON, B and C change nothing there; F, HARDWARE TESTS; A opens the
+#                 self-tests (WORK RAM).
+#   pn-menu-off   likewise at OFF: A, H, A, H lead to MODE MVS; PON and F change nothing there; B,
+#                 HARDWARE TESTS; E opens it.
+#   pn-valeur     at ON, on MODE: H sets it to AES, G sets it back to MVS (right and left, the value
+#                 editor).
+#   pn-verrou     the switch flipped at 268, the editor open (ON → OFF, then OFF → ON): the path of
+#                 pn-menu-on, then that of pn-menu-off, still lead to the self-tests (read back, E
+#                 would be the A button on REGION, A too).
+#   pn-jeu        the in-game menu, switch 3 at ON, opened by TEST on the mode choice screen: F
+#                 leads to RESTART GAME, E to RESUME, A resumes; B at 1800 changes at least
+#                 "diff_min" of frames 1802-2199 compared with the same path without B (the game
+#                 still reads the panel), none before.
+#   The crash screen is not here: stage 3a of `non-regression.sh` judges it.
 #
-# CHAQUE SCÈNE SAIT ÉCHOUER : `bench/parcours-mutations.py --eprouver <roms> <travail>`, une
-# mutation à la fois sur une copie de src/c0. Toutes éprouvées le 2026-10-23 sur l'image qui
-# corrige CREDIT_CHECK (6fc2d51b…) : 60 sur 60 tuées, 13 min en --jobs 2 ; puis sur celle du menu en jeu
-# complet (2b3a3662…) : 85 sur 85, 26 min en --jobs 2, puis sur son image finale (01180fcb…, le `tst.l` de cheats.s) : 85
-# sur 85, 56 min, un autre MAME à côté. Les 21 premières, le motif :
-#   boot-texte (MV5)             boot-ecran   empreinte 3912987540 au lieu du relevé
-#   boot-sans-saut               boot-saut    pause finie à 188 avec A
-#   calendrier-sans-jour         calendrier   CLOCK « 10/00/26 FRI »
-#   carte-jamais                 carte        0 case sur la ligne CARD
-#   demo-muette (sans CRTFIX)    demo-son     RMS 0,09 du témoin SNK
-#   credit-sans-piece            partie-*     la pièce change 0 case ; START 0 case
-#   fin-sans-demo                fin-demo     3 trames égales à la démo
-#   fin-sans-titre               fin-titre    20 trames du titre
-#   scores-sans-sauvegarde       scores       0 case sur la ligne 1ST
-#   dip-oublie                   dip-temps, dip-langue   chronomètre et texte inchangés
-#   region-ignoree               region       0 case dans le texte
-#   autotests-aveugles           autotests    WORK RAM OK au lieu de FAIL
-#   jukebox-muet                 jukebox      code 7F : RMS 0
-#   menu-police (correctif défait)   menu-hud     68 cases changent hors du cadre (le HUD)
-#   menu-son ($03, correctif défait) menu-son     RMS 0,07 du témoin
-#   menu-cadre-reste             menu-reprise 0 trame égale au témoin
-#   cheats-inertes               cheats       le chronomètre change sous cheat
-#   restart-reprend              restart      pas de RESET
-#   demo-sans-rotation           ms-demo      la démo reste au slot 0
-#   select-ignore                ms-select    pas de remise au slot 1
-#   garde-retiree                ms-garde     2 DEMO_END lus
-# Les mutations du mode AES, éprouvées le 2026-10-23 (relevé --ref-aes, en-tête) :
+# EACH SCENE CAN FAIL: `bench/parcours-mutations.py --eprouver <roms> <travail>`, one
+# mutation at a time on a copy of src/c0. All put to the test on 2026-10-23 on the image that
+# fixes CREDIT_CHECK (6fc2d51b…): 60 out of 60 killed, 13 min with --jobs 2; then on that of the
+# full in-game menu (2b3a3662…): 85 out of 85, 26 min with --jobs 2, then on its final image
+# (01180fcb…, the `tst.l` of cheats.s): 85 out of 85, 56 min, another MAME alongside. The first
+# 21, the reason:
+#   boot-texte (MV5)             boot-ecran   hash 3912987540 instead of the record
+#   boot-sans-saut               boot-saut    pause ended at 188 with A
+#   calendrier-sans-jour         calendrier   CLOCK "10/00/26 FRI"
+#   carte-jamais                 carte        0 cells on the CARD line
+#   demo-muette (sans CRTFIX)    demo-son     RMS 0.09 of the SNK witness
+#   credit-sans-piece            partie-*     the coin changes 0 cells; START 0 cells
+#   fin-sans-demo                fin-demo     3 frames equal to the demo
+#   fin-sans-titre               fin-titre    20 frames of the title
+#   scores-sans-sauvegarde       scores       0 cells on the 1ST line
+#   dip-oublie                   dip-temps, dip-langue   timer and text unchanged
+#   region-ignoree               region       0 cells in the text
+#   autotests-aveugles           autotests    WORK RAM OK instead of FAIL
+#   jukebox-muet                 jukebox      code 7F: RMS 0
+#   menu-police (fix undone)     menu-hud     68 cells change outside the frame (the HUD)
+#   menu-son ($03, fix undone)   menu-son     RMS 0.07 of the witness
+#   menu-cadre-reste             menu-reprise 0 frames equal to the witness
+#   cheats-inertes               cheats       the timer changes under cheat
+#   restart-reprend              restart      no RESET
+#   demo-sans-rotation           ms-demo      the demo stays on slot 0
+#   select-ignore                ms-select    no hand-over to slot 1
+#   garde-retiree                ms-garde     2 DEMO_END read
+# The mutations of the AES mode, put to the test on 2026-10-23 (record --ref-aes, header):
 #   mode-ignore                  aes-bascule, aes-demo
 #   mode-perdu                   aes-bascule
 #   start-refuse                 aes-start, aes-menu
 #   piece-comptee                aes-piece
 #   mode-bloque                  aes-retour
-# Écartée : REG_VRAMMOD non rendu à RESUME survit (aof repose le sien ; rien de visible).
-# Celles de la couverture, une par scène nouvelle, éprouvées le 2026-10-23 (relevé --ref-couv,
-# en-tête) : aes-insert-coin (le défaut corrigé, réintroduit), recherche-aveugle,
+# Set aside: REG_VRAMMOD not restored at RESUME survives (aof sets its own again; nothing visible).
+# Those of the coverage, one per new scene, put to the test on 2026-10-23 (record --ref-couv,
+# header): aes-insert-coin (the fixed defect, reintroduced), recherche-aveugle,
 # suppression-inerte, nom-jamais-ecrit, select-lu-sur-start, commutateur-decale,
 # soft-dip-sans-garde, defauts-inertes, temps-perdu, a-sans-boucle,
 # europe-perdue, japon-en-usa, usa-en-japon, palette-non-testee, vram-non-testee,
@@ -631,77 +739,97 @@
 # jukebox-sans-repetition, jukebox-b-inerte, cheat-sans-off, p2-refuse, p2-joint-refuse,
 # depart-jamais, piece-muette, carte-protegee, select-p2-suivant, select-seule-pris,
 # select-aes-ignore, pause-aes-retiree, logo-jamais, aes-titre-apres-partie.
-# Celles du menu en jeu complet, 25, éprouvées une à une le 2026-10-23 (relevé --ref-menu) : gs-droite-inerte,
-# gs-defauts-inertes, gs-sans-enregistrement, gs-relance-inerte, gs-a-comme-droite, gs-sans-ligne-vide, gs-banque-acceptee,
-# me-octet-voisin, me-goto-inerte, goto-gauche-inerte, goto-b-va, me-droite-inerte, me-gauche-inerte, me-ligne-courte,
-# me-haut-court, me-page-courte, me-page-haut-courte, me-sans-repetition, me-ecriture-inerte, valeur-haut-inerte,
-# annuler-inerte, gels-inertes, gels-non-listes, degel-inerte, borne-retiree. Survivante et remplacée : « B écrit comme A »
-# (B est lu avant A et sort sans écrire), devenue annuler-inerte. 85 mutations en tout.
-# Celles du bus flottant, 2, le 2026-10-24 : bf-intitules-prom (les quatre scènes bf-*, 300 à 456 lectures
-# flottantes) et bf-nom-prom (bf-editeur, bf-banque, 16). 87 mutations en tout.
-# Celle de la MV-1 sans cartouche, le 2026-10-24 : cartouche-absente-servie (sans-cartouche, 7 resets). 88 en tout.
-# Celles de la carte mémoire et des scores, 16, le 2026-10-24 (relevé --ref-carte) : cm-liste-vide, cm-nom-absent,
-# cm-blocs-faux, cm-sans-defilement (cm-liste), cm-libres-faux, cm-effacer-inerte, cm-sans-confirmation (cm-annuler),
-# cm-formater-inerte (cm-formater, cm-non-formatee), cm-non-formatee-muette, cm-sans-carte-muette, cm-protection-ignoree,
-# cm-insertion-ignoree, bf-carte-nom-prom, aes-sans-restauration (aes-scores), gel-inerte et score-reset-oublie
-# (scores-gel). 104 en tout. Le 2026-10-25 : cm-confirmation-survit (cm-insertion, la confirmation gardée au changement
-# de carte). 105 en tout. Celles des réglages de la borne, 10, le 2026-10-25 (relevé --ref-borne) : bo-sous-ecran-inerte,
-# bo-borne-oubliee (bo-ecran, bo-free-play), bo-libre-inerte (bo-free-play, bo-fp-p2, bo-fp-joint), bo-p2-seul, bo-credit-refuse,
-# bo-continue-pris, bo-aes-non-masque, bo-aes-affiche, bo-demo-sonore, bo-demo-toujours-muette ; bf-borne s'ajoute aux scènes de
-# bf-intitules-prom et bf-nom-prom. 115 en tout. Celles du catalogue des cheats et de CHEATS/DEBUG, 9, le 2026-10-25 (relevé
-# --ref-cheats) : cat-mslug2-perdu (cheats-vies), cd-trouver-ignore, cd-editeur-garde, cd-dernier-choix (bo-cd-menu),
-# cd-moteur-ignore (bo-cd-gel), cd-bit-perdu (bo-cd-menu, bo-cd-gel), cd-aes-masque (bo-aes), cd-ligne-absente (bo-ecran),
-# cd-defaut-off (cheats). 124 en tout. Celles des commutateurs de la carte et du geste, le 2026-10-25 (relevé --ref-dip) :
-# dfp-ignore, dfp-bit-faux, dfp-credit-check, dfp-cabinet-off, dfp-cabinet-libre, setting-ignore, setting-bit-faux,
-# geste-boot-ignore, geste-boot-start-seul, geste-jeu-ignore, geste-jeu-start-seul, setting-toujours, geste-boot-select-seul,
-# geste-jeu-select-seul, geste-toujours, avertissement-absent, avertissement-toujours ; dip-fp-p2 s'ajoute aux scènes de bo-p2-seul, dip-fp-reglage à celles de
-# bo-libre-inerte. 141 en tout. Celle de la grille, le 2026-10-25 (relevé --ref-ssideki) : grille-haute-ff
-# (demo-ssideki). 142 en tout. Celles de l'adaptateur BlueRetro, 4, le 2026-10-27 : geste-boot-adaptateur,
-# geste-boot-un-bouton (geste-boot), geste-jeu-adaptateur, geste-jeu-un-bouton (geste-jeu). 146 en tout. Celles des intitulés
-# en région JAPAN, le 2026-10-27 : japon-filtre, japon-banque-100 (japon-intitules), gs-sans-emprunt (gs-japon),
-# gs-sans-garde, gs-regle-boot (gs-japon-garde). 151 en tout. Celles du CRC32 de la cartouche et des debug dips, 12,
-# le 2026-10-25 (relevé --ref-crc) :
-# crc-ordre-cpu (crc-fixe, crc-banques, crc-miroir), crc-sans-crtfix (bf-crc, bf-crc-banque), crc-banques-ignorees,
-# crc-miroir-de-banque (crc-banques, bf-crc-banque), crc-miroir-ignore (crc-miroir), dd-jamais-pose, dd-ecran-inerte,
-# dd-dip2-perdu, dd-sauve (dd-effet), dd-ouvert-a-off, dd-off-ignore (dd-off), dd-ligne-absente (bo-ecran). 163 en tout.
-# Celles des commutateurs 2, 3 et 8, 11, le 2026-10-27 (relevé --ref-dip28) :
-# gel-jamais (dip-gel), gel-toujours (dip-gel-off), gel-boot-noir, gel-boot-absent (dip-gel-boot), mj-jamais, mj-sans-front
-# (dip-mahjong), mj-boot-seul (dip-mahjong, dip-4p), mj-toujours, mj-off-sourd (dip-mj-off), 4p-jamais (dip-4p),
-# 4p-toujours (dip-4p-off). 174 en tout. Celles de l'autofire, 7, le 2026-10-27 (relevé --ref-af ; écrites, pas encore
-# éprouvées) : af-inerte, af-cadence (af-tir), af-non-sauve, af-charge-jamais (af-sauve), af-off-ignore, af-off-non-retire
-# (af-off), af-mahjong-pris (af-mahjong). 181 en tout.
-# Celles des garanties, 4, le 2026-10-27 (relevé --ref-garanties) :
+# Those of the full in-game menu, 25, put to the test one by one on 2026-10-23 (record
+# --ref-menu): gs-droite-inerte, gs-defauts-inertes, gs-sans-enregistrement, gs-relance-inerte,
+# gs-a-comme-droite, gs-sans-ligne-vide, gs-banque-acceptee, me-octet-voisin, me-goto-inerte,
+# goto-gauche-inerte, goto-b-va, me-droite-inerte, me-gauche-inerte, me-ligne-courte,
+# me-haut-court, me-page-courte, me-page-haut-courte, me-sans-repetition, me-ecriture-inerte,
+# valeur-haut-inerte, annuler-inerte, gels-inertes, gels-non-listes, degel-inerte,
+# borne-retiree. Survived and replaced: "B writes like A" (B is read before A and exits without
+# writing), become annuler-inerte. 85 mutations in all.
+# Those of the floating bus, 2, on 2026-10-24: bf-intitules-prom (the four bf-* scenes, 300 to
+# 456 floating reads) and bf-nom-prom (bf-editeur, bf-banque, 16). 87 mutations in all.
+# That of the MV-1 without a cartridge, on 2026-10-24: cartouche-absente-servie (sans-cartouche,
+# 7 resets). 88 in all.
+# Those of the memory card and of the scores, 16, on 2026-10-24 (record --ref-carte):
+# cm-liste-vide, cm-nom-absent, cm-blocs-faux, cm-sans-defilement (cm-liste), cm-libres-faux,
+# cm-effacer-inerte, cm-sans-confirmation (cm-annuler), cm-formater-inerte (cm-formater,
+# cm-non-formatee), cm-non-formatee-muette, cm-sans-carte-muette, cm-protection-ignoree,
+# cm-insertion-ignoree, bf-carte-nom-prom, aes-sans-restauration (aes-scores), gel-inerte and
+# score-reset-oublie (scores-gel). 104 in all. On 2026-10-25: cm-confirmation-survit
+# (cm-insertion, the confirmation kept across the card change). 105 in all. Those of the
+# cabinet settings, 10, on 2026-10-25 (record --ref-borne): bo-sous-ecran-inerte,
+# bo-borne-oubliee (bo-ecran, bo-free-play), bo-libre-inerte (bo-free-play, bo-fp-p2,
+# bo-fp-joint), bo-p2-seul, bo-credit-refuse, bo-continue-pris, bo-aes-non-masque,
+# bo-aes-affiche, bo-demo-sonore, bo-demo-toujours-muette; bf-borne is added to the scenes of
+# bf-intitules-prom and bf-nom-prom. 115 in all. Those of the cheat catalogue and of
+# CHEATS/DEBUG, 9, on 2026-10-25 (record --ref-cheats): cat-mslug2-perdu (cheats-vies),
+# cd-trouver-ignore, cd-editeur-garde, cd-dernier-choix (bo-cd-menu), cd-moteur-ignore
+# (bo-cd-gel), cd-bit-perdu (bo-cd-menu, bo-cd-gel), cd-aes-masque (bo-aes), cd-ligne-absente
+# (bo-ecran), cd-defaut-off (cheats). 124 in all. Those of the board switches and of the
+# gesture, on 2026-10-25 (record --ref-dip): dfp-ignore, dfp-bit-faux, dfp-credit-check,
+# dfp-cabinet-off, dfp-cabinet-libre, setting-ignore, setting-bit-faux, geste-boot-ignore,
+# geste-boot-start-seul, geste-jeu-ignore, geste-jeu-start-seul, setting-toujours,
+# geste-boot-select-seul, geste-jeu-select-seul, geste-toujours, avertissement-absent,
+# avertissement-toujours; dip-fp-p2 is added to the scenes of bo-p2-seul, dip-fp-reglage to
+# those of bo-libre-inerte. 141 in all. That of the grid, on 2026-10-25 (record --ref-ssideki):
+# grille-haute-ff (demo-ssideki). 142 in all. Those of the BlueRetro adapter, 4, on 2026-10-27:
+# geste-boot-adaptateur, geste-boot-un-bouton (geste-boot), geste-jeu-adaptateur,
+# geste-jeu-un-bouton (geste-jeu). 146 in all. Those of the labels in the JAPAN region, on
+# 2026-10-27: japon-filtre, japon-banque-100 (japon-intitules), gs-sans-emprunt (gs-japon),
+# gs-sans-garde, gs-regle-boot (gs-japon-garde). 151 in all. Those of the cartridge CRC32 and of
+# the debug dips, 12, on 2026-10-25 (record --ref-crc):
+# crc-ordre-cpu (crc-fixe, crc-banques, crc-miroir), crc-sans-crtfix (bf-crc, bf-crc-banque),
+# crc-banques-ignorees, crc-miroir-de-banque (crc-banques, bf-crc-banque), crc-miroir-ignore
+# (crc-miroir), dd-jamais-pose, dd-ecran-inerte, dd-dip2-perdu, dd-sauve (dd-effet),
+# dd-ouvert-a-off, dd-off-ignore (dd-off), dd-ligne-absente (bo-ecran). 163 in all.
+# Those of switches 2, 3 and 8, 11, on 2026-10-27 (record --ref-dip28):
+# gel-jamais (dip-gel), gel-toujours (dip-gel-off), gel-boot-noir, gel-boot-absent
+# (dip-gel-boot), mj-jamais, mj-sans-front (dip-mahjong), mj-boot-seul (dip-mahjong, dip-4p),
+# mj-toujours, mj-off-sourd (dip-mj-off), 4p-jamais (dip-4p), 4p-toujours (dip-4p-off). 174 in
+# all. Those of the autofire, 7, on 2026-10-27 (record --ref-af; written, not yet put to the
+# test): af-inerte, af-cadence (af-tir), af-non-sauve, af-charge-jamais (af-sauve),
+# af-off-ignore, af-off-non-retire (af-off), af-mahjong-pris (af-mahjong). 181 in all.
+# Those of the guarantees, 4, on 2026-10-27 (record --ref-garanties):
 # boot-police-cartouche, boot-sans-lsp (boot-graphismes), vierge-inutilises,
-# vierge-sans-validation (dip-vierge). 185 en tout. Celle de la validation à la relecture : relecture-sans-validation
-# (dip-corrompue). 186 en tout. Celles de la page du panneau de mahjong : mj-page-absente, mj-touche-muette
-# (tests-mahjong). 188 en tout. Celles de l'économiseur : veille-jamais, veille-reveil-agit (jukebox-veille). 190 en tout. Celles de
-# la copie de carte : cp-sans-ecrasement, cp-ram-perdue, cp-inerte (cm-copier). 193 en tout. slot2-muet (ms-son-slot2)
-# est retirée : MAME relance le Z80 sans sa remise à zéro, la démo sonne (DECISIONS §23 pt 2). Celles de la table du
-# sinus, le 2026-10-28 (relevé --ref-sinus) : sinus-ff (alpha-trajectoire, howto-preisle2), sinus-un-ffff
-# (howto-preisle2 seule : son pixel d'écart reste sous le « tol_px » d'alpha-trajectoire). 195 en tout. Celles de la
-# sauvegarde d'un jeu déjà inscrit, le 2026-10-28 : restauration-avant-editeur (tests-sauvegarde),
-# dd-ecrase-a-la-restauration (dd-connu). 197 en tout.
-# Celles des menus au
-# panneau de mahjong, le 2026-10-28 (relevé --ref-panneau), éprouvées seules sur l'image f1b21158… : pn-sans-traduction
-# (pn-menu-on, pn-valeur, pn-verrou, pn-jeu), pn-sans-1b (pn-menu-off, pn-verrou), pn-verrou-relu (pn-verrou), pn-e-f-echangees
-# (pn-menu-on, pn-valeur, pn-verrou, pn-jeu). 201 en tout. boot-sans-saut suit `_panneau_p1` dans `ecran.s`, rééprouvée et tuée le même jour.
-# Celle de la cartouche qui tarde, le 2026-10-28 : carte-lente-ignoree (flash-cart). 202 en tout.
-# Celles de l'écran ABOUT, le 2026-10-28 : ab-ligne-absente, ab-ne-s-ouvre-pas, ab-start-ignore (ab-ecran). 205 en tout.
-# Celle de la fenêtre des banques qui ne lit qu'un mot, le 2026-10-29 : crc-flottant-ignore (crc-flottant). 206 en tout.
+# vierge-sans-validation (dip-vierge). 185 in all. That of the validation on read-back:
+# relecture-sans-validation (dip-corrompue). 186 in all. Those of the mahjong panel page:
+# mj-page-absente, mj-touche-muette (tests-mahjong). 188 in all. Those of the screen saver:
+# veille-jamais, veille-reveil-agit (jukebox-veille). 190 in all. Those of the card copy:
+# cp-sans-ecrasement, cp-ram-perdue, cp-inerte (cm-copier). 193 in all. slot2-muet
+# (ms-son-slot2) is withdrawn: MAME restarts the Z80 without its reset, the demo sounds
+# (DECISIONS §23 pt 2). Those of the sine table, on 2026-10-28 (record --ref-sinus): sinus-ff
+# (alpha-trajectoire, howto-preisle2), sinus-un-ffff (howto-preisle2 alone: its one-pixel
+# departure stays under the "tol_px" of alpha-trajectoire). 195 in all. Those of the save of an
+# already registered game, on 2026-10-28: restauration-avant-editeur (tests-sauvegarde),
+# dd-ecrase-a-la-restauration (dd-connu). 197 in all.
+# Those of the menus on the
+# mahjong panel, on 2026-10-28 (record --ref-panneau), put to the test alone on the image
+# f1b21158…: pn-sans-traduction (pn-menu-on, pn-valeur, pn-verrou, pn-jeu), pn-sans-1b
+# (pn-menu-off, pn-verrou), pn-verrou-relu (pn-verrou), pn-e-f-echangees (pn-menu-on, pn-valeur,
+# pn-verrou, pn-jeu). 201 in all. boot-sans-saut follows `_panneau_p1` in `ecran.s`, put to the
+# test again and killed the same day.
+# That of the cartridge that is late, on 2026-10-28: carte-lente-ignoree (flash-cart). 202 in all.
+# Those of the ABOUT screen, on 2026-10-28: ab-ligne-absente, ab-ne-s-ouvre-pas, ab-start-ignore
+# (ab-ecran). 205 in all.
+# That of the bank window that reads only one word, on 2026-10-29: crc-flottant-ignore
+# (crc-flottant). 206 in all.
+# That of BIOS_LOGO under GL_MASQUE, on 2026-10-30: logo-sous-les-gels (aes-logo-fin). 207 in all.
 #
-# CE QU'IL NE COUVRE PAS : le matériel, hors du modèle de `bus-flottant.lua` ; NO SOFT DIP DATA sur un vrai jeu (aucun des 166 sets du
-# dossier n'a de bloc refusé : la scène est jouée sur une fixture) ; les commandes CARD autrement
-# que provoquées (aucune partie d'aof n'appelle $01, $04, $06, $07) ; SELECT sur une machine à
-# une cartouche (le set aof de MAME n'a aucun champ SELECT : les deux éléments de l'INPUT TEST y
-# restent éteints, mesuré, d'où la MV-6F) ; SELECT P2 en mode AES ; le texte soft-DIP japonais hors de ssideki et bstars ;
-# d'autres jeux que aof, puzzledp, b2b, kof98, ncombat ; l'oreille (un RMS dit qu'il y a du son,
-# pas que c'est le bon morceau). L'inventaire de chaque fonction et de sa scène :
-# measured/2026-10-23-parcours-couverture.tsv.
+# WHAT IT DOES NOT COVER: the hardware, outside the model of `bus-flottant.lua`; NO SOFT DIP DATA
+# on a real game (none of the 166 sets of the directory has a refused block: the scene is played
+# on a fixture); the CARD commands other than provoked (no aof play session calls $01, $04, $06,
+# $07); SELECT on a one-cartridge machine (MAME's aof set has no SELECT field: the two elements
+# of the INPUT TEST stay unlit there, measured, hence the MV-6F); SELECT P2 in AES mode; the
+# Japanese soft-DIP text outside ssideki and bstars; games other than aof, puzzledp, b2b, kof98,
+# ncombat; the ear (an RMS says there is sound, not that it is the right piece). The inventory
+# of each function and of its scene: measured/2026-10-23-parcours-couverture.tsv.
 #
-# Ce script ne trace aucun code : dans ses jigs, le PC ne sert qu'à dire qui a la main ou qui écrit,
-# sauf `forcer.lua`, qui consigne l'adresse de retour de l'appel qu'il force. Aucune ROM n'est lue hors de MAME, sauf l'en-tête 68k de la fixture de NO
-# SOFT DIP DATA : « NEO-GEO », la zone de deux vecteurs et le pointeur, dans une copie du
-# dossier de travail, le code du jeu jamais lu. MAME sans fenêtre, jamais de débogueur.
+# This script traces no code: in its jigs, the PC only serves to say who has control or who
+# writes, except `forcer.lua`, which logs the return address of the call it forces. No ROM is
+# read outside MAME, except the 68k header of the NO SOFT DIP DATA fixture: "NEO-GEO", the area
+# of two vectors and the pointer, in a copy in the work directory, the game's code never read.
+# MAME without a window, never a debugger.
 set -u
 
 ICI="$(cd "$(dirname "$0")" && pwd)"
@@ -725,7 +853,7 @@ REF_SINUS="$PAQUET/measured/2026-10-28-parcours-sinus.tsv"
 REF_PANNEAU="$PAQUET/measured/2026-10-28-parcours-panneau.tsv"
 JOBS=$(( $( (sysctl -n hw.ncpu || nproc) 2>/dev/null || echo 4) - 2 )); [ "$JOBS" -ge 1 ] || JOBS=1
 CACHE=""
-SCENES_TOUTES="boot-ecran boot-saut calendrier carte demo-son partie-credit partie-start fin-demo fin-titre scores dip-temps dip-langue region autotests jukebox menu-hud menu-reprise menu-son cheats restart ms-demo ms-select ms-garde aes-bascule aes-demo aes-start aes-menu aes-piece aes-retour dip-defauts dip-mmss dip-fois region-europe region-japon region-usa autotests-palette autotests-vram autotests-backup tests-entrees tests-barres tests-grille jukebox-pas jukebox-stop cheats-off partie-p2 carte-sauve ms-select-p2 aes-ms-select aes-pause aes-logo aes-fin aes-texte depart-force piece-son ms-seule jukebox-repete partie-p2-joint carte-chercher carte-supprimer carte-nom tests-p2 tests-dip dip-sans-donnees gs-compte gs-defauts gs-choix gs-mmss gs-fois gs-sans-donnees gs-banque me-ecran me-goto me-octet me-ligne me-page me-repete me-poke me-gel me-liste me-degel me-borne bf-editeur bf-banque bf-tests bf-jukebox sans-cartouche flash-cart cm-liste cm-libres cm-effacer cm-annuler cm-formater cm-non-formatee cm-sans-carte cm-protegee cm-insertion bf-carte aes-scores scores-gel bo-ecran ab-ecran bo-free-play bo-fp-p2 bo-fp-joint bo-no-continue bo-demo-muette bo-aes bf-borne cheats-vies bo-cd-menu bo-cd-gel dip-free-play dip-fp-p2 dip-fp-refus dip-fp-chaud dip-fp-reglage dip-fp-cabinet dip-setting geste-boot geste-jeu geste-partie demo-ssideki japon-intitules gs-japon gs-japon-garde crc-fixe crc-banques crc-miroir crc-flottant bf-crc bf-crc-banque dd-effet dd-off dip-gel dip-gel-off dip-gel-boot dip-mahjong dip-mj-off dip-4p dip-4p-off af-tir af-sauve af-off af-mahjong boot-graphismes ms-son-slot2 dip-vierge dip-corrompue tests-mahjong jukebox-veille cm-copier alpha-trajectoire howto-preisle2 tests-sauvegarde dd-connu pn-menu-on pn-menu-off pn-valeur pn-verrou pn-jeu"
+SCENES_TOUTES="boot-ecran boot-saut calendrier carte demo-son partie-credit partie-start fin-demo fin-titre scores dip-temps dip-langue region autotests jukebox menu-hud menu-reprise menu-son cheats restart ms-demo ms-select ms-garde aes-bascule aes-demo aes-start aes-menu aes-piece aes-retour dip-defauts dip-mmss dip-fois region-europe region-japon region-usa autotests-palette autotests-vram autotests-backup tests-entrees tests-barres tests-grille jukebox-pas jukebox-stop cheats-off partie-p2 carte-sauve ms-select-p2 aes-ms-select aes-pause aes-logo aes-logo-fin aes-fin aes-texte depart-force piece-son ms-seule jukebox-repete partie-p2-joint carte-chercher carte-supprimer carte-nom tests-p2 tests-dip dip-sans-donnees gs-compte gs-defauts gs-choix gs-mmss gs-fois gs-sans-donnees gs-banque me-ecran me-goto me-octet me-ligne me-page me-repete me-poke me-gel me-liste me-degel me-borne bf-editeur bf-banque bf-tests bf-jukebox sans-cartouche flash-cart cm-liste cm-libres cm-effacer cm-annuler cm-formater cm-non-formatee cm-sans-carte cm-protegee cm-insertion bf-carte aes-scores scores-gel bo-ecran ab-ecran bo-free-play bo-fp-p2 bo-fp-joint bo-no-continue bo-demo-muette bo-aes bf-borne cheats-vies bo-cd-menu bo-cd-gel dip-free-play dip-fp-p2 dip-fp-refus dip-fp-chaud dip-fp-reglage dip-fp-cabinet dip-setting geste-boot geste-jeu geste-partie demo-ssideki japon-intitules gs-japon gs-japon-garde crc-fixe crc-banques crc-miroir crc-flottant bf-crc bf-crc-banque dd-effet dd-off dip-gel dip-gel-off dip-gel-boot dip-mahjong dip-mj-off dip-4p dip-4p-off af-tir af-sauve af-off af-mahjong boot-graphismes ms-son-slot2 dip-vierge dip-corrompue tests-mahjong jukebox-veille cm-copier alpha-trajectoire howto-preisle2 tests-sauvegarde dd-connu pn-menu-on pn-menu-off pn-valeur pn-verrou pn-jeu"
 SCENES="$SCENES_TOUTES"
 HASHPATH="${BIOS_HASHPATH:-}"
 while [ $# -gt 0 ]; do
@@ -777,7 +905,7 @@ for s in $SCENES; do case " $SCENES_TOUTES " in *" $s "*) ;; *) echo "scène inc
 [ -s "$REF_SINUS" ] || { echo "relevé introuvable : $REF_SINUS" >&2; exit 2; }
 [ -s "$REF_PANNEAU" ] || { echo "relevé introuvable : $REF_PANNEAU" >&2; exit 2; }
 command -v mame >/dev/null || { echo "mame introuvable" >&2; exit 2; }
-# Le hash/ de MAME : à côté de son bin/ (Homebrew : /opt/homebrew/share/mame/hash).
+# MAME's hash/: next to its bin/ (Homebrew: /opt/homebrew/share/mame/hash).
 [ -n "$HASHPATH" ] || HASHPATH="$(dirname "$(command -v mame)")/../share/mame/hash"
 [ -s "$HASHPATH/neogeo.xml" ] || { echo "liste logicielle neogeo introuvable sous $HASHPATH (--hashpath)" >&2; exit 2; }
 mkdir -p "$WORK"
@@ -799,7 +927,7 @@ REF_SINUS="$(cd "$(dirname "$REF_SINUS")" && pwd)/$(basename "$REF_SINUS")"
 REF_PANNEAU="$(cd "$(dirname "$REF_PANNEAU")" && pwd)/$(basename "$REF_PANNEAU")"
 DEBUT=$(date +%s)
 
-# ---- L'image et les romsets ---------------------------------------------------------------------
+# ---- The image and the romsets ------------------------------------------------------------------
 if [ -z "$IMAGE" ]; then
   [ -d "$SOURCES" ] || { echo "sources introuvables : $SOURCES" >&2; exit 2; }
   IMAGE="$WORK/bios.sp1"; rm -f "$IMAGE"
@@ -820,14 +948,15 @@ for j in aof puzzledp b2b neogeo; do
   cp "$ROMS/$j.zip" "$d.part" && ( cd "$R/img" && zip -q -j -X "$d.part" sp-s2.sp1 ) && mv "$d.part" "$d" || exit 1
 done
 echo "$EMP" > "$R/.image-sha256"
-# kof98 et ncombat ne servent que sur la MV-6F (`neogeo -cart1`) : leur romset est lu tel quel
-# dans <dossier-roms>, notre image venant de neogeo.zip ; aucun n'est recopié.
+# kof98 and ncombat are only used on the MV-6F (`neogeo -cart1`): their romset is read as is
+# in <roms-dir>, our image coming from neogeo.zip; none is copied.
 for j in kof98 ncombat; do [ -s "$ROMS/$j.zip" ] || { echo "set introuvable : $ROMS/$j.zip" >&2; exit 2; }; done
 case " $SCENES " in *" bf-banque "*|*" dip-vierge "*) [ -s "$ROMS/mslug.zip" ] || { echo "set introuvable : $ROMS/mslug.zip" >&2; exit 2; } ;; esac
-# ssideki (scène demo-ssideki) : sur la MV-6F, comme kof98 ; le témoin SNK lit le même romset.
+# ssideki (demo-ssideki scene): on the MV-6F, like kof98; the SNK witness reads the same romset.
 case " $SCENES " in *" demo-ssideki "*) [ -s "$ROMS/ssideki.zip" ] || { echo "set introuvable : $ROMS/ssideki.zip" >&2; exit 2; } ;; esac
 case " $SCENES " in *" scores-gel "*) [ -s "$ROMS/wh2.zip" ] || { echo "set introuvable : $ROMS/wh2.zip" >&2; exit 2; } ;; esac
-# mslug2 (scènes cheats-vies, crc-banques) et kof94 (dd-effet, dd-off, dd-connu) : leur romset, notre image substituée, comme aof.
+# mslug2 (scenes cheats-vies, crc-banques) and kof94 (dd-effet, dd-off, dd-connu): their romset,
+# our image substituted, like aof.
 copier_set() {
   local j="$1" d="$R/$1.zip"
   [ -L "$d" ] && { echo "REFUS : $d est un lien symbolique" >&2; exit 1; }
@@ -839,17 +968,18 @@ copier_set() {
 }
 case " $SCENES " in *" cheats-vies "*|*" crc-banques "*) copier_set mslug2 ;; esac
 case " $SCENES " in *" dd-effet "*|*" dd-off "*|*" dd-connu "*) copier_set kof94 ;; esac
-# janshin (dip-mahjong, dip-mj-off : sa propre machine, le panneau de mahjong) et kizuna (dip-4p, dip-4p-off) : leur
-# romset, notre image substituée, comme aof.
+# janshin (dip-mahjong, dip-mj-off: its own machine, the mahjong panel) and kizuna (dip-4p,
+# dip-4p-off): their romset, our image substituted, like aof.
 case " $SCENES " in *" dip-mahjong "*|*" dip-mj-off "*|*" af-mahjong "*|*" pn-"*) copier_set janshin ;; esac
 case " $SCENES " in *" af-tir "*|*" af-sauve "*|*" af-off "*) copier_set viewpoin ;; esac
 case " $SCENES " in *" dip-4p "*|*" dip-4p-off "*) copier_set kizuna ;; esac
-# alpham2 (alpha-trajectoire) et preisle2 (howto-preisle2) : leur romset, notre image substituée ; le témoin lit l'original.
+# alpham2 (alpha-trajectoire) and preisle2 (howto-preisle2): their romset, our image substituted;
+# the witness reads the original.
 case " $SCENES " in *" alpha-trajectoire "*) copier_set alpham2 ;; esac
 case " $SCENES " in *" howto-preisle2 "*) copier_set preisle2 ;; esac
 case " $SCENES " in *" bf-crc-banque "*) [ -s "$ROMS/mslug.zip" ] || { echo "set introuvable : $ROMS/mslug.zip" >&2; exit 2; } ;; esac
-# ssideki et bstars (scènes japon-intitules, gs-japon, gs-japon-garde) : leur romset, notre image substituée,
-# comme aof (le zip de ssideki porte lui-même un sp-s2.sp1, piège 1 de docs/BENCH.md).
+# ssideki and bstars (scenes japon-intitules, gs-japon, gs-japon-garde): their romset, our image
+# substituted, like aof (ssideki's zip itself carries an sp-s2.sp1, pitfall 1 of docs/BENCH.md).
 for x in "ssideki|japon-intitules gs-japon" "bstars|gs-japon-garde"; do
   IFS='|' read -r j sc <<< "$x"
   besoin=0; for t in $sc; do case " $SCENES " in *" $t "*) besoin=1 ;; esac; done
@@ -862,7 +992,7 @@ for x in "ssideki|japon-intitules gs-japon" "bstars|gs-japon-garde"; do
     cp "$ROMS/$j.zip" "$d.part" && ( cd "$R/img" && zip -q -j -X "$d.part" sp-s2.sp1 ) && mv "$d.part" "$d" || exit 1
   fi
 done
-# La MV-1 sans cartouche (scène sans-cartouche) : le set de la machine, notre image substituée.
+# The MV-1 without a cartridge (sans-cartouche scene): the machine's set, our image substituted.
 case " $SCENES " in *" sans-cartouche "*)
   d="$R/ng_mv1.zip"
   [ -L "$d" ] && { echo "REFUS : $d est un lien symbolique" >&2; exit 1; }
@@ -872,7 +1002,7 @@ case " $SCENES " in *" sans-cartouche "*)
     cp "$ROMS/ng_mv1.zip" "$d.part" && ( cd "$R/img" && zip -q -j -X "$d.part" sp-s2.sp1 ) && mv "$d.part" "$d" || exit 1
   fi ;;
 esac
-# La MV-2F (scènes dip-* et geste-*) : le set de la machine, notre image substituée, aof en cartouche.
+# The MV-2F (dip-* and geste-* scenes): the machine's set, our image substituted, aof as cartridge.
 case " $SCENES " in *" geste-partie "*) for j in mslug samsho4 ssideki; do
   [ -s "$ROMS/$j.zip" ] || { echo "set introuvable : $ROMS/$j.zip" >&2; exit 2; }; done ;; esac
 case " $SCENES " in *" dip-"*|*" geste-"*)
@@ -884,22 +1014,23 @@ case " $SCENES " in *" dip-"*|*" geste-"*)
     cp "$ROMS/ng_mv2f.zip" "$d.part" && ( cd "$R/img" && zip -q -j -X "$d.part" sp-s2.sp1 ) && mv "$d.part" "$d" || exit 1
   fi ;;
 esac
-# Le set `aes` de la colonne de référence : deux fichiers de neogeo.zip, recopiés sans être lus.
+# The `aes` set of the reference column: two files of neogeo.zip, copied without being read.
 if [ ! -s "$R/aes/aes.zip" ]; then
   rm -rf "$R/aes"; mkdir -p "$R/aes/x"
   ( cd "$R/aes/x" && unzip -q -o "$ROMS/neogeo.zip" neo-epo.bin 000-lo.lo && zip -q -j -X ../aes.zip neo-epo.bin 000-lo.lo ) \
     || { echo "aes.zip impossible : neo-epo.bin et 000-lo.lo attendus dans $ROMS/neogeo.zip" >&2; exit 2; }
 fi
-# La fixture de NO SOFT DIP DATA : une copie du romset d'aof substitué, dont seul le pointeur du
-# bloc soft-DIP européen de l'en-tête 68k ($11E, « 68k program header » : un long par région à
-# $116, $11A, $11E) est remplacé par $00180000, entre la P-ROM fixe et la zone banquée : refusé
-# (`src/c0/dip.s`, LE POINTEUR). Rien d'autre n'est lu dans la P-ROM que ce que la page publie :
-# « NEO-GEO » à $100, et deux vecteurs dont on ne vérifie que la zone (SSP en RAM de travail,
-# reset dans la P-ROM fixe ou le BIOS) — c'est ce qui prouve l'ordre des octets du fichier, chaque mot y
-# étant stocké octets inversés (`load16_word_swap`). Dans le dossier de travail seulement.
-# LA FIXTURE DE LA ZONE BANQUÉE, même recette, le pointeur à $00200100 : accepté par l'éditeur du
-# boot (`dip.s`), refusé par GAME SETTINGS en partie (`reglages-jeu.s`, écart voulu).
-# fixture <dossier> <pointeur, hex> : la copie, une fois par image.
+# The NO SOFT DIP DATA fixture: a copy of aof's substituted romset, in which only the pointer of
+# the European soft-DIP block of the 68k header ($11E, "68k program header": one long per region
+# at $116, $11A, $11E) is replaced by $00180000, between the fixed P-ROM and the banked area:
+# refused (`src/c0/dip.s`, THE SOFT-DIP BLOCK POINTER). Nothing else is read in the P-ROM than
+# what the page publishes: "NEO-GEO" at $100, and two vectors of which only the area is checked
+# (SSP in work RAM, reset in the fixed P-ROM or the BIOS); that is what proves the byte order of the file,
+# each word being stored there with its bytes swapped (`load16_word_swap`). In the work
+# directory only.
+# THE BANKED AREA FIXTURE, same recipe, the pointer at $00200100: accepted by the boot editor
+# (`dip.s`), refused by GAME SETTINGS in game (`reglages-jeu.s`, deliberate departure).
+# fixture <dir> <pointer, hex>: the copy, once per image.
 fixture() {
   local D="$1" PTR="$2"
   [ -s "$D/aof.zip" ] && return 0
@@ -911,7 +1042,7 @@ zi = zipfile.ZipFile(src)
 p1 = [n for n in zi.namelist() if n.endswith(".p1") and not n.startswith("sp")]
 assert len(p1) == 1, f"un seul fichier p1 attendu : {p1}"
 f = bytearray(zi.read(p1[0]))
-mem = lambda a: f[a ^ 1]                  # l'octet a du 68000 : le mot du fichier, inversé
+mem = lambda a: f[a ^ 1]                  # byte a of the 68000: the word of the file, swapped
 lng = lambda a: (mem(a) << 24) | (mem(a + 1) << 16) | (mem(a + 2) << 8) | mem(a + 3)
 assert bytes(mem(0x100 + i) for i in range(7)) == b"NEO-GEO", "ordre des octets : « NEO-GEO » absent à $100"
 assert 0x100000 <= lng(0) <= 0x10FFFF, "ordre des octets : le SSP n'est pas en RAM de travail"
@@ -933,13 +1064,14 @@ NOSD="$R/nosd"
 BANQUE="$R/banque"
 case " $SCENES " in *" dip-sans-donnees "*|*" gs-sans-donnees "*) fixture "$NOSD" 00180000 ;; esac
 case " $SCENES " in *" gs-banque "*) fixture "$BANQUE" 00200100 ;; esac
-# LA CARTE FIXTURE du gestionnaire de carte (scènes cm-*, bf-carte), au format de « Memory card » (NeoGeo
-# Development Wiki) tel que `src/c0/card.s` le lit : un fichier de 2 048 octets, l'octet N de la carte à l'offset N
-# (le fichier -memc de MAME, mesuré sur la carte du run carte-sauve-snk). En-tête : CARD_SIZE $1000 à $0A, les sommes
-# des deux FAT à $0D et $0E, seize espaces à $10, CARD_MAGIC « NEO-GEO » puis $80 aux octets pairs de $20 à $2E,
-# la région à $30 ; le répertoire à $40, 32 entrées de quatre octets (sous-sauvegarde, NGH, premier bloc ; $FF
-# libre) ; FAT 1 à $C0 et FAT 2 à $100 (blocs 0-4 à $02, $01 le dernier d'une chaîne, sinon le suivant) ; les
-# données dès le bloc 5, à zéro. Le contenu de 2 048 octets ne vient d'aucune carte réelle.
+# THE FIXTURE CARD of the card manager (scenes cm-*, bf-carte), in the "Memory card" format (NeoGeo
+# Development Wiki) as `src/c0/card.s` reads it: a file of 2,048 bytes, byte N of the card at
+# offset N (MAME's -memc file, measured on the card of the carte-sauve-snk run). Header:
+# CARD_SIZE $1000 at $0A, the sums of the two FATs at $0D and $0E, sixteen spaces at $10,
+# CARD_MAGIC "NEO-GEO" then $80 at the even bytes from $20 to $2E, the region at $30; the
+# directory at $40, 32 entries of four bytes (sub-save, NGH, first block; $FF free); FAT 1 at
+# $C0 and FAT 2 at $100 (blocks 0-4 at $02, $01 the last of a chain, otherwise the next); the
+# data from block 5 on, at zero. The content of 2,048 bytes comes from no real card.
 carte_fixture() {
   local D="$R/cartes"
   [ -s "$D/fixture.neo" ] && return 0
@@ -965,7 +1097,8 @@ def chaine(n):
         fat[a] = b
     fat[blocs[-1]] = 1
     return blocs[0]
-# (entrée, sous-sauvegarde, NGH, blocs) : aof ; un NGH sans jeu inscrit, trois blocs ; l'entrée 2 libre ; douze d'un bloc.
+# (entry, sub-save, NGH, blocks): aof; an NGH with no registered game, three blocks; entry 2 free;
+# twelve of one block.
 saves = [(0, 0, 0x0044, 1), (1, 1, 0x0202, 3)] + [(3 + k, k % 16, 0x0100 + k, 1) for k in range(12)]
 for e, sub, ngh, n in saves:
     c[0x40 + 4 * e:0x44 + 4 * e] = bytes([sub, ngh >> 8, ngh & 0xFF, chaine(n)])
@@ -977,8 +1110,9 @@ open(sys.argv[1], "wb").write(c)
 PY
 }
 case " $SCENES " in *" cm-liste "*|*" cm-libres "*|*" cm-protegee "*|*" cm-insertion "*|*" bf-carte "*|*" cm-copier "*) carte_fixture ;; esac
-# LES CARTES DE LA COPIE (scène cm-copier), tirées de la fixture : la source, où la sauvegarde d'aof (0044-00, bloc 5)
-# porte un motif ; une carte formatée vide ; la cible, la fixture elle-même, où 0044-00 existe déjà (à zéro).
+# THE CARDS OF THE COPY (cm-copier scene), drawn from the fixture: the source, where aof's save
+# (0044-00, block 5) carries a pattern; an empty formatted card; the target, the fixture itself,
+# where 0044-00 already exists (at zero).
 case " $SCENES " in *" cm-copier "*)
   [ -s "$R/cartes/copie-vide.neo" ] || python3 -I -B - "$R/cartes" <<'PY' || { echo "cartes de la copie impossibles" >&2; exit 1; }
 import sys
@@ -1001,9 +1135,10 @@ open(d + "/copie-cible.neo", "wb").write(f)
 PY
   ;;
 esac
-# LA FIXTURE « BROUILLE » (scène boot-graphismes) : une copie du romset d'aof substitué dont les C ROM et la
-# S ROM (`*.c<n>`, `*.s1`) sont remplacées par du bruit tiré d'une graine fixe — une flashcart dont les graphismes ne
-# sont pas encore lisibles au boot (ATTENTES §2). Ces fichiers sont écrasés sans être lus.
+# THE "BROUILLE" FIXTURE (boot-graphismes scene): a copy of aof's substituted romset whose C ROMs
+# and S ROM (`*.c<n>`, `*.s1`) are replaced by noise drawn from a fixed seed: a flashcart whose
+# graphics are not yet readable at boot (ATTENTES §2). These files are overwritten without being
+# read.
 BROUILLE="$R/brouille"
 case " $SCENES " in *" boot-graphismes "*)
   if [ ! -s "$BROUILLE/aof.zip" ]; then
@@ -1025,35 +1160,36 @@ PY
 esac
 echo "image ${EMP:0:16}…, scènes : $SCENES"
 
-# ---- Les runs ---------------------------------------------------------------------------------------
-# lancer <run> <jig> "<arguments MAME>" [VAR=valeur…] : en arrière-plan, au plus $JOBS à la fois.
-# « @ » dans les arguments devient le dossier du run. NV_DE=<run> avant l'appel : la NVRAM de ce
-# run est recopiée d'abord (un redémarrage de la machine) ; CARTE_DE=<run> : sa carte mémoire (un chemin absolu : ce
-# fichier). La date de l'hôte est notée avant et
-# après chaque run, pour la ligne CLOCK. Un cfg par run (-cfg_directory) : MAME y garde les
-# commutateurs posés par J_DSW, et un cfg partagé laissait « Free Play » à ON aux runs suivants du même
-# jeu, témoins SNK compris (mesuré le 2026-10-25 : neuf scènes en échec après les bo-snk-*).
+# ---- The runs ---------------------------------------------------------------------------------------
+# lancer <run> <jig> "<MAME arguments>" [VAR=value…]: in the background, at most $JOBS at a time.
+# "@" in the arguments becomes the run's directory. NV_DE=<run> before the call: the NVRAM of
+# that run is copied first (a restart of the machine); CARTE_DE=<run>: its memory card (an
+# absolute path: that file). The host date is noted before and
+# after each run, for the CLOCK line. One cfg per run (-cfg_directory): MAME keeps there the
+# switches set by J_DSW, and a shared cfg left "Free Play" at ON for the following runs of the
+# same game, SNK witnesses included (measured on 2026-10-25: nine scenes failing after the
+# bo-snk-*).
 PIDS=""
 NV_DE=""
 CARTE_DE=""
-# LE CACHE DES TÉMOINS (--cache). Un témoin est un run dont le nom porte « snk » (la règle de `sain`)
-# et qui ne lit aucun romset de $R, où est notre image ($R/aes excepté : le set `aes`, recopié de
-# neogeo.zip). Son résultat ne dépend donc pas de notre image : il est repris d'un run précédent
-# quand sa clé est la même. La clé couvre tout ce dont il dépend : MAME (version et configuration
-# effective, `-showconfig`, que le mame.ini de l'utilisateur peut changer), ce script entier (la ligne
-# de commande de `lancer`), les jigs (tous les .lua de bench/, qui se chargent l'un l'autre), la liste
-# logicielle, les romsets du dossier de ROMs (nom, taille, date à la seconde, liens suivis), le run
-# (nom, jig, BIOS, arguments, variables), la NVRAM et la carte mémoire qu'il reçoit d'un autre run,
-# et LE JOUR : la machine prend la date de l'hôte, que la ligne CLOCK et dates.txt relèvent. Seul
-# est gardé un run sorti en 0 dont les deux dates de dates.txt sont ce jour-là (minuit passé
-# pendant le run : pas gardé).
+# THE WITNESS CACHE (--cache). A witness is a run whose name carries "snk" (the rule of `sain`)
+# and that reads no romset from $R, where our image is ($R/aes excepted: the `aes` set, copied
+# from neogeo.zip). Its result therefore does not depend on our image: it is reused from a
+# previous run when its key is the same. The key covers everything it depends on: MAME (version
+# and effective configuration, `-showconfig`, which the user's mame.ini can change), this whole
+# script (the command line of `lancer`), the jigs (all the .lua of bench/, which load one
+# another), the software list, the romsets of the ROMs directory (name, size, date to the
+# second, links followed), the run (name, jig, BIOS, arguments, variables), the NVRAM and the
+# memory card it receives from another run, and THE DAY: the machine takes the host date, which
+# the CLOCK line and dates.txt record. Only a run that exited with 0 and whose two dates in
+# dates.txt are that day is kept (midnight passed during the run: not kept).
 empreinte_fichiers() { stat -L -f '%N %z %m' "$@" 2>/dev/null || stat -L -c '%n %s %Y' "$@"; }
 if [ -n "$CACHE" ]; then
   mkdir -p "$CACHE"; CACHE="$(cd "$CACHE" && pwd)"
   CLE_BASE="$( { mame -version; mame -showconfig; cat "$ICI/parcours.sh" "$ICI"/*.lua "$HASHPATH/neogeo.xml"; \
     empreinte_fichiers "$ROMS"/*.zip; } 2>&1 | shasum -a 256 | cut -d' ' -f1)"
 fi
-temoin() { # temoin <nom> <arguments MAME>
+temoin() { # temoin <name> <MAME arguments>
   case "-$1-" in *-snk-*) ;; *) return 1 ;; esac
   local a="${2//"$R"\/aes/}"
   case "$a" in *"$R"*) return 1 ;; esac
@@ -1091,12 +1227,13 @@ lancer() {
       mame $args -bios "${BIOS_RUN:-euro}" -video none -sound none -nothrottle -seconds_to_run 400 \
       -nvram_directory "$o/nvram" -cfg_directory "$o/cfg" -skip_gameinfo -autoboot_script "$ICI/$lua" > "$o/mame.log" 2>&1
     echo $? > "$o/rc"; date '+%m/%d/%y %a' >> dates.txt
-    # Gardé par une copie renommée d'un coup : deux parcours simultanés (les mutations) ne
-    # laissent jamais une entrée à moitié écrite ; le second renonce.
+    # Kept through a copy renamed in one go: two simultaneous `parcours.sh` runs (the mutations)
+    # never leave a half-written entry; the second gives up.
     if [ -n "$cle" ] && [ "$(cat "$o/rc")" = 0 ] && [ ! -e "$CACHE/$cle" ] \
        && [ "$(sort -u dates.txt)" = "$jour" ]; then
-      # mkdir est atomique : un seul écrivain par clé. Un mv sur un dossier déjà là s'y rangerait.
-      t="$CACHE/.$cle.$$"   # $$ : ce parcours (BASHPID n'existe pas sous le bash 3.2 de macOS)
+      # mkdir is atomic: a single writer per key. An mv onto a directory already there would go
+      # inside it.
+      t="$CACHE/.$cle.$$"   # $$: this `parcours.sh` run (BASHPID does not exist under macOS's bash 3.2)
       mkdir "$CACHE/.$cle.verrou" 2>/dev/null && cp -R "$o" "$t" && mv "$t" "$CACHE/$cle"; rm -rf "$t"
     fi ) &
   PIDS="$PIDS $!"
@@ -1107,8 +1244,8 @@ SNK="aof -rompath $ROMS"
 PZ="puzzledp -rompath $R"
 MS="neogeo -hashpath $HASHPATH -rompath $R;$ROMS -cart1 b2b -cart2 puzzledp"
 MS3="neogeo -hashpath $HASHPATH -rompath $R;$ROMS -cart1 b2b -cart2 puzzledp -cart3 aof"
-# Une cartouche seule sur la MV-6F : la machine qui a SELECT (« Next Game »), et kof98, ncombat
-# sans recopier leur romset.
+# A single cartridge on the MV-6F: the machine that has SELECT ("Next Game"), and kof98, ncombat
+# without copying their romset.
 MS_AOF="neogeo -hashpath $HASHPATH -rompath $R;$ROMS -cart1 aof"
 MS_K98="neogeo -hashpath $HASHPATH -rompath $R;$ROMS -cart1 kof98"
 MS_NC="neogeo -hashpath $HASHPATH -rompath $R;$ROMS -cart1 ncombat"
@@ -1121,7 +1258,7 @@ AES_SNK_K98="aes -cart kof98 -hashpath $HASHPATH -rompath $R/aes;$ROMS"
 WAV="-wavwrite @/son.wav"
 MENU_TEST="J_TESTS=2337-2376"
 
-# Les runs de chaque scène ; chaque run ne tourne qu'une fois.
+# The runs of each scene; each run only runs once.
 runs_de() {
   case "$1" in
     boot-ecran|calendrier) echo boot ;;
@@ -1172,6 +1309,7 @@ runs_de() {
     aes-ms-select) echo "aes-ms-set aes-ms-select aes-snk-pz" ;;
     aes-pause) echo "aes-m1-set aes-pause aes-snk-pause" ;;
     aes-logo) echo "aes-k98-set aes-logo aes-snk-kof98" ;;
+    aes-logo-fin) echo "aes-k98-set aes-logo-fin" ;;
     aes-fin) echo "aes-set aes-histoire aes-snk-histoire demo" ;;
     aes-texte) echo "aes-set aes-histoire aes-snk-histoire" ;;
     depart-force|piece-son) echo "piece-seule piece-seule-snk" ;;
@@ -1280,17 +1418,19 @@ veut() { case "$RUNS" in *" $1 "*) return 0 ;; esac; return 1; }
 
 mkdir -p "$WORK/runs"
 T0=$(date +%s)
-# Les plus longs d'abord.
+# The longest first.
 veut partie && lancer partie son.lua "$NOTRE $WAV" J_HACHES=1-9000 J_ZONES="146,10,173,29;62,17,142,22" J_IMAGES=450,1400 J_SUIVRE=108406:1 J_FIN=9000
 veut demo && lancer demo son.lua "$NOTRE $WAV" J_PIECE=0 J_START=0 J_HACHES=1-9000 J_IMAGES=450,1400 J_FIN=9000
 veut partie2 && lancer partie2 son.lua "$NOTRE" J_APPUIS=420:piece:8 J_HACHES=6000-9000 J_IMAGES=450 J_FIN=9000
 veut scores-a && lancer scores-a son.lua "$PZ" J_PIECE=0 J_START=0 J_POSER=1500@100028=0012D680120F1708 J_FIN=7000
 veut scores-a0 && lancer scores-a0 son.lua "$PZ" J_PIECE=0 J_START=0 J_FIN=7000
 veut demo-snk && lancer demo-snk son.lua "$SNK $WAV" J_PIECE=0 J_START=0 J_HACHES=1-3600 J_FIN=3600
-# La démo de ssideki (scène demo-ssideki) : sans entrée ; le témoin SNK rend la main vers la trame 966.
+# The ssideki demo (demo-ssideki scene): without input; the SNK witness hands over around frame
+# 966.
 veut ss-notre && lancer ss-notre son.lua "$MS_SS" J_PIECE=0 J_START=0 J_HACHES=1-3600 J_FIN=3600
 veut ss-snk && lancer ss-snk son.lua "ssideki -rompath $ROMS" J_PIECE=0 J_START=0 J_HACHES=1-3600 J_FIN=3600
-# La table du sinus (relevé --ref-sinus). alpham2 : « haut » 1600-1624, puis la direction 1640-1659 ; deux images.
+# The sine table (record --ref-sinus). alpham2: "up" 1600-1624, then the direction 1640-1659;
+# two images.
 for x in "h|haut" "hd|haut droite" "d|droite" "bd|bas droite" "b|bas" "bg|bas gauche" "g|gauche" "hg|haut gauche"; do
   IFS='|' read -r nom dirs <<< "$x"
   ap="1600:haut:25"; for b in $dirs; do ap="$ap,1640:$b:20"; done
@@ -1313,11 +1453,12 @@ veut langue && lancer langue son.lua "$NOTRE" $EDIT J_APPUIS=270:bas,280:bas,290
 veut region && lancer region son.lua "$NOTRE" $EDIT J_APPUIS=270:gauche,280:gauche,340:START J_TEXTE=330,450 J_REMISE=754 J_HACHES=1-1600 J_FIN=1600
 TEMPS="J_TESTS=1-260 J_PIECE=900 J_START=1000 J_IMAGES=3000 J_FIN=3001"
 veut temps0 && lancer temps0 son.lua "$NOTRE" $TEMPS J_APPUIS=340:START
-# J_HACHES et J_FIN prolongés pour gs-compte : les chronomètres de 65 à 61 (le dernier J_FIN l'emporte).
+# J_HACHES and J_FIN extended for gs-compte: the timers from 65 to 61 (the last J_FIN wins).
 veut temps1 && lancer temps1 son.lua "$NOTRE" $TEMPS J_TEXTE=330 J_HACHES=2300-4000 J_ZONES="146,10,173,29" J_FIN=4000 \
   J_APPUIS=270:bas,280:droite,290:droite,300:droite,310:droite,320:droite,340:START
 veut autotests && lancer autotests autotests.lua "$NOTRE" T_DEFAUT=work T_ADR=0x108000 T_BIT=3 T_FIN=3000
-# Le premier boot d'aof, sans entrée : sa demande 0, puis sa sauvegarde ; tests-sauv repart de cette NVRAM.
+# aof's first boot, without input: its request 0, then its save; tests-sauv starts again from
+# this NVRAM.
 veut tests-sauv-set && lancer tests-sauv-set son.lua "$NOTRE" J_PIECE=0 J_START=0 J_FIN=600
 veut jukebox && lancer jukebox jukebox.lua "$NOTRE $WAV" J_SEQUENCE="7F 21 25" J_APRES_RAZ=07 J_JEU=500
 veut ms-demo && lancer ms-demo multislot.lua "$MS" MS_FIN=2400 MS_CAPT_USER=60
@@ -1326,30 +1467,32 @@ veut ms-garde && lancer ms-garde multislot.lua "$MS" MS_FIN=1300 MS_CAPT_USER=60
 veut pz-demo && lancer pz-demo son.lua "$PZ" J_PIECE=0 J_START=0 J_HACHES=1-400 J_FIN=400
 veut pz-titre && lancer pz-titre son.lua "$PZ" J_PIECE=400 J_START=0 J_REMISE=60 J_FIN=500
 veut aes-snk && BIOS_RUN=asia lancer aes-snk son.lua "$AES_SNK" J_PIECE=0 J_START=1000 J_HACHES=1-2400 J_FIN=2400
-# La bascule : MODE est la quatrième ligne en remontant depuis la première (`dip.s`).
+# The flip: MODE is the fourth line going up from the first (`dip.s`).
 VERS_MODE="270:haut,280:haut,290:haut,300:haut"
 if veut aes-set || veut aes-demo || veut aes-start || veut aes-piece || veut aes-retour || veut aes-histoire; then
   lancer aes-set son.lua "$NOTRE" $EDIT J_APPUIS=$VERS_MODE,310:droite,340:START J_TEXTE=330,450 J_FIN=600
 fi
-# Les scores en mode AES : puzzledp mis en AES par l'éditeur, le score de la scène scores posé (et pas posé), puis relancé.
+# The scores in AES mode: puzzledp put in AES by the editor, the score of the scores scene set
+# (and not set), then relaunched.
 veut aes-sc-a && lancer aes-sc-a son.lua "$PZ" $EDIT J_APPUIS=$VERS_MODE,310:droite,340:START J_POSER=1500@100028=0012D680120F1708 J_FIN=7000
 veut aes-sc-a0 && lancer aes-sc-a0 son.lua "$PZ" $EDIT J_APPUIS=$VERS_MODE,310:droite,340:START J_FIN=7000
-# SCORE RESET : « haut » six fois depuis la première ligne de l'éditeur ; l'horloge au 2026-10-01 (un jeudi).
+# SCORE RESET: "up" six times from the first line of the editor; the clock at 2026-10-01 (a
+# Thursday).
 VERS_SCORES="270:haut,280:haut,290:haut,300:haut,310:haut,320:haut"
 HL="J_AUSSI=$ICI/horloge.lua"
-# LES RÉGLAGES DE LA BORNE : « haut » sept fois depuis la première ligne (CABINET SETTINGS), A.
+# THE CABINET SETTINGS: "up" seven times from the first line (CABINET SETTINGS), A.
 VERS_BORNE="270:haut,276:haut,282:haut,288:haut,294:haut,300:haut,306:haut,320:A"
 veut sg-a-on && lancer sg-a-on son.lua "$MS_WH2" $EDIT $HL HL_DATE=2610014 J_APPUIS=$VERS_SCORES,340:START J_TEXTE=335 J_POSER=1500@10E004=535058 J_FIN=6000
 veut sg-a-off && lancer sg-a-off son.lua "$MS_WH2" $EDIT $HL HL_DATE=2610014 J_APPUIS=$VERS_SCORES,330:droite,340:START J_TEXTE=335 J_POSER=1500@10E004=535058 J_FIN=6000
 
-# ---- Les runs de la couverture (relevé --ref-couv) ----
-# Les témoins SNK des trois régions, la démo sans entrée.
+# ---- The runs of the coverage (record --ref-couv) ----
+# The SNK witnesses of the three regions, the demo without input.
 veut demo-snk-jp && BIOS_RUN=japan lancer demo-snk-jp son.lua "$SNK" J_PIECE=0 J_START=0 J_HACHES=1-2200 J_FIN=2200
 veut demo-snk-us && BIOS_RUN=us lancer demo-snk-us son.lua "$SNK" J_PIECE=0 J_START=0 J_HACHES=1-2200 J_FIN=2200
 veut region-us && lancer region-us son.lua "$NOTRE" $EDIT J_APPUIS=270:gauche,340:START J_TEXTE=330,450 J_HACHES=1-1600 J_FIN=1600
-# L'éditeur : la remise aux défauts (ROUND TIME 60 → 65, puis haut deux fois jusqu'à RESET TO
-# DEFAULTS et A), un temps MM:SS (ncombat, PLAY TIME 03:00 → 03:01), un nombre de fois par A
-# (puzzledp, CONTINUE INFINITE → WITHOUT : A passe du maximum au minimum).
+# The editor: the reset to defaults (ROUND TIME 60 → 65, then up twice to RESET TO
+# DEFAULTS and A), an MM:SS time (ncombat, PLAY TIME 03:00 → 03:01), a number of times by A
+# (puzzledp, CONTINUE INFINITE → WITHOUT: A goes from the maximum to the minimum).
 veut dip-def && lancer dip-def son.lua "$NOTRE" $TEMPS J_TEXTE=328,350 \
   J_APPUIS=270:bas,280:droite,290:droite,300:droite,310:droite,320:droite,330:haut,336:haut,342:A,360:START
 NC="J_TESTS=1-260 J_PIECE=900 J_START=1000 J_IMAGES=1300,2000,3000 J_FIN=3001"
@@ -1358,18 +1501,19 @@ veut temps-nc1 && lancer temps-nc1 son.lua "$MS_NC" $NC J_APPUIS=270:bas,280:dro
 FOIS="J_TESTS=1-260 J_PIECE=900 J_START=1000 J_FIN=9000"
 veut fois0 && lancer fois0 son.lua "$PZ" $FOIS J_APPUIS=340:START
 veut fois1 && lancer fois1 son.lua "$PZ" $FOIS J_APPUIS=270:bas,280:A,340:START J_TEXTE=330
-# Les autotests en défaut, comme 2026-10-21-autotests.tsv (runs pal0, vram-bas, bram).
+# The failing self-tests, like 2026-10-21-autotests.tsv (runs pal0, vram-bas, bram).
 veut autotests-pal && lancer autotests-pal autotests.lua "$NOTRE" T_DEFAUT=pal T_ADR=0x400A00 T_BIT=5 T_FIN=3000
 veut autotests-vram && lancer autotests-vram autotests.lua "$NOTRE" T_DEFAUT=vram T_ADR=0x007123 T_BIT=15 T_FIN=3000
 veut autotests-bram && lancer autotests-bram autotests.lua "$NOTRE" T_DEFAUT=bram T_ADR=0xD01234 T_BIT=7 T_FIN=3000
-# Les écrans du menu HARDWARE TESTS : depuis la première ligne de l'éditeur, « haut » trois fois
-# mène à HARDWARE TESTS (MODE est à quatre) ; A l'ouvre sur WORK RAM.
+# The screens of the HARDWARE TESTS menu: from the first line of the editor, "up" three times
+# leads to HARDWARE TESTS (MODE is at four); A opens it on WORK RAM.
 VERS_TESTS="270:haut,280:haut,290:haut,300:A"
-# INPUT TEST : chaque entrée à son tour, TEST compris (J_TESTS), puis START tenu 80 trames.
-# La page du panneau de mahjong : le commutateur 3 à ON dès la trame 1, la manette d'aof (une manette se lit
-# dans les trois rangées à la fois) : A, B, haut, START, puis START tenu 80 trames. Le commutateur 3 passe à ON à 365, l'éditeur
-# déjà ouvert : INPUT TEST le lit à son ouverture (370), et les menus restent traduits comme à la leur, en manette
-# (à ON dès le boot, la manette serait traduite comme le panneau, haut en A, A en haut).
+# INPUT TEST: each input in turn, TEST included (J_TESTS), then START held 80 frames.
+# The mahjong panel page: switch 3 at ON from frame 1, aof's joystick (a joystick is read in
+# the three rows at once): A, B, up, START, then START held 80 frames. Switch 3 goes to ON at
+# 365, the editor already open: INPUT TEST reads it at its opening (370), and the menus stay
+# translated as at theirs, on the joystick (at ON from boot, the joystick would be translated
+# like the panel, up as A, A as up).
 veut tests-mj && lancer tests-mj son.lua "$NOTRE" J_TESTS=1-260 J_PIECE=0 J_START=0 J_DSW=1:00,365:04 \
   J_APPUIS=$VERS_TESTS,330:bas,340:bas,350:bas,360:bas,370:A,420:A:8,440:B:8,460:haut:8,480:START:8,520:START:80 \
   J_TEXTE=400,424,444,464,484,640 J_FIN=660
@@ -1378,129 +1522,133 @@ veut tests-entrees && lancer tests-entrees son.lua "$NOTRE" J_TESTS=1-260,680-68
   J_TEXTE=365,400,810 J_IMAGES=410,424,444,464,484,504,524,544,564,584,604,624,644,664,684 J_FIN=850
 veut tests-barres && lancer tests-barres son.lua "$NOTRE" $EDIT \
   J_APPUIS=$VERS_TESTS,330:bas,340:bas,350:bas,360:bas,370:bas,380:A,430:A,480:START J_TEXTE=375,500 J_IMAGES=420,470 J_FIN=520
-# CROSSHATCH à « haut » trois fois depuis WORK RAM (CARTRIDGE CRC à deux, EXIT à une, le 2026-10-25) ; de là, « bas » deux
-# fois mène à EXIT.
+# CROSSHATCH at "up" three times from WORK RAM (CARTRIDGE CRC at two, EXIT at one, on
+# 2026-10-25); from there, "down" twice leads to EXIT.
 veut tests-grille && lancer tests-grille son.lua "$NOTRE" $EDIT \
   J_APPUIS=$VERS_TESTS,330:haut,335:haut,340:haut,350:A,400:START,430:bas,435:bas,440:A J_TEXTE=345,420,470 J_IMAGES=390 J_FIN=500
-# Le jukebox au clavier : « haut » quatre fois de 00 à 07 ($01-$03 sautés), A ; droite deux fois
-# (27), gauche (17), droite (27), bas six fois (21), A ; B à 900 ; START, START.
+# The jukebox on the keys: "up" four times from 00 to 07 ($01-$03 skipped), A; right twice
+# (27), left (17), right (27), down six times (21), A; B at 900; START, START.
 JUKE="270:haut,280:haut,290:A,330:haut,340:haut,350:haut,360:haut,380:A,440:droite,450:droite,470:gauche,480:droite,490:bas,500:bas,510:bas,520:bas,530:bas,540:bas,560:A"
 veut jukebox-b && lancer jukebox-b son.lua "$NOTRE $WAV" $EDIT J_APPUIS=$JUKE,900:B,1300:START,1350:START \
   J_TEXTE=320,370,460,475,485,550,1330 J_FIN=1500
-# L'économiseur du jukebox : le code 21 joué à 560, puis rien ; haut à 8000 (le réveil), haut à 8100. Le
-# témoin veille-0 : C tapé à 3000 et 6000, une entrée sans effet dans le jukebox, qui le garde allumé.
+# The jukebox's screen saver: code 21 played at 560, then nothing; up at 8000 (the wake-up), up
+# at 8100. The veille-0 witness: C tapped at 3000 and 6000, an input without effect in the
+# jukebox, which keeps it lit.
 VEILLE="$EDIT J_HACHES=7500-8200 J_IMAGES=7600,7800,8050 J_TEXTE=7600,8050,8150 J_FIN=8200"
 veut veille && lancer veille son.lua "$NOTRE $WAV" $VEILLE J_APPUIS=$JUKE,8000:haut,8100:haut
 veut veille-0 && lancer veille-0 son.lua "$NOTRE $WAV" $VEILLE J_APPUIS=$JUKE,3000:C,6000:C,8000:haut,8100:haut
-# Sans B, et « haut » tenu 60 trames à 1000 : la répétition.
+# Without B, and "up" held 60 frames at 1000: the repeat.
 veut jukebox-b0 && lancer jukebox-b0 son.lua "$NOTRE $WAV" $EDIT J_APPUIS=$JUKE,1000:haut:60 J_TEXTE=990,1065 J_FIN=1300
-# Un cheat mis à ON puis à OFF dans la même pause, RESUME.
+# A cheat set to ON then to OFF in the same pause, RESUME.
 veut cheats-off && lancer cheats-off son.lua "$NOTRE" $MENU_TEST \
   J_APPUIS=2380:bas,2386:bas,2392:A,2398:A,2404:haut,2410:haut,2416:A \
   J_ZONES="146,10,173,29;62,17,142,22" J_HACHES=2200-4200 J_SUIVRE=108406:1 J_TEXTE=2395,2401 J_FIN=4200
-# Deux pièces, START P2 au titre : les deux joueurs partent ; contre le BIOS SNK.
+# Two coins, START P2 at the title: both players start; against the SNK BIOS.
 P2="J_PIECE=0 J_START=0 J_APPUIS=400:piece:8,420:piece:8,500:start2:8 J_HACHES=1-3000 J_FIN=3000"
 veut partie-p2 && lancer partie-p2 son.lua "$NOTRE" $P2
 veut partie-p2-snk && lancer partie-p2-snk son.lua "$SNK" $P2
-# Une partie à un joueur, puis une pièce et START P2 en cours de partie : P2 se joint.
+# A one-player game, then a coin and START P2 during the game: P2 joins.
 JOINT="J_APPUIS=1500:piece:8,1600:start2:8 J_HACHES=1-3000 J_FIN=3000"
 veut p2-joint && lancer p2-joint son.lua "$NOTRE" $JOINT
 veut p2-joint-snk && lancer p2-joint-snk son.lua "$SNK" $JOINT
-# Une pièce à 400, rien d'autre : le son de la pièce, puis le départ forcé du titre.
+# A coin at 400, nothing else: the sound of the coin, then the forced start from the title.
 veut piece-seule && lancer piece-seule son.lua "$NOTRE $WAV" J_PIECE=400 J_START=0 J_HACHES=1-3000 J_FIN=3000
 veut piece-seule-snk && lancer piece-seule-snk son.lua "$SNK $WAV" J_PIECE=400 J_START=0 J_HACHES=1-3000 J_FIN=3000
-# Une cartouche seule sur la MV-6F, SELECT au titre (une pièce) : ignoré, écart voulu (`io.s`).
+# A single cartridge on the MV-6F, SELECT at the title (one coin): ignored, deliberate departure
+# (`io.s`).
 veut ms-seule && lancer ms-seule son.lua "$MS_AOF" J_PIECE=1000 J_START=0 J_APPUIS=1050:select:8 J_HACHES=1000-1500 J_FIN=1500
 veut ms-seule0 && lancer ms-seule0 son.lua "$MS_AOF" J_PIECE=1000 J_START=0 J_HACHES=1000-1500 J_FIN=1500
-# La carte mémoire : une partie perdue, MEMORY CARD SAVE (gauche : YES, puis A) ; relue plus bas.
+# The memory card: a game lost, MEMORY CARD SAVE (left: YES, then A); read back further down.
 SAUVE="J_TIRS=6640-6900:20:gauche;6910-7100:20:A"
 veut carte-sauve && lancer carte-sauve son.lua "$NOTRE -memc @/carte.neo" "$SAUVE" J_FIN=7800
 veut carte-sauve-snk && lancer carte-sauve-snk son.lua "$SNK -memc @/carte.neo" "$SAUVE" J_FIN=7800
 veut carte-neuve && lancer carte-neuve son.lua "$NOTRE -memc @/carte.neo" J_HACHES=1-2500 J_FIN=2500
-# SELECT P2 sur trois cartouches : le slot précédent, aof ; témoin, aof seul au titre.
+# SELECT P2 on three cartridges: the previous slot, aof; witness, aof alone at its title.
 veut ms-select-p2 && lancer ms-select-p2 multislot.lua "$MS3" MS_FIN=1300 MS_CAPT_USER=60 MS_ENTREES=1000:piece,1050:precedent:1
 veut aof-titre && lancer aof-titre son.lua "$NOTRE" J_PIECE=400 J_START=0 J_REMISE=60 J_FIN=500
-# Le mode AES posé par l'éditeur sur la MV-6F (sa NVRAM n'est pas celle du set aof), puis relancé.
+# The AES mode set by the editor on the MV-6F (its NVRAM is not that of the aof set), then
+# relaunched.
 veut aes-ms-set && lancer aes-ms-set son.lua "$MS" $EDIT J_APPUIS=$VERS_MODE,310:droite,340:START J_TEXTE=330,450 J_FIN=600
 veut aes-m1-set && lancer aes-m1-set son.lua "$MS_AOF" $EDIT J_APPUIS=$VERS_MODE,310:droite,340:START J_TEXTE=330,450 J_FIN=600
 veut aes-k98-set && lancer aes-k98-set son.lua "$MS_K98" $EDIT J_APPUIS=$VERS_MODE,310:droite,340:START J_TEXTE=330,450 J_FIN=600
 veut aes-snk-pz && BIOS_RUN=asia lancer aes-snk-pz son.lua "$AES_SNK_PZ" J_PIECE=0 J_START=0 J_HACHES=1-2400 J_FIN=2400
 veut aes-snk-kof98 && BIOS_RUN=asia lancer aes-snk-kof98 son.lua "$AES_SNK_K98" J_PIECE=0 J_START=0 J_HACHES=1-2000 J_FIN=2000
 veut aes-snk-pause && BIOS_RUN=asia lancer aes-snk-pause son.lua "$AES_SNK" J_PIECE=0 J_START=1000 J_APPUIS=5600:select:8 J_HACHES=5500-6700 J_FIN=6700
-# Une partie STORY MODE en AES (bas puis A au menu du jeu), perdue sans entrée.
+# A STORY MODE game in AES (down then A at the game's menu), lost without input.
 HISTOIRE="J_PIECE=0 J_START=1000 J_APPUIS=1800:bas,1830:A J_ZONES=208,0,303,15"
 veut aes-snk-histoire && BIOS_RUN=asia lancer aes-snk-histoire son.lua "$AES_SNK" $HISTOIRE J_HACHES=1-8100 J_FIN=8100
-# NO SOFT DIP DATA : l'éditeur sur la fixture (plus haut), puis START. Témoin : le run langue.
+# NO SOFT DIP DATA: the editor on the fixture (above), then START. Witness: the langue run.
 veut nosd && lancer nosd son.lua "aof -rompath $NOSD" $EDIT J_APPUIS=340:START J_TEXTE=330 J_REMISE=754 J_FIN=1300
-# L'INPUT TEST sur la MV-6F, la machine qui a SELECT (« Next Game », « Previous Game ») : P2 hors
-# de A et START, SELECT P1 et P2, puis les huit commutateurs, chacun seul ON 20 trames.
+# The INPUT TEST on the MV-6F, the machine that has SELECT ("Next Game", "Previous Game"): P2
+# besides A and START, SELECT P1 and P2, then the eight switches, each alone ON 20 frames.
 DSW="600:01,620:00,640:02,660:00,680:04,700:00,720:08,740:00,760:10,780:00,800:20,820:00,840:40,860:00,880:80,900:00"
 veut tests-entrees2 && lancer tests-entrees2 son.lua "$MS_AOF" J_TESTS=1-260 J_PIECE=0 J_START=0 \
   J_APPUIS=$VERS_TESTS,330:bas,340:bas,350:bas,360:bas,370:A,420:deuxB:8,440:deuxC:8,460:deuxD:8,480:deuxHaut:8,500:deuxBas:8,520:deuxGauche:8,540:deuxDroite:8,560:select:8,580:select2:8,920:START:80 \
   J_DSW=$DSW J_TEXTE=400,1040 J_IMAGES=410,424,444,464,484,504,524,544,564,584,610,650,690,730,770,810,850,890 J_FIN=1060
 
-# ---- Les runs du menu en jeu complet (relevé --ref-menu) ----
-# Le menu s'ouvre à 2357 ($MENU_TEST) sur RESUME ; « haut, haut » mène à GAME SETTINGS, « haut » à
-# MEMORY EDITOR (`src/c0/menu.s`). Un appui toutes les 6 trames, 3 trames tenu.
+# ---- The runs of the full in-game menu (record --ref-menu) ----
+# The menu opens at 2357 ($MENU_TEST) on RESUME; "up, up" leads to GAME SETTINGS, "up" to
+# MEMORY EDITOR (`src/c0/menu.s`). One press every 6 frames, held 3 frames.
 CHRONO="J_ZONES=146,10,173,29;62,17,142,22"
 VERS_GS="2380:haut,2386:haut,2392:A"
-# GAME SETTINGS : ROUND TIME 60 → 65 (droite cinq fois, la première ligne), START, puis RESUME
-# (« bas » deux fois : MEMORY EDITOR, RESUME). Puis la même chose et RESET TO DEFAULTS (« haut »
-# deux fois depuis la première ligne : RESTART GAME, la remise), A, et « bas » deux fois pour revoir
-# ROUND TIME, que la liste a fait défiler.
+# GAME SETTINGS: ROUND TIME 60 → 65 (right five times, the first line), START, then RESUME
+# ("down" twice: MEMORY EDITOR, RESUME). Then the same thing and RESET TO DEFAULTS ("up"
+# twice from the first line: RESTART GAME, the reset), A, and "down" twice to see ROUND TIME
+# again, which the list has scrolled.
 CINQ="2398:droite,2404:droite,2410:droite,2416:droite,2422:droite"
 veut gs-65 && lancer gs-65 son.lua "$NOTRE" $MENU_TEST J_APPUIS=$VERS_GS,$CINQ,2428:START,2434:bas,2440:bas,2446:A \
   "$CHRONO" J_HACHES=2200-9000 J_TEXTE=2427 J_FIN=9000
 veut gs-def && lancer gs-def son.lua "$NOTRE" $MENU_TEST J_APPUIS=$VERS_GS,$CINQ,2428:haut,2434:haut,2440:A,2446:bas,2452:bas,2458:START,2464:bas,2470:bas,2476:A \
   "$CHRONO" J_HACHES=2200-9000 J_TEXTE=2427,2457 J_FIN=9000
-# LANGUAGE → SPANISH (bas, droite), puis RESTART GAME (« haut » deux fois), A : la relance à 2430.
+# LANGUAGE → SPANISH (down, right), then RESTART GAME ("up" twice), A: the relaunch at 2430.
 veut gs-langue && lancer gs-langue son.lua "$NOTRE" $MENU_TEST J_APPUIS=$VERS_GS,2398:bas,2404:droite,2410:haut,2416:haut,2422:A \
   J_TEXTE=2409 J_REMISE=754 J_FIN=3500
-# ncombat (PLAY TIME 03:00 → 03:01, droite) et puzzledp (CONTINUE INFINITE → WITHOUT, A), puis
-# RESTART GAME (« haut »), A à 2410 : la relance à R = 2418 sur ncombat et sur puzzledp, mesuré le 2026-10-29
-# avec la table de 81 jeux. Cette trame suit la phase de l'attente du watchdog, donc les cycles du menu depuis
-# son ouverture, où `_cheats_trouver` parcourt toute la table pour un jeu absent : elle a bougé avec la lecture
-# du panneau, la fenêtre des cheats (2417) et la table de 81 jeux (2418). Les entrées d'après sont celles
-# de temps-nc1 et fois1, décalées de R (pièce à R + 900, START à R + 1000).
+# ncombat (PLAY TIME 03:00 → 03:01, right) and puzzledp (CONTINUE INFINITE → WITHOUT, A), then
+# RESTART GAME ("up"), A at 2410: the relaunch at R = 2418 on ncombat and on puzzledp, measured
+# on 2026-10-29 with the table of 81 games. This frame follows the phase of the watchdog wait,
+# hence the cycles of the menu since its opening, where `_cheats_trouver` goes through the
+# whole table for an absent game: it moved with the reading of the panel, the cheats window
+# (2417) and the table of 81 games (2418). The inputs after it are those of temps-nc1 and
+# fois1, shifted by R (coin at R + 900, START at R + 1000).
 veut gs-nc && lancer gs-nc son.lua "$MS_NC" $MENU_TEST J_APPUIS=$VERS_GS,2398:droite,2404:haut,2410:A,3318:piece:8,3418:START:8 \
   J_TEXTE=2403 J_IMAGES=3718,4418,5418 J_FIN=5419
 veut gs-pz && lancer gs-pz son.lua "$PZ" $MENU_TEST J_APPUIS=$VERS_GS,2398:A,2404:haut,2410:A,3318:piece:8,3418:START:8 \
   J_TEXTE=2403 J_FIN=11418
-# NO SOFT DIP DATA en partie, sur les deux fixtures (plus haut), puis START et RESUME.
+# NO SOFT DIP DATA in game, on the two fixtures (above), then START and RESUME.
 veut gs-nosd && lancer gs-nosd son.lua "aof -rompath $NOSD" $MENU_TEST J_APPUIS=$VERS_GS,2410:START,2416:bas,2422:bas,2428:A \
   J_TEXTE=2409 J_FIN=2700
 veut gs-banque && lancer gs-banque son.lua "aof -rompath $BANQUE" $MENU_TEST J_APPUIS=$VERS_GS,2410:START,2416:bas,2422:bas,2428:A \
   J_TEXTE=2409 J_FIN=2700
-# MEMORY EDITOR (`src/c0/memoire.s`). GOTO 108400 : C, « haut » huit fois (le chiffre des milliers,
-# 0 → 8), droite, « haut » quatre fois (les centaines, 0 → 4), A ; puis droite six fois : $108406, les
-# secondes du round d'aof (`src/c0/cheats.s`).
+# MEMORY EDITOR (`src/c0/memoire.s`). GOTO 108400: C, "up" eight times (the thousands digit,
+# 0 → 8), right, "up" four times (the hundreds, 0 → 4), A; then right six times: $108406, the
+# seconds of aof's round (`src/c0/cheats.s`).
 VERS_ME="2380:haut,2386:A"
 GOTO8400="2392:C,2398:haut,2404:haut,2410:haut,2416:haut,2422:haut,2428:haut,2434:haut,2440:haut,2446:droite,2452:haut,2458:haut,2464:haut,2470:haut,2476:A"
 SIX="2482:droite,2488:droite,2494:droite,2500:droite,2506:droite,2512:droite"
-# La navigation : une ligne (bas), une page (B tenu, bas), « bas » tenu 60 trames ; puis gauche, haut,
-# B tenu et haut ; GOTO : droite, gauche (le chiffre des milliers), haut, A ; GOTO renoncé : haut, B.
+# The navigation: one line (down), one page (B held, down), "down" held 60 frames; then left,
+# up, B held and up; GOTO: right, left (the thousands digit), up, A; GOTO abandoned: up, B.
 veut me-nav && lancer me-nav son.lua "$NOTRE" $MENU_TEST J_APPUIS=$VERS_ME,$GOTO8400,$SIX,2518:bas,2526:B:12,2530:bas,2544:bas:60,2612:gauche,2618:haut,2626:B:12,2630:haut,2644:C,2650:droite,2656:gauche,2662:haut,2668:A,2674:C,2680:haut,2686:B \
   J_TEXTE=2481,2517,2523,2541,2609,2617,2623,2641,2673,2691 J_SUIVRE=108400:2,108402:2,108404:2,108406:2,108440:2,108442:2,108444:2,108446:2 J_FIN=2700
-# SET VALUE : A, gauche deux fois ($60 → $40), haut ($41), bas ($40), A ; puis A, haut, B : renoncé.
-# START, RESUME (« bas » : RESUME, A).
+# SET VALUE: A, left twice ($60 → $40), up ($41), down ($40), A; then A, up, B: abandoned.
+# START, RESUME ("down": RESUME, A).
 veut me-poke && lancer me-poke son.lua "$NOTRE" $MENU_TEST \
   J_APPUIS=$VERS_ME,$GOTO8400,$SIX,2518:A,2524:gauche,2530:gauche,2536:haut,2542:bas,2548:A,2554:A,2560:haut,2566:B,2572:START,2578:bas,2584:A \
   "$CHRONO" J_HACHES=2200-4200 J_SUIVRE=108406:1 J_TEXTE=2535,2541,2547,2565,2571 J_FIN=4200
-# Deux gels : D sur $108406 ; GOTO 1092CD (la vie de P1, `cheats.s`) depuis 8406 : haut (8 → 9),
-# droite, bas deux fois (4 → 2), droite, bas quatre fois (0 → C), droite, haut sept fois (6 → D),
-# A ; D. Puis START, RESUME.
+# Two freezes: D on $108406; GOTO 1092CD (P1's life, `cheats.s`) from 8406: up (8 → 9),
+# right, down twice (4 → 2), right, down four times (0 → C), right, up seven times (6 → D),
+# A; D. Then START, RESUME.
 veut me-gel && lancer me-gel son.lua "$NOTRE" $MENU_TEST \
   J_APPUIS=$VERS_ME,$GOTO8400,$SIX,2518:D,2524:C,2530:haut,2536:droite,2542:bas,2548:bas,2554:droite,2560:bas,2566:bas,2572:bas,2578:bas,2584:droite,2590:haut,2596:haut,2602:haut,2608:haut,2614:haut,2620:haut,2626:haut,2632:A,2638:D,2644:START,2650:bas,2656:A \
   "$CHRONO" J_HACHES=2200-4400 J_SUIVRE=108406:1,1092CD:1 J_TEXTE=2643 J_FIN=4400
-# Un gel posé, RESUME ; le menu rouvert à 3057 (TEST 3037-3076), MEMORY EDITOR sur le même
-# curseur, D le retire, RESUME.
+# One freeze set, RESUME; the menu reopened at 3057 (TEST 3037-3076), MEMORY EDITOR on the same
+# cursor, D removes it, RESUME.
 veut me-degel && lancer me-degel son.lua "$NOTRE" J_TESTS=2337-2376,3037-3076 \
   J_APPUIS=$VERS_ME,$GOTO8400,$SIX,2518:D,2524:START,2530:bas,2536:A,3080:haut,3086:A,3092:D,3098:START,3104:bas,3110:A \
   "$CHRONO" J_HACHES=2200-5000 J_SUIVRE=108406:1 J_TEXTE=2523,3097 J_FIN=5000
-# La zone du BIOS : GOTO 10FD84 (BIOS_GAME_DIP) — bas (0 → F), droite, bas trois fois (0 → D),
-# droite, « haut » huit fois, droite, « haut » quatre fois, A —, puis A et D, qui n'y font rien.
-# ---- Le bus flottant (`bus-flottant.lua` chargé par `son.lua`) : chaque run deux fois, sous le modèle
-# du matériel puis libre (le témoin). BF_FIN : la dernière trame avant la sortie de `son.lua`.
+# The BIOS area: GOTO 10FD84 (BIOS_GAME_DIP): down (0 → F), right, down three times (0 → D),
+# right, "up" eight times, right, "up" four times, A; then A and D, which do nothing there.
+# ---- The floating bus (`bus-flottant.lua` loaded by `son.lua`): each run twice, under the
+# model of the hardware then free (the witness). BF_FIN: the last frame before `son.lua` exits.
 BFM="J_FLOTTANT=$ICI/bus-flottant.lua BF_OUT=bf.tsv BF_HOTE=1"
 for x in "dip|$NOTRE|270:bas,280:droite,290:bas,300:droite,340:START|330|600" \
          "ms|$MS_MSLUG|270:bas,280:bas,290:A,340:START|330|600" \
@@ -1515,21 +1663,22 @@ for x in "dip|$NOTRE|270:bas,280:droite,290:bas,300:droite,340:START|330|600" \
   veut "bf-$nom-libre" && lancer "bf-$nom-libre" son.lua "$mach" $EDIT $BFM BF_FIN=$(( fin - 1 )) BF_LIBRE=1 \
     J_APPUIS="$app" J_TEXTE="$txt" J_HACHES=1-$fin J_FIN=$fin
 done
-# La MV-1 sans cartouche, sous le modèle : 1 500 trames, aucune entrée.
+# The MV-1 without a cartridge, under the model: 1,500 frames, no input.
 veut sc-mv1 && lancer sc-mv1 son.lua "ng_mv1 -rompath $R" $BFM BF_FIN=1499 J_PIECE=0 J_START=0 \
   J_TEXTE=700,1400 J_HACHES=1-1500 J_FIN=1500
-# aof muette sur ses 30 premières trames, sous le modèle : 900 trames, aucune entrée.
+# aof silent for its first 30 frames, under the model: 900 frames, no input.
 veut fc && lancer fc son.lua "$NOTRE" $BFM BF_ABSENTE=30 BF_FIN=899 J_PIECE=0 J_START=0 \
   J_TEXTE=150 J_HACHES=1-900 J_FIN=900
 veut me-borne && lancer me-borne son.lua "$NOTRE" $MENU_TEST \
   J_APPUIS=$VERS_ME,2392:C,2398:bas,2404:droite,2410:bas,2416:bas,2422:bas,2428:droite,2434:haut,2440:haut,2446:haut,2452:haut,2458:haut,2464:haut,2470:haut,2476:haut,2482:droite,2488:haut,2494:haut,2500:haut,2506:haut,2512:A,2518:A,2524:D,2530:START,2536:bas,2542:A \
   J_SUIVRE=10FD84:1 J_TEXTE=2517,2529 J_FIN=2700
-# ---- Le gestionnaire de la carte mémoire (relevé --ref-carte) : l'écran TEST, « haut » cinq fois, A.
+# ---- The memory card manager (record --ref-carte): the TEST screen, "up" five times, A.
 VERS_CARTE="270:haut,280:haut,290:haut,300:haut,310:haut,320:A"
 FIXTURE="$R/cartes/fixture.neo"
-# LA COPIE : la source en place, C à 360 sur 0044-00 ; la carte retirée à 400, l'autre insérée à 420 (`carte-
-# echange.lua`, une copie dans le dossier du run) ; A à 440, puis A à 470 si l'écrasement est demandé. La RAM du jeu
-# posée à 330 en $100000 et $1006BE, relue après. cp-renonce : B à 400, la carte jamais changée.
+# THE COPY: the source in place, C at 360 on 0044-00; the card removed at 400, the other
+# inserted at 420 (`carte-echange.lua`, a copy in the run's directory); A at 440, then A at 470
+# if overwriting is asked. The game RAM set at 330 at $100000 and $1006BE, read back after.
+# cp-renonce: B at 400, the card never changed.
 CP="$EDIT J_AUSSI=$ICI/carte-echange.lua J_POSER=330@100000=0123456789ABCDEF,330@1006BE=CAFE J_SUIVRE=100000:2,100002:2,100004:2,100006:2,1006BE:2"
 if veut cp-vide; then CARTE_DE=$R/cartes/copie-source.neo; lancer cp-vide son.lua "$NOTRE -memc @/carte.neo" $CP \
   CE_ECHANGE=400:-,420:$R/cartes/copie-vide.neo J_APPUIS=$VERS_CARTE,360:C,440:A,480:START,500:START J_TEXTE=350,380,430,460 J_FIN=600; fi
@@ -1552,40 +1701,46 @@ for libre in "" 1; do
   if veut $nom; then CARTE_DE=$FIXTURE; lancer $nom son.lua "$NOTRE -memc @/carte.neo" $EDIT $BFM BF_FIN=699 ${libre:+BF_LIBRE=1} \
     J_APPUIS=$VERS_CARTE,350:bas,360:A,370:B,400:START,430:START J_TEXTE=345,410 J_HACHES=1-700 J_FIN=700; fi
 done
-# ---- Les réglages de la borne (relevé --ref-borne) : posés par l'éditeur, puis jugés après relance (plus bas).
+# ---- The cabinet settings (record --ref-borne): set by the editor, then judged after a
+# relaunch (further down).
 veut bo-ecran && lancer bo-ecran son.lua "$NOTRE" $EDIT J_APPUIS=$VERS_BORNE,330:droite,340:bas,346:A,352:bas,358:droite,370:START,390:START \
   J_TEXTE=310,325,365,385 J_SUIVRE=D0021D:1 J_FIN=600
-# L'écran ABOUT : « haut » huit fois, A.
+# The ABOUT screen: "up" eight times, A.
 veut ab-ecran && lancer ab-ecran son.lua "$NOTRE" $EDIT J_APPUIS=${VERS_BORNE%,320:A},312:haut,320:A,360:START,390:START \
   J_TEXTE=316,340,375 J_FIN=600
 for x in "0|" "fp|330:droite," "nc|330:bas,340:droite," "dm|330:bas,340:bas,350:droite," "cd|330:bas,338:bas,346:bas,354:droite,"; do
   IFS='|' read -r nom app <<< "$x"
   veut bo-set-$nom && lancer bo-set-$nom son.lua "$NOTRE" $EDIT J_APPUIS=$VERS_BORNE,${app}370:START,390:START J_TEXTE=365 J_FIN=500
 done
-# Les trois à ON / ON / OFF, puis MODE AES (« bas » trois fois depuis CABINET SETTINGS, droite) ; CABINET SETTINGS rouvert
-# (« haut » trois fois, A), A sur FREE PLAY, START, START : la relance en mode AES.
+# The three at ON / ON / OFF, then MODE AES ("down" three times from CABINET SETTINGS, right);
+# CABINET SETTINGS reopened ("up" three times, A), A on FREE PLAY, START, START: the relaunch in
+# AES mode.
 veut bo-set-aes && lancer bo-set-aes son.lua "$NOTRE" $EDIT \
   J_APPUIS=$VERS_BORNE,330:droite,336:bas,342:droite,348:bas,354:droite,370:START,390:bas,396:bas,402:bas,408:droite,414:haut,420:haut,426:haut,432:A,440:A,450:START,470:START \
   J_TEXTE=365,410,445,460 J_FIN=700
-# Le BIOS SNK en free play (le commutateur de la carte), les entrées décalées de 567 trames (voir l'en-tête).
+# The SNK BIOS in free play (the board switch), the inputs shifted by 567 frames (see the
+# header).
 FP_SNK="J_DSW=1:40 J_HACHES=1-3700 J_SUIVRE=D00034:1,10FDB4:1 J_FIN=3700"
 veut bo-snk-fp && lancer bo-snk-fp son.lua "$SNK" $FP_SNK J_PIECE=0 J_START=1567
 veut bo-snk-p2 && lancer bo-snk-p2 son.lua "$SNK" $FP_SNK J_PIECE=0 J_START=0 J_APPUIS=1567:start2:8
 veut bo-snk-joint && lancer bo-snk-joint son.lua "$SNK" $FP_SNK J_PIECE=0 J_START=1567 J_APPUIS=2567:start2:8
-# Le catalogue (scène cheats-vies) : mslug2, une pièce, START, A toutes les 60 trames et droite tenue, sauf autour du menu
-# (TEST 1500-1539) ; cv-on y met INFINITE LIVES à ON, cv-temoin ferme le menu sans rien changer.
+# The catalogue (cheats-vies scene): mslug2, a coin, START, A every 60 frames and right held,
+# except around the menu (TEST 1500-1539); cv-on sets INFINITE LIVES to ON there, cv-temoin
+# closes the menu without changing anything.
 CV="mslug2 -rompath $R"
 CV_E="J_TESTS=1500-1539 J_TIRS=600-1480:60:A,1700-9000:60:A J_ZONES=22,28,56,38 J_HACHES=1500-9000 J_SUIVRE=10FDAF:1,101276:1 J_FIN=9000"
 veut cv-on && lancer cv-on son.lua "$CV" $CV_E J_APPUIS=1000:droite:480,1545:bas,1551:bas,1557:A,1563:haut,1569:haut,1575:A,1700:droite:7300 J_TEXTE=1560
 veut cv-temoin && lancer cv-temoin son.lua "$CV" $CV_E J_APPUIS=1000:droite:480,1545:A,1700:droite:7300 J_TEXTE=1540
-# CHEATS/DEBUG à ON (le réglage par défaut, NVRAM neuve) : le gel de bo-cd-gel, pour prouver que la pose agit.
+# CHEATS/DEBUG at ON (the default setting, fresh NVRAM): the freeze of bo-cd-gel, to prove that
+# setting it acts.
 veut bo-cd-gel-on && lancer bo-cd-gel-on son.lua "$NOTRE" J_POSER=2400@10FB08=000184066000 J_ZONES="146,10,173,29" J_HACHES=2200-4200 J_SUIVRE=108406:1,10FB08:2 J_FIN=4200
-# Les commutateurs de la carte et le geste sans bouton TEST, sur la MV-2F (relevé --ref-dip).
+# The board switches and the gesture without a TEST button, on the MV-2F (record --ref-dip).
 MV2="ng_mv2f -hashpath $HASHPATH -rompath $R;$ROMS -cart1 aof"
 DF="J_PIECE=0 J_HACHES=1-2400 J_SUIVRE=D00034:1,10FDB4:1,10FDAF:1 J_IMAGES=2000 J_FIN=2400"
 veut df-t0 && lancer df-t0 son.lua "$MV2" $DF J_DSW=1:00 J_START=0
 veut df-t && lancer df-t son.lua "$MV2" $DF J_DSW=1:40 J_START=0
-# Le BIOS SNK sur la même machine, son romset d'origine : ce que dit sa démo à chaque position du commutateur.
+# The SNK BIOS on the same machine, its original romset: what its demo says at each position of
+# the switch.
 MV2_SNK="ng_mv2f -hashpath $HASHPATH -rompath $ROMS -cart1 aof"
 veut df-snk-t && lancer df-snk-t son.lua "$MV2_SNK" $DF J_DSW=1:40 J_START=0
 veut df-snk-t0 && lancer df-snk-t0 son.lua "$MV2_SNK" $DF J_DSW=1:00 J_START=0
@@ -1597,13 +1752,13 @@ veut df-froid && lancer df-froid son.lua "$MV2" $DF J_DSW=1:40,1200:00 J_START=1
 veut df-cab && lancer df-cab son.lua "$MV2" $EDIT J_DSW=1:40 J_APPUIS=$VERS_BORNE,330:droite,370:START,390:START \
   J_TEXTE=325,365 J_SUIVRE=D0021D:1 J_FIN=500
 veut ds && lancer ds son.lua "$MV2" J_DSW=1:01 J_PIECE=0 J_START=600 J_TEXTE=500,650 J_HACHES=1-1100 J_FIN=1100
-# Le plan fixe à chaque trame de la sortie : un avertissement d'une seule trame s'y verrait.
+# The fix layer at each frame of the exit: a warning of a single frame would show there.
 veut ds-bascule && lancer ds-bascule son.lua "$MV2" J_DSW=1:01,550:00 J_PIECE=0 J_START=600 J_TEXTE=500,$(seq -s, 600 650) J_HACHES=1-1100 J_FIN=1100
 veut ds0 && lancer ds0 son.lua "$MV2" J_DSW=1:00 J_PIECE=0 J_START=0 J_TEXTE=500 J_HACHES=1-900 J_FIN=900
 veut gb-sel && lancer gb-sel son.lua "$MV2" J_DSW=1:00 J_PIECE=0 J_START=0 J_APPUIS=20:select:200 J_TEXTE=300 J_HACHES=1-500 J_FIN=500
 veut gj-sel && lancer gj-sel son.lua "$MV2" J_DSW=1:40 J_PIECE=0 J_START=1000 J_APPUIS=1700:select:60 J_TEXTE=1800 J_HACHES=1500-2000 J_FIN=2000
-# Une partie jouée, sans SELECT : quatre boutons tapés à des pas premiers entre eux (A+B+C+D tombent ensemble), START tous
-# les 400, les directions, droite tenue 120 trames toutes les 600.
+# A game played, without SELECT: four buttons tapped at coprime steps (A+B+C+D fall together),
+# START every 400, the directions, right held 120 frames every 600.
 GP="J_DSW=1:40 J_PIECE=0 J_START=1000 J_TIRS=1100-6000:13:A,1100-6000:17:B,1100-6000:19:C,1100-6000:23:D,1100-6000:400:START,1100-6000:29:haut,1100-6000:31:bas,1100-6000:37:gauche J_HACHES=1-6000 J_SUIVRE=10FDAF:1,10F800:2 J_FIN=6000"
 for j in aof mslug samsho4 ssideki; do
   veut gp-$j && lancer gp-$j son.lua "ng_mv2f -hashpath $HASHPATH -rompath $R;$ROMS -cart1 $j" $GP \
@@ -1613,24 +1768,26 @@ veut gb && lancer gb son.lua "$MV2" J_DSW=1:00 J_PIECE=0 J_START=0 J_APPUIS=20:S
 veut gb0 && lancer gb0 son.lua "$MV2" J_DSW=1:00 J_PIECE=0 J_START=0 J_APPUIS=20:START:200 J_TEXTE=300 J_HACHES=1-500 J_FIN=500
 veut gj && lancer gj son.lua "$MV2" J_DSW=1:40 J_PIECE=0 J_START=1000 J_APPUIS=1700:START:60,1700:select:60 J_TEXTE=1800 J_HACHES=1500-2000 J_SUIVRE=10F800:2 J_FIN=2000
 veut gj0 && lancer gj0 son.lua "$MV2" J_DSW=1:40 J_PIECE=0 J_START=1000 J_APPUIS=1700:START:60 J_TEXTE=1800 J_HACHES=1500-2000 J_FIN=2000
-# L'adaptateur BlueRetro à sa mise en route : BAS bref, puis START, SELECT, A, B, C et D tenus ensemble ~60 trames.
-# Et le geste avec A tenu en plus, qui doit ouvrir comme le geste seul.
+# The BlueRetro adapter at its start-up: brief DOWN, then START, SELECT, A, B, C and D held
+# together ~60 frames.
+# And the gesture with A held as well, which must open like the gesture alone.
 ADAPT_GB="17:bas:3,20:START:60,20:select:60,20:A:60,20:B:60,20:C:60,20:D:60"
 ADAPT_GJ="1697:bas:3,1700:START:60,1700:select:60,1700:A:60,1700:B:60,1700:C:60,1700:D:60"
 veut gb-adapt && lancer gb-adapt son.lua "$MV2" J_DSW=1:00 J_PIECE=0 J_START=0 J_APPUIS=$ADAPT_GB J_TEXTE=300 J_HACHES=1-500 J_FIN=500
 veut gb-a && lancer gb-a son.lua "$MV2" J_DSW=1:00 J_PIECE=0 J_START=0 J_APPUIS=20:START:200,20:select:200,20:A:200 J_TEXTE=300 J_HACHES=1-500 J_FIN=500
-# Les commutateurs 2, 3 et 8 (relevé --ref-dip28). LE GEL : aof en free play (commutateur 7), START à 1600, le
-# commutateur 8 à ON de 2000 à 2300 ; aucune autre entrée, pour que la reprise se compare au run sans gel.
+# Switches 2, 3 and 8 (record --ref-dip28). THE FREEZE: aof in free play (switch 7), START at
+# 1600, switch 8 at ON from 2000 to 2300; no other input, so that the resumption is compared
+# with the run without freeze.
 GEL="J_PIECE=0 J_START=1600 J_HACHES=1600-2800 J_SUIVRE=10FDAF:1 J_FIN=2800"
 veut gel && lancer gel son.lua "$MV2" $GEL J_DSW=1:40,2000:C0,2300:40
 veut gel0 && lancer gel0 son.lua "$MV2" $GEL J_DSW=1:40
 veut gel-snk && lancer gel-snk son.lua "$MV2_SNK" $GEL J_DSW=1:40,2000:C0,2300:40
-# Au boot : le commutateur 8 à ON dès la trame 1, à OFF à 1000.
+# At boot: switch 8 at ON from frame 1, at OFF at 1000.
 veut gelb && lancer gelb son.lua "$MV2" J_DSW=1:80,1000:00 J_PIECE=0 J_START=0 J_TEXTE=500 J_HACHES=1-1700 J_FIN=1700
 veut gelb-snk && lancer gelb-snk son.lua "$MV2_SNK" J_DSW=1:80,1000:00 J_PIECE=0 J_START=0 J_TEXTE=500 J_HACHES=1-1700 J_FIN=1700
-# LE PANNEAU DE MAHJONG : la machine janshin de MAME (neogeo_mj, un panneau en P1, aucun joystick), le témoin sous le
-# BIOS SNK japonais, le seul que MAME y donne pour défaut. Pièce à 1500, START du panneau à 1600 ; B à 1700, sur
-# l'écran du choix de mode (A ou B).
+# THE MAHJONG PANEL: MAME's janshin machine (neogeo_mj, a panel on P1, no joystick), the witness
+# under the Japanese SNK BIOS, the only one MAME gives it by default. Coin at 1500, START of the
+# panel at 1600; B at 1700, on the mode choice screen (A or B).
 MJ="janshin -hashpath $HASHPATH -rompath $R;$ROMS"
 MJ_SNK="janshin -hashpath $HASHPATH -rompath $ROMS"
 MJE="J_PIECE=1500 J_START=0 J_HACHES=1690-2100 J_SUIVRE=10FD94:1 J_FIN=2100"
@@ -1640,17 +1797,19 @@ veut mj-b-snk && BIOS_RUN=japan lancer mj-b-snk son.lua "$MJ_SNK" $MJE J_DSW=1:0
 veut mj-0-snk && BIOS_RUN=japan lancer mj-0-snk son.lua "$MJ_SNK" $MJE J_DSW=1:04 J_APPUIS=1600:mjStart:8
 veut mjo-b && lancer mjo-b son.lua "$MJ" $MJE J_DSW=1:00 J_APPUIS=1600:mjStart:8,1700:mjB:6
 veut mjo-0 && lancer mjo-0 son.lua "$MJ" $MJE J_DSW=1:00 J_APPUIS=1600:mjStart:8
-# Chaque touche du panneau seule, 10 trames, toutes les 40 trames dès 1900, puis A+H+PON et A+B (TOUCHES_MJ, le
-# juge en tire les mêmes instants) ; les octets de P1 et des fronts relevés à chaque trame.
+# Each key of the panel alone, 10 frames, every 40 frames from 1900, then A+H+PON and A+B
+# (TOUCHES_MJ, the judge derives the same instants from it); the bytes of P1 and of the edges
+# recorded at each frame.
 TOUCHES_MJ="1600:mjStart:8"; t=1900
 for k in A B C D E F G H I J K L M N Pon Chi Kan Ron Reach; do TOUCHES_MJ="$TOUCHES_MJ,$t:mj$k:10"; t=$((t + 40)); done
 TOUCHES_MJ="$TOUCHES_MJ,2660:mjA:10,2660:mjH:10,2660:mjPon:10,2700:mjA:10,2700:mjB:10"
 MJT="J_PIECE=1500 J_START=0 J_APPUIS=$TOUCHES_MJ J_SUIVRE=10FD94:1,10FD95:1,10FD96:1,10FD97:1,10FDA1:1,10FDA2:1,10FDA3:1 J_FIN=2740"
 veut mj-touches && lancer mj-touches son.lua "$MJ" $MJT J_DSW=1:04
 veut mjo-touches && lancer mjo-touches son.lua "$MJ" $MJT J_DSW=1:00
-# Basculé en démo (aof, MV-2F) : relu à la pièce.
+# Flipped in demo (aof, MV-2F): read back at the coin.
 veut mj-chaud && lancer mj-chaud son.lua "$MV2" J_DSW=1:00,1000:04 J_PIECE=1500 J_START=0 J_SUIVRE=10FD94:1 J_FIN=1700
-# LE COMMUTATEUR 2 : kizuna sur la MV-2F, le témoin sous le BIOS SNK japonais (l'européen ne le lit pas, relevé).
+# SWITCH 2: kizuna on the MV-2F, the witness under the Japanese SNK BIOS (the European one does
+# not read it, record).
 MV2K="ng_mv2f -hashpath $HASHPATH -rompath $R;$ROMS -cart1 kizuna"
 MV2K_SNK="ng_mv2f -hashpath $HASHPATH -rompath $ROMS -cart1 kizuna"
 P4E="J_PIECE=0 J_START=0 J_IMAGES=900,1460 J_SUIVRE=10FEF8:1 J_FIN=1500"
@@ -1660,8 +1819,9 @@ veut 4p-snk && BIOS_RUN=japan lancer 4p-snk son.lua "$MV2K_SNK" $P4E J_DSW=1:02
 veut 4p0-snk && BIOS_RUN=japan lancer 4p0-snk son.lua "$MV2K_SNK" $P4E J_DSW=1:00
 veut 4p-chaud && lancer 4p-chaud son.lua "$MV2K" J_DSW=1:00,1000:02 J_PIECE=1500 J_START=0 J_SUIVRE=10FEF8:1 J_FIN=1700
 veut 4p-retour && lancer 4p-retour son.lua "$MV2K" J_DSW=1:02,1000:00 J_PIECE=1500 J_START=0 J_SUIVRE=10FEF8:1 J_FIN=1700
-# L'AUTOFIRE (relevé --ref-af) : viewpoin, le menu en jeu, AUTOFIRE, une touche sur BUTTON A (af_nav), RESUME ; A tenu, ou
-# tapé au motif de 15 tirs/s. Les runs sur NVRAM gardée (af-sauve, af-sauve0, af-relu) suivent, plus bas.
+# THE AUTOFIRE (record --ref-af): viewpoin, the in-game menu, AUTOFIRE, a key on BUTTON A
+# (af_nav), RESUME; A held, or tapped in the pattern of 15 shots/s. The runs on a kept NVRAM
+# (af-sauve, af-sauve0, af-relu) follow, further down.
 VP="viewpoin -rompath $R"
 af_nav() { echo "1045:haut,1051:haut,1057:haut,1063:A,1069:$1,1075:START,1081:bas,1087:bas,1093:bas,1099:A"; }
 AF_X="J_TESTS=1000-1039 J_HACHES=1200-2400 J_SUIVRE=10FD95:1,D001B4:2,D001B6:2 J_TEXTE=1060,1066,1072,1098 J_FIN=2400"
@@ -1669,15 +1829,18 @@ AF_TAPE=$(seq 1300 4 2299 | sed 's/$/:A:2/' | paste -sd, -)
 veut af-t && lancer af-t son.lua "$VP" $AF_X J_APPUIS=$(af_nav A),1300:A:1000
 veut af-m && lancer af-m son.lua "$VP" $AF_X J_APPUIS=$(af_nav gauche),$AF_TAPE
 veut af-r && lancer af-r son.lua "$VP" $AF_X J_APPUIS=$(af_nav gauche),1300:A:1000
-# janshin : la fiche « AUTF », NGH $0048 (mesuré, l'entrée du slot 0 en $D00124), A à ON, 15 tirs/s, contrôle $A6.
+# janshin: the "AUTF" entry, NGH $0048 (measured, the entry of slot 0 at $D00124), A at ON,
+# 15 shots/s, control $A6.
 MJAF="J_PIECE=1500 J_START=0 J_HACHES=1690-2100 J_SUIVRE=10FD94:1,10FD95:1,10FB40:2 J_APPUIS=1600:mjStart:8,1700:mjE:400 J_FIN=2100"
 veut mjaf && lancer mjaf son.lua "$MJ" $MJAF J_BRAM=1@D001B0=41555446004811A6 J_DSW=1:04
 veut mjaf0 && lancer mjaf0 son.lua "$MJ" $MJAF J_DSW=1:04
 veut mjoaf && lancer mjoaf son.lua "$MJ" $MJAF J_BRAM=1@D001B0=41555446004811A6 J_DSW=1:00
-# LES MENUS AU PANNEAU (DECISIONS §30 ; relevé --ref-panneau). janshin, l'éditeur du bouton TEST (TEST tenu au boot,
-# ouvert avant 265) : depuis REGION, « haut » quatre fois mène à MODE, « bas » de là à HARDWARE TESTS, « valider » l'ouvre.
-# Commutateur 3 à ON : E haut, F bas, A le bouton A, H droite, G gauche ; I, PON, B et C ne bougent rien sur ces lignes.
-# À OFF : A et H haut, B bas, E le bouton A ; PON et F ne bougent rien.
+# THE MENUS ON THE PANEL (DECISIONS §30; record --ref-panneau). janshin, the editor of the TEST
+# button (TEST held at boot, open before 265): from REGION, "up" four times leads to MODE,
+# "down" from there to HARDWARE TESTS, "confirm" opens it.
+# Switch 3 at ON: E up, F down, A the A button, H right, G left; I, PON, B and C move nothing on
+# these lines.
+# At OFF: A and H up, B down, E the A button; PON and F move nothing.
 PN="J_TESTS=1-260 J_PIECE=0 J_START=0"
 PN_ON="270:mjE,280:mjE,290:mjE,300:mjE,310:mjI,320:mjPon,330:mjB,340:mjC,350:mjF,360:mjA"
 PN_OFF="270:mjA,280:mjH,290:mjA,300:mjH,310:mjPon,320:mjF,350:mjB,360:mjE"
@@ -1685,30 +1848,35 @@ veut pn-on && lancer pn-on son.lua "$MJ" $PN J_DSW=1:04 J_APPUIS=$PN_ON J_TEXTE=
 veut pn-off && lancer pn-off son.lua "$MJ" $PN J_DSW=1:00 J_APPUIS=$PN_OFF J_TEXTE=265,305,345,355,400 J_FIN=420
 veut pn-val && lancer pn-val son.lua "$MJ" $PN J_DSW=1:04 J_APPUIS=270:mjE,280:mjE,290:mjE,300:mjE,310:mjH,320:mjG \
   J_TEXTE=305,315,325 J_FIN=340
-# Le verrou : le commutateur basculé à 268, l'éditeur déjà ouvert ; le chemin de la position d'ouverture mène toujours aux
-# autotests (relu, E à OFF serait le bouton A sur REGION, A à ON aussi).
+# The lock: the switch flipped at 268, the editor already open; the path of the position at
+# opening still leads to the self-tests (read back, E at OFF would be the A button on REGION, A
+# at ON too).
 veut pn-v-on && lancer pn-v-on son.lua "$MJ" $PN J_DSW=1:04,268:00 J_APPUIS=$PN_ON J_TEXTE=265,305,345,355,400 J_FIN=420
 veut pn-v-off && lancer pn-v-off son.lua "$MJ" $PN J_DSW=1:00,268:04 J_APPUIS=$PN_OFF J_TEXTE=265,305,345,355,400 J_FIN=420
-# Le menu en jeu, commutateur 3 à ON : pièce 1500, START 1600 (l'écran du choix de mode), TEST tenu 1650-1689 ; F (RESTART
-# GAME), E (RESUME), A ; puis B à 1800, ou rien (pn-j0).
+# The in-game menu, switch 3 at ON: coin 1500, START 1600 (the mode choice screen), TEST held
+# 1650-1689; F (RESTART GAME), E (RESUME), A; then B at 1800, or nothing (pn-j0).
 PNJ="J_TESTS=1650-1689 J_PIECE=1500 J_START=0 J_DSW=1:04 J_TEXTE=1700,1710 J_HACHES=1600-2200 J_FIN=2200"
 veut pn-j && lancer pn-j son.lua "$MJ" $PNJ J_APPUIS=1600:mjStart:8,1695:mjF,1705:mjE,1715:mjA,1800:mjB:6
 veut pn-j0 && lancer pn-j0 son.lua "$MJ" $PNJ J_APPUIS=1600:mjStart:8,1695:mjF,1705:mjE,1715:mjA
-# LES GARANTIES SUR LES DÉFAUTS D'UNIBIOS (relevé --ref-garanties). L'ÉCRAN DE BOOT : aof et la fixture brouille,
-# VRAM et palettes pleines de bruit à la mise sous tension (`vram-hasard.lua`) ; le témoin UniBIOS 4.0 sur les mêmes
-# romsets (`-bios unibios40`, lu dans le zip d'aof : notre sp-s2.sp1 y est, d'où WRONG CHECKSUMS sous les deux BIOS).
+# THE GUARANTEES ON UNIBIOS DEFECTS (record --ref-garanties). THE BOOT SCREEN: aof and the
+# brouille fixture, VRAM and palettes full of noise at power-on (`vram-hasard.lua`); the
+# UniBIOS 4.0 witness on the same romsets (`-bios unibios40`, read in aof's zip: our sp-s2.sp1
+# is there, hence WRONG CHECKSUMS under both BIOSes).
 BG="J_PIECE=0 J_START=0 J_HACHES=1-700 J_FIN=700 J_AUSSI=$ICI/vram-hasard.lua"
 veut bg && lancer bg son.lua "aof -rompath $R" $BG
 veut bg-brouille && lancer bg-brouille son.lua "aof -rompath $BROUILLE;$R" $BG
 veut bg-uni && BIOS_RUN=unibios40 lancer bg-uni son.lua "aof -rompath $R" $BG
 veut bg-uni-brouille && BIOS_RUN=unibios40 lancer bg-uni-brouille son.lua "aof -rompath $BROUILLE;$R" $BG
-# LE SON DU SLOT 2 sans cartouche au slot 1 : la MV-6F, aof en -cart2 ; le témoin, le BIOS SNK sur la même machine.
+# THE SOUND OF SLOT 2 without a cartridge in slot 1: the MV-6F, aof as -cart2; the witness, the
+# SNK BIOS on the same machine.
 veut s2-son && lancer s2-son son.lua "neogeo -hashpath $HASHPATH -rompath $R;$ROMS -cart2 aof $WAV" J_PIECE=0 J_START=0 J_FIN=3600
 veut s2-son-snk && lancer s2-son-snk son.lua "neogeo -hashpath $HASHPATH -rompath $ROMS -cart2 aof $WAV" J_PIECE=0 J_START=0 J_FIN=3600
-# L'ENTRÉE JAMAIS INITIALISÉE : deux NVRAM posées par J_BRAM en fin de démo (le jeu a eu sa demande 0), puis relancées
-# plus bas sur le chemin de temps1. vierge-set-n : le slot 0 porte le NGH $0202 au bloc 0, les huit blocs soft-DIP et
-# les huit noms sont quelconques ; vierge-set-c : la table garde aof au bloc 0, son bloc soft-DIP est quelconque. Les
-# octets : les deux temps hors du BCD ($9999), le compte et le nombre de fois à $FF, les dix choix à $0F.
+# THE NEVER-INITIALISED ENTRY: two NVRAMs set by J_BRAM at the end of the demo (the game has had
+# its request 0), then relaunched further down on the path of temps1. vierge-set-n: slot 0
+# carries NGH $0202 at block 0, the eight soft-DIP blocks and the eight names are arbitrary;
+# vierge-set-c: the table keeps aof at block 0, its soft-DIP block is arbitrary. The bytes: the
+# two times outside BCD ($9999), the count and the number of times at $FF, the ten choices at
+# $0F.
 VIERGE="99999999FFFF0F0F0F0F0F0F0F0F0F0F"
 VIERGE8="$VIERGE$VIERGE$VIERGE$VIERGE$VIERGE$VIERGE$VIERGE$VIERGE"
 VIERGE_SUIV="J_SUIVRE=D00124:2,D00220:2,D00222:2,D00224:2,D00226:2,D00228:2,D0022A:2,D0022C:2,D0022E:2,D00230:2,D00232:2,D00234:2,D00236:2,D00238:2,D0023A:2,D0023C:2,D0023E:2,D002A0:2"
@@ -1716,20 +1884,23 @@ VIERGE_EDIT="$TEMPS J_TEXTE=250,330 J_APPUIS=270:bas,280:droite,290:droite,300:d
 veut vierge-set-n && lancer vierge-set-n son.lua "$NOTRE" J_PIECE=0 J_START=0 J_BRAM=390@D00124=02020000,390@D00220=$VIERGE8,390@D002A0=$VIERGE8 J_FIN=400
 veut vierge-set-c && lancer vierge-set-c son.lua "$NOTRE" J_PIECE=0 J_START=0 J_BRAM=390@D00220=$VIERGE J_FIN=400
 veut vierge-0 && lancer vierge-0 son.lua "$NOTRE" $VIERGE_EDIT
-# mslug, son bloc dans la zone banquée : `_dip_valider` ne le valide pas à la relecture, l'éditeur reçoit les octets posés.
-# CONTINUE ON → OFF comme bf-banque ; le témoin, le même chemin sur une NVRAM neuve.
+# mslug, its block in the banked area: `_dip_valider` does not validate it on read-back, the
+# editor receives the bytes set.
+# CONTINUE ON → OFF like bf-banque; the witness, the same path on a fresh NVRAM.
 VIERGE_EDIT_M="$EDIT J_TEXTE=250,330 J_APPUIS=270:bas,280:bas,290:A,340:START $VIERGE_SUIV J_FIN=400"
 veut vierge-set-m && lancer vierge-set-m son.lua "$MS_MSLUG" J_PIECE=0 J_START=0 J_BRAM=390@D00220=$VIERGE J_FIN=400
 veut vierge-m0 && lancer vierge-m0 son.lua "$MS_MSLUG" $VIERGE_EDIT_M
-# dip-corrompue : la même histoire que vierge-set-c, sans les octets posés (le témoin).
+# dip-corrompue: the same story as vierge-set-c, without the bytes set (the witness).
 veut vierge-set-0 && lancer vierge-set-0 son.lua "$NOTRE" J_PIECE=0 J_START=0 J_FIN=400
 veut gj-adapt && lancer gj-adapt son.lua "$MV2" J_DSW=1:40 J_PIECE=0 J_START=1000 J_APPUIS=$ADAPT_GJ J_TEXTE=1800 J_HACHES=1500-2000 J_SUIVRE=10F800:2 J_FIN=2000
 veut gj-a && lancer gj-a son.lua "$MV2" J_DSW=1:40 J_PIECE=0 J_START=1000 J_APPUIS=1700:START:60,1700:select:60,1700:A:60 J_TEXTE=1800 J_HACHES=1500-2000 J_FIN=2000
-# LES INTITULÉS EN RÉGION JAPAN. L'écran TEST du boot : ssideki, REGION → JAPAN (gauche deux fois), START ; la
-# machine repart (RESET à 349, puis un second à 541, la relance du jeu), TEST tenu de 560 à 1000 rouvre l'écran, en
-# JAPAN ; le plan fixe brut à 1100. Le témoin : le BIOS SNK japonais, la navigation de measured/2026-10-27-intitules-japon.tsv
-# (section 1). GAME SETTINGS : la même région posée, une pièce à 1300, START à 1400, TEST tenu 2000-2039 (le menu en jeu),
-# « haut » deux fois, A ; l'écran à 2100. En USA (gauche une fois), le même chemin : le témoin du texte.
+# THE LABELS IN THE JAPAN REGION. The TEST screen of the boot: ssideki, REGION → JAPAN (left
+# twice), START; the machine restarts (RESET at 349, then a second at 541, the relaunch of the
+# game), TEST held from 560 to 1000 reopens the screen, in JAPAN; the raw fix layer at 1100. The
+# witness: the Japanese SNK BIOS, the navigation of measured/2026-10-27-intitules-japon.tsv
+# (section 1). GAME SETTINGS: the same region set, a coin at 1300, START at 1400, TEST held
+# 2000-2039 (the in-game menu), "up" twice, A; the screen at 2100. In USA (left once), the same
+# path: the witness of the text.
 IJ="J_PIECE=0 J_START=0 J_TESTS=1-260,560-1000 J_APPUIS=270:gauche,280:gauche,340:START J_TEXTE=450,1100 J_TUILES=1100 J_FIN=1100"
 veut ij-notre && lancer ij-notre son.lua "ssideki -rompath $R" $IJ
 veut ij-snk && BIOS_RUN=japan lancer ij-snk son.lua "ssideki -rompath $ROMS" J_TESTS=1-1000 J_PIECE=0 J_START=0 \
@@ -1740,17 +1911,18 @@ for x in "gsj-ss|ssideki|270:gauche,280:gauche" "gsu-ss|ssideki|270:gauche" "gsj
   IFS='|' read -r nom j a <<< "$x"
   veut $nom && lancer $nom son.lua "$j -rompath $R" $GSJ J_APPUIS=$a,$GSJ_A
 done
-# Le continue pris, sans réglage : deux pièces, START, la partie perdue, START à 6300.
+# The continue taken, without setting: two coins, START, the game lost, START at 6300.
 veut bo-cont && lancer bo-cont son.lua "$NOTRE" J_APPUIS=420:piece:8,6300:START:8 J_HACHES=6000-9000 J_SUIVRE=D00034:1,10FDB6:1 J_FIN=9000
 wait
-# MAME relancé sur la NVRAM du mode AES.
+# MAME relaunched on the NVRAM of the AES mode.
 PIDS=""
-# L'entrée jamais initialisée : les deux NVRAM posées plus haut.
+# The never-initialised entry: the two NVRAMs set further up.
 if veut vierge-n; then NV_DE=vierge-set-n; lancer vierge-n son.lua "$NOTRE" $VIERGE_EDIT; fi
 if veut tests-sauv; then NV_DE=tests-sauv-set; lancer tests-sauv autotests.lua "$NOTRE" T_FIN=1200; fi
 if veut vierge-c; then NV_DE=vierge-set-c; lancer vierge-c son.lua "$NOTRE" $VIERGE_EDIT; fi
 if veut vierge-m; then NV_DE=vierge-set-m; lancer vierge-m son.lua "$MS_MSLUG" $VIERGE_EDIT_M; fi
-# L'entrée corrompue SANS l'éditeur (DECISIONS §23 pt 5) : pièce à 900, START à 1000, comme temps0.
+# The corrupted entry WITHOUT the editor (DECISIONS §23 pt 5): coin at 900, START at 1000, like
+# temps0.
 CORROMPUE="J_PIECE=900 J_START=1000 J_HACHES=1000-3000 J_IMAGES=3000 J_SUIVRE=D00220:2,10FD84:2,10FD86:2,10FD88:2,10FD8A:2,10FD8C:2,10FD8E:2,10FD90:2,10FD92:2 J_FIN=3001"
 if veut corrompue; then NV_DE=vierge-set-c; lancer corrompue son.lua "$NOTRE" $CORROMPUE; fi
 if veut corrompue-0; then NV_DE=vierge-set-0; lancer corrompue-0 son.lua "$NOTRE" $CORROMPUE; fi
@@ -1762,13 +1934,14 @@ if veut aes-retour; then NV_DE=aes-set; lancer aes-retour son.lua "$NOTRE" J_TES
 if veut aes-histoire; then NV_DE=aes-set; lancer aes-histoire son.lua "$NOTRE" $HISTOIRE J_HACHES=1-8800 J_FIN=8800; fi
 if veut aes-ms-select; then NV_DE=aes-ms-set; lancer aes-ms-select son.lua "$MS" J_PIECE=0 J_START=0 J_APPUIS=600:select:8 J_HACHES=500-1500 J_FIN=1500; fi
 if veut aes-pause; then NV_DE=aes-m1-set; lancer aes-pause son.lua "$MS_AOF" J_PIECE=0 J_START=1000 J_APPUIS=5600:select:8 J_HACHES=5600-6600 J_FIN=6600; fi
-# Les réglages de la borne, MAME relancé sur la NVRAM de l'éditeur.
+# The cabinet settings, MAME relaunched on the editor's NVRAM.
 FP_NOT="J_HACHES=1-3100 J_SUIVRE=D00034:1,10FDB4:1 J_FIN=3100"
 if veut bo-fp; then NV_DE=bo-set-fp; lancer bo-fp son.lua "$NOTRE" $FP_NOT J_PIECE=0 J_START=1000 J_IMAGES=1400; fi
 if veut dfr; then NV_DE=bo-set-fp; lancer dfr son.lua "$NOTRE" $FP_NOT J_DSW=1:00 J_PIECE=0 J_START=1000 J_IMAGES=1400 J_SUIVRE=D00034:1,10FDB4:1,10FDAF:1; fi
 if veut bo-fp-p2; then NV_DE=bo-set-fp; lancer bo-fp-p2 son.lua "$NOTRE" $FP_NOT J_PIECE=0 J_START=0 J_APPUIS=1000:start2:8; fi
 if veut bo-fp-joint; then NV_DE=bo-set-fp; lancer bo-fp-joint son.lua "$NOTRE" $FP_NOT J_PIECE=0 J_START=1000 J_APPUIS=2000:start2:8; fi
-# CHEATS/DEBUG à OFF : le menu en jeu (haut, bas, A : RESUME), puis le gel posé dans la RAM du moteur.
+# CHEATS/DEBUG at OFF: the in-game menu (up, down, A: RESUME), then the freeze set in the
+# engine's RAM.
 if veut bo-cd-menu; then NV_DE=bo-set-cd; lancer bo-cd-menu son.lua "$NOTRE" $MENU_TEST J_APPUIS=2380:haut,2390:bas,2400:A J_TEXTE=2375,2385,2395 J_HACHES=2200-3000 J_FIN=3000; fi
 if veut bo-cd-gel; then NV_DE=bo-set-cd; lancer bo-cd-gel son.lua "$NOTRE" J_POSER=2400@10FB08=000184066000 J_ZONES="146,10,173,29" J_HACHES=2200-4200 J_SUIVRE=108406:1,10FB08:2 J_FIN=4200; fi
 if veut bo-nc; then NV_DE=bo-set-nc; lancer bo-nc son.lua "$NOTRE" J_APPUIS=420:piece:8,6300:START:8 J_HACHES=6000-9000 J_SUIVRE=D00034:1,10FDB6:1 J_FIN=9000; fi
@@ -1782,7 +1955,10 @@ for x in "bo-aes|bo-set-aes" "bo-aes-cont|aes-set"; do
     J_HACHES=1-8800 J_TEXTE=100 J_SUIVRE=10FDB6:1,10FB20:1 J_FIN=8800; fi
 done
 if veut aes-logo; then NV_DE=aes-k98-set; lancer aes-logo son.lua "$MS_K98" J_PIECE=0 J_START=0 J_HACHES=1-2000 J_FIN=2000; fi
-# ---- Le CRC32 de la cartouche (relevé --ref-crc) : HARDWARE TESTS, « haut » deux fois, A ; trois START.
+# kof98 played: START, then A every 60 frames through the selection screens; it loses without input,
+# game over near frame 14,056 (measured/2026-10-30-aes-logo-fin.tsv).
+if veut aes-logo-fin; then NV_DE=aes-k98-set; lancer aes-logo-fin son.lua "$MS_K98" J_PIECE=0 J_START=2500 J_TIRS=2600-7000:60:A J_FIN=16000; fi
+# ---- The cartridge CRC32 (record --ref-crc): HARDWARE TESTS, "up" twice, A; three STARTs.
 VERS_CRC="$VERS_TESTS,330:haut,336:haut,342:A"
 veut crc-aof && lancer crc-aof son.lua "$NOTRE" $EDIT J_APPUIS=$VERS_CRC,950:START,980:START,1000:START \
   J_TEXTE=340,400,$(seq -s, 500 10 940),960,990 J_FIN=1300
@@ -1792,7 +1968,8 @@ veut crc-flottant && lancer crc-flottant son.lua "$NOTRE" $EDIT J_AUSSI=$ICI/crc
   J_TEXTE=400,940,960,990 J_FIN=1300
 veut crc-ms2 && lancer crc-ms2 son.lua "mslug2 -rompath $R" $EDIT J_APPUIS=$VERS_CRC,1900:START,1930:START,1960:START \
   J_TEXTE=400,1100,$(seq -s, 1500 10 1890),1910,1940 J_FIN=2400
-# ---- Les debug dips : kof94, CABINET SETTINGS (« haut » sept fois, A), « bas » quatre fois : DEBUG DIPS, A.
+# ---- The debug dips: kof94, CABINET SETTINGS ("up" seven times, A), "down" four times: DEBUG
+# DIPS, A.
 VERS_DD="$VERS_BORNE,330:bas,336:bas,342:bas,348:bas,354:A"
 DD="J_HACHES=400-6000 J_ZONES=120,184,215,221 J_SUIVRE=100000:1,D00320:1,10FB22:2 J_FIN=6000"
 KOF94="kof94 -rompath $R"
@@ -1803,33 +1980,35 @@ veut dd-off && lancer dd-off son.lua "$KOF94" $EDIT \
   J_APPUIS=$VERS_DD,360:A,366:START,372:haut,378:droite,384:bas,390:A,395:START,400:START J_TEXTE=363,369,381,387,393 $DD
 veut dd-0off && lancer dd-0off son.lua "$KOF94" $EDIT \
   J_APPUIS=$VERS_DD,366:START,372:haut,378:droite,384:bas,390:A,395:START,400:START J_TEXTE=369,393 $DD
-# Le premier boot de kof94, sans entrée : sa demande 0, puis sa sauvegarde ; dd-connu repart de cette NVRAM.
+# kof94's first boot, without input: its request 0, then its save; dd-connu starts again from
+# this NVRAM.
 veut dd-set && lancer dd-set son.lua "$KOF94" J_PIECE=0 J_START=0 J_FIN=600
-# La carte de la partie, relue par un nouveau boot : MEMORY CARD LOAD, puis la partie reprise.
+# The card of the game, read back by a new boot: MEMORY CARD LOAD, then the game resumed.
 if veut carte-relue; then CARTE_DE=carte-sauve; lancer carte-relue son.lua "$NOTRE -memc @/carte.neo" J_HACHES=1-2500 J_FIN=2500; fi
 if veut carte-relue-snk; then CARTE_DE=carte-sauve-snk; lancer carte-relue-snk son.lua "$SNK -memc @/carte.neo" J_HACHES=1-2500 J_FIN=2500; fi
-# Les commandes de CARD qu'aucune partie d'aof n'appelle, provoquées par `forcer.lua` (comme
-# `carte-diff.sh`), à la trame 1200 de la démo, au départ de la carte que le BIOS SNK a sauvée
-# (run carte-sauve-snk), sous les deux BIOS : rechercher le NGH $0044 et le NGH $0066,
-# supprimer la sauvegarde d'aof, écrire le nom (16 octets du tampon à BIOS_CARD_START).
+# The CARD commands that no aof play session calls, provoked by `forcer.lua` (like
+# `carte-diff.sh`), at frame 1200 of the demo, starting from the card that the SNK BIOS saved
+# (run carte-sauve-snk), under both BIOSes: search for NGH $0044 and NGH $0066, delete aof's
+# save, write the name (16 bytes of the buffer at BIOS_CARD_START).
 COP="A_F=1200 A_FIN=1500 A_ENTREE=C00468 A_REMPLIR=107100:40"
-# L'interface à $10FDC4 : la commande, puis BIOS_CARD_START $00107100, la taille $0040, le NGH
-# (BIOS_CARD_FCB), la sous-sauvegarde 0 (« CARD », comme `carte-diff.sh`).
+# The interface at $10FDC4: the command, then BIOS_CARD_START $00107100, the size $0040, the NGH
+# (BIOS_CARD_FCB), sub-save 0 ("CARD", like `carte-diff.sh`).
 for x in "ch44 0100000000107100004000440000" "ch66 0100000000107100004000660000" \
          "supp 0400000000107100004000440000" "nom 0600000000107100004000440000" "fmt 0000000000107100004000440000"; do
   set -- $x
   if veut cop-$1; then CARTE_DE=carte-sauve-snk; lancer cop-$1 forcer.lua "$NOTRE -memc @/carte.neo" $COP A_IFACE=$2; fi
   if veut cop-$1-snk; then CARTE_DE=carte-sauve-snk; lancer cop-$1-snk forcer.lua "$SNK -memc @/carte.neo" $COP A_IFACE=$2; fi
 done
-# Le gestionnaire sur la carte que le BIOS SNK a sauvée : effacer (A, A), renoncer (A, B), formater (bas, A, A).
+# The manager on the card that the SNK BIOS saved: delete (A, A), abandon (A, B), format (down,
+# A, A).
 for x in "effacer|350:A,360:A|345,355,380" "annuler|350:A,360:B|355,380" "formater|350:bas,360:A,370:A|345,365,380"; do
   IFS='|' read -r nom app txt <<< "$x"
   if veut cm-$nom; then CARTE_DE=carte-sauve-snk; lancer cm-$nom son.lua "$NOTRE -memc @/carte.neo" $EDIT \
     J_APPUIS=$VERS_CARTE,$app,400:START,420:START J_TEXTE=$txt J_FIN=600; fi
 done
 wait
-# Ce qu'un jeu relit après : aof relancé sur la carte d'où la sauvegarde a été supprimée ; le nom
-# relu ($07) de la carte où il a été écrit, dans un tampon que rien n'a rempli.
+# What a game reads back afterwards: aof relaunched on the card from which the save was deleted;
+# the name read back ($07) from the card where it was written, into a buffer that nothing filled.
 PIDS=""
 if veut cop-supp-relu; then CARTE_DE=cop-supp; lancer cop-supp-relu son.lua "$NOTRE -memc @/carte.neo" J_HACHES=1-2500 J_FIN=2500; fi
 if veut cop-supp-relu-snk; then CARTE_DE=cop-supp-snk; lancer cop-supp-relu-snk son.lua "$SNK -memc @/carte.neo" J_HACHES=1-2500 J_FIN=2500; fi
@@ -1838,11 +2017,11 @@ LU="A_F=1200 A_FIN=1500 A_ENTREE=C00468 A_TAMPON=107100:10 A_IFACE=0700000000107
 if veut cop-nomlu; then CARTE_DE=cop-nom; lancer cop-nomlu forcer.lua "$NOTRE -memc @/carte.neo" $LU; fi
 if veut cop-nomlu-snk; then CARTE_DE=cop-nom-snk; lancer cop-nomlu-snk forcer.lua "$SNK -memc @/carte.neo" $LU; fi
 wait
-# Le redémarrage des scores : la NVRAM du premier run, MAME relancé.
+# The restart of the scores: the NVRAM of the first run, MAME relaunched.
 PIDS=""
 if veut scores-b; then NV_DE=scores-a; lancer scores-b son.lua "$PZ" J_PIECE=0 J_START=0 J_HACHES=4000-6400 J_IMAGES=4900 J_FIN=6400; fi
 if veut scores-b0; then NV_DE=scores-a0; lancer scores-b0 son.lua "$PZ" J_PIECE=0 J_START=0 J_HACHES=4000-6400 J_IMAGES=4900 J_FIN=6400; fi
-# SCORE RESET : wh2 relancé le même jour, puis 38 jours plus tard (le 2026-11-08, un dimanche).
+# SCORE RESET: wh2 relaunched the same day, then 38 days later (2026-11-08, a Sunday).
 for x in "sg-b-meme|sg-a-on|2610014" "sg-b-saut|sg-a-on|2611080" "sg-b-gel|sg-a-off|2611080"; do
   IFS='|' read -r nom nv date <<< "$x"
   if veut $nom; then NV_DE=$nv; lancer $nom son.lua "$MS_WH2" $HL HL_DATE=$date J_PIECE=0 J_START=0 J_TEXTE=100 J_HACHES=1-4000 J_FIN=4000; fi
@@ -1850,12 +2029,14 @@ done
 for x in aes-sc-b aes-sc-b0; do
   if veut $x; then NV_DE=${x/-b/-a}; lancer $x son.lua "$PZ" J_PIECE=0 J_START=0 J_TEXTE=100 J_HACHES=4000-6400 J_IMAGES=4900 J_FIN=6400; fi
 done
-# Les debug dips d'un kof94 déjà inscrit (NVRAM de dd-set), sous le modèle du bus flottant : la sauvegarde
-# restaurée après l'éditeur, puis le masque reposé, cartouche lue sous REG_CRTFIX seulement.
+# The debug dips of an already registered kof94 (NVRAM of dd-set), under the model of the
+# floating bus: the save restored after the editor, then the mask set again, cartridge read
+# under REG_CRTFIX only.
 if veut dd-connu; then NV_DE=dd-set; lancer dd-connu son.lua "$KOF94" $EDIT $BFM BF_FIN=699 \
   J_APPUIS=$VERS_DD,360:A,366:bas,372:droite,378:A,384:A,390:START,395:START,400:START J_TEXTE=393 \
   J_SUIVRE=100000:1,10FD80:1 J_FIN=700; fi
-# L'autofire de viewpoin gardé en backup RAM : MAME relancé sur la NVRAM d'af-t, A laissé à ON ou remis à OFF.
+# viewpoin's autofire kept in backup RAM: MAME relaunched on the NVRAM of af-t, A left at ON or
+# set back to OFF.
 if veut af-sauve; then NV_DE=af-t; lancer af-sauve son.lua "$VP" $AF_X J_APPUIS=$(af_nav droite),1300:A:1000; fi
 if veut af-sauve0; then NV_DE=af-t; lancer af-sauve0 son.lua "$VP" $AF_X J_APPUIS=$(af_nav A),1300:A:1000; fi
 wait
@@ -1864,8 +2045,8 @@ if veut af-relu; then NV_DE=af-sauve0; lancer af-relu son.lua "$VP" $AF_X J_APPU
 wait
 DUREE_RUNS=$(( $(date +%s) - T0 ))
 
-# ---- Le juge --------------------------------------------------------------------------------------
-# Les CRC attendus, hors de MAME (`crc-cartouche.py`), pour les scènes du CRC.
+# ---- The judge --------------------------------------------------------------------------------------
+# The expected CRCs, outside MAME (`crc-cartouche.py`), for the CRC scenes.
 case " $SCENES " in *" crc-"*|*" bf-crc"*)
   python3 -I -B "$ICI/crc-cartouche.py" "$ROMS" aof mslug2 mslug > "$WORK/crc-attendus.tsv" \
     || { echo "crc-cartouche.py en échec" >&2; exit 1; } ;;
@@ -1882,7 +2063,7 @@ REF_GAR = sys.argv[18]
 REF_SINUS = sys.argv[19]
 REF_PANNEAU = sys.argv[20]
 
-# Les relevés : scène, grandeur, seuil, mesure. Seul le seuil juge.
+# The records: scene, quantity, threshold, measurement. Only the threshold judges.
 SEUILS = {}
 for ref in (REF, REF_AES, REF_COUV, REF_MENU, REF_CARTE, REF_BORNE, REF_CHEATS, REF_DIP, REF_SSIDEKI, REF_CRC, REF_DIP28, REF_AF, REF_GAR, REF_SINUS, REF_PANNEAU):
     for l in open(ref, encoding="utf-8"):
@@ -1955,14 +2136,14 @@ def rms(p, t0, t1):
     return math.sqrt(sum(x * x for x in d) / max(1, len(d)))
 K = (1, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53)
 def hache(b):
-    """L'empreinte de `son.lua` (hache), à l'identique."""
+    """The fingerprint of `son.lua` (hache), reproduced exactly."""
     h = 5381
     for i in range(0, len(b) - 63, 64):
         v = struct.unpack_from("<16I", b, i)
         h = (h * 31 + sum(x * k for x, k in zip(v, K))) % 4294967291
     return h
 def cases(a, b, y0=0, y1=223, x0=0, x1=319):
-    """Les cases 8 × 8 où deux images diffèrent, dans le rectangle donné (pixels compris)."""
+    """The 8 × 8 cells where two images differ, within the given rectangle (bounds in pixels, inclusive)."""
     c = set()
     for y in range(y0, y1 + 1):
         o = y * 320
@@ -1985,7 +2166,7 @@ def sain(*noms):
         rc = open(os.path.join(d, "rc")).read().strip() if os.path.exists(os.path.join(d, "rc")) else "?"
         exiger(rc == "0", f"run {nom} : MAME sorti en {rc}")
         log = open(os.path.join(d, "mame.log"), errors="replace").read()
-        if "snk" in nom.split("-"):  # les témoins SNK : demo-snk, aes-snk-*, carte-sauve-snk…
+        if "snk" in nom.split("-"):  # the SNK witness runs: demo-snk, aes-snk-*, carte-sauve-snk…
             exiger("WRONG CHECKSUMS" not in log, f"run {nom} : le témoin SNK porte WRONG CHECKSUMS")
         else:
             exiger("WRONG CHECKSUMS" in log, f"run {nom} : pas de WRONG CHECKSUMS, notre image n'est pas chargée")
@@ -2006,7 +2187,7 @@ LIGNE = {}
 def dit(*a):
     LIGNE.setdefault("d", []).append(" ".join(str(x) for x in a))
 
-# ---- les scènes ----
+# ---- the scenes ----
 def boot_ecran():
     (b,) = sain("boot")
     t = b.texte(100)
@@ -2082,7 +2263,7 @@ def partie_start():
     exiger(len(c) >= F("partie-start", "cases_min"), f"{len(c)} cases")
 
 def meilleur_decalage(a, b, n0, n1):
-    """Le décalage D qui égale le plus de trames a[k] == b[k - D], k dans [n0, n1)."""
+    """The shift D that makes the most frames a[k] == b[k - D] equal, k in [n0, n1)."""
     inv = {}
     for k, v in b.f.items():
         if "img" in v: inv.setdefault(v["img"], []).append(k)
@@ -2191,8 +2372,8 @@ def jukebox():
 
 def menu_cadre(m):
     a, b = pause_apres(m, 1000)
-    # Le dessin du cadre commence à la première palette écrite par le BIOS dans la pause : avant,
-    # le BIOS peut écrire au plan fixe pour le jeu (MESS_OUT : son compteur CREDIT).
+    # The drawing of the frame starts at the first palette written by the BIOS in the pause:
+    # before, the BIOS may write to the fix layer for the game (MESS_OUT: its CREDIT counter).
     dessin = [n for n in range(a, b + 1) if int(m.f[n]["palB"]) > 0]
     exiger(dessin, "aucune palette écrite par le BIOS pendant la pause")
     boite = None
@@ -2207,7 +2388,7 @@ def menu_cadre(m):
 def menu_hud():
     (m,) = sain("menu")
     a, b, (c0, c1, r0, r1), d0 = menu_cadre(m)
-    # Le plan fixe : ligne r à l'écran y = 8 × (r − 2) (deux lignes cachées en haut).
+    # The fix layer: line r on screen at y = 8 × (r − 2) (two hidden lines at the top).
     dans = lambda x: c0 <= x[0] <= c1 and r0 - 2 <= x[1] <= r1 - 2
     c = cases(m.img(d0 - 1), m.img(b - 1))
     hors = [x for x in c if not dans(x)]
@@ -2251,8 +2432,9 @@ def cheats():
         dit(f"{nom} : {'figé' if fige else 'change'} sous cheat, {'change' if bouge else 'figé'} au témoin")
         exiger(fige, f"le {nom} change sous cheat")
         exiger(bouge, f"le {nom} ne change pas au témoin : la scène ne prouve rien")
-    # Relu en fin de trame, une cellule forcée peut porter la valeur que le jeu vient d'écrire
-    # (le coup reçu, la seconde décomptée) avant que le moteur la rétablisse au SYSTEM_IO suivant.
+    # Read back at the end of the frame, a forced cell may carry the value the game has just
+    # written (the hit taken, the second counted down) before the engine restores it at the next
+    # SYSTEM_IO.
     k60 = sum(1 for k in range(r + 300, r + 1500) if c.f[k].get("m108406") == "60" and c.f[k].get("m1092CD") == "60")
     dit(f"$108406 et $1092CD à $60 sur {k60}/1200 trames")
     exiger(k60 >= F("cheats", "ram_min"), f"$108406 et $1092CD à $60 sur {k60}/1200 trames seulement")
@@ -2314,7 +2496,7 @@ def ms_garde():
     exiger(len(sl) == 1, f"{len(sl)} écritures de REG_SLOT")
     exiger(ms_capture_select("ms-garde") == ms_capture_select("ms-select"), "l'image diffère du SELECT simple")
 
-# ---- le mode AES ----
+# ---- the AES mode ----
 def premiere_remise(run, apres=0):
     r = [n for n, e in run.ev if e == "REMISE" and n > apres]
     exiger(r, f"{run.nom} : pas de remise après la trame {apres}")
@@ -2383,7 +2565,7 @@ def aes_retour():
     exiger(t >= F("aes-retour", "titre_min"), f"{t} trames du titre")
 
 
-# ---- la couverture (relevé --ref-couv) ----
+# ---- the coverage (record --ref-couv) ----
 def meme_instant(a, b, n0, n1):
     return sum(1 for k in range(n0, n1) if a.h(k) is not None and a.h(k) == b.h(k))
 
@@ -2402,7 +2584,7 @@ def dip_mmss():
     exiger(re.search(r"PLAY TIME +03:01", b.texte(330)), "l'éditeur ne montre pas PLAY TIME 03:01")
     for k in (1300, 2000, 3000):
         c = cases(a.img(k), b.img(k))
-        # Le TIME du HUD de ncombat : « 02:56 », colonnes 10-15 de la ligne 26 (y 208-215).
+        # The TIME of ncombat's HUD: "02:56", columns 10-15 of line 26 (y 208-215).
         dans = [x for x in c if 10 <= x[0] <= 15 and x[1] == 26]
         dit(f"trame {k} : {len(dans)} case(s) changent dans le TIME du HUD, {len(c) - len(dans)} ailleurs")
         exiger(dans, f"trame {k} : le TIME du HUD ne change pas")
@@ -2479,7 +2661,7 @@ def tests_barres():
     rvb = lambda x: ((x >> 16) & 255, (x >> 8) & 255, x & 255)
     for k, page in ((420, "rouge, vert, bleu"), (470, "blanc")):
         a = t.img(k)
-        for b, y in enumerate((56, 104, 152)):  # les trois barres, lignes 6-11, 12-17, 18-23
+        for b, y in enumerate((56, 104, 152)):  # the three bars, lines 6-11, 12-17, 18-23
             pas = [rvb(a[y * 320 + 40 + 16 * s]) for s in range(16)]
             exiger(pas[0] == (0, 0, 0), f"{page}, barre {b + 1} : le pas 0 n'est pas noir")
             for c in range(3):
@@ -2593,6 +2775,17 @@ def aes_logo():
     dit(f"demande 1 à {d[0]} : {n}/1500 trames du BIOS AES de SNK (décalage {D})")
     exiger(D is not None and n >= F("aes-logo", "snk_min"), f"{n} trames du témoin")
 
+def aes_logo_fin():
+    (l,) = sain("aes-logo-fin")
+    u = [(n, e) for n, e in l.ev if e.startswith("user=")]
+    jeu = [n for n, e in u if e == "user=02/02"]
+    exiger(jeu, "kof98 : la partie ne commence pas")
+    fin = [n for n, e in u if n > jeu[0] and e == "user=01/02"]
+    exiger(fin, "kof98 : pas de démo après la partie")
+    redonnee = [n for n, e in u if n > jeu[0] and e == "user=00/01"]
+    dit(f"partie à {jeu[0]}, démo à {fin[0]} ; demande 1 après la partie : {redonnee or 'aucune'}")
+    exiger(not redonnee, f"la demande 1 redonnée après la partie, trame {redonnee[:1]}")
+
 def aes_fin():
     h, k, m = sain("aes-histoire", "aes-snk-histoire", "demo")
     r = premiere_remise(h, 1001)
@@ -2610,8 +2803,9 @@ def aes_texte():
     n = sum(1 for x in range(3845, 4100) if h.f[x]["z1"] in vus)
     avant = {k.f[x]["z1"] for x in range(1000, 3845)}
     n0 = sum(1 for x in range(1000, 3845) if h.f[x]["z1"] in avant)
-    # Les états tenus (≥ 10 trames d'une même image de la zone) : les messages, hors des trames
-    # d'animation, que le défilement du décor derrière rend rarement égales d'un BIOS à l'autre.
+    # The held states (≥ 10 frames of a same image of the area): the messages, outside the
+    # animation frames, which the scrolling of the background behind rarely makes equal from one
+    # BIOS to the other.
     tous = avant | vus
     etats = []
     for v, g in itertools.groupby(range(3845, 4100), lambda x: h.f[x]["z1"]):
@@ -2667,9 +2861,10 @@ def jukebox_repete():
     dit(f"« haut » tenu 60 trames : {a} → {b}, {pas} crans")
     exiger(pas >= F("jukebox-repete", "crans_min"), f"{pas} crans")
 
-# ---- la couverture, second lot : CARD forcé, INPUT TEST de P2 et des commutateurs, NO SOFT DIP DATA ----
+# ---- the coverage, second batch: CARD forced, INPUT TEST of P2 and of the switches,
+# NO SOFT DIP DATA ----
 def forcer_sortie(nom):
-    """La sortie de `forcer.lua` : l'interface après l'appel, le tampon, et la carte du run."""
+    """The output of `forcer.lua`: the interface after the call, the buffer, and the run's card."""
     t = open(os.path.join(RUNS, nom, "o.txt"), errors="replace").read()
     exiger(re.search(r"retour apres \d+ trames", t), f"{nom} : CARD ne rend pas la main")
     ap = re.search(r"apres: ([0-9A-F ]+)", t)
@@ -2691,7 +2886,7 @@ def carte_chercher():
         exiger(d <= F("carte-chercher", "octets_max"), f"NGH $00{ngh} : {d} octets de l'interface diffèrent du BIOS SNK")
         exiger(ca == cb, f"NGH $00{ngh} : la carte diffère de celle du BIOS SNK (la recherche n'écrit pas)")
         vu[ngh] = a
-    # BIOS_CARD_SUB ($10FDD0, octets 12-13 de l'interface) : le masque des sous-sauvegardes.
+    # BIOS_CARD_SUB ($10FDD0, bytes 12-13 of the interface): the mask of the sub-saves.
     exiger(vu["44"][12:14] != vu["66"][12:14], "le masque est le même pour un NGH présent et un NGH absent : la scène ne prouve rien")
 
 def carte_supprimer():
@@ -2720,14 +2915,14 @@ def carte_nom():
     exiger(d <= F("carte-nom", "octets_max"), f"{d} octets de la carte diffèrent du BIOS SNK")
     a, ta, _ = forcer_sortie("cop-nomlu")
     b, tb, _ = forcer_sortie("cop-nomlu-snk")
-    # Le motif de `forcer.lua` (A_REMPLIR) : ses 16 premiers octets sont le nom écrit.
+    # The pattern of `forcer.lua` (A_REMPLIR): its first 16 bytes are the written name.
     nom = "".join("%02X" % ((i * 7 + 0x31) & 0xFF) for i in range(16))
     dit(f"le nom relu : tampon {ta}, réponse ${a[2]} ; BIOS SNK {tb}, ${b[2]} ; écrit {nom}")
     exiger(tb == nom, "le BIOS SNK ne relit pas le nom écrit : la scène ne prouve rien")
     exiger(ta == tb and a == b, "le nom relu ou la réponse diffèrent du BIOS SNK")
 
-# L'INPUT TEST : la case de chaque élément, lue dans la table de `src/c0/tests.s` (ELEM : colonne,
-# ligne du plan fixe, texte) ; à l'écran, la case (colonne, ligne − 2).
+# The INPUT TEST: the cell of each element, read in the table of `src/c0/tests.s` (ELEM: column,
+# fix layer line, text); on screen, the cell (column, line − 2).
 def elem(col, ligne, txt):
     return {(col + i, ligne - 2) for i in range(len(txt))}
 
@@ -2763,7 +2958,7 @@ def dip_sans_donnees():
     tn, tl = n.texte(330), l.texte(330)
     exiger("ROUND TIME" in tl, "l'éditeur du témoin n'a pas de ROUND TIME : la scène ne prouve rien")
     exiger("SOFT DIP SETTINGS" in tn and "NO SOFT DIP DATA" in tn, "l'éditeur ne dit pas NO SOFT DIP DATA")
-    # La liste : lignes 7 à 27 du plan fixe (`dip.s`, CASE_LIGNE ; 8 à 26 avant le 2026-10-24).
+    # The list: lines 7 to 27 of the fix layer (`dip.s`, CASE_LIGNE; 8 to 26 before 2026-10-24).
     ln = [n.fix[330].get(r, "").strip() for r in range(7, 28)]
     ll = [l.fix[330].get(r, "").strip() for r in range(7, 28)]
     ln, ll = [x for x in ln if x], [x for x in ll if x]
@@ -2772,16 +2967,17 @@ def dip_sans_donnees():
     exiger(not [x for x in ln if "ROUND TIME" in x], "la fixture montre ROUND TIME")
     exiger([k for k, e in n.ev if e == "REMISE" and k > 340], "START ne rend pas la main au jeu")
 
-# ---- le menu en jeu complet : GAME SETTINGS et MEMORY EDITOR (relevé --ref-menu) ----
+# ---- the full in-game menu: GAME SETTINGS and MEMORY EDITOR (record --ref-menu) ----
 def apres_pause(run):
     a, b = pause_apres(run, 1000)
     return b + 1
 def chrono_65(p, t1):
-    """Les images du chronomètre d'aof qu'on ne voit qu'avec ROUND TIME 65 : celles de temps1 (65 posé à
-    l'éditeur du boot) que le témoin (60) ne montre jamais — les valeurs 61 à 65. Seules celles qui tiennent au
-    moins deux trames : une seconde en dure ~60, et une image de passage d'un chiffre à l'autre, vue une seule trame,
-    peut manquer au témoin par la phase seule — mesuré le 2026-10-25 : le passage de 52 à 51 (trame 3818 de temps1),
-    absent de partie, comptait une trame « 61-65 » à gs-def sur une image à 30 cycles par trame de plus."""
+    """The images of aof's timer that only show with ROUND TIME 65: those of temps1 (65 set in the boot
+    editor) that the witness run (60) never shows — the values 61 to 65. Only those that last at least two
+    frames: a second lasts ~60, and an image of the transition from one digit to the next, seen for a single
+    frame, can be missing from the witness run through the phase alone — measured on 2026-10-25: the transition
+    from 52 to 51 (frame 3818 of temps1), absent from partie, counted one "61-65" frame in gs-def on an image
+    30 cycles per frame longer."""
     from collections import Counter
     n1 = Counter(t1.f[n]["z1"] for n in t1.f if "z1" in t1.f[n])
     h = {z for z, k in n1.items() if k >= 2} - {p.f[n]["z1"] for n in p.f if "z1" in p.f[n]}
@@ -2833,7 +3029,7 @@ def gs_mmss():
     R = relance(g, 2410)
     for k in (1300, 2000, 3000):
         ig = g.img(R + k)
-        # Le TIME du HUD de ncombat : colonnes 10-15 de la ligne 26 (y 208-215), comme dip-mmss.
+        # The TIME of ncombat's HUD: columns 10-15 of line 26 (y 208-215), like dip-mmss.
         zone = lambda c: [x for x in c if 10 <= x[0] <= 15 and x[1] == 26]
         c1, c0 = cases(b.img(k), ig), cases(a.img(k), ig)
         dit(f"R + {k} : TIME {len(zone(c1))} case(s) de l'éditeur du boot à 03:01, {len(zone(c0))} de 03:00 ; {len(c1)} cases en tout contre 03:01")
@@ -2852,7 +3048,7 @@ def gs_fois():
     exiger(abs(rg - rb) <= F("gs-fois", "ecart_max"), f"{abs(rg - rb)} trames d'écart avec WITHOUT posé au boot")
 
 def liste_gs(run, n):
-    """Les lignes de la liste de GAME SETTINGS : lignes 3 à 10 du cadre, 12 à 19 de l'écran."""
+    """The lines of the GAME SETTINGS list: lines 3 to 10 of the box, 12 to 19 of the screen."""
     return [x for x in (run.fix.get(n, {}).get(r, "").strip() for r in range(12, 20)) if x]
 
 def gs_sans(nom):
@@ -2869,8 +3065,8 @@ def gs_banque():
     gs_sans("gs-banque")
 
 def me_ecran_lu(run, n):
-    """L'écran de l'éditeur mémoire à la trame n : l'adresse du curseur (ligne 0 du cadre, colonne 20 ;
-    écran 9, 26), et les huit lignes (cadre 2-9, écran 11-18 : l'adresse, puis 2 × 4 octets)."""
+    """The memory editor screen at frame n: the cursor address (line 0 of the box, column 20;
+    screen 9, 26), and the eight lines (box 2-9, screen 11-18: the address, then 2 × 4 bytes)."""
     fx = run.fix.get(n, {})
     exiger(fx, f"pas de plan fixe à la trame {n}")
     tete = fx.get(9, "")
@@ -2882,7 +3078,7 @@ def me_ecran_lu(run, n):
         lignes.append((int(m[1], 16), bytes.fromhex(m[2] + m[3])))
     return int(tete[26:32], 16), lignes
 def ram(run, n, a0):
-    """Les huit octets de a0 lus par lua en fin de trame (J_SUIVRE, des mots)."""
+    """The eight bytes at a0 read by lua at the end of the frame (J_SUIVRE, words)."""
     f = run.f[n]
     return b"".join(int(f["m%06X" % (a0 + 2 * k)], 16).to_bytes(2, "big") for k in range(4))
 
@@ -2935,7 +3131,7 @@ def me_poke():
     exiger(re.search(r"108400 [0-9A-F]{8} [0-9A-F]{4}40", k.texte(2571)) and "SET VALUE" not in k.texte(2571), "B ne renonce pas")
     exiger(k.f[2571].get("m108406") == "40", f"$108406 vaut {k.f[2571].get('m108406')} après B, $40 attendu")
     r, D = reprise(k, p)
-    # Le HUD d'aof ne redessine le chronomètre qu'au décompte suivant : $40 écrit, il affiche 39.
+    # aof's HUD only redraws the timer at the next countdown: $40 written, it displays 39.
     h = {p.f[n]["z1"] for n in p.f if p.f[n].get("m108406") == "39"}
     exiger(h, "le témoin ne passe pas par 39 : la scène ne prouve rien")
     n = sum(1 for x in range(r, r + 600) if k.f[x].get("z1") in h)
@@ -2984,7 +3180,7 @@ def me_borne():
     v = {m.f[n]["m10FD84"] for n in range(2357, 2700) if n in m.f}
     exiger(len(v) == 1, f"$10FD84 a changé : {sorted(v)}")
 
-# ---- le bus flottant ----
+# ---- the floating bus ----
 def bf_bilan(run):
     b = [l for l in open(os.path.join(run.d, "bf.tsv"), encoding="utf-8") if l.startswith("#\tbilan")]
     exiger(b, f"{run.nom} : pas de bilan du bus flottant")
@@ -3041,14 +3237,15 @@ def flash_cart():
     exiger(lb == 0 and lj == 0, f"{lb} lectures flottantes du BIOS, {lj} du jeu")
     exiger(jeu > 0, "le jeu n'a jamais la main")
 
-# ---- le gestionnaire de la carte mémoire (relevé --ref-carte) ----
-# Les lignes de l'écran (`src/c0/gestion-carte.s`) : l'état à la ligne 6, la protection à la 7, la liste de la 10 à
-# la 22, les messages à la 24 ; une ligne de la liste : le curseur en colonne 3, puis NGH, sous-sauvegarde, blocs, nom.
+# ---- the memory card manager (record --ref-carte) ----
+# The lines of the screen (`src/c0/gestion-carte.s`): the state at line 6, the protection at 7,
+# the list from 10 to 22, the messages at 24; a line of the list: the cursor in column 3, then
+# NGH, sub-save, blocks, name.
 def cm_l(run, n, r):
     exiger(n in run.fix, f"{run.nom} : pas de plan fixe à la trame {n}")
     return run.fix[n].get(r, "")
 def cm_liste_de(run, n):
-    """Les sauvegardes listées : (choisie, NGH, sous-sauvegarde, blocs, nom)."""
+    """The listed saves: (selected, NGH, sub-save, blocks, name)."""
     out = []
     for r in range(10, 23):
         m = re.match(r"^ {3}([> ]) ([0-9A-F]{4}) (\d\d)  (\d\d)  (.*?) *$", cm_l(run, n, r))
@@ -3163,7 +3360,8 @@ def cm_insertion():
     dit(f"carte absente : « {e0} » ; présente à 400 : « {e1} », {len(v)} sauvegardes visibles")
     exiger(e0 == "NO CARD", f"« {e0} » avant l'insertion")
     exiger(e1 == "FREE BLOCKS 11" and v and v[0][1] == "0044", "la carte insérée n'est pas relue")
-    # Une confirmation en attente, puis la carte retirée et remise : elle est abandonnée, rien n'est effacé.
+    # A pending confirmation, then the card removed and reinserted: it is abandoned, nothing is
+    # erased.
     m0, m1, m2 = cm_l(i, 440, 24).strip(), cm_l(i, 480, 24).strip(), cm_l(i, 500, 24).strip()
     w = cm_liste_de(i, 480)
     d = octets(carte_de("cm-insertion"), open(FIXTURE, "rb").read())
@@ -3206,7 +3404,7 @@ def scores_gel():
 def bf_carte():
     bf_juge("bf-carte", [(345, "ART OF FIGHTING"), (345, "FREE BLOCKS 11"), (410, r"> MEMORY CARD")])
 
-# ---- les réglages de la borne (relevé --ref-borne) ----
+# ---- the cabinet settings (record --ref-borne) ----
 def lignes_liste(run, n):
     return [run.fix.get(n, {}).get(r, "").strip() for r in range(7, 28) if run.fix.get(n, {}).get(r, "").strip()]
 
@@ -3257,16 +3455,17 @@ def bo_reglage(run, m):
     exiger(re.search(m, run.texte(365)), f"{run.nom} : l'éditeur ne montre pas « {m} »")
 
 def bo_alignes(a, k):
-    # La première remise du BIOS SNK (mode 01, demande 00) précède d'une trame sa demande 2 : 750 et 751, contre 184
-    # chez nous (demande 2 directe) ; les entrées du témoin sont décalées de 567, de demande 2 à demande 2.
+    # The first hand-over of the SNK BIOS (mode 01, request 00) precedes its request 2 by one
+    # frame: 750 and 751, against 184 for us (direct request 2); the inputs of the witness run are
+    # shifted by 567, from request 2 to request 2.
     r, rk = premiere_remise(a), premiere_remise(k)
     exiger(rk - r == 566, f"remises {r} et {rk} : l'écart n'est plus 566, les entrées du témoin ne sont plus au même instant")
     return 567
 
 def meme_instant_d(a, b, n0, n1, d):
-    """Les trames de [n0, n1) égales au témoin, au meilleur décalage à ± 3 trames de d : la partie part à la trame de
-    l'appui sous les deux BIOS, mais pas à la même phase de la trame (mesuré : 213 à 1 123 trames égales selon le
-    décalage, de 565 à 568)."""
+    """The frames of [n0, n1) equal to the witness run, at the best shift within ± 3 frames of d: the game starts on
+    the frame of the press under both BIOSes, but not at the same phase of the frame (measured: 213 to 1,123 equal
+    frames depending on the shift, from 565 to 568)."""
     return max(sum(1 for k in range(n0, n1) if a.h(k) is not None and a.h(k) == b.h(k + x)) for x in range(d - 3, d + 4))
 
 def bo_free_play():
@@ -3363,7 +3562,7 @@ def bo_aes():
     exiger(ef <= F("bo-aes", "fin_max"), f"{ef} trames du game over")
     exiger(rc > 0 and ra >= F("bo-aes", "demo_min") * rc, f"la démo RMS {ra:.0f} contre {rc:.0f} : DEMO SOUND agit en mode AES")
 
-# ---- le catalogue des cheats et CHEATS/DEBUG (relevé --ref-cheats) ----
+# ---- the cheat catalogue and CHEATS/DEBUG (record --ref-cheats) ----
 def cheats_vies():
     o, t = sain("cv-on", "cv-temoin")
     exiger(re.search(r"INFINITE LIVES +ON", o.texte(1560)), "le menu ne montre pas INFINITE LIVES ON")
@@ -3380,7 +3579,7 @@ def cheats_vies():
     exiger(fo >= F("cheats-vies", "hud_on_min"), f"le compteur de vies change sous cheat ({fo:.3f})")
     exiger(not fin_o, f"fin de partie sous cheat à la trame {fin_o[0] if fin_o else 0}")
 
-# ---- la grille de $C03000 (relevé --ref-ssideki) ----
+# ---- the grid of $C03000 (record --ref-ssideki) ----
 def demo_ssideki():
     o, t = sain("ss-notre", "ss-snk")
     def apres_remise(run):
@@ -3430,7 +3629,7 @@ def bo_cd_gel():
 def bf_borne():
     bf_juge("bf-borne", [(325, "CABINET SETTINGS"), (325, r"FREE PLAY +OFF"), (385, "ART OF FIGHTING"), (385, r"> CABINET SETTINGS")])
 
-# ---- le CRC32 de la cartouche et les debug dips (relevé --ref-crc) ----
+# ---- the cartridge CRC32 and the debug dips (record --ref-crc) ----
 def crc_attendu(jeu):
     for l in open(CRC_ATTENDUS, encoding="utf-8"):
         c = l.rstrip("\n").split("\t")
@@ -3446,8 +3645,8 @@ def crc_lignes(run, n):
     return t, f, b
 
 def crc_juge(run, jeu, n_fin, scene, fixe=None):
-    """L'écran du CRC : le calcul en cours, puis ses deux lignes égales à celles de `crc-cartouche.py` (ou à `fixe`), DONE
-    au plus tard à la trame du seuil."""
+    """The CRC screen: the computation in progress, then its two lines equal to those of `crc-cartouche.py` (or to
+    `fixe`), DONE at the latest on the threshold frame."""
     c = crc_attendu(jeu)
     t, f, b = crc_lignes(run, n_fin)
     dit(f"{run.nom}, trame {n_fin} : {f[0] if f else 'pas de FIXED'} / {b[0] if b else 'pas de BANKS'} ; "
@@ -3574,7 +3773,7 @@ JUGES = {"aes-bascule": aes_bascule, "aes-demo": aes_demo, "aes-start": aes_star
          "autotests-vram": autotests_vram, "autotests-backup": autotests_backup, "tests-entrees": tests_entrees,
          "tests-barres": tests_barres, "tests-grille": tests_grille, "jukebox-pas": jukebox_pas,
          "jukebox-stop": jukebox_stop, "cheats-off": cheats_off, "partie-p2": partie_p2, "carte-sauve": carte_sauve,
-         "ms-select-p2": ms_select_p2, "aes-ms-select": aes_ms_select, "aes-pause": aes_pause, "aes-logo": aes_logo,
+         "ms-select-p2": ms_select_p2, "aes-ms-select": aes_ms_select, "aes-pause": aes_pause, "aes-logo": aes_logo, "aes-logo-fin": aes_logo_fin,
          "aes-fin": aes_fin, "aes-texte": aes_texte, "depart-force": depart_force, "piece-son": piece_son,
          "ms-seule": ms_seule, "jukebox-repete": jukebox_repete, "partie-p2-joint": partie_p2_joint,
          "carte-chercher": carte_chercher, "carte-supprimer": carte_supprimer, "carte-nom": carte_nom,
@@ -3595,7 +3794,7 @@ JUGES = {"aes-bascule": aes_bascule, "aes-demo": aes_demo, "aes-start": aes_star
          "demo-ssideki": demo_ssideki,
          "crc-fixe": crc_fixe, "crc-banques": crc_banques, "crc-miroir": crc_miroir, "crc-flottant": crc_flottant, "bf-crc": bf_crc,
          "bf-crc-banque": bf_crc_banque, "dd-effet": dd_effet, "dd-off": dd_off}
-# ---- les commutateurs de la carte et le geste sans bouton TEST (relevé --ref-dip) ----
+# ---- the board switches and the gesture without a TEST button (record --ref-dip) ----
 def mode_a(run, n0, n1):
     return {run.f[k]["m10FDAF"] for k in range(n0, n1) if k in run.f}
 
@@ -3740,7 +3939,7 @@ def geste_jeu():
     exiger(pA and pA[0][1] - pA[0][0] >= F("geste-jeu", "pause_min"), "START + SELECT + A : le jeu n'est pas en pause")
 
 def compte_geste(run, n0, n1):
-    # MN_COMPTE, .w signé : $FFFF après une fermeture (attendre le relâchement), compté comme 0.
+    # MN_COMPTE, signed .w: $FFFF after a close (wait for the release), counted as 0.
     v = [int(run.f[k]["m10F800"], 16) for k in range(n0, n1) if "m10F800" in run.f.get(k, {})]
     return max([x for x in v if x < 0x8000] or [0])
 
@@ -3758,10 +3957,10 @@ def geste_partie():
         exiger(c < F("geste-partie", "compte_max"), f"{j} : le compte du geste atteint {c}")
         exiger(lp < F("geste-partie", "pause_min"), f"{j} : une pause de {lp} trames")
 
-# ---- les intitulés en région JAPAN (measured/2026-10-27-intitules-japon.tsv) ----
+# ---- the labels in the JAPAN region (measured/2026-10-27-intitules-japon.tsv) ----
 def intitules_snk(run, n):
-    """Les intitulés du BIOS SNK japonais : les rangées en banque $3 (moitié haute), colonnes 6-17, en octets, sans les
-    espaces de fin ; un par réglage."""
+    """The labels of the Japanese SNK BIOS: the rows in bank $3 (upper half), columns 6-17, as bytes, without the
+    trailing spaces; one per setting."""
     r = []
     for row, t in sorted(run.tu.get(n, {}).items()):
         if any((x >> 8) & 0xF == 3 for x in t[6:18]):
@@ -3771,9 +3970,9 @@ def intitules_snk(run, n):
     return r
 
 def lu_notre(t):
-    """Une rangée du plan fixe en octets : None où la case ne peut pas être cet octet. Un octet dont le glyphe est le même
-    dans les deux banques de la police de la carte ($20-$5E, $61-$7B : measured/2026-10-27-intitules-japon.tsv, section 2)
-    s'écrit en 8×8 (banque 0), en $100 + b ou en $300 + b ; tout autre, seulement en $300 + b (la règle relevée)."""
+    """A row of the fix layer as bytes: None where the cell cannot be that byte. A byte whose glyph is the same in
+    both banks of the card's font ($20-$5E, $61-$7B: measured/2026-10-27-intitules-japon.tsv, section 2) is
+    written in 8×8 (bank 0), as $100 + b or as $300 + b; any other, only as $300 + b (the recorded rule)."""
     o = []
     for x in t:
         b, k = x & 0xFF, (x >> 8) & 0xF
@@ -3798,12 +3997,12 @@ def japon_intitules():
     exiger(not manque, f"{len(manque)} intitulés absents de notre écran, comme suite de tuiles : {manque[:3]}")
 
 def liste_cadre(run, n):
-    """GAME SETTINGS : les lignes 3 à 10 du cadre (rangées 12 à 19), « > » ôté, telles qu'à l'écran."""
+    """GAME SETTINGS: lines 3 to 10 of the box (rows 12 to 19), ">" removed, as on screen."""
     return [run.fix.get(n, {}).get(r, "")[8:34].rstrip() for r in range(12, 20)]
 
 def cadre_sans_banque_japon(run, n):
-    """Aucune tuile des banques $3/$4 dans le cadre (rangées 9 à 22, colonnes 6 à 33) : sous la S ROM de la cartouche,
-    ces tuiles dessinent le décor du jeu (measured/2026-10-27-intitules-japon.tsv, section 3)."""
+    """No tile from banks $3/$4 in the box (rows 9 to 22, columns 6 to 33): under the cartridge's S ROM,
+    these tiles draw the game's scenery (measured/2026-10-27-intitules-japon.tsv, section 3)."""
     return [(r, c) for r, t in run.tu.get(n, {}).items() if 9 <= r <= 22 for c in range(6, 34) if (t[c] >> 8) & 0xF in (3, 4)]
 
 def gs_japon():
@@ -3837,13 +4036,13 @@ JUGES.update({"dip-free-play": dip_free_play, "dip-fp-p2": dip_fp_p2, "dip-fp-re
               "dip-fp-chaud": dip_fp_chaud, "dip-fp-cabinet": dip_fp_cabinet, "dip-setting": dip_setting,
               "geste-boot": geste_boot, "geste-jeu": geste_jeu, "dip-fp-reglage": dip_fp_reglage,
               "geste-partie": geste_partie})
-# ---- Les commutateurs 2, 3 et 8 ----
+# ---- The board switches 2, 3 and 8 ----
 def figees_dans(run, n0, n1):
-    """Les trames de [n0, n1[ dont l'image égale celle de la trame d'avant."""
+    """The frames of [n0, n1[ whose image equals that of the previous frame."""
     return sum(1 for k in range(n0, n1) if run.h(k) is not None and run.h(k) == run.h(k - 1))
 
 def reprise_decalee(a, b, n0, n1, d):
-    """Les trames k de [n0, n1[ de a égales à la trame k − d de b : a a repris là où b était."""
+    """The frames k of [n0, n1[ of a equal to frame k − d of b: a resumed where b was."""
     return sum(1 for k in range(n0, n1) if a.h(k) is not None and a.h(k) == b.h(k - d))
 
 def dip_gel():
@@ -3884,7 +4083,7 @@ def dip_gel_boot():
     exiger([k for k in r if k > 1000] and min(k for k in r if k > 1000) - 1000 <= F("dip-gel-boot", "reprise_max"),
            f"le boot ne reprend pas au commutateur remis à OFF : {r[:3]}")
 
-# Les touches de TOUCHES_MJ (`parcours.sh`) : (trame, touches) ; une touche = (rangée, bit) — mahjong.cpp.
+# The keys of TOUCHES_MJ (`parcours.sh`): (frame, keys); a key = (row, bit) — mahjong.cpp.
 RANGEES_MJ = {k: (0, i) for i, k in enumerate("ABCDEFG")}
 RANGEES_MJ.update({k: (1, i) for i, k in enumerate("HIJKLMN")})
 RANGEES_MJ.update({k: (2, i) for i, k in enumerate(("Pon", "Chi", "Kan", "Ron", "Reach"))})
@@ -3943,14 +4142,15 @@ def dip_mj_off():
     exiger(not faux, "; ".join(faux[:3]))
 
 def bandeau(run, n):
-    """Les cases du bas de l'écran (lignes 26 à 27 du plan fixe : y 208-223) où l'image n'est pas noire."""
+    """The cells at the bottom of the screen (lines 26 to 27 of the fix layer: y 208-223) where the image is not black."""
     a = run.img(n)
     return {(x // 8, y // 8) for y in range(208, 224) for x in range(320)
             if (a[y * 320 + x] & 255) + ((a[y * 320 + x] >> 8) & 255) + ((a[y * 320 + x] >> 16) & 255) > 24}
 
 def dip_4p():
     a, a0, s, s0 = sain("4p", "4p0", "4p-snk", "4p0-snk")
-    # La démo du BIOS SNK part ~560 trames après la nôtre (750 contre 189) : son écran est pris à 1460.
+    # The demo of the SNK BIOS starts ~560 frames after ours (750 against 189): its screen is
+    # taken at 1460.
     c, c0, cs, cs0 = len(bandeau(a, 900)), len(bandeau(a0, 900)), len(bandeau(s, 1460)), len(bandeau(s0, 1460))
     v = {memoire(a, k, "10FEF8") for k in range(400, 1000)}
     dit(f"kizuna, commutateur 2 à ON : $10FEF8 {sorted(v)} ; le bas de l'écran à 900 : {c} cases allumées (OFF {c0}) ;"
@@ -3974,7 +4174,7 @@ def dip_4p_off():
 
 JUGES.update({"dip-gel": dip_gel, "dip-gel-off": dip_gel_off, "dip-gel-boot": dip_gel_boot, "dip-mahjong": dip_mahjong,
               "dip-mj-off": dip_mj_off, "dip-4p": dip_4p, "dip-4p-off": dip_4p_off})
-# ---- L'autofire ----
+# ---- The autofire ----
 def bit_a(run, n0, n1, adr="10FD95", bit=4):
     return [(memoire(run, k, adr) >> bit) & 1 for k in range(n0, n1)]
 
@@ -4013,7 +4213,8 @@ def af_off():
     dit(f"A remis à OFF : {e}/1100 trames égales au run sans turbo, A vu {c}/998 trames ; relu après redémarrage :"
         f" {el}/1100, A vu {cl}/998")
     exiger(af_ecran(s0, 1066, "ON") and af_ecran(s0, 1072, "OFF"), "l'écran ne dit pas BUTTON A ON puis OFF")
-    # Avant sa touche (gauche, qui remettrait à OFF une fiche restée à ON), af-relu doit déjà dire OFF.
+    # Before its key (left, which would set back to OFF an entry left at ON), af-relu must
+    # already say OFF.
     exiger(af_ecran(rl, 1066, "OFF"), "relu : l'écran AUTOFIRE ne dit pas BUTTON A OFF, la fiche ON est restée")
     exiger(memoire(s0, 2399, "D001B4") != 0x51, "la fiche de viewpoin reste en backup RAM après OFF")
     exiger(e >= F("af-off", "egales_min") and c == 998, f"A à OFF : {e} trames égales, A vu {c} : le turbo reste")
@@ -4034,9 +4235,9 @@ def af_mahjong():
     exiger(rang == {0x10}, f"la rangée A-G vaut {sorted(rang)} : le turbo touche le panneau")
 
 JUGES.update({"af-tir": af_tir, "af-sauve": af_sauve, "af-off": af_off, "af-mahjong": af_mahjong})
-# ---- Les garanties sur les défauts d'UniBIOS (relevé --ref-garanties) ----
+# ---- The guarantees on UniBIOS defects (record --ref-garanties) ----
 def premiere_palette(run):
-    """La première trame où le BIOS écrit une palette : l'écran de boot commence (`ecran.s`, trame 0)."""
+    """The first frame where the BIOS writes a palette: the boot screen starts (`ecran.s`, frame 0)."""
     t = [k for k in sorted(run.f) if int(run.f[k].get("palB", "0")) > 0]
     exiger(t, f"{run.nom} : aucune écriture de palette du BIOS")
     return t[0]
@@ -4046,8 +4247,8 @@ def differentes(a, b, n0, n1):
 
 def boot_graphismes():
     n, b = sain("bg", "bg-brouille")
-    # Le témoin UniBIOS : ni notre image ni celle de SNK, et la fixture porte WRONG CHECKSUMS de toute façon ; seul
-    # le code de sortie de MAME est exigé.
+    # The UniBIOS witness run: neither our image nor SNK's, and the fixture carries WRONG
+    # CHECKSUMS anyway; only MAME's exit code is required.
     for x in ("bg-uni", "bg-uni-brouille"):
         rc = open(os.path.join(RUNS, x, "rc")).read().strip() if os.path.exists(os.path.join(RUNS, x, "rc")) else "?"
         exiger(rc == "0", f"run {x} : MAME sorti en {rc}")
@@ -4097,7 +4298,8 @@ def dip_vierge():
         exiger(len(img) <= F("dip-vierge", "cases_max"), f"{r.nom} : {len(img)} cases à la trame 3000")
     exiger(bloc(n, 400, 0x230) == bloc(n, 1, 0x230), "vierge-n : le bloc 1, d'une autre entrée, a changé")
     exiger(memoire(n, 400, "D002A0") == memoire(z, 400, "D002A0"), "vierge-n : le nom du jeu n'est pas écrit")
-    # mslug : le bloc dans la zone banquée, que `_dip_valider` laisse ; seul l'éditeur rend les valeurs valides.
+    # mslug: the block in the banked area, which `_dip_valider` leaves; only the editor makes
+    # the values valid.
     m0, m = sain("vierge-m0", "vierge-m")
     bm, bm0 = bloc(m, 400), bloc(m0, 400)
     dit(f"vierge-m (mslug) : bloc enregistré {' '.join('%04X' % x for x in bm)} (NVRAM neuve : {' '.join('%04X' % x for x in bm0)})")
@@ -4117,7 +4319,8 @@ def dip_corrompue():
     exiger(gd(c) == gd(z), "GAME_DIP n'est pas celui du témoin : le bloc quelconque est servi au jeu")
     exiger(e >= F("dip-corrompue", "egales_min"), f"{e} trames égales au témoin")
 
-# Les touches de la page (`tests.s`, .Lm_touches) : intitulé, colonne, ligne ; le chiffre suit l'intitulé et une espace.
+# The keys of the page (`tests.s`, .Lm_touches): label, column, line; the digit follows the
+# label and a space.
 MJ_PAGE = [(k, 5, 8 + i) for i, k in enumerate("ABCDEFG")] + [(k, 11, 8 + i) for i, k in enumerate("HIJKLMN")]
 MJ_PAGE += [(k, 17, 8 + i) for i, k in enumerate(("PON", "CHI", "KAN", "RON", "REACH", "START", "SELECT"))]
 
@@ -4139,7 +4342,7 @@ def tests_mahjong():
     exiger("HARDWARE TESTS" in t.texte(640) and "INPUT TEST" in t.texte(640), "START tenu ne rend pas le menu des tests")
 
 def carte_sauv(c, ngh, sub):
-    """Les 64 octets du premier bloc de la sauvegarde ngh/sub de la carte c, ou None."""
+    """The 64 bytes of the first block of save ngh/sub on card c, or None."""
     for k in range(32):
         e = c[0x40 + 4 * k:0x44 + 4 * k]
         if e[0] != 0xFF and e[0] == sub and (e[1] << 8 | e[2]) == ngh:
@@ -4152,7 +4355,8 @@ def cm_copier():
     attendu = carte_sauv(src, 0x44, 0)
     exiger(attendu and attendu != bytes(64), "la source ne porte pas le motif : la scène ne prouve rien")
     ram = lambda run, n: [memoire(run, n, a) for a in ("100000", "100002", "100004", "100006", "1006BE")]
-    # La RAM relue juste après COPIED, l'écran encore ouvert : au START, le jeu prend la main et écrit la sienne.
+    # The RAM read back just after COPIED, the screen still open: at START, the game takes
+    # control and writes its own.
     for run, apres, msgs in ((v, 475, ((380, "CHANGE CARD AND PRESS A"), (460, "COPIED"))),
                              (c, 505, ((380, "CHANGE CARD AND PRESS A"), (460, "OVERWRITE 0044-00? A:YES B:NO"), (490, "COPIED")))):
         for n, m in msgs:
@@ -4184,14 +4388,14 @@ def jukebox_veille():
     dit(f"le code : {c1} après le réveil, {c2} après le HAUT suivant")
     exiger(c1 == "21" and c2 == "22", f"le code {c1} puis {c2}, 21 puis 22 attendus")
 
-# ---- Les menus au panneau de mahjong (relevé --ref-panneau) ----
+# ---- The menus on the mahjong panel (record --ref-panneau) ----
 def choisie(run, n):
-    """La ligne sous le curseur « > » du plan fixe à la trame n, sans le curseur ; None s'il n'y en a pas."""
+    """The line under the ">" cursor of the fix layer at frame n, without the cursor; None if there is none."""
     l = [s.strip()[1:].strip() for s in run.fix.get(n, {}).values() if s.strip().startswith(">")]
     exiger(len(l) <= 1, f"{run.nom}, trame {n} : {len(l)} curseurs")
     return " ".join(l[0].split()) if l else None
 def editeur_vers_tests(run, n_mode, n_tests):
-    """Le chemin de l'éditeur : REGION à l'ouverture, MODE MVS jusqu'à n_mode, HARDWARE TESTS à n_mode + 10, ouverts à n_tests."""
+    """The editor's path: REGION on opening, MODE MVS until n_mode, HARDWARE TESTS at n_mode + 10, opened at n_tests."""
     for n, attendu in ((265, "REGION EUROPE"), (305, "MODE MVS"), (n_mode, "MODE MVS"), (n_mode + 10, "HARDWARE TESTS")):
         c = choisie(run, n)
         dit(f"{run.nom}, trame {n} : « {c} »")
@@ -4239,11 +4443,12 @@ JUGES.update({"boot-graphismes": boot_graphismes, "ms-son-slot2": ms_son_slot2, 
               "dip-corrompue": dip_corrompue, "tests-mahjong": tests_mahjong, "jukebox-veille": jukebox_veille,
               "cm-copier": cm_copier})
 
-# ---- La table du sinus (relevé --ref-sinus) ----
-# Les couleurs du vaisseau d'alpham2, relevées sur une image du témoin (b, g, r de l'image bgra).
+# ---- The sine table (record --ref-sinus) ----
+# The colours of alpham2's ship, recorded on an image of the witness run (b, g, r of the bgra
+# image).
 VIOLET = {int.from_bytes(bytes.fromhex(h), "little") for h in ("4f266d", "6d4998", "cba0f1", "9267b6", "41162c")}
 def vaisseau(run, n):
-    """Le centre du cadre des pixels du vaisseau dans la zone de jeu (y 24-211), à la trame n."""
+    """The centre of the bounding box of the ship's pixels in the play area (y 24-211), at frame n."""
     a, xs, ys = run.img(n), [], []
     for y in range(24, 212):
         for x in range(320):
@@ -4275,9 +4480,9 @@ def howto_preisle2():
 
 JUGES.update({"alpha-trajectoire": alpha_trajectoire, "howto-preisle2": howto_preisle2})
 JUGES.update({"tests-sauvegarde": tests_sauvegarde, "dd-connu": dd_connu})
-# Un défaut connu du BIOS, pas encore corrigé : la scène tourne et dit son verdict, « CONNU » au
-# lieu de FAIL, sans faire échouer le parcours (grandeur « bug_connu » du relevé, 1). Corrigé,
-# elle sort PASS : retirer alors la ligne du relevé.
+# A known defect of the BIOS, not yet fixed: the scene runs and gives its verdict, "CONNU"
+# instead of FAIL, without failing the player's path (quantity "bug_connu" of the record, 1).
+# Once fixed, it comes out PASS: then remove the line from the record.
 CONNUS = {sc for (sc, g), v in SEUILS.items() if g == "bug_connu" and v == "1"}
 echecs = 0
 for s in SCENES:
@@ -4287,7 +4492,7 @@ for s in SCENES:
         verdict, raison = "PASS", ""
     except Ecart as e:
         verdict, raison = "FAIL", str(e)
-    except Exception as e:  # un relevé absent ou illisible est un échec, pas un plantage du juge
+    except Exception as e:  # an absent or unreadable record is a failure, not a crash of the judge
         verdict, raison = "FAIL", f"{type(e).__name__} : {e}"
     if verdict == "FAIL" and s in CONNUS:
         verdict = "CONNU"

@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Thibaut Lion
-# Chaîne de construction des BIOS Neo Geo tiers, pour les passer au banc.
-# Ubuntu natif (pas d'émulation) + le cross-compilateur m68k de Debian, dont les noms
-# (m68k-linux-gnu-*) sont EXACTEMENT ceux que le CMakeLists de neogeo-bios attend.
+# Build toolchain for the third-party Neo Geo BIOSes, to put them through the bench.
+# Native Ubuntu (no emulation) + Debian's m68k cross-compiler, whose names
+# (m68k-linux-gnu-*) are EXACTLY the ones neogeo-bios's CMakeLists expects.
 FROM ubuntu:24.04
 RUN apt-get update && apt-get install -y --no-install-recommends \
       build-essential cmake gcc-m68k-linux-gnu binutils-m68k-linux-gnu libc6-dev-m68k-cross ca-certificates \

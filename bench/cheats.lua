@@ -1,44 +1,44 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 -- Copyright (C) 2026 Thibaut Lion
--- Jig des cheats (`src/c0/cheats.s`), sans fenêtre. Trois usages, choisis par C_MODE :
+-- Cheat jig (`src/c0/cheats.s`), windowless. Three uses, chosen by C_MODE:
 --
---   releve  la RECHERCHE : le jeu joue des entrées planifiées, et la RAM de travail du jeu
---           ($100000-$10F2FF) est écrite toutes les C_PAS trames dans C_OUT/ram.bin, à la suite
---           (61 184 octets par relevé ; la trame de chaque relevé dans C_OUT/ram.idx). Le
---           filtrage se fait hors de MAME, sur ces relevés.
---   forcer  la PREUVE CAUSALE : à partir de C_DEPUIS, C_FORCER (« adr:taille:valeur », hex,
---           taille 1 ou 2, virgules) est écrit à chaque trame par lua ; le reste comme `releve`.
---   menu    LE CHEAT PAR LE BIOS : le menu en jeu ouvert par TEST tenu (C_MENU, trame), puis les
---           appuis de C_APPUIS ; lua n'écrit que C_FORCER, s'il est donné (BIOS_GAME_DIP, pour
---           un jeu dont `c0.s` ne décode pas les soft-DIP). Un tap d'écriture sur la RAM de
---           travail du jeu relève toute écriture faite depuis la zone haute du BIOS (PC ≥
---           $C04300) hors de la pile : c'est ce que le moteur écrit, et rien d'autre ne doit
---           y paraître. Le journal en donne les adresses et les comptes, à la dernière trame.
+--   releve  the SEARCH: the game plays scheduled inputs, and the game's work RAM
+--           ($100000-$10F2FF) is written every C_PAS frames to C_OUT/ram.bin, one after another
+--           (61,184 bytes per record; the frame of each record in C_OUT/ram.idx). The
+--           filtering is done outside MAME, on these records.
+--   forcer  the CAUSAL PROOF: from C_DEPUIS on, C_FORCER ("adr:size:value", hex,
+--           size 1 or 2, commas) is written every frame by lua; the rest as `releve`.
+--   menu    THE CHEAT THROUGH THE BIOS: the in-game menu opened by holding TEST (C_MENU, frame),
+--           then the presses of C_APPUIS; lua writes only C_FORCER, if given (BIOS_GAME_DIP, for
+--           a game whose soft-DIPs `c0.s` does not decode). A write tap on the game's work
+--           RAM records every write made from the upper zone of the BIOS (PC ≥
+--           $C04300) outside the stack: that is what the engine writes, and nothing else must
+--           show up there. The log gives their addresses and counts, at the last frame.
 --
--- Communs :
---   C_OUT      dossier de sortie (obligatoire) ; journal C_OUT/cheats.txt
---   C_ENTREES  « a-b:bouton » (tenu des trames a à b) ou « a-b%p:bouton » (tenu la première
---              moitié de chaque période de p trames entre a et b), virgules. Boutons : piece,
---              START, haut, bas, gauche, droite, A, B, C, D ; pour P2, pieceDeux, startDeux,
---              droiteDeux, aDeux, bDeux, cDeux (des lettres seules : le motif est %a+)
---   C_APPUIS   « trame:bouton », 3 trames chacun (mode menu, comme `menu.lua`)
---   C_MENU     trame où TEST est tenu, 40 trames (mode menu) ; « a,b » pour deux ouvertures
---   C_SUIVRE   « adr:taille » (hex), virgules : valeurs écrites au journal toutes les C_PAS trames
---   C_PAS      période des relevés et du suivi (défaut 10)
---   C_IMAGES   trames dont l'image (bgra 320×224) est écrite en C_OUT/fNNNNN.bin
---   C_ZONE     « x0,y0,x1,y1 » (pixels, bornes comprises) : toutes les C_PAS trames, « zone= »
---              l'empreinte de ce rectangle de l'écran au journal — ce qu'affiche un chronomètre.
---              L'empreinte ne porte que les pixels clairs (R + V + B > C_SEUIL, défaut 600) : les
---              chiffres d'un chronomètre, sans le décor qui défile derrière eux ; C_SEUIL=0 : les
---              couleurs mêmes, pour un chronomètre dans un cadre opaque ; C_COULEUR « r0,r1,v0,v1,b0,b1 »
---              (bornes comprises, 0-255) : les pixels de cette couleur, celle des chiffres
---   L'en-tête du jeu, à la trame 600 : « ngh= » le mot $000108 et « empreinte= » la somme 16 bits
---   des 64 mots $000100-$00017E, ce que `_cheats_trouver` calcule (`src/c0/cheats.s`).
---   C_FIN      trame de sortie
+-- Common:
+--   C_OUT      output directory (mandatory); log C_OUT/cheats.txt
+--   C_ENTREES  "a-b:button" (held from frame a to b) or "a-b%p:button" (held the first
+--              half of each period of p frames between a and b), commas. Buttons: piece,
+--              START, haut, bas, gauche, droite, A, B, C, D; for P2, pieceDeux, startDeux,
+--              droiteDeux, aDeux, bDeux, cDeux (letters only: the pattern is %a+)
+--   C_APPUIS   "frame:button", 3 frames each (menu mode, as `menu.lua`)
+--   C_MENU     frame where TEST is held, 40 frames (menu mode); "a,b" for two openings
+--   C_SUIVRE   "adr:size" (hex), commas: values written to the log every C_PAS frames
+--   C_PAS      period of the records and of the tracking (default 10)
+--   C_IMAGES   frames whose image (bgra 320×224) is written to C_OUT/fNNNNN.bin
+--   C_ZONE     "x0,y0,x1,y1" (pixels, bounds included): every C_PAS frames, "zone=" the
+--              fingerprint of that rectangle of the screen in the log — what a timer displays.
+--              The fingerprint carries only the bright pixels (R + G + B > C_SEUIL, default 600):
+--              the digits of a timer, without the scenery scrolling behind them; C_SEUIL=0: the
+--              colours themselves, for a timer in an opaque frame; C_COULEUR "r0,r1,v0,v1,b0,b1"
+--              (bounds included, 0-255): the pixels of that colour, the digits' colour
+--   The game header, at frame 600: "ngh=" the word $000108 and "empreinte=" the 16-bit sum
+--   of the 64 words $000100-$00017E, what `_cheats_trouver` computes (`src/c0/cheats.s`).
+--   C_FIN      exit frame
 --
--- La RAM de la recherche s'arrête à $10F2FF : au-dessus, c'est la pile et la RAM du BIOS, que le
--- jeu ne tient pas pour sienne (« BIOS RAM locations »). Le script est relu à chaque reset de la
--- machine (RESTART GAME) : la garde _G le fait ne s'installer qu'une fois.
+-- The search RAM stops at $10F2FF: above it lie the stack and the BIOS RAM, which the
+-- game does not hold as its own ("BIOS RAM locations"). The script is reread at each reset of the
+-- machine (RESTART GAME): the _G guard makes it install only once.
 if _G.CHJIG then return end
 _G.CHJIG = {}
 local OUT = os.getenv("C_OUT")
@@ -88,8 +88,8 @@ do
   local x0, y0, x1, y1 = (os.getenv("C_ZONE") or ""):match("(%d+),(%d+),(%d+),(%d+)")
   if x0 then zone = { tonumber(x0), tonumber(y0), tonumber(x1), tonumber(y1) } end
 end
--- L'empreinte d'un rectangle de l'image (bgra, 320 de large) : FNV-1a 32 bits sur le masque de ses
--- pixels clairs, un bit par pixel.
+-- The fingerprint of a rectangle of the image (bgra, 320 wide): 32-bit FNV-1a over the mask of its
+-- bright pixels, one bit per pixel.
 local SEUIL = tonumber(os.getenv("C_SEUIL") or "600")
 local COUL = nil
 do
@@ -122,12 +122,12 @@ if MODE == "releve" or MODE == "forcer" then
   ram = io.open(OUT .. "/ram.bin", "wb") idx = io.open(OUT .. "/ram.idx", "w")
 end
 
--- Le tap du mode menu, sur la RAM de travail du jeu seule ($100000-$10F2FF) : au-dessus, la RAM
--- du BIOS, où le menu ($10F4C0-$10FAFF) et les états des cheats ($10FB00-$10FB07) vivent.
--- Les écritures dans la pile du jeu (de SP − 64 à $10F2FF : adresses de retour et registres
--- sauvés par le crochet) sont comptées à part, sans détail — sauf si l'adresse est celle d'une
--- écriture d'un cheat du jeu, lue dans la table du BIOS par CH_ENTREE ($10FB00) et CH_NB
--- ($10FB04) : un cheat qui viserait la pile reste compté comme écriture du moteur.
+-- The menu-mode tap, on the game's work RAM only ($100000-$10F2FF): above it, the BIOS
+-- RAM, where the menu ($10F4C0-$10FAFF) and the cheat states ($10FB00-$10FB07) live.
+-- Writes into the game's stack (from SP − 64 to $10F2FF: return addresses and registers
+-- saved by the hook) are counted apart, without detail — unless the address is that of a
+-- write of one of the game's cheats, read in the BIOS table through CH_ENTREE ($10FB00) and
+-- CH_NB ($10FB04): a cheat that would target the stack is still counted as an engine write.
 local ecrits, nb_ecrits, nb_pile, trames = {}, 0, 0, {}
 local n = 0
 local cibles, cibles_de = {}, -1
@@ -154,7 +154,7 @@ if MODE == "menu" then
       if o >= cpu.state["SP"].value - 64 and not est_cible(o) then nb_pile = nb_pile + 1
       else
         nb_ecrits = nb_ecrits + 1
-        trames[n + 1] = true         -- la trame en cours
+        trames[n + 1] = true         -- the current frame
         local k = string.format("%06X", o)
         ecrits[k] = (ecrits[k] or 0) + 1
       end
@@ -209,7 +209,7 @@ emu.register_frame_done(function()
     if MODE == "menu" then
       local t = {} for k, c in pairs(ecrits) do t[#t + 1] = k .. "x" .. c end table.sort(t)
       W("f%d ecritures du moteur : %d %s ; pile : %d", n, nb_ecrits, table.concat(t, " "), nb_pile)
-      -- les trames où le moteur a écrit, en intervalles
+      -- the frames where the engine wrote, as intervals
       local iv, debut = {}, nil
       for i = 1, n + 1 do
         if trames[i] and not debut then debut = i

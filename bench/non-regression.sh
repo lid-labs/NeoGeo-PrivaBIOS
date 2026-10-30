@@ -1,108 +1,108 @@
 #!/bin/bash
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Thibaut Lion
-# Non-régression locale du BIOS : un verdict PASS/FAIL par étage, sortie non nulle au premier échec.
+# Local regression check of the BIOS: one PASS/FAIL verdict per stage, non-zero exit at the first failure.
 #
 #   bench/non-regression.sh [options] <dossier-roms> <dossier-travail>
 #
-#   --rapide              étages 0 et 1, puis un sous-ensemble court : la matrice sur aof, garou et
-#                         kof98, l'écran de plantage en erreur d'adresse, les soft-DIP des 22 jeux,
-#                         les autotests (le seul jig du sous-ensemble qui passe par l'écran TEST) ;
-#                         pas d'étage 4
-#   --sources <dossier>   sources à construire (défaut : src/c0) ; une copie jetable hors du dépôt
-#                         est acceptée, c'est ainsi que le harnais s'éprouve par mutation
-#   --matrice-ref <tsv>   relevé de référence de la matrice
-#                         (défaut : measured/2026-10-22-repetition-et-start-matrice.tsv)
-#   --jobs <n>            runs MAME en parallèle (défaut : le nombre de cœurs moins deux)
+#   --rapide              stages 0 and 1, then a short subset: the matrix on aof, garou and
+#                         kof98, the crash screen on an address error, the soft-DIPs of the 22 games,
+#                         the self-tests (the only jig of the subset that goes through the TEST screen);
+#                         no stage 4
+#   --sources <dossier>   sources to build (default: src/c0); a throwaway copy outside the repository
+#                         is accepted, that is how the harness is proven by mutation
+#   --matrice-ref <tsv>   reference record of the matrix
+#                         (default: measured/2026-10-22-repetition-et-start-matrice.tsv)
+#   --jobs <n>            MAME runs in parallel (default: the number of cores minus two)
 #
-# Les runs de référence, qui ne dépendent pas de notre image (colonnes snk et unibios40 de la matrice,
-# témoins SNK du parcours), sont gardés dans <dossier-travail>/cache-temoins et repris par la passe
-# suivante du même jour sur le même dossier (`matrice.sh`, BIOS_CACHE ; `parcours.sh --cache`).
-# Le dossier de travail reçoit les objets de la construction (BIOS_OBJ de `build/construire.sh`,
-# pour ne jamais se mêler à une autre construction), l'image, les romsets substitués, les sorties
-# brutes de chaque run et `resume.txt`.
+# The reference runs, which do not depend on our image (snk and unibios40 columns of the matrix,
+# SNK witness runs of the player's path), are kept in <dossier-travail>/cache-temoins and reused by the
+# next pass of the same day on the same folder (`matrice.sh`, BIOS_CACHE; `parcours.sh --cache`).
+# The work folder receives the build objects (BIOS_OBJ of `build/construire.sh`,
+# so as never to mix with another build), the image, the substituted romsets, the raw
+# outputs of each run and `resume.txt`.
 #
-# LES ÉTAGES, et leur critère. Chaque relevé de référence est versionné dans `measured/` :
+# THE STAGES, and their criterion. Each reference record is versioned in `measured/`:
 #
-#   0  `python3 -I -B bench/test_generer_contrats.py` : code de sortie 0, « OK », au moins un test.
-#   1  `build/construire.sh <sources> <travail>/bios.sp1`, objets dans <travail>/obj : 131 072 octets.
-#   2  `bench/matrice.sh`, sans nullbios, notre image en variante, sur les jeux du relevé de
-#      référence (lus dedans, pas en dur). Pour la colonne de notre image (la seule colonne du
-#      relevé qui n'est ni snk, ni unibios40, ni nullbios) : même verdict au caractère près, contrôle
-#      ok, et |vifs_max - référence| ≤ 2 % de la référence, jeu par jeu. Colonnes snk et
-#      unibios40 : contrôle ok sur tous les jeux — la santé de l'instrument, pas un jugement.
-#   3  Les jigs, chacun contre son relevé ; tous les runs doivent sortir de MAME en 0 et porter
-#      « WRONG CHECKSUMS » (la preuve que notre image est chargée, comme `matrice.sh`) :
-#      3a plantage.lua, aof, P_MODE=adr puis ill : « VERIF total ok=27 ecart=0 » puis « ok=24
-#         ecart=0 » (2026-10-21-ecran-plantage.tsv, après revue), et un RESET après le START.
-#      3b softdip.lua, les jeux de 2026-10-22-soft-dip-multi-slot-lot1.tsv : une remise, et
-#         GAME_DIP égal à la colonne game_dip_snk, à l'octet.
-#      3c autotests.lua, aof sain : WORK, PALETTE, VRAM et BACKUP rendent « OK », aucun FAIL ni
-#         DELAI, backup « octets_differents=0 » (2026-10-21-autotests.tsv, run « sain »).
-#      3d menu.lua, aof, TEST tenu à la trame 1500, A sur RESUME à 1600 : le menu s'ouvre et se
-#         ferme, adresse VRAM retrouvée, VRAM et palettes avant/après 0 octet différent, RAM de
-#         travail différente seulement dans $10F4C0-$10FB07 (les zones du menu et des cheats,
-#         celles qu'exclut l'empreinte de `menu.lua` ; 2026-10-21-menu-en-jeu.tsv).
-#      3e editeur.lua, aof, NVRAM neuve, TEST tenu jusqu'à 260, bas, droite (ROUND TIME), START :
-#         à la trame 265 un bloc de sauvegarde égal à GAME_DIP ; à la trame 500, ce bloc et
-#         GAME_DIP ont l'octet 4 augmenté de 1 et lui seul, et le jeu a la main (USER mode 01)
-#         (2026-10-20-editeur-soft-dip.tsv, aof run 1 : 3C → 3D).
-#      3f bus-flottant.lua, aof, 700 trames : la cartouche ne répond que sous REG_CRTFIX, comme
-#         sur le matériel (en-tête du jig). Aucune lecture flottante, aucun reset, et le jeu a la
-#         main. L'image n°8 (6fc2d51b…) y lit 9 fois le bus flottant au boot (son GAME NGH E05C,
-#         celui d'une vraie MV-2F, 2026-10-24) ; measured/2026-10-24-slot-crtfix.tsv.
-#   En --rapide, l'étage 3 ne garde que 3a (adr), 3b et 3c.
-#   4  En complet seulement : `bench/parcours.sh` sur la même image, --jobs du script — le parcours
-#      du joueur, 159 scènes jugées sur l'image et le son (`-wavwrite`) contre un témoin ou une
-#      empreinte, seuils dans measured/2026-10-23-parcours.tsv, pour les six du mode AES
-#      measured/2026-10-23-parcours-aes.tsv, pour les 34 de la couverture
-#      measured/2026-10-23-parcours-couverture-scenes.tsv, pour les 18 du menu en jeu complet
-#      measured/2026-10-23-menu-en-jeu-complet.tsv, pour les 12 de la carte mémoire et des scores
-#      measured/2026-10-24-parcours-carte.tsv, pour les 8 des réglages de la borne (FREE PLAY, NO CONTINUE,
-#      DEMO SOUND) measured/2026-10-25-parcours-borne.tsv, pour les 3 du catalogue des cheats et de CHEATS/DEBUG
-#      measured/2026-10-25-parcours-cheats.tsv, pour les 10 des commutateurs de la carte et du geste sans
-#      bouton TEST measured/2026-10-25-parcours-dip-free-play.tsv, pour demo-ssideki (la grille de grille.s)
-#      measured/2026-10-25-parcours-ssideki.tsv, pour les 7 du CRC32 de la cartouche et des debug dips
-#      measured/2026-10-25-parcours-crc-debug.tsv : toutes PASS. Une scène dont le relevé
-#      porte « bug_connu » à 1 sortirait « CONNU » sans faire échouer l'étage ; aucune ne le porte
-#      depuis la correction de CREDIT_CHECK en mode AES (aes-texte). Son en-tête porte les
-#      critères ; `bench/parcours-mutations.py --eprouver` prouve que chacune sait échouer
-#      (205 mutations). Huit scènes, bf-*, rejouent l'écran TEST sous `bus-flottant.lua` ;
-#      sans-cartouche joue ng_mv1 sans cartouche sous le même modèle (il faut ng_mv1.zip), flash-cart
-#      aof muette sur ses 30 premières trames, et
-#      scores-gel joue wh2 sur la MV-6F (il faut wh2.zip), cheats-vies et crc-banques jouent mslug2 (il faut mslug2.zip),
-#      dd-effet et dd-off kof94 (il faut kof94.zip),
-#      les scènes dip-* et geste-* la MV-2F (il faut ng_mv2f.zip ; mslug, samsho4 et ssideki pour geste-partie),
-#      demo-ssideki joue ssideki sur la MV-6F (il faut ssideki.zip), alpha-trajectoire et howto-preisle2
-#      (la table du sinus, measured/2026-10-28-parcours-sinus.tsv) alpham2 et preisle2.
+#   0  `python3 -I -B bench/test_generer_contrats.py`: exit code 0, "OK", at least one test.
+#   1  `build/construire.sh <sources> <travail>/bios.sp1`, objects in <travail>/obj: 131,072 bytes.
+#   2  `bench/matrice.sh`, without nullbios, our image as a variant, on the games of the reference
+#      record (read in it, not hard-coded). For the column of our image (the only column of the
+#      record that is neither snk, nor unibios40, nor nullbios): same verdict to the character, check
+#      ok, and |vifs_max - reference| ≤ 2% of the reference, game by game. Columns snk and
+#      unibios40: check ok on all games — the health of the instrument, not a judgement.
+#   3  The jigs, each against its record; all runs must exit MAME with 0 and carry
+#      "WRONG CHECKSUMS" (the proof that our image is loaded, as in `matrice.sh`):
+#      3a plantage.lua, aof, P_MODE=adr then ill: "VERIF total ok=27 ecart=0" then "ok=24
+#         ecart=0" (2026-10-21-ecran-plantage.tsv, after review), and a RESET after the START.
+#      3b softdip.lua, the games of 2026-10-22-soft-dip-multi-slot-lot1.tsv: one hand-over, and
+#         GAME_DIP equal to the game_dip_snk column, to the byte.
+#      3c autotests.lua, healthy aof: WORK, PALETTE, VRAM and BACKUP return "OK", no FAIL nor
+#         DELAI, backup "octets_differents=0" (2026-10-21-autotests.tsv, "sain" run).
+#      3d menu.lua, aof, TEST held at frame 1500, A on RESUME at 1600: the menu opens and
+#         closes, VRAM address found again, VRAM and palettes before/after 0 bytes different, work
+#         RAM different only in $10F4C0-$10FB07 (the zones of the menu and the cheats,
+#         those that the fingerprint of `menu.lua` excludes; 2026-10-21-menu-en-jeu.tsv).
+#      3e editeur.lua, aof, new NVRAM, TEST held until 260, down, right (ROUND TIME), START:
+#         at frame 265 a save block equal to GAME_DIP; at frame 500, this block and
+#         GAME_DIP have byte 4 increased by 1 and only it, and the game has control (USER mode 01)
+#         (2026-10-20-editeur-soft-dip.tsv, aof run 1: 3C → 3D).
+#      3f bus-flottant.lua, aof, 700 frames: the cartridge answers only under REG_CRTFIX, as
+#         on the hardware (jig header). No floating read, no reset, and the game has
+#         control. Image no. 8 (6fc2d51b…) reads the floating bus 9 times there at boot (its GAME NGH E05C,
+#         that of a real MV-2F, 2026-10-24); measured/2026-10-24-slot-crtfix.tsv.
+#   In --rapide, stage 3 keeps only 3a (adr), 3b and 3c.
+#   4  In full mode only: `bench/parcours.sh` on the same image, the script's --jobs — the
+#      player's path, 161 scenes judged on picture and sound (`-wavwrite`) against a witness run or a
+#      fingerprint, thresholds in measured/2026-10-23-parcours.tsv, for the six of the AES mode
+#      measured/2026-10-23-parcours-aes.tsv, for the 34 of the coverage
+#      measured/2026-10-23-parcours-couverture-scenes.tsv, for the 18 of the full in-game menu
+#      measured/2026-10-23-menu-en-jeu-complet.tsv, for the 12 of the memory card and the scores
+#      measured/2026-10-24-parcours-carte.tsv, for the 8 of the cabinet settings (FREE PLAY, NO CONTINUE,
+#      DEMO SOUND) measured/2026-10-25-parcours-borne.tsv, for the 3 of the cheat catalogue and of CHEATS/DEBUG
+#      measured/2026-10-25-parcours-cheats.tsv, for the 10 of the board switches and of the gesture without
+#      TEST button measured/2026-10-25-parcours-dip-free-play.tsv, for demo-ssideki (the grid of grille.s)
+#      measured/2026-10-25-parcours-ssideki.tsv, for the 7 of the cartridge CRC32 and the debug dips
+#      measured/2026-10-25-parcours-crc-debug.tsv: all PASS. A scene whose record
+#      carries "bug_connu" at 1 would come out "CONNU" without failing the stage; none carries it
+#      since the fix of CREDIT_CHECK in AES mode (aes-texte). Its header carries the
+#      criteria; `bench/parcours-mutations.py --eprouver` proves that each one can fail
+#      (207 mutations). Eight scenes, bf-*, replay the TEST screen under `bus-flottant.lua`;
+#      sans-cartouche plays ng_mv1 without a cartridge under the same model (ng_mv1.zip is needed), flash-cart
+#      aof muted over its first 30 frames, and
+#      scores-gel plays wh2 on the MV-6F (wh2.zip is needed), cheats-vies and crc-banques play mslug2 (mslug2.zip is needed),
+#      dd-effet and dd-off kof94 (kof94.zip is needed),
+#      the dip-* and geste-* scenes the MV-2F (ng_mv2f.zip is needed; mslug, samsho4 and ssideki for geste-partie),
+#      demo-ssideki plays ssideki on the MV-6F (ssideki.zip is needed), alpha-trajectoire and howto-preisle2
+#      (the sine table, measured/2026-10-28-parcours-sinus.tsv) alpham2 and preisle2.
 #
-# TEMPS RÉELS, mesurés le 2026-10-22 sur l'image de main (sha256 1db82fe1…), machine à 14 cœurs,
-# --jobs 4, un autre agent faisant tourner MAME en même temps, d'une charge variable :
-#   complet, trois passes : étage 0 0-1 s, étage 1 1 s, étage 2 108 / 112 / 848 s, étage 3
-#     18 / 153 / 19 s — 128 / 266 / 868 s en tout. Les deux passes lentes ne viennent pas des
-#     verdicts, identiques : à 153 s, trois runs soft-DIP sont restés ~135 s hors émulation (leur
-#     vitesse moyenne est normale, cause non identifiée) ; à 848 s, des runs de matrice tombés à
-#     298 % de vitesse au lieu de ~2 000 %
-#   complet avec l'étage 4, le 2026-10-23 sur l'image de main (528b7e9c…), --jobs 2, deux autres MAME
-#     à côté : 1 / 1 / 200 / 33 / 131 s, 366 s en tout ; le parcours seul, --jobs 2, 97 à 131 s
-#   complet avec l'étage 4 à 63 scènes, le 2026-10-23 sur l'image qui corrige CREDIT_CHECK en mode
-#     AES (6fc2d51b…), --jobs 2 : 0 / 1 / 145 / 27 / 268 s, 441 s en tout
-#   complet avec l'étage 4 à 81 scènes (le menu en jeu complet), le 2026-10-23 sur 01180fcb…, --jobs 2,
-#     un autre MAME à côté : 0 / 2 / 199 / 38 / 459 s, 698 s en tout
-#   complet avec l'étage 4 à 85 scènes (les quatre du bus flottant), le 2026-10-24 sur 16c58ca2…, --jobs 2,
-#     les mutations du parcours tournant à côté : 1 / 1 / 199 / 49 / 500 s
-#   complet avec l'étage 4 à 86 scènes (sans-cartouche), le 2026-10-24 sur 70f73d53…, --jobs 2, les
-#     mutations du parcours et un catalogue tournant à côté : 1 / 3 / 204 / 51 / 587 s
-#   rapide, deux passes : étage 0 0 s, étage 1 2 s, étage 2 24 / 25 s, étage 3 19 / 15 s —
-#     45 / 42 s en tout (la seconde sur une mutation, arrêtée à 3c)
+# REAL TIMES, measured on 2026-10-22 on the image of main (sha256 1db82fe1…), 14-core machine,
+# --jobs 4, another agent running MAME at the same time, with a variable load:
+#   full, three passes: stage 0 0-1 s, stage 1 1 s, stage 2 108 / 112 / 848 s, stage 3
+#     18 / 153 / 19 s — 128 / 266 / 868 s in all. The two slow passes do not come from the
+#     verdicts, identical: at 153 s, three soft-DIP runs stayed ~135 s outside emulation (their
+#     average speed is normal, cause not identified); at 848 s, matrix runs dropped to
+#     298% speed instead of ~2,000%
+#   full with stage 4, on 2026-10-23 on the image of main (528b7e9c…), --jobs 2, two other MAMEs
+#     alongside: 1 / 1 / 200 / 33 / 131 s, 366 s in all; the player's path alone, --jobs 2, 97 to 131 s
+#   full with stage 4 at 63 scenes, on 2026-10-23 on the image that fixes CREDIT_CHECK in
+#     AES mode (6fc2d51b…), --jobs 2: 0 / 1 / 145 / 27 / 268 s, 441 s in all
+#   full with stage 4 at 81 scenes (the full in-game menu), on 2026-10-23 on 01180fcb…, --jobs 2,
+#     another MAME alongside: 0 / 2 / 199 / 38 / 459 s, 698 s in all
+#   full with stage 4 at 85 scenes (the four of the floating bus), on 2026-10-24 on 16c58ca2…, --jobs 2,
+#     the mutations of the player's path running alongside: 1 / 1 / 199 / 49 / 500 s
+#   full with stage 4 at 86 scenes (sans-cartouche), on 2026-10-24 on 70f73d53…, --jobs 2, the
+#     mutations of the player's path and a catalogue running alongside: 1 / 3 / 204 / 51 / 587 s
+#   quick, two passes: stage 0 0 s, stage 1 2 s, stage 2 24 / 25 s, stage 3 19 / 15 s —
+#     45 / 42 s in all (the second on a mutation, stopped at 3c)
 #
-# CE QUE CE HARNAIS NE COUVRE PAS : le matériel ; la colonne nullbios ; le son hors de l'étage 4
-# (les étages 0-3 ne l'écoutent pas) ; la région us ; une vitesse d'émulation (relevée, jamais
-# jugée) ; les jeux hors du corpus de 22, et, pour l'étage 4, hors de aof, puzzledp, b2b, kof98 et
+# WHAT THIS HARNESS DOES NOT COVER: the hardware; the nullbios column; sound outside stage 4
+# (stages 0-3 do not listen to it); the us region; an emulation speed (recorded, never
+# judged); games outside the corpus of 22, and, for stage 4, outside aof, puzzledp, b2b, kof98 and
 # ncombat.
 #
-# Salle blanche : aucune ROM n'est lue ici hors de MAME, qui la charge ; MAME sans fenêtre,
-# NVRAM isolée par run, jamais de débogueur. Aucune ROM n'est versionnée.
+# Clean room: no ROM is read here outside MAME, which loads it; MAME with no window,
+# NVRAM isolated per run, never a debugger. No ROM is versioned.
 set -u
 
 ICI="$(cd "$(dirname "$0")" && pwd)"
@@ -139,8 +139,8 @@ RESUME="$WORK/resume.txt"
 : > "$RESUME"
 DEBUT=$(date +%s)
 
-# Le juge : du python3 de la bibliothèque standard, une sous-commande par critère. Il écrit ses
-# constats sur la sortie, et sort en 1 au moindre écart.
+# The judge: standard-library python3, one subcommand per criterion. It writes its
+# findings to the output, and exits with 1 at the slightest deviation.
 juger() {
   python3 -I -B - "$@" <<'PY'
 import os, re, sys
@@ -201,7 +201,7 @@ elif cmd == "matrice":
             v, vr = int(m["vifs_max"]), int(r["vifs_max"])
         except ValueError:
             ecart(f"{j}/{notre} : vifs illisibles ({m['vifs_max']!r} / {r['vifs_max']!r})"); continue
-        # 2 % de la référence ; une référence nulle n'admet que 0.
+        # 2% of the reference; a zero reference only admits 0.
         if abs(v - vr) * 100 > 2 * vr or (vr == 0 and v != 0):
             ecart(f"{j}/{notre} : vifs {v}, référence {vr} ({(v - vr) * 100 / max(vr, 1):+.2f} %)")
         else:
@@ -261,7 +261,7 @@ elif cmd == "menu":
         except OSError:
             ecart(f"{k} : relevé avant/après absent"); continue
         if len(a) != len(p): ecart(f"{k} : tailles {len(a)} / {len(p)}"); continue
-        # Deux relevés vides seraient « identiques » sans rien avoir comparé.
+        # Two empty records would be "identical" without having compared anything.
         if len(a) == 0: ecart(f"{k} : relevé avant/après vide"); continue
         diff = [i for i in range(len(a)) if a[i] != p[i]]
         if k == "ram":
@@ -295,10 +295,10 @@ elif cmd == "editeur":
 PY
 }
 
-# ---- Le compte rendu --------------------------------------------------------------------------
+# ---- The report -------------------------------------------------------------------------------
 T0=0
 etage() { T0=$(date +%s); echo; echo "=== étage $1"; }
-conclure() {  # conclure <étage> <rc>
+conclure() {  # conclure <stage> <rc>
   local duree=$(( $(date +%s) - T0 )) verdict=PASS
   [ "$2" -eq 0 ] || verdict=FAIL
   printf '%s  %4d s  %s\n' "$verdict" "$duree" "$1" >> "$RESUME"
@@ -311,9 +311,9 @@ finir() {
   exit "$1"
 }
 
-# ---- Les runs MAME ----------------------------------------------------------------------------
-# Un romset par jeu, le seul membre sp-s2.sp1 remplacé par notre image, fabriqué par un fichier
-# temporaire comme dans `matrice.sh` : interrompu, il ne laisse pas un romset au BIOS d'origine.
+# ---- The MAME runs ----------------------------------------------------------------------------
+# One romset per game, the sole sp-s2.sp1 member replaced by our image, built through a temporary
+# file as in `matrice.sh`: interrupted, it does not leave a romset with the original BIOS.
 romset() {
   local j="$1" d="$WORK/roms/$1.zip"
   [ -L "$d" ] && { echo "REFUS : $d est un lien symbolique" >&2; return 1; }
@@ -322,13 +322,13 @@ romset() {
   rm -f "$d.part"
   cp "$ROMS/$j.zip" "$d.part" && ( cd "$WORK/roms/img" && zip -q -j -X "$d.part" sp-s2.sp1 ) && mv "$d.part" "$d"
 }
-# lancer <jeu> <dossier> <jig.lua> [VAR=valeur…] : en arrière-plan, au plus $JOBS à la fois ; le
-# code de sortie de MAME va dans <dossier>/rc. NVRAM neuve : le dossier est vidé avant.
+# lancer <jeu> <dossier> <jig.lua> [VAR=valeur…]: in the background, at most $JOBS at a time; MAME's
+# exit code goes into <dossier>/rc. New NVRAM: the folder is emptied first.
 PIDS=""
 lancer() {
   local j="$1" o="$2" lua="$3" p n=0 reste=""; shift 3
   rm -rf "$o"; mkdir -p "$o"
-  # File d'attente : au-delà de $JOBS runs en cours, on attend le plus ancien.
+  # Queue: beyond $JOBS runs in progress, we wait for the oldest.
   for p in $PIDS; do n=$(( n + 1 )); done
   if [ $n -ge "$JOBS" ]; then
     for p in $PIDS; do if [ -z "${premier:-}" ]; then premier=$p; wait "$p"; else reste="$reste $p"; fi; done
@@ -340,7 +340,7 @@ lancer() {
       -autoboot_script "$ICI/$lua" > "$o/mame.log" 2>&1; echo $? > "$o/rc" ) &
   PIDS="$PIDS $!"
 }
-# Ce qui précède le juge, pour chaque run : MAME sorti en 0 et l'image substituée.
+# What comes before the judge, for each run: MAME exited with 0 and the image substituted.
 runs_sains() {
   local o bon=0
   for o in "$@"; do
@@ -351,14 +351,14 @@ runs_sains() {
   return $bon
 }
 
-# ---- 0. Les tests du générateur de contrats ----------------------------------------------------
+# ---- 0. The tests of the contract generator ----------------------------------------------------
 etage "0 : tests du générateur de contrats"
 sortie=$(cd "$PAQUET" && python3 -I -B bench/test_generer_contrats.py 2>&1); rc=$?
 echo "$sortie" | tail -3
 if [ $rc -eq 0 ] && echo "$sortie" | tail -1 | grep -qx 'OK' && echo "$sortie" | grep -Eq '^Ran [1-9][0-9]* tests?'; then rc=0; else rc=1; fi
 conclure "0 tests du générateur" $rc
 
-# ---- 1. La construction ------------------------------------------------------------------------
+# ---- 1. The build ------------------------------------------------------------------------------
 etage "1 : construction de $SOURCES"
 rm -f "$IMG"
 BIOS_OBJ="$WORK/obj" "$PAQUET/build/construire.sh" "$SOURCES" "$IMG"; rc=$?
@@ -369,20 +369,20 @@ conclure "1 construction" $rc
 
 mkdir -p "$WORK/roms/img"
 rm -f "$WORK/roms/img/sp-s2.sp1"; cp "$IMG" "$WORK/roms/img/sp-s2.sp1"
-# Un romset déjà là porte peut-être une autre image : tout est refait si l'empreinte a changé.
+# A romset already there may carry another image: everything is redone if the hash has changed.
 EMP="$(shasum -a 256 "$IMG" | cut -d' ' -f1)"
 if [ "$(cat "$WORK/roms/.image-sha256" 2>/dev/null)" != "$EMP" ]; then
   rm -f "$WORK/roms/"*.zip "$WORK/roms/.image-sha256"
 fi
 
-# ---- 2. La matrice -----------------------------------------------------------------------------
+# ---- 2. The matrix -----------------------------------------------------------------------------
 etage "2 : matrice contre $(basename "$MREF")"
 if [ $RAPIDE = 1 ]; then JEUX_M="aof garou kof98"; else JEUX_M="$(juger jeux "$MREF")" || conclure "2 liste des jeux de $MREF illisible" 1; fi
-# Aucun jeu à jouer, c'est aucun jugement : la matrice serait déclarée conforme sur zéro jeu.
+# No game to play means no judgement: the matrix would be declared compliant on zero games.
 [ -n "$JEUX_M" ] || conclure "2 aucun jeu dans $MREF" 1
 rm -rf "$WORK/matrice"; mkdir -p "$WORK/matrice"
-# Les jeux répartis en $JOBS matrices indépendantes, chacune dans son dossier : `matrice.sh` est
-# séquentiel, et ses dossiers de travail ne se partagent pas.
+# The games split into $JOBS independent matrices, each in its own folder: `matrice.sh` is
+# sequential, and its work folders are not shared.
 k=0; LOTS=""
 for j in $JEUX_M; do
   lot="$WORK/matrice/lot$(( k % JOBS ))"
@@ -405,7 +405,7 @@ done
 [ $rc -eq 0 ] && { juger matrice "$MREF" "$WORK/matrice.tsv" sprixe "$JEUX_M"; rc=$?; }
 conclure "2 matrice ($(echo $JEUX_M | wc -w | tr -d ' ') jeux)" $rc
 
-# ---- 3. Les jigs -------------------------------------------------------------------------------
+# ---- 3. The jigs -------------------------------------------------------------------------------
 etage "3 : jigs"
 J="$WORK/jigs"; rm -rf "$J"; mkdir -p "$J"
 JEUX_S="$(juger jeux "$SREF")" || conclure "3b liste des jeux de $SREF illisible" 1
@@ -429,8 +429,8 @@ fi
 for j in $JEUX_S; do lancer "$j" "$J/softdip/$j" softdip.lua S_OUT="$J/softdip/$j/softdip.txt"; done
 wait
 
-# Jugés dans l'ordre, et le premier écart arrête tout ; un seul temps pour l'étage, les runs
-# s'étant chevauchés.
+# Judged in order, and the first deviation stops everything; a single time for the stage, the runs
+# having overlapped.
 echo "--- 3a plantage"
 runs_sains "$J/plantage-adr" && juger plantage "$J/plantage-adr/plantage.txt" 27 1700; rc=$?
 if [ $rc -eq 0 ] && [ $RAPIDE = 0 ]; then
@@ -464,7 +464,7 @@ else
   finir 0
 fi
 
-# ---- 4. Le parcours du joueur (complet seulement) ----------------------------------------------
+# ---- 4. The player's path (full mode only) -----------------------------------------------------
 etage "4 : parcours du joueur"
 "$ICI/parcours.sh" --image "$IMG" --jobs "$JOBS" --cache "$WORK/cache-temoins/parcours" "$ROMS" "$WORK/parcours" | grep -E '^(PASS|FAIL|CONNU|runs|PARCOURS)'
 rc=${PIPESTATUS[0]}

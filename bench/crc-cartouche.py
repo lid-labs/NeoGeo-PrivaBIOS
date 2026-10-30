@@ -1,34 +1,34 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Thibaut Lion
-"""Le CRC32 que l'écran CARTRIDGE CRC (`src/c0/crc.s`) doit afficher, calculé HORS DE MAME, depuis le
-zip du romset : pour juger l'écran sur autre chose que MAME lui-même.
+"""The CRC32 that the CARTRIDGE CRC screen (`src/c0/crc.s`) must display, computed OUTSIDE MAME,
+from the romset zip: to judge the screen on something other than MAME itself.
 
-    python3 -I bench/crc-cartouche.py <dossier-roms> <jeu> [<jeu>…]
+    python3 -I bench/crc-cartouche.py <roms-dir> <game> [<game>…]
 
-Une ligne par jeu, tabulée : jeu, FIXED (taille en Kio, CRC), BANKS (nombre, CRC), et la source de
-chaque fichier lu avec son CRC de `-listxml` — ou « non reconstruit » et pourquoi.
+One tab-separated line per game: game, FIXED (size in KiB, CRC), BANKS (count, CRC), and the source
+of each file read with its CRC from `-listxml` — or "non reconstruit" (not rebuilt) and why.
 
-LA VUE DU 68000, reconstruite comme MAME 0.286 charge la P-ROM (source lu : `src/mame/neogeo/neogeo.cpp`,
-`ROM_LOAD16_WORD_SWAP`, `ROM_CONTINUE`, `write_banksel`, `init_cpu` ; la liste des fichiers et leurs
-décalages : `mame -listxml <jeu>`, région `cslot1:maincpu`) :
-  - chaque fichier à son décalage, ses octets dans l'ordre du fichier — c'est l'ordre que l'écran somme
-    (chaque mot octet bas d'abord), donc aucun échange ici ;
-  - un seul fichier de 2 Mio au décalage $100000 : son premier Mio en $100000, le second en $000000
-    (`ROM_CONTINUE( 0x000000, 0x100000 )`, mslug, kof94…) ;
-  - la région fait au moins 1 Mio, des zéros au-delà des fichiers (mesuré sur aof, lua, le 2026-10-25).
-Pas reconstruits : les fichiers à des décalages impairs (deux puces 8 bits entrelacées), et les jeux que
-MAME déchiffre au chargement — l'écran y somme le clair, que seul MAME connaît ; le script ne sait pas les
-reconnaître, la comparaison les montre (kof98, `measured/2026-10-25-crc-cartouche.tsv`).
+THE 68000'S VIEW, rebuilt the way MAME 0.286 loads the P-ROM (source read:
+`src/mame/neogeo/neogeo.cpp`, `ROM_LOAD16_WORD_SWAP`, `ROM_CONTINUE`, `write_banksel`, `init_cpu`;
+the list of files and their offsets: `mame -listxml <game>`, region `cslot1:maincpu`):
+  - each file at its offset, its bytes in file order — that is the order the screen sums
+    (each word low byte first), hence no swap here;
+  - a single 2 MiB file at offset $100000: its first MiB at $100000, the second at $000000
+    (`ROM_CONTINUE( 0x000000, 0x100000 )`, mslug, kof94…);
+  - the region is at least 1 MiB, zeros beyond the files (measured on aof, lua, on 2026-10-25).
+Not rebuilt: files at odd offsets (two interleaved 8-bit chips), and the games that
+MAME decrypts at load time — the screen sums the plaintext there, which only MAME knows; the script
+cannot recognise them, the comparison shows them (kof98, `measured/2026-10-25-crc-cartouche.tsv`).
 
-LES RÈGLES DE L'ÉCRAN, les mêmes que `crc.s` :
-  - FIXED : $000000-$0FFFFF, réduit de moitié tant que la moitié haute est le miroir de la basse (64 Kio
-    au moins) ;
-  - BANKS : aucune si la fenêtre $200000-$2FFFFF égale la P-ROM fixe (MAME y laisse la P-ROM d'une
-    cartouche d'1 Mio au plus) ; sinon les banques 0, 1… jusqu'à la première égale à une banque d'avant,
-    la banque n étant le Mio n + 1 de la région, ou la banque 0 au-delà (`write_banksel`). L'écran compare
-    des signatures (seize tranches de 4 Kio) ; ici, la banque entière.
-Aucun octet de ROM n'est écrit ni gardé : les CRC seulement.
+THE SCREEN'S RULES, the same as `crc.s`:
+  - FIXED: $000000-$0FFFFF, halved as long as the upper half is the mirror of the lower one (64 KiB
+    at least);
+  - BANKS: none if the window $200000-$2FFFFF equals the fixed P-ROM (MAME leaves the P-ROM of a
+    cartridge of 1 MiB at most there); otherwise banks 0, 1… up to the first one equal to an earlier
+    bank, bank n being MiB n + 1 of the region, or bank 0 beyond it (`write_banksel`). The screen
+    compares signatures (sixteen 4 KiB slices); here, the whole bank.
+No ROM byte is written or kept: the CRCs only.
 """
 import re
 import subprocess

@@ -1,7 +1,7 @@
 # Method
 
 How Sprixe BIOS was written, and how it is tested. This page says what was done, including what
-went wrong. The decisions behind it are in [`DECISIONS.md`](DECISIONS.md) (§1, §8, §28, in French).
+went wrong. The decisions behind it are in [`DECISIONS.md`](DECISIONS.md) (§1, §8, §28).
 
 ## What was not done
 

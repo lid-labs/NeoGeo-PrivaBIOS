@@ -1,34 +1,34 @@
-# L'autofire : les jeux où il marche
+# Autofire: the games where it works
 
-Sprixe BIOS a un autofire réglable jeu par jeu, dans le menu en jeu (`MENUS.md`, AUTOFIRE). Il ne marche
-pas sur tous les jeux, et ce n'est pas un réglage qui y changerait quelque chose : c'est le jeu qui
-décide où il lit sa manette. Cette page dit, jeu par jeu, ce qui a été mesuré.
+Sprixe BIOS has an autofire set game by game, in the in-game menu (`MENUS.md`, AUTOFIRE). It does
+not work on every game, and that is not something a setting would change: it is the game that
+decides where it reads its joystick. This page says, game by game, what was measured.
 
-## Pourquoi il ne marche pas partout
+## Why it does not work everywhere
 
-Le BIOS lit la manette à chaque trame et range ce qu'il a lu dans sa RAM ; l'autofire agit là, en
-faisant voir au jeu le bouton relâché une partie du temps. Un jeu qui lit ces cases du BIOS voit le
-turbo. Un jeu qui lit la manette lui-même, directement sur le matériel, ne le voit pas, et aucun BIOS
-n'y peut rien. Entre les deux, certains jeux lisent les deux, ou ne demandent pas leurs entrées au BIOS
-exactement une fois par trame : le turbo y est irrégulier.
+The BIOS reads the joystick every frame and stores what it read in its RAM; autofire acts there, by
+making the game see the button released part of the time. A game that reads those BIOS locations
+sees the turbo. A game that reads the joystick itself, directly on the hardware, does not see it,
+and no BIOS can do anything about that. In between, some games read both, or do not ask the BIOS
+for their inputs exactly once per frame: the turbo is irregular there.
 
-## Ce qui a été mesuré, et ce qui ne l'a pas été
+## What was measured, and what was not
 
-Mesuré le 2026-10-27 sous MAME, sur 164 jeux, avant que la fonction n'entre dans le BIOS (un
-prototype qui calcule le turbo comme lui) : pour chaque jeu, une partie scriptée, le bouton A du
-joueur 1 tenu avec le turbo, comparé au même bouton tapé à la main au même rythme. « Marche » veut
-dire que les deux parties sont identiques, image par image : **le jeu voit le turbo**. Cela ne promet
-pas plus de tirs à l'écran : un jeu peut ignorer des appuis trop rapprochés, ou n'avoir rien à
-tirer avec A.
+Measured on 2026-10-27 under MAME, on 164 games, before the function went into the BIOS (a
+prototype that computes the turbo the same way): for each game, a scripted session, player 1's A
+button held with the turbo, compared with the same button tapped by hand at the same rate. "Works"
+means that the two sessions are identical, frame by frame: **the game sees the turbo**. This does
+not promise more shots on screen: a game may ignore presses that come too close together, or have
+nothing to fire with A.
 
-- Seul **A du joueur 1** a été mesuré. B, C, D et le joueur 2 passent par le même calcul et sont
-  supposés suivre, sans mesure.
-- Une seule partie par jeu, dans les premières secondes de jeu.
-- Le classement suit la cadence par défaut, 15 tirs/s ; quand une autre cadence donne un autre
-  résultat, la ligne le dit. Le détail, cadence par cadence : `measured/2026-10-27-autofire.tsv`.
-- Avec le commutateur 3 de la carte à ON (panneau de mahjong), l'autofire est coupé, joueur 2 compris.
+- Only **player 1's A** was measured. B, C, D and player 2 go through the same computation and are
+  assumed to follow, without measurement.
+- A single session per game, in the first seconds of play.
+- The classification follows the default rate, 15 shots/s; when another rate gives another
+  result, the line says so. The detail, rate by rate: `measured/2026-10-27-autofire.tsv`.
+- With board switch 3 at ON (mahjong panel), autofire is off, player 2 included.
 
-## Le turbo marche (89)
+## The turbo works (89)
 
 - 2020 Super Baseball (set 1) (`2020bb`)
 - Alpha Mission II / ASO II - Last Guardian (NGM-007 ~ NGH-007) (`alpham2`)
@@ -74,14 +74,14 @@ tirer avec A.
 - Over Top (`overtop`)
 - Pleasure Goal / Futsal - 5 on 5 Mini Soccer (NGM-219) (`pgoal`)
 - Pochi and Nyaa (Ver 2.02) (`pnyaa`)
-- Power Spikes II (NGM-068) (`pspikes2`) — 30 tirs/s : partiel, 10 tirs/s : marche
+- Power Spikes II (NGM-068) (`pspikes2`) — 30 shots/s: partial, 10 shots/s: works
 - Prehistoric Isle 2 (`preisle2`)
 - Puzzle Bobble / Bust-A-Move (Neo-Geo, NGM-083) (`pbobblen`)
 - Puzzle Bobble 2 / Bust-A-Move Again (Neo-Geo) (`pbobbl2n`)
 - Puzzle De Pon! (`puzzledp`)
 - Puzzle De Pon! R! (`puzzldpr`)
 - Puzzled / Joy Joy Kid (NGM-021 ~ NGH-021) (`joyjoy`)
-- Quiz Daisousa Sen - The Last Count Down (NGM-023 ~ NGH-023) (`quizdais`) — 30 tirs/s : marche, 10 tirs/s : partiel
+- Quiz Daisousa Sen - The Last Count Down (NGM-023 ~ NGH-023) (`quizdais`) — 30 shots/s: works, 10 shots/s: partial
 - Quiz King of Fighters (SAM-080 ~ SAH-080) (`quizkof`)
 - Quiz Meitantei Neo & Geo - Quiz Daisousa Sen part 2 (NGM-042 ~ NGH-042) (`quizdai2`)
 - Ragnagard / Shin-Oh-Ken (`ragnagrd`)
@@ -120,7 +120,7 @@ tirer avec A.
 - Zintrick / Oshidashi Zentrix (bootleg of CD version) (`zintrckb`)
 - Zupapa! (`zupapa`)
 
-## Partiel ou irrégulier (25)
+## Partial or irregular (25)
 
 - Aggressors of Dark Kombat / Tsuukai GANGAN Koushinkyoku (ADM-008 ~ ADH-008) (`aodk`)
 - Art of Fighting 2 / Ryuuko no Ken 2 (NGM-056) (`aof2`)
@@ -129,26 +129,26 @@ tirer avec A.
 - Crossed Swords (ALM-002 ~ ALH-002) (`crsword`)
 - Digger Man (prototype) (`diggerma`)
 - Football Frenzy (NGM-034 ~ NGH-034) (`fbfrenzy`)
-- Ghostlop (prototype) (`ghostlop`) — 30 tirs/s : marche, 10 tirs/s : marche
-- Goal! Goal! Goal! (`goalx3`) — 30 tirs/s : marche, 10 tirs/s : marche
+- Ghostlop (prototype) (`ghostlop`) — 30 shots/s: works, 10 shots/s: works
+- Goal! Goal! Goal! (`goalx3`) — 30 shots/s: works, 10 shots/s: works
 - Metal Slug 2 - Super Vehicle-001/II (NGM-2410 ~ NGH-2410) (`mslug2`)
 - Metal Slug 5 (NGM-2680) (`mslug5`)
 - Nightmare in the Dark (`nitd`)
 - Ninja Commando (`ncommand`)
-- Ninja Master's - Haoh-ninpo-cho (`ninjamas`) — 30 tirs/s : marche, 10 tirs/s : partiel
+- Ninja Master's - Haoh-ninpo-cho (`ninjamas`) — 30 shots/s: works, 10 shots/s: partial
 - Panic Bomber (`panicbom`)
 - Pulstar (`pulstar`)
-- Samurai Shodown / Samurai Spirits (NGM-045) (`samsho`) — 30 tirs/s : partiel, 10 tirs/s : marche
+- Samurai Shodown / Samurai Spirits (NGM-045) (`samsho`) — 30 shots/s: partial, 10 shots/s: works
 - Samurai Shodown II / Shin Samurai Spirits - Haohmaru Jigokuhen (NGM-063 ~ NGH-063) (`samsho2`)
 - Stakes Winner / Stakes Winner - GI Kinzen Seiha e no Michi (`stakwin`)
 - The King of Fighters '98 - The Slugfest / King of Fighters '98 - Dream Match Never Ends (NGM-2420) (`kof98`)
 - The King of Fighters '99 - Millennium Battle (NGM-2510) (`kof99`)
 - The King of Fighters 2001 (NGM-262?) (`kof2001`)
 - The King of Fighters 2002 (NGM-2650 ~ NGH-2650) (`kof2002`)
-- World Heroes (ALM-005) (`wh1`) — 30 tirs/s : partiel, 10 tirs/s : marche
+- World Heroes (ALM-005) (`wh1`) — 30 shots/s: partial, 10 shots/s: works
 - World Heroes 2 (ALM-006 ~ ALH-006) (`wh2`)
 
-## Sans effet : le jeu lit la manette lui-même (35)
+## No effect: the game reads the joystick itself (35)
 
 - 3 Count Bout / Fire Suplex (NGM-043 ~ NGH-043) (`3countb`)
 - Aero Fighters 2 / Sonic Wings 2 (`sonicwi2`)
@@ -186,21 +186,21 @@ tirer avec A.
 - The Last Blade 2 / Bakumatsu Roman - Dai Ni Maku Gekka no Kenshi (NGM-2430 ~ NGH-2430) (`lastbld2`)
 - Voltage Fighter - Gowcaizer / Choujin Gakuen Gowcaizer (`gowcaizr`)
 
-## Non mesuré (15)
+## Not measured (15)
 
-- Bakatonosama Mahjong Manyuuki (MOM-002 ~ MOH-002) (`bakatono`) — pas de manette standard (panneau ou commande propre au jeu)
-- Eight Man (NGM-025 ~ NGH-025) (`eightman`) — A sans effet visible dans la partie scriptée
-- Janshin Densetsu - Quest of Jongmaster (`janshin`) — pas de manette standard (panneau ou commande propre au jeu)
-- Minasan no Okagesamadesu! Dai Sugoroku Taikai (MOM-001 ~ MOH-001) (`minasan`) — pas de manette standard (panneau ou commande propre au jeu)
-- MVS-TEMP 'SubSystem Ver1.4' (Nazca development board) (`mvstemp`) — A sans effet visible dans la partie scriptée
-- Neo-Geo MV-1 (`ng_mv1`) — la machine sans cartouche, pas un jeu
-- Neo-Geo MV-2F (`ng_mv2f`) — la machine sans cartouche, pas un jeu
-- Neo-Geo MV-4F (`ng_mv4f`) — la machine sans cartouche, pas un jeu
-- Pop 'n Bounce / Gapporin (`popbounc`) — pas de manette standard (panneau ou commande propre au jeu)
-- Riding Hero (NGM-006 ~ NGH-006) (`ridhero`) — A sans effet visible dans la partie scriptée
-- Robo Army (`roboarmy`) — A sans effet visible dans la partie scriptée
-- Soccer Brawl (NGM-031) (`socbrawl`) — A sans effet visible dans la partie scriptée
-- The Irritating Maze / Ultra Denryu Iraira Bou (`irrmaze`) — MAME ne charge pas d’autre BIOS pour ce jeu
-- Thrash Rally (ALM-003 ~ ALH-003) (`trally`) — A sans effet visible dans la partie scriptée
-- V-Liner (v0.7a) (`vliner`) — pas de manette standard (panneau ou commande propre au jeu)
+- Bakatonosama Mahjong Manyuuki (MOM-002 ~ MOH-002) (`bakatono`) — no standard joystick (panel or controller specific to the game)
+- Eight Man (NGM-025 ~ NGH-025) (`eightman`) — A has no visible effect in the scripted session
+- Janshin Densetsu - Quest of Jongmaster (`janshin`) — no standard joystick (panel or controller specific to the game)
+- Minasan no Okagesamadesu! Dai Sugoroku Taikai (MOM-001 ~ MOH-001) (`minasan`) — no standard joystick (panel or controller specific to the game)
+- MVS-TEMP 'SubSystem Ver1.4' (Nazca development board) (`mvstemp`) — A has no visible effect in the scripted session
+- Neo-Geo MV-1 (`ng_mv1`) — the machine without a cartridge, not a game
+- Neo-Geo MV-2F (`ng_mv2f`) — the machine without a cartridge, not a game
+- Neo-Geo MV-4F (`ng_mv4f`) — the machine without a cartridge, not a game
+- Pop 'n Bounce / Gapporin (`popbounc`) — no standard joystick (panel or controller specific to the game)
+- Riding Hero (NGM-006 ~ NGH-006) (`ridhero`) — A has no visible effect in the scripted session
+- Robo Army (`roboarmy`) — A has no visible effect in the scripted session
+- Soccer Brawl (NGM-031) (`socbrawl`) — A has no visible effect in the scripted session
+- The Irritating Maze / Ultra Denryu Iraira Bou (`irrmaze`) — MAME does not load another BIOS for this game
+- Thrash Rally (ALM-003 ~ ALH-003) (`trally`) — A has no visible effect in the scripted session
+- V-Liner (v0.7a) (`vliner`) — no standard joystick (panel or controller specific to the game)
 

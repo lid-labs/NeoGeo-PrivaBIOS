@@ -1,14 +1,14 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 -- Copyright (C) 2026 Thibaut Lion
--- CARD sans carte : pour chaque vrai appel à $C00468 (lecture d'entrée suivie d'une écriture en
--- RAM de travail, comme `appels.lua`), relève l'interface $10FDC4-$10FDCF avant l'appel, les
--- écritures faites jusqu'au retour en espace programme, avec le SP de chacune, et l'interface
--- après. La pile du BIOS ($10F200-$10F2FF) est exclue : elle porte des adresses de la référence.
--- Les accès à la zone de la carte ($800000-$8FFFFF) pendant l'appel sont comptés, lectures et
--- écritures, avec leur plage (« carte: »). Avec carte : ajouter -memc <fichier .neo>.
+-- CARD without a card: for each real call to $C00468 (read of the entry followed by a write to
+-- work RAM, like `appels.lua`), records the interface $10FDC4-$10FDCF before the call, the
+-- writes made until the return to program space, with the SP of each, and the interface
+-- afterwards. The BIOS stack ($10F200-$10F2FF) is excluded: it holds addresses of the reference.
+-- The accesses to the card's area ($800000-$8FFFFF) during the call are counted, reads and
+-- writes, with their range ("carte:"). With a card: add -memc <fichier .neo>.
 --   A_A=<trames> A_OUT=<sortie> mame <jeu> -bios euro ... -autoboot_script bench/card.lua
--- Juger notre image : la même commande sur un romset où elle est substituée ; les deux sorties
--- doivent porter les mêmes adresses écrites, dans le même ordre.
+-- Judging our image: the same command on a romset where it is substituted; both outputs must
+-- carry the same written addresses, in the same order.
 if not _G.Y then _G.Y={n=0,e=nil,in_=false,k=0}
 local m=manager.machine; local cpu=m.devices[":maincpu"]; local p=cpu.spaces["program"]
 local out=io.open(os.getenv("A_OUT"),"a")
@@ -30,7 +30,7 @@ Y.tb=p:install_read_tap(0xC00000,0xC1FFFF,"b",function(o)
   if o==0xC00468 and (p:read_u8(0x10FD80)&0x80)~=0 then Y.e=o elseif not Y.in_ then Y.e=nil end end)
 local function F(pt,n) local x=m.ioport.ports[pt] return x and x.fields[n] end
 local coin,start,ba=F(":AUDIO_COIN","Coin 1"),F(":edge:joy:START","1 Player Start"),F(":edge:joy:JOY1","P1 A")
--- A_SANS_ENTREES=1 : aucun appui injecté, pour une partie jouée à la main dans une fenêtre.
+-- A_SANS_ENTREES=1: no press injected, for a session played by hand in a window.
 if os.getenv("A_SANS_ENTREES")=="1" then coin,start,ba=nil,nil,nil end
 emu.register_frame_done(function() Y.n=Y.n+1 local c=Y.n%300
   if coin then coin:set_value((c<8) and 1 or 0) end

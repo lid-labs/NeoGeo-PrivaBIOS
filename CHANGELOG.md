@@ -34,9 +34,17 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 - In-game menu: a game can have up to 16 cheats (4 before). The menu shows 4 at a time and scrolls,
   with "CHEATS 5-8/12" under the title when some are hidden.
 - Site: the comparison table no longer lists scores on memory card.
+- Notes in English: `docs/DECISIONS.md`, `MENUS.md`, `AUTOFIRE.md`, `COMPATIBILITE.md`,
+  `ESSAI-MATERIEL.md` and `measured/HISTORIQUE.md`.
+- Code comments in English: `src/c0/`, `diag/slots/`, `build/harnais/`, `build/bios.ld`. The image
+  is unchanged.
+- Comments and headers of `bench/` and the build scripts in English. Runtime output of the
+  bench scripts is unchanged.
 
 ### Fixed
 
+- AES mode: kof98's boot animation (request 1) no longer comes back after a game over. Its
+  flag shared a byte with the cheat engine's freeze mask, which cleared it at the start of a game.
 - `bench/cheats-catalogue.sh`: the samsho2 timer zone leaves out the bar above the digits (#16).
 - `bench/parcours-mutations.py`: the `cat-mslug2-perdu` mutation no longer depends on the number of
   Metal Slug 2 cheats; it had stopped applying when that number changed.

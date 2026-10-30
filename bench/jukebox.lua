@@ -1,46 +1,46 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 -- Copyright (C) 2026 Thibaut Lion
--- Jig du jukebox (`src/c0/jukebox.s`), sans fenêtre. TEST tenu au boot ouvre l'écran TEST
--- (`dip.s`) ; le jig monte à la ligne JUKEBOX, l'ouvre, et pour chaque code de la série :
--- B (le pilote relancé), une fenêtre de CONTRÔLE sans code envoyé, puis A et une fenêtre de
--- RÉPONSE. Chaque fenêtre compte les écritures du Z80 au YM2610 — ports $04-$07 de l'espace
--- I/O de :audiocpu, lu dans « Z80 port map » (« 2610WR ») —, les réponses du Z80 au 68000
--- (port $0C, « SDZ80W », même page) et les écritures du 68000 à REG_SOUND ($320000).
--- LE COMPTE BRUT NE SUFFIT PAS : mesuré sur aof le 2026-10-21, le pilote au repos écrit déjà
--- ~8 fois par trame à la puce. On compte donc aussi les DÉCLENCHEMENTS, lus dans « YM2610
--- registers » (port 0 = $04 adresse / $05 donnée, port 1 = $06 / $07) : FM key-on, registre
--- $28 du port 0, champ « Slot » non nul (SUPPOSÉ : bits 7-4, la disposition des OPN) ;
--- ADPCM-A, registre $00 du port 1, bit 7 (dump) à 0 et un des bits 5-0 à 1 ; ADPCM-B,
--- registre $10 du port 0, bit 7 (start) ; SSG, registres $08-$0A du port 0, volume non nul
--- (SUPPOSÉ : bits 4-0, mode compris). Un code « fait réagir la puce » si sa fenêtre de
--- réponse compte plus de déclenchements que sa fenêtre de contrôle.
--- Puis START (retour à l'écran TEST), START (le jeu), et un relevé du jeu sur J_JEU trames.
+-- Jig of the jukebox (`src/c0/jukebox.s`), no window. TEST held at boot opens the TEST screen
+-- (`dip.s`); the jig goes up to the JUKEBOX line, opens it, and for each code of the series:
+-- B (the driver restarted), a CONTROL window with no code sent, then A and a
+-- RESPONSE window. Each window counts the Z80's writes to the YM2610 — ports $04-$07 of the
+-- I/O space of :audiocpu, read in "Z80 port map" ("2610WR") —, the Z80's responses to the 68000
+-- (port $0C, "SDZ80W", same page) and the 68000's writes to REG_SOUND ($320000).
+-- THE RAW COUNT IS NOT ENOUGH: measured on aof on 2026-10-21, the idle driver already writes
+-- ~8 times per frame to the chip. So the TRIGGERS are counted too, read in "YM2610
+-- registers" (port 0 = $04 address / $05 data, port 1 = $06 / $07): FM key-on, register
+-- $28 of port 0, "Slot" field non-zero (ASSUMED: bits 7-4, the OPN layout);
+-- ADPCM-A, register $00 of port 1, bit 7 (dump) at 0 and one of bits 5-0 at 1; ADPCM-B,
+-- register $10 of port 0, bit 7 (start); SSG, registers $08-$0A of port 0, non-zero volume
+-- (ASSUMED: bits 4-0, mode included). A code "makes the chip react" if its response
+-- window counts more triggers than its control window.
+-- Then START (back to the TEST screen), START (the game), and a record of the game over J_JEU frames.
 --
--- J_MODE=temoin : même boot, TEST tenu, mais START tout de suite sur l'écran TEST, sans
--- jukebox : le relevé du jeu sert de témoin à celui du mode jukebox. Les deux relevés du jeu
--- partent de la trame où START quitte l'écran TEST.
+-- J_MODE=temoin: same boot, TEST held, but START right away on the TEST screen, without
+-- jukebox: the record of the game serves as witness to that of the jukebox mode. The two records of the game
+-- start from the frame where START leaves the TEST screen.
 --
--- On ne lit AUCUN octet de ROM ni le code Z80 : seulement des écritures sur des ports et le
--- plan fixe reconstruit depuis les écritures au LSPC (comme `autotests.lua`).
+-- NO ROM byte is read nor the Z80 code: only writes to ports and the
+-- fix layer rebuilt from the writes to the LSPC (as in `autotests.lua`).
 --
---   J_OUT     dossier de sortie (obligatoire) : J_OUT/jukebox.txt, J_OUT/jukebox.tsv, images
---             bgra 320×224 en J_OUT/fNNNNN-<nom>.bin. jukebox.txt porte, par code, les bornes
---             des deux fenêtres en secondes de la machine (« FENETRES »), pour lire le son
---             réellement produit dans le WAV de `-wavwrite` (`bench/parcours.sh`)
---   J_MODE    jukebox (défaut) | temoin
---   J_CODES   premier et dernier code, « 00-3F » par défaut ($01-$03 sautés par l'écran)
---   J_CTRL    trames de la fenêtre de contrôle (défaut 60)
---   J_REP     trames de la fenêtre de réponse (défaut 120, ~2 s)
---   J_JEU     trames du relevé du jeu (défaut 3000)
---   J_STOP    1 (défaut) : B avant chaque code, le pilote relancé ; 0 : les codes à la suite
---   J_APRES_RAZ un code (hexadécimal) envoyé après chaque B, avant la fenêtre de contrôle
---   J_NAV=1   à la place de la série : la navigation (droite, qui ouvre, tenue 600 trames,
---             puis un appui de chaque direction, puis haut tenu 60 trames), code relevé à chaque pas
---   J_SEQUENCE codes à envoyer dans l'ordre (« 07 1A C7 »), à la place de J_CODES ; $01-$03 refusés
---   J_PREFIXE un code envoyé une fois avant la série (hexadécimal), le pilote non relancé après
+--   J_OUT     output folder (mandatory): J_OUT/jukebox.txt, J_OUT/jukebox.tsv, pictures
+--             bgra 320×224 in J_OUT/fNNNNN-<nom>.bin. jukebox.txt carries, per code, the bounds
+--             of the two windows in machine seconds ("FENETRES"), to read the sound
+--             actually produced in the WAV of `-wavwrite` (`bench/parcours.sh`)
+--   J_MODE    jukebox (default) | temoin
+--   J_CODES   first and last code, "00-3F" by default ($01-$03 skipped by the screen)
+--   J_CTRL    frames of the control window (default 60)
+--   J_REP     frames of the response window (default 120, ~2 s)
+--   J_JEU     frames of the record of the game (default 3000)
+--   J_STOP    1 (default): B before each code, the driver restarted; 0: the codes one after another
+--   J_APRES_RAZ a code (hexadecimal) sent after each B, before the control window
+--   J_NAV=1   instead of the series: the navigation (right, which opens, held 600 frames,
+--             then one press of each direction, then up held 60 frames), code recorded at each step
+--   J_SEQUENCE codes to send in order ("07 1A C7"), instead of J_CODES; $01-$03 refused
+--   J_PREFIXE a code sent once before the series (hexadecimal), the driver not restarted after
 --
 --   SDL_VIDEODRIVER=dummy SDL_MAC_BACKGROUND_APP=1 J_OUT=<dossier> mame <jeu> -bios euro \
---     -rompath <romsets à notre image> -video none -sound none -nothrottle \
+--     -rompath <romsets with our image> -video none -sound none -nothrottle \
 --     -nvram_directory <neuve> -autoboot_script bench/jukebox.lua
 if _G.JUKEBOX then return end
 _G.JUKEBOX = {}
@@ -50,14 +50,14 @@ if not OUT then print("JUKEBOX: J_OUT manquant") manager.machine:exit() return e
 local MODE = os.getenv("J_MODE") or "jukebox"
 local C0, C1 = (os.getenv("J_CODES") or "00-3F"):match("(%x+)-(%x+)")
 C0, C1 = tonumber(C0, 16), tonumber(C1, 16)
--- L'écran n'affiche que deux chiffres : un code au-delà de $FF ne serait jamais atteint.
+-- The screen displays only two digits: a code beyond $FF would never be reached.
 assert(C0 and C1 and C0 <= C1 and C1 <= 0xFF, "J_CODES hors de 00-FF : " .. tostring(os.getenv("J_CODES")))
 local CTRL = tonumber(os.getenv("J_CTRL") or "60")
 local REP = tonumber(os.getenv("J_REP") or "120")
 local JEU = tonumber(os.getenv("J_JEU") or "3000")
 local STOP = (os.getenv("J_STOP") or "1") == "1"
-local APRES = os.getenv("J_APRES_RAZ") -- un code envoyé après chaque B, ex. « 07 »
-local PREFIXE = os.getenv("J_PREFIXE") -- un code envoyé une fois avant la série, ex. « 07 »
+local APRES = os.getenv("J_APRES_RAZ") -- a code sent after each B, e.g. "07"
+local PREFIXE = os.getenv("J_PREFIXE") -- a code sent once before the series, e.g. "07"
 local m = manager.machine
 local p = m.devices[":maincpu"].spaces["program"]
 local io = m.devices[":audiocpu"].spaces["io"]
@@ -74,10 +74,10 @@ local tsv = _G.io.open(OUT .. "/jukebox.tsv", "w")
 local function W(fmt, ...) out:write(string.format(fmt, ...) .. "\n") out:flush() end
 local n = 0
 
--- Les compteurs, remis à zéro par fenêtre.
+-- The counters, reset to zero per window.
 local K = { ym = 0, rep = 0, son = 0, autres = 0, dec = 0, derniere_rep = -1 }
 local function raz() K.ym, K.rep, K.son, K.autres, K.dec = 0, 0, 0, 0, 0 end
-local reg = { [0] = 0, [1] = 0 } -- le registre choisi, par port de la puce
+local reg = { [0] = 0, [1] = 0 } -- the selected register, per port of the chip
 G.tio = io:install_write_tap(0x0000, 0xFFFF, "z80io", function(o, d)
   local port = o & 0xFF
   d = d & 0xFF
@@ -104,7 +104,7 @@ G.tson = p:install_write_tap(0x320000, 0x320001, "son", function(o, d, mk)
   end
 end)
 
--- Le plan fixe, reconstruit.
+-- The fix layer, rebuilt.
 local X = { a = 0, mod = 1, v = {} }
 G.lspc = p:install_write_tap(0x3C0000, 0x3C0005, "lspc", function(o, d)
   local r = o & 6
@@ -138,10 +138,10 @@ local function scenario()
   jusqua(function() return contient("SOFT DIP SETTINGS") end, 900, "ecran TEST")
   attendre(10)
   if MODE == "jukebox" then
-    -- De la ligne 0, haut deux fois : la remise (la dernière), puis JUKEBOX.
+    -- From line 0, up twice: the reset (the last one), then JUKEBOX.
     appuyer(B.haut) appuyer(B.haut)
     W("f%d ligne choisie : JUKEBOX ? %s", n, tostring(contient("> JUKEBOX")))
-    -- J_NAV : droite ouvre la ligne (`dip.s`) et reste tenue dans le jukebox.
+    -- J_NAV: right opens the line (`dip.s`) and stays held in the jukebox.
     if os.getenv("J_NAV") == "1" then tenus[B.droite] = true else appuyer(B.A) end
     jusqua(function() return contient("SOUND CODE") end, 120, "jukebox")
     attendre(20) image("jukebox")
@@ -160,15 +160,15 @@ local function scenario()
       out:close() tsv:close() m:exit() return
     end
     tsv:write("code\tcode_affiche\tctrl_ym\tctrl_declench\tctrl_rep\tctrl_68k_son\trep_ym\trep_declench\trep_rep\trep_68k_son\tderniere_reponse\treagit\n")
-    -- LA LISTE DES CODES MESURÉS : J_SEQUENCE telle quelle, sinon J_CODES. Les codes
-    -- réservés $01-$03, que l'écran saute, sont écartés de la liste (refusés en J_SEQUENCE,
-    -- avec une ligne au relevé). Le jig navigue jusqu'à chaque code par « haut » : la
-    -- colonne `code` est celle qu'il visait, `code_affiche` celle que l'écran montre.
+    -- THE LIST OF MEASURED CODES: J_SEQUENCE as is, otherwise J_CODES. The reserved
+    -- codes $01-$03, which the screen skips, are left out of the list (refused in J_SEQUENCE,
+    -- with a line in the record). The jig navigates to each code with "up": the
+    -- `code` column is the one it aimed at, `code_affiche` the one the screen shows.
     local liste = {}
     local seq = os.getenv("J_SEQUENCE")
     if seq then
-      -- Deux chiffres hexadécimaux par code, séparés par des espaces : tout autre jeton est refusé
-      -- net, plutôt que d'être sauté sans trace.
+      -- Two hexadecimal digits per code, separated by spaces: any other token is refused
+      -- outright, rather than being skipped without a trace.
       for jeton in seq:gmatch("%S+") do
         assert(jeton:match("^%x%x$"), "J_SEQUENCE : jeton invalide « " .. jeton .. " » (deux chiffres hexadécimaux)")
       end
@@ -180,12 +180,12 @@ local function scenario()
       for v = C0, C1 do if v < 1 or v > 3 then liste[#liste + 1] = v end end
     end
     assert(not PREFIXE or PREFIXE:match("^%x%x?$"), "J_PREFIXE : « " .. tostring(PREFIXE) .. " » n'est pas un code hexadécimal")
-    -- `pre`, pas `p` : ce nom masquerait l'espace programme, dont J_APRES_RAZ se sert plus bas.
+    -- `pre`, not `p`: that name would mask the program space, which J_APRES_RAZ uses further down.
     local pre = PREFIXE and tonumber(PREFIXE, 16)
     if pre and pre > 0xFF then
       W("f%d REFUS prefixe hors de 00-FF %X", n, pre)
     elseif pre and pre >= 1 and pre <= 3 then
-      -- L'écran n'affiche jamais $01-$03 : naviguer vers l'un d'eux ne finirait pas.
+      -- The screen never displays $01-$03: navigating to one of them would not end.
       W("f%d REFUS prefixe reserve %02X", n, pre)
     elseif pre then
       local v = string.format("%02X", pre)
@@ -199,8 +199,8 @@ local function scenario()
       if STOP then
         appuyer(B.B1) attendre(20)
         if APRES then
-          -- Écrit par le jig à REG_SOUND, comme un jeu le fait après son reset (mesuré : aof,
-          -- kof98, kof2003 envoient $07 avant tout son) ; le code de la série, lui, part par A.
+          -- Written by the jig to REG_SOUND, as a game does after its reset (measured: aof,
+          -- kof98, kof2003 send $07 before any sound); the code of the series goes out through A.
           p:write_u8(0x320000, tonumber(APRES, 16)) attendre(20)
         end
       end
@@ -212,7 +212,7 @@ local function scenario()
       local t1 = m.time:as_double()
       local ry, rd, rr, rs = fenetre(REP)
       tenus[B.A] = nil
-      -- Les bornes des deux fenêtres en temps de la machine : de quoi y lire le WAV de -wavwrite.
+      -- The bounds of the two windows in machine time: enough to read the WAV of -wavwrite there.
       W("f%d FENETRES %02X controle %.5f-%.5f reponse %.5f-%.5f", n, c, t0, t1, t1, m.time:as_double())
       tsv:write(string.format("%02X\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%s\t%s\n", c, aff, cy, cd, cr, cs, ry, rd, rr, rs,
         K.derniere_rep >= 0 and string.format("%02X", K.derniere_rep) or "-", rd > cd and "oui" or "non"))

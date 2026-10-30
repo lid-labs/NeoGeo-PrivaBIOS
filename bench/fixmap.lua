@@ -1,10 +1,10 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 -- Copyright (C) 2026 Thibaut Lion
--- Reconstruit le plan fixe ($7000-$74FF) depuis les écritures du 68000 au LSPC — VRAMADDR
--- ($3C0000), VRAMRW ($3C0002), VRAMMOD ($3C0004, l'auto-incrément) —, sans lire la VRAM, que MAME
--- n'expose pas au Lua. Aux trames A_SHOTS, écrit A_DIR/fixNNNNN.txt : 32 lignes de 40 entrées
--- (palette sur 4 bits, tuile sur 12), ligne par ligne de l'écran. Une écriture faite par DMA ou
--- avant le chargement du script échappe au relevé.
+-- Rebuilds the fix layer ($7000-$74FF) from the 68000's writes to the LSPC — VRAMADDR
+-- ($3C0000), VRAMRW ($3C0002), VRAMMOD ($3C0004, the auto-increment) —, without reading the
+-- VRAM, which MAME does not expose to Lua. At frames A_SHOTS, writes A_DIR/fixNNNNN.txt: 32 lines
+-- of 40 entries (palette on 4 bits, tile on 12), line by line of the screen. A write made by DMA
+-- or before the script is loaded escapes the record.
 --   A_SHOTS=900 A_FIN=901 A_DIR=<dossier> mame <jeu> ... -autoboot_script bench/fixmap.lua
 if not _G.X then _G.X={n=0,a=0,mod=1,v={}}
 local m=manager.machine; local p=m.devices[":maincpu"].spaces["program"]

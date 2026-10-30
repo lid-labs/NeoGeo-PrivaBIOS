@@ -1,21 +1,21 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 -- Copyright (C) 2026 Thibaut Lion
--- Jig des soft-DIP à la remise (`src/c0/c0.s`, `_slot_inscrit`), sans fenêtre. Relève, à la
--- première trame qui finit avec le PC dans la cartouche (< $C00000 : le jeu a la main) :
---   - BIOS_COUNTRY_CODE ($10FD83) et le pointeur soft-DIP de la région (en-tête $116/$11A/$11E,
---     4 × code, un code hors de 0-2 prenant l'Europe comme `c0.s`) ;
---   - BIOS_GAME_DIP ($10FD84-$10FD93) ;
---   - qui a écrit GAME_DIP avant la remise : un tap compte les écritures faites depuis le BIOS
---     (PC ≥ $C00000) et depuis la cartouche. Ce jig ne consigne aucun PC, seulement ces deux comptes ;
---   - pour un pointeur dans la zone banquée ($200000-$2FFFFF), le MiB de la région
---     `:cslot1:maincpu` dont les 32 octets du bloc lus à cette adresse sont la copie, à la
---     trame 1 et à la remise : c'est la banque en place, lue dans la ROM du JEU seulement.
---     Aucun octet du bloc n'est écrit au relevé.
+-- Soft-DIP jig at hand-over (`src/c0/c0.s`, `_slot_inscrit`), windowless. Records, at the first
+-- frame that ends with the PC in the cartridge (< $C00000: the game is in control):
+--   - BIOS_COUNTRY_CODE ($10FD83) and the region's soft-DIP pointer (header $116/$11A/$11E,
+--     4 × code, a code outside 0-2 taking Europe like `c0.s`);
+--   - BIOS_GAME_DIP ($10FD84-$10FD93);
+--   - who wrote GAME_DIP before the hand-over: a tap counts the writes made from the BIOS
+--     (PC ≥ $C00000) and from the cartridge. This jig logs no PC, only these two counts;
+--   - for a pointer in the banked area ($200000-$2FFFFF), the MiB of the region
+--     `:cslot1:maincpu` of which the block's 32 bytes read at that address are the copy, at
+--     frame 1 and at hand-over: it is the bank in place, read in the GAME's ROM only.
+--     No byte of the block is written in the record.
 --
---   S_OUT  fichier de sortie, une ligne « clé=valeur » (obligatoire)
---   S_FIN  trame limite (défaut 900) : sans remise d'ici là, « remise=aucune »
+--   S_OUT  output file, one "key=value" line (mandatory)
+--   S_FIN  limit frame (default 900): with no hand-over by then, "remise=aucune"
 --
--- Aucune entrée n'est pressée. NVRAM neuve : c'est au lanceur de la donner.
+-- No input is pressed. Fresh NVRAM: it is up to the launcher to provide it.
 if _G.SOFTDIP then return end
 _G.SOFTDIP = {}
 local OUT = os.getenv("S_OUT")
@@ -42,8 +42,8 @@ local function pointeur()
   local c = code <= 2 and code or 2
   return code, p:read_u32(0x116 + 4 * c)
 end
--- Le MiB de la région du jeu qui porte, à l'offset du bloc dans sa fenêtre, les 32 octets lus
--- à l'adresse banquée. Plusieurs : « ambigu » ; aucun : « aucun ».
+-- The MiB of the game's region that holds, at the block's offset in its window, the 32 bytes
+-- read at the banked address. Several: "ambigu"; none: "aucun".
 local function banque(ptr)
   if not rom or ptr < 0x200000 or ptr > 0x2FFFE0 then return "-" end
   local lu = {} for i = 0, 31 do lu[i] = p:read_u8(ptr + i) end
@@ -52,7 +52,7 @@ local function banque(ptr)
   for k = 0, (rom.size // 0x100000) - 1 do
     local ok = true
     for i = 0, 31 do
-      -- La région est en mots 68000 ; read_u8 la lit dans l'ordre du CPU.
+      -- The region is in 68000 words; read_u8 reads it in the CPU's order.
       if rom:read_u8(k * 0x100000 + off + i) ~= lu[i] then ok = false break end
     end
     if ok then trouves[#trouves + 1] = string.format("%X", k * 0x100000) end

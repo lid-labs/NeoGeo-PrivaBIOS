@@ -1,15 +1,16 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 -- Copyright (C) 2026 Thibaut Lion
--- Qui écrit où en backup RAM : un tap d'écriture sur $D00000-$D0FFFF, sans fenêtre. Sert à
--- choisir une zone que ni notre BIOS ni les jeux n'écrivent (`src/c0/reglages.s`). Sous NOTRE
--- image seulement : sous un BIOS de référence, le PC relevé serait une adresse de la référence.
+-- Who writes where in backup RAM: a write tap on $D00000-$D0FFFF, windowless. Used to choose
+-- an area that neither our BIOS nor the games write (`src/c0/reglages.s`). Under OUR image
+-- only: under a reference BIOS, the recorded PC would be an address of the reference.
 --
---   B_OUT  fichier de sortie (obligatoire) ; B_FIN trame de sortie (défaut 3700)
+--   B_OUT  output file (mandatory); B_FIN exit frame (default 3700)
 --
--- Entrées : le cycle de `bios-probe.lua` — pièce, START, A, jamais ensemble — pour jouer une
--- partie. Sortie, par ligne de 16 octets écrite : l'adresse, le nombre d'écritures, la première
--- et la dernière trame, et le PC de la première écriture, côté BIOS ($C0xxxx) ou jeu.
--- Le tap est gardé dans _G : sans référence vivante, MAME le ramasse et le relevé sort vide.
+-- Inputs: the cycle of `bios-probe.lua` — coin, START, A, never together — to play a session.
+-- Output, per written 16-byte line: the address, the number of writes, the first and the last
+-- frame, and the PC of the first write, BIOS side ($C0xxxx) or game.
+-- The tap is kept in _G: without a live reference, MAME collects it and the record comes out
+-- empty.
 if _G.BRAM then return end
 _G.BRAM = {}
 local OUT = os.getenv("B_OUT")
@@ -29,8 +30,8 @@ _G.BRAM.tap = p:install_write_tap(0xD00000, 0xD0FFFF, "bram", function(adr, donn
   e.c = e.c + 1
   e.t1 = n
 end)
--- Le relevé s'écrit à l'arrêt de la machine, quelle qu'en soit la cause (B_FIN, ou
--- -seconds_to_run si un jeu ralentit l'émulation au point de ne pas l'atteindre).
+-- The record is written when the machine stops, whatever the cause (B_FIN, or
+-- -seconds_to_run if a game slows the emulation down to the point of not reaching it).
 local function ecrire()
   if _G.BRAM.ecrit then return end
   _G.BRAM.ecrit = true

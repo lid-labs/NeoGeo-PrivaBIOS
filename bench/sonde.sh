@@ -1,22 +1,22 @@
 #!/bin/bash
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Thibaut Lion
-# Lance la sonde lua (sonde.lua) sur un jeu, sans fenêtre.
+# Runs the lua probe (sonde.lua) on a game, without a window.
 #
 #   bench/sonde.sh <dossier-roms> <jeu> <sortie.tsv> [bios]
 #
-#   <dossier-roms>  là où MAME trouvera <jeu>.zip. POUR MESURER NOTRE BIOS, pointer un
-#                   dossier de variante fabriqué par matrice.sh (ex. <travail>/v-sprixe),
-#                   dont les zips portent l'image substituée : ce script NE substitue PAS.
-#   [bios]          le drapeau -bios de MAME : euro (défaut — le sp-s2.sp1 du zip, ou
-#                   l'image substituée d'une variante), unibios40, ...
+#   <dossier-roms>  where MAME will find <jeu>.zip. TO MEASURE OUR BIOS, point to a
+#                   variant directory made by matrice.sh (e.g. <travail>/v-sprixe),
+#                   whose zips carry the substituted image: this script does NOT substitute.
+#   [bios]          MAME's -bios flag: euro (default — the zip's sp-s2.sp1, or
+#                   a variant's substituted image), unibios40, ...
 #
-# Réglages par l'environnement, passés à sonde.lua :
-#   SONDE_RAM   adresses lues en octet à chaque trame (hex, virgules) — ex. le drapeau que
-#               scrute une boucle de gel, trouvé au co-simulateur (non publié)
-#   SONDE_DE / SONDE_A   fenêtre de trames (défaut 0..3500)
+# Settings through the environment, passed to sonde.lua:
+#   SONDE_RAM   addresses read as bytes at each frame (hex, commas) — e.g. the flag that
+#               a freeze loop polls, found with the co-simulator (unpublished)
+#   SONDE_DE / SONDE_A   frame window (default 0..3500)
 #
-# La durée MAME est bornée d'après SONDE_A (trames NTSC ~59,19 Hz), plus une marge.
+# The MAME duration is bounded from SONDE_A (NTSC frames ~59.19 Hz), plus a margin.
 set -eu
 ROMS="${1:?dossier des romsets attendu}"
 JEU="${2:?nom du set attendu}"
@@ -30,20 +30,20 @@ command -v mame >/dev/null || { echo "mame introuvable" >&2; exit 1; }
 A="${SONDE_A:-3500}"
 SECONDES=$(( A / 59 + 3 ))
 rm -f "$OUT"
-# NVRAM isolée par run : sans cela, MAME partage son dossier nvram/<jeu>/ entre tous les
-# runs, BIOS confondus — un crédit laissé par un run sous un BIOS se relit sous un autre
-# (mesuré le 2026-10-16 : une sonde a lu un crédit fantôme laissé par un run précédent).
+# NVRAM isolated per run: without it, MAME shares its nvram/<jeu>/ directory between all
+# runs, all BIOSes alike — a credit left by a run under one BIOS is read back under another
+# (measured on 2026-10-16: a probe read a ghost credit left by a previous run).
 NV="$(mktemp -d "${TMPDIR:-/tmp}/sonde-nvram.XXXXXX")"
 trap 'rm -rf "$NV"' EXIT
-# La sortie de MAME part dans un journal à côté du TSV : en cas d'échec, les messages
-# `SONDE:` du lua (adresse invalide, variable manquante) sont remontés au lieu d'être avalés.
+# MAME's output goes to a log next to the TSV: on failure, the lua's `SONDE:` messages
+# (invalid address, missing variable) are reported instead of being swallowed.
 SDL_VIDEODRIVER=dummy SONDE_OUT="$OUT" mame "$JEU" -rompath "$ROMS" \
   -video none -sound none -nothrottle -seconds_to_run "$SECONDES" \
   -nvram_directory "$NV" -cfg_directory "$NV/cfg" \
   -skip_gameinfo -bios "$BIOSFLAG" -autoboot_script "$ICI/sonde.lua" >"$OUT.log" 2>&1 || true
-# L'en-tête part dès le chargement du lua : un fichier non vide ne prouve rien. Deux lignes
-# au moins — l'en-tête et une donnée — ou c'est un échec, que le `|| true` de mame ne doit
-# pas masquer.
+# The header is written as soon as the lua loads: a non-empty file proves nothing. Two lines
+# at least — the header and one data line — or it is a failure, which mame's `|| true` must
+# not hide.
 [ -s "$OUT" ] && [ "$(wc -l < "$OUT")" -ge 2 ] || {
 	echo "la sonde n'a rien relevé : $OUT" >&2
 	grep '^SONDE:' "$OUT.log" >&2 || true

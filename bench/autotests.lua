@@ -1,32 +1,31 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 -- Copyright (C) 2026 Thibaut Lion
--- Jig des autotests (`src/c0/tests.s`), sans fenêtre. TEST tenu au boot ouvre l'écran TEST
--- (`dip.s`) ; le jig monte à la ligne HARDWARE TESTS, lance chaque test l'un après l'autre,
--- relève ce que l'écran affiche, sort, et laisse le jeu démarrer.
+-- Self-test jig (`src/c0/tests.s`), windowless. TEST held at boot opens the test screen
+-- (`dip.s`); the jig goes up to the HARDWARE TESTS line, runs each test one after the other,
+-- records what the screen shows, exits, and lets the game start.
 --
---   T_OUT     dossier de sortie (obligatoire) ; le relevé va dans T_OUT/autotests.txt, les
---             images (bgra 320×224) dans T_OUT/fNNNNN.bin
---   T_DEFAUT  aucun (machine saine, défaut) | work | pal | vram | bram : un défaut injecté
---             pendant le test du même nom, à l'adresse T_ADR, sur le bit T_BIT (défaut 0)
---   T_ADR     work et pal : adresse 68000 dont la LECTURE rend le bit T_BIT inversé (tap de
---             lecture, posé juste avant le lancement du test) ; vram : adresse VRAM (mot)
---             dont la lecture par REG_VRAMRW rend le bit inversé — l'adresse courante est
---             suivie par un tap d'écriture sur REG_VRAMADDR/REG_VRAMRW/REG_VRAMMOD ; bram :
---             adresse dont la PREMIÈRE écriture après le lancement reçoit le bit inversé
---             (tap d'écriture à un coup : le complément du test est faussé, l'original
---             remis ensuite est intact, ce qui laisse la backup RAM vérifiable à l'octet)
---   T_BANQUE  pal seulement : 0 ou 1, le défaut ne vaut que dans cette banque de palettes,
---             suivie par un tap d'écriture sur REG_PALBANK0/1 ($3A000F/$3A001F) ; absent :
---             les deux banques
---   T_DEFAUT=alias : une ligne d'adresse court-circuitée, simulée : toute lecture de
---             [T_ADR, T_ADR + $2000) rend le mot situé $2000 plus haut (tap de lecture) ;
---             les motifs de données passent, seul le motif d'adresse doit échouer
---   T_FIN     trame de sortie (défaut 3000)
+--   T_OUT     output folder (mandatory); the record goes to T_OUT/autotests.txt, the
+--             pictures (bgra 320×224) to T_OUT/fNNNNN.bin
+--   T_DEFAUT  aucun (healthy machine, default) | work | pal | vram | bram: a fault injected
+--             during the test of the same name, at address T_ADR, on bit T_BIT (default 0)
+--   T_ADR     work and pal: 68000 address whose READ returns bit T_BIT inverted (read tap,
+--             set just before the test is launched); vram: VRAM address (word) whose read
+--             through REG_VRAMRW returns the bit inverted — the current address is tracked
+--             by a write tap on REG_VRAMADDR/REG_VRAMRW/REG_VRAMMOD; bram: address whose
+--             FIRST write after the launch receives the bit inverted (one-shot write tap: the
+--             test's complement is falsified, the original put back afterwards is intact,
+--             which leaves the backup RAM checkable to the byte)
+--   T_BANQUE  pal only: 0 or 1, the fault only applies in that palette bank, tracked by a
+--             write tap on REG_PALBANK0/1 ($3A000F/$3A001F); absent: both banks
+--   T_DEFAUT=alias: a shorted address line, simulated: any read of [T_ADR, T_ADR + $2000)
+--             returns the word located $2000 higher (read tap); the data patterns pass, only
+--             the address pattern must fail
+--   T_FIN     exit frame (default 3000)
 --
--- Le plan fixe est reconstruit depuis les écritures au LSPC (comme `fixmap.lua` : MAME
--- n'expose pas la VRAM au Lua), puis décodé en texte : c'est lui qui donne les verdicts.
--- La backup RAM ($D00000-$D0FFFF) est relue octet par octet avant et après son test, et les
--- deux empreintes comparées. Toutes les références de tap sont gardées dans _G.AUTOTESTS.
+-- The fix layer is rebuilt from the writes to the LSPC (like `fixmap.lua`: MAME does not
+-- expose the VRAM to Lua), then decoded into text: it is what gives the verdicts.
+-- The backup RAM ($D00000-$D0FFFF) is read back byte by byte before and after its test, and the
+-- two fingerprints compared. All the tap references are kept in _G.AUTOTESTS.
 if _G.AUTOTESTS then return end
 _G.AUTOTESTS = {}
 local G = _G.AUTOTESTS
@@ -53,7 +52,7 @@ local tenus = {}
 local out = io.open(OUT .. "/autotests.txt", "w")
 local function W(fmt, ...) out:write(string.format(fmt, ...) .. "\n") out:flush() end
 
--- Le plan fixe, et l'adresse VRAM courante pour le défaut vram.
+-- The fix layer, and the current VRAM address for the vram fault.
 local X = { a = 0, mod = 1, v = {} }
 G.lspc = p:install_write_tap(0x3C0000, 0x3C0005, "lspc", function(o, d)
   local r = o & 6
@@ -93,7 +92,7 @@ local function hash_bram()
   return h, table.concat(t)
 end
 
--- Le scénario, une coroutine reprise à chaque trame.
+-- The scenario, a coroutine resumed at each frame.
 local function attendre(k) for _ = 1, k do coroutine.yield() end end
 local function appuyer(b, k) tenus[b] = true attendre(k or 3) tenus[b] = nil attendre(4) end
 local function jusqua(pred, maxi, quoi)
@@ -131,13 +130,13 @@ end
 local function scenario()
   jusqua(function() return contient("SOFT DIP SETTINGS") end, 600, "ecran TEST")
   attendre(10) image("ecran-test")
-  -- Une valeur changée avant les tests (la 2e ligne, ligne 9 du plan fixe), qui doit survivre.
+  -- A value changed before the tests (the 2nd line, line 9 of the fix layer), which must survive.
   local function octets(a, k) local t = {} for i = 0, k - 1 do t[#t + 1] = string.format("%02X", p:read_u8(a + i)) end return table.concat(t, " ") end
   W("f%d EDITION avant |%s| GAME_DIP %s", n, ligne(9), octets(0x10FD84, 16))
   appuyer(B.bas) appuyer(B.droite)
   W("f%d EDITION changee |%s| GAME_DIP %s", n, ligne(9), octets(0x10FD84, 16))
-  -- Monter jusqu'à HARDWARE TESTS, quel que soit le nombre de lignes qui la suivent : trois
-  -- « haut » fixes tombaient sur JUKEBOX depuis l'ajout de cette ligne (`dip.s`).
+  -- Go up to HARDWARE TESTS, whatever the number of lines that follow it: three fixed "up"
+  -- presses landed on JUKEBOX since that line was added (`dip.s`).
   for _ = 1, 20 do
     if contient("> HARDWARE TESTS") then break end
     appuyer(B.haut)
@@ -182,7 +181,7 @@ local function scenario()
   image("input-appuye")
   for b in pairs(tenus) do tenus[b] = nil end
   attendre(5)
-  -- START tenu 30 trames : ne sort pas ; puis tenu 70 : sort.
+  -- START held 30 frames: does not exit; then held 70: exits.
   tenus[B.START] = true attendre(30) tenus[B.START] = nil attendre(3)
   W("f%d INPUT apres START 30 trames : toujours la ? %s", n, tostring(contient("HOLD START P1")))
   tenus[B.START] = true
@@ -205,7 +204,7 @@ local function scenario()
   appuyer(B.START)
   jusqua(function() return contient("CROSSHATCH") end, 60, "retour quadrillage")
   attendre(5) image("menu-fin")
-  -- Retour à l'écran TEST, puis le jeu.
+  -- Back to the test screen, then the game.
   appuyer(B.START)
   jusqua(function() return contient("SOFT DIP SETTINGS") end, 60, "retour TEST")
   attendre(5) image("ecran-test-retour")
@@ -227,8 +226,8 @@ emu.register_frame_done(function()
   if not ok then W("f%d ERREUR %s", n, tostring(err)) end
   local u = string.format("%02X/%02X", p:read_u8(0x10FDAF), p:read_u8(0x10FDAE))
   if u ~= G.user then G.user = u W("f%d user=%s", n, u) end
-  -- À la remise au jeu ($10FD80 ← $82), sa zone de sauvegarde (pointeur $10E, taille $112 de
-  -- l'en-tête) et son bloc en backup RAM ($D00320 + $1000 × b), en somme et en empreinte.
+  -- At the hand-over to the game ($10FD80 ← $82), its save area (pointer $10E, size $112 of the
+  -- header) and its block in backup RAM ($D00320 + $1000 × b), as sum and fingerprint.
   if not G.remise and p:read_u8(0x10FD80) == 0x82 then
     G.remise = true
     local function emp(a, k)

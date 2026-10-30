@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Thibaut Lion
-"""Les fichiers d'une release, à partir d'une image construite et du CHANGELOG.
+"""The files of a release, from a built image and the CHANGELOG.
 
     python3 -I build/release.py <version> <image.sp1> <dossier-de-sortie>
 
-<version> sans le « v » du tag : 0.1.0, ou 0.1.0-beta.1 pour une préversion (SemVer). Le script
-REFUSE une version que le CHANGELOG ne date pas : il veut un titre « ## [<version>] - AAAA-MM-JJ »
-et une section non vide sous lui. C'est la technique du [Unreleased] (Keep a Changelog) : les
-entrées s'accumulent sous « ## [Unreleased] », et la release les renomme en version datée
-(`docs/RELEASE.md`). Une section encore « Unreleased » n'est donc pas publiable.
+<version> without the "v" of the tag: 0.1.0, or 0.1.0-beta.1 for a pre-release (SemVer). The script
+REFUSES a version that the CHANGELOG does not date: it wants a heading "## [<version>] - AAAA-MM-JJ"
+and a non-empty section under it. This is the [Unreleased] technique (Keep a Changelog): entries
+accumulate under "## [Unreleased]", and the release renames them into a dated version
+(`docs/RELEASE.md`). A section still "Unreleased" is therefore not publishable.
 
-Sortie, dans <dossier-de-sortie> :
-  sprixe-bios-<version>.rom              l'image telle quelle, ordre de MAME (`sp-s2.sp1`) ;
-  sprixe-bios-<version>-byteswapped.bin  l'autre ordre, pour un graveur réglé à l'envers ;
-  SHA256SUMS                             les deux, au format de `sha256sum -c` ;
-  notes.md                               la section du CHANGELOG, puis les sommes.
+Output, in <dossier-de-sortie>:
+  sprixe-bios-<version>.rom              the image as is, MAME order (`sp-s2.sp1`);
+  sprixe-bios-<version>-byteswapped.bin  the other order, for a programmer set the other way round;
+  SHA256SUMS                             both, in the format of `sha256sum -c`;
+  notes.md                               the CHANGELOG section, then the sums.
 """
 import datetime
 import hashlib
@@ -24,15 +24,16 @@ import re
 import sys
 import zlib
 
-TAILLE = 131072  # `build/construire.sh` : l'image fait exactement 128 Kio
-# SemVer 2.0.0 : pas de zéro en tête d'un nombre, identifiants de préversion non vides.
+TAILLE = 131072  # `build/construire.sh`: the image is exactly 128 KiB
+# SemVer 2.0.0: no leading zero in a number, non-empty pre-release identifiers.
 NUM = r"(0|[1-9]\d*)"
 SEMVER = rf"{NUM}\.{NUM}\.{NUM}(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?"
 
 
 def notes_de(changelog, version):
-    """La section de <version> : le texte entre son titre et le titre suivant, sans les lignes
-    vides du bord. Refus si le titre manque, n'est pas daté, ou si la section est vide."""
+    """The section of <version>: the text between its heading and the next heading, without the
+    blank lines at the edges. Refused if the heading is missing, is not dated, or if the section
+    is empty."""
     titres = list(re.finditer(r"^## \[([^\]]+)\](.*)$", changelog, re.M))
     if sum(1 for t in titres if t[1] == version) > 1:
         sys.exit(f"REFUS : deux sections « ## [{version}] » dans le CHANGELOG")
@@ -45,9 +46,9 @@ def notes_de(changelog, version):
         except ValueError:
             sys.exit(f"REFUS : « ## [{version}]{t[2]} » n'est pas daté (attendu : « ## [{version}] - AAAA-MM-JJ »)")
         fin = titres[i + 1].start() if i + 1 < len(titres) else len(changelog)
-        # Toute définition de lien (« [0.1.0]: https://… ») est retirée de la section : celles du
-        # bas du fichier tombent dans la dernière. Une entrée ne doit donc pas utiliser de lien par
-        # référence ; un lien en ligne, [texte](url), reste.
+        # Every link definition ("[0.1.0]: https://…") is removed from the section: those at the
+        # bottom of the file fall into the last one. An entry must therefore not use a reference
+        # link; an inline link, [text](url), stays.
         corps = re.sub(r"^\[[^\]]+\]: .*$", "", changelog[t.end():fin], flags=re.M).strip()
         if not corps:
             sys.exit(f"REFUS : la section [{version}] du CHANGELOG est vide")
