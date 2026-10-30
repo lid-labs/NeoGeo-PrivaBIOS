@@ -47,8 +47,9 @@
 | left/right: ±16, with held repeat (20 frames then every 4: a choice, 256 notches
 | one by one would be long). A: sends the code to REG_SOUND. B: cuts. START: exit.
 |
-| THE SCREEN SAVER, on 2026-10-27 (DECISIONS §25, the user's decision: copy
-| UniBIOS 4.0). MEASURED on it (`measured/2026-10-27-attentes-reference.tsv`): in its JUKEBOX
+| THE SCREEN SAVER, on 2026-10-27 (DECISIONS §25, the user's decision: the
+| behaviour observed on UniBIOS 4.0). MEASURED on it
+| (`measured/2026-10-27-attentes-reference.tsv`): in its JUKEBOX
 | PLAYER only, the screen goes entirely black ~7,220 frames (~2 min) after the last input,
 | the music continues, a key brings the screen back. Here: INACTIF frames without any P1 input (the
 | eight of REG_P1CNT, START), entries 1 of palettes 1-4 — the only colours of this screen, the
