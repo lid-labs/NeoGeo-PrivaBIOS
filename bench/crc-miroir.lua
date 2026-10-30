@@ -1,11 +1,12 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 -- Copyright (C) 2026 Thibaut Lion
--- Une P-ROM de 512 Kio vue comme sur une carte qui ne décode pas A19 : sa moitié haute miroir de la
--- basse, dans la P-ROM fixe ($080000-$0FFFFF rend $000000-$07FFFF) et dans la fenêtre des banques
--- ($280000-$2FFFFF rend $200000-$27FFFF), par deux taps de lecture. SUPPOSÉ : c'est ainsi que le
--- matériel la sert ; MAME, lui, met des zéros au-delà du fichier (`measured/2026-10-25-crc-cartouche.tsv`).
--- Chargé par `son.lua` (J_AUSSI), il ne joue aucune entrée. Pour l'écran CARTRIDGE CRC (`src/c0/crc.s`),
--- scène crc-miroir de `parcours.sh` : FIXED 0512K et le CRC du fichier, que `-listxml` publie.
+-- A 512 KiB P-ROM seen as on a board that does not decode A19: its upper half a mirror of the
+-- lower one, in the fixed P-ROM ($080000-$0FFFFF returns $000000-$07FFFF) and in the bank window
+-- ($280000-$2FFFFF returns $200000-$27FFFF), through two read taps. ASSUMED: this is how the
+-- hardware serves it; MAME, for its part, puts zeros beyond the file
+-- (`measured/2026-10-25-crc-cartouche.tsv`).
+-- Loaded by `son.lua` (J_AUSSI), it plays no input. For the CARTRIDGE CRC screen (`src/c0/crc.s`),
+-- scene crc-miroir of `parcours.sh`: FIXED 0512K and the file's CRC, which `-listxml` publishes.
 if _G.CRCMIROIR then return end
 local p = manager.machine.devices[":maincpu"].spaces["program"]
 _G.CRCMIROIR = {

@@ -1,53 +1,55 @@
 #!/bin/bash
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Thibaut Lion
-# Le catalogue des cheats (`src/c0/cheats.s`) joué par le BIOS lui-même : pour chaque jeu, un
-# cheat mis à ON par le menu en jeu, contre un témoin qui ouvre et ferme le même menu sans rien
-# changer. Jugé sur l'écran ou sur le cours de la partie, la RAM n'y venant qu'en complément.
+# The cheat catalogue (`src/c0/cheats.s`) played by the BIOS itself: for each game, a
+# cheat turned ON through the in-game menu, against a witness that opens and closes the same menu
+# without changing anything. Judged on the screen or on the course of play, the RAM coming in only
+# as a complement.
 #
-#   bench/cheats-catalogue.sh [--image <sp1> | --sources <dossier>] [--jeux "<romsets>"] [--jobs n]
-#                             <dossier-roms> <dossier-travail>
+#   bench/cheats-catalogue.sh [--image <sp1> | --sources <dir>] [--jeux "<romsets>"] [--jobs n]
+#                             <roms-dir> <work-dir>
 #
-# LES CRITÈRES, par genre (colonne « genre » de la table plus bas) :
-#   temps  INFINITE TIME. Le menu s'ouvre au début d'un round, à la trame T (TEST tenu de T à T + 39).
-#          Sur les trames T + 200 à T + 800, relevées toutes les 10, l'image du chronomètre (le
-#          rectangle « zone » autour des chiffres, ses pixels choisis par la colonne « pixels »)
-#          garde la même valeur sur au moins TEMPS_ON_MIN des relevés sous cheat, et au plus
-#          TEMPS_TEMOIN_MAX au témoin, où le chronomètre descend. Pas un compte de valeurs
-#          distinctes : un KO, ou le décor que laissent voir certains cadres, en ajoutent sous cheat
-#          comme au témoin. En complément, la cellule vaut la valeur de la table, ou une de moins
-#          (le jeu a décompté depuis le dernier appel du moteur), sur au moins RAM_MIN des relevés.
-#   compteur  un nombre du HUD qui ne bouge plus : un temps de mission qui ne perd
-#          1 que toutes les ~256 trames (le 2026-10-29), ou les bombes de Metal Slug (le 2026-10-30,
-#          remises à 10 à chaque vie). Comme temps, sur le rectangle des chiffres,
-#          mais de T + 200 à FIN, et d'autres seuils : le compte du témoin ne change que quelques
-#          fois. Sous cheat, la même image sur au moins COMPTEUR_ON_MIN des relevés ; au témoin, deux
-#          images au moins, la plus fréquente sur moins de COMPTEUR_ON_MIN.
-# Dans tous les genres, le tap du mode menu de `cheats.lua` exige que le moteur du BIOS n'ait écrit
-# que l'adresse du cheat, et qu'il n'ait rien écrit au témoin.
+# THE CRITERIA, by kind ("genre" column of the table below):
+#   temps  INFINITE TIME. The menu opens at the start of a round, at frame T (TEST held from T to
+#          T + 39). Over frames T + 200 to T + 800, recorded every 10, the image of the timer (the
+#          "zone" rectangle around the digits, its pixels chosen by the "pixels" column)
+#          keeps the same value on at least TEMPS_ON_MIN of the records under the cheat, and at most
+#          TEMPS_TEMOIN_MAX in the witness, where the timer counts down. Not a count of distinct
+#          values: a KO, or the scenery that some frames let through, add some under the cheat
+#          as in the witness. As a complement, the cell holds the table's value, or one less
+#          (the game counted down since the engine's last call), on at least RAM_MIN of the records.
+#   compteur  a HUD number that no longer moves: a mission time that loses
+#          1 only every ~256 frames (on 2026-10-29), or the bombs of Metal Slug (on 2026-10-30,
+#          reset to 10 at each life). As temps, on the rectangle of the digits,
+#          but from T + 200 to FIN, and with other thresholds: the witness's count changes only a
+#          few times. Under the cheat, the same image on at least COMPTEUR_ON_MIN of the records; in
+#          the witness, two images at least, the most frequent on less than COMPTEUR_ON_MIN.
+# In every kind, the menu-mode tap of `cheats.lua` requires that the BIOS engine wrote
+# only the cheat's address, and that it wrote nothing in the witness.
 #
-# LES ENTRÉES. « k » et « l » : « x » et « j » joués par P2 seul (sa pièce à 400, son START à 500) ;
-# le menu reste aux commandes de P1. « x » : le scénario action de `cheats-recherche.py` (A toutes les 6 trames, droite, B et C).
-# « j » (sauter pour mourir) : pièce, START, puis droite tenue et B toutes les 20 trames,
-# sans tirer : P1 fonce en sautant dans les ennemis.
-# « b » (bombes, Metal Slug 2 à 5) : le scénario bombe de `cheats-recherche.py`, A toutes les 6 trames,
-# droite, et C (une bombe) toutes les 60 trames : le compteur du témoin descend vite.
-# « f » (combat) : pièce à 400, START à 500, A toutes les 60 trames de 600 à 3500,
-# droite tenue à partir de 2000 ; « s » (tir, action) : pièce, START, A toutes les 60 trames, droite
-# tenue à partir de 1000, C toutes les 400 trames à partir de 1500. Le joueur ne joue pas : il meurt,
-# il perd ses rounds. Aucune entrée planifiée de T − 10 à T + 150 : le menu reçoit les siennes.
+# THE INPUTS. "k" and "l": "x" and "j" played by P2 alone (its coin at 400, its START at 500);
+# the menu stays under P1's controls. "x": the action scenario of `cheats-recherche.py` (A every
+# 6 frames, right, B and C).
+# "j" (jump to die): coin, START, then right held and B every 20 frames,
+# without shooting: P1 rushes, jumping, into the enemies.
+# "b" (bombs, Metal Slug 2 to 5): the bomb scenario of `cheats-recherche.py`, A every 6 frames,
+# right, and C (one bomb) every 60 frames: the witness's counter goes down fast.
+# "f" (fight): coin at 400, START at 500, A every 60 frames from 600 to 3500,
+# right held from 2000 on; "s" (shooter, action): coin, START, A every 60 frames, right
+# held from 1000 on, C every 400 frames from 1500 on. The player does not play: they die,
+# they lose their rounds. No scheduled input from T − 10 to T + 150: the menu receives its own.
 #
-# LA CADENCE. --jobs runs MAME à la fois (défaut : le nombre de cœurs moins deux ; un MAME n'occupe
-# qu'un cœur, et chaque run a son dossier, donc leur nombre ne change aucun verdict). Les runs
-# partent les plus longs d'abord (FIN décroissante) : les « vies », de 12 000 à 20 000 trames, auraient
-# fait attendre tout le monde à la fin. Pas de cache ici : le témoin ouvre et ferme le
-# menu de NOTRE BIOS, il dépend de l'image comme le run du cheat.
+# THE PACE. --jobs MAME runs at a time (default: the number of cores minus two; a MAME uses
+# only one core, and each run has its own directory, so their number changes no verdict). The runs
+# start longest first (FIN decreasing): the "vies" ones, from 12,000 to 20,000 frames, would have
+# kept everyone waiting at the end. No cache here: the witness opens and closes the
+# menu of OUR BIOS, it depends on the image just like the cheat run.
 #
-# Salle blanche : aucune base de cheats tierce, aucun code de jeu lu ni tracé ; le PC ne sert qu'à
-# dire si une écriture vient du BIOS. MAME sans fenêtre, un dossier de cfg et de NVRAM par run.
-# Mesures et seuils : measured/2026-10-25, 2026-10-29 et 2026-10-30-cheats-table.tsv (une ligne par
-# cheat), et les -cheats-catalogue.tsv des mêmes dates (les verdicts) ; 2026-10-30-cheats-rejetes.tsv (#23),
-# 2026-10-30-cheats-sans-vies.tsv (#24).
+# Clean room: no third-party cheat database, no game code read or traced; the PC serves only to
+# tell whether a write comes from the BIOS. MAME windowless, one cfg and NVRAM directory per run.
+# Measurements and thresholds: measured/2026-10-25, 2026-10-29 and 2026-10-30-cheats-table.tsv (one
+# line per cheat), and the -cheats-catalogue.tsv of the same dates (the verdicts);
+# 2026-10-30-cheats-rejetes.tsv (#23), 2026-10-30-cheats-sans-vies.tsv (#24).
 set -u
 
 ICI="$(cd "$(dirname "$0")" && pwd)"
@@ -72,23 +74,23 @@ case "$JOBS" in ''|*[!0-9]*|0*) echo "--jobs refusé : $JOBS" >&2; exit 2 ;; esa
 command -v mame >/dev/null || { echo "mame introuvable" >&2; exit 2; }
 mkdir -p "$WORK"; ROMS="$(cd "$ROMS" && pwd)"; WORK="$(cd "$WORK" && pwd)"
 
-# Seuils (voir l'en-tête).
+# Thresholds (see the header).
 TEMPS_ON_MIN=0.6
 TEMPS_TEMOIN_MAX=0.35
 RAM_MIN=0.9
 COMPTEUR_ON_MIN=0.9
 
-# jeu  k  nom  adr  valeur  genre  entrées  T  FIN  zone(x0,y0,x1,y1)  pixels de la zone
-# Les pixels : « brut », toutes les couleurs (un chronomètre dans un cadre opaque) ; « clair »,
-# R + V + B > 600 ; « tres-clair », > 700 (des chiffres blancs sur un cadre où passe un décor clair) ;
-# sinon la couleur des chiffres (COULEURS plus bas), pour qu'un décor qui défile derrière eux ne
-# compte pas. Choisis le 2026-10-25 sur des images des runs, le rectangle autour des chiffres à
-# l'œil ; pour les chronomètres du 2026-10-30, rectangle et pixels cherchés sur les images d'un run
-# CAT_DENSE (le plus d'écart entre cheat et témoin).
-# Absent de la table : INFINITE TIME de kof95. Sous cheat, le chronomètre garde son image sur tous
-# les relevés, mais aucun T essayé ne donne un témoin qui décompte sans KO dans la fenêtre (round 2 :
-# 0,38 des relevés à la même image ; round 3 : un KO sous cheat). Sa preuve est celle de la recherche
-# (`measured/2026-10-25-cheats-table.tsv`), et kof95 a ici P1 INFINITE LIFE.
+# game  k  name  adr  value  kind  inputs  T  FIN  zone(x0,y0,x1,y1)  pixels of the zone
+# The pixels: "brut", all colours (a timer in an opaque frame); "clair",
+# R + G + B > 600; "tres-clair", > 700 (white digits on a frame where a bright scenery passes);
+# otherwise the colour of the digits (COULEURS below), so that scenery scrolling behind them does
+# not count. Chosen on 2026-10-25 on images from the runs, the rectangle around the digits by eye;
+# for the timers of 2026-10-30, rectangle and pixels searched on the images of a CAT_DENSE run
+# (the largest gap between cheat and witness).
+# Missing from the table: INFINITE TIME of kof95. Under the cheat, the timer keeps its image on all
+# the records, but no T tried gives a witness that counts down without a KO in the window (round 2:
+# 0.38 of the records at the same image; round 3: a KO under the cheat). Its proof is the search's
+# (`measured/2026-10-25-cheats-table.tsv`), and kof95 has P1 INFINITE LIFE here.
 TABLE="$(cat <<'EOF'
 kof95	1	P1 INFINITE LIFE	108221	CF	vies	f	1610	12000	-	-
 kof99	0	INFINITE TIME	10A7E7	32	temps	f	2950	4250	144,12,176,36	brut
@@ -221,7 +223,7 @@ ganryu	1	INFINITE TIME	100453	63	temps	s	1500	2800	147,32,175,39	clair
 EOF
 )"
 
-# ---- L'image et les romsets (seul sp-s2.sp1 remplacé, comme `matrice.sh`) ----
+# ---- The image and the romsets (only sp-s2.sp1 replaced, as `matrice.sh`) ----
 if [ -z "$IMAGE" ]; then
   IMAGE="$WORK/bios.sp1"; rm -f "$IMAGE"
   BIOS_OBJ="$WORK/obj" "$PAQUET/build/construire.sh" "$SOURCES" "$IMAGE" > "$WORK/construction.log" 2>&1 \
@@ -243,7 +245,7 @@ done
 echo "$EMP" > "$R/.image-sha256"
 echo "image ${EMP:0:16}…, jeux : $JEUX"
 
-# ---- Les runs : deux par cheat, au plus $JOBS à la fois ----
+# ---- The runs: two per cheat, at most $JOBS at a time ----
 PIDS=""
 attendre_place() {
   local p n=0 reste="" premier=""
@@ -252,12 +254,12 @@ attendre_place() {
   for p in $PIDS; do if [ -z "$premier" ]; then premier=$p; wait "$p"; else reste="$reste $p"; fi; done
   PIDS="$reste"
 }
-# Les images des runs temps : trois, ou une toutes les 20 trames avec CAT_DENSE=1 (pour choisir le
-# rectangle du chronomètre).
+# The images of the temps runs: three, or one every 20 frames with CAT_DENSE=1 (to choose the
+# timer's rectangle).
 images() {
   if [ -n "${CAT_DENSE:-}" ]; then seq -s, $(( $1 + 200 )) 20 $(( $1 + 1200 )); else echo "$(( $1 + 200 )),$(( $1 + 700 )),$(( $1 + 1200 ))"; fi
 }
-# pixels <genre> : les variables de `cheats.lua` pour la zone (voir la table).
+# pixels <kind>: the `cheats.lua` variables for the zone (see the table).
 pixels() {
   case "$1" in
     brut) echo "C_SEUIL=0" ;;
@@ -269,7 +271,7 @@ pixels() {
     rouge) echo "C_COULEUR=180,255,0,80,0,80" ;;
   esac
 }
-# entrees <T> <f|s|j|x|b|k|l> : le plan, coupé de T − 10 à T + 150.
+# entrees <T> <f|s|j|x|b|k|l>: the schedule, cut from T − 10 to T + 150.
 entrees() {
   local T=$1 a=$(( $1 - 10 )) b=$(( $1 + 150 )) out="400-407:piece,500-507:START" x
   case "$2" in k|l) out="400-407:pieceDeux,500-507:startDeux" ;; esac
@@ -307,8 +309,8 @@ T0=$(date +%s)
 while IFS=$'\t' read -r jeu k nom adr val genre ent T FIN zone seuil; do
   case " $JEUX " in *" $jeu "*) ;; *) continue ;; esac
   E="$(entrees "$T" "$ent")"
-  # Les appuis du menu (`menu.s`) : le cheat k est la ligne 2 + k ; « bas » 2 + k fois, A, puis
-  # « haut » 2 + k fois jusqu'à RESUME, A. Le témoin : A sur RESUME.
+  # The menu presses (`menu.s`): cheat k is line 2 + k; "bas" 2 + k times, A, then
+  # "haut" 2 + k times up to RESUME, A. The witness: A on RESUME.
   on="" n=$(( T + 45 ))
   for i in $(seq 0 $(( k + 1 ))); do on="$on$n:bas,"; n=$(( n + 6 )); done
   on="$on$n:A,"; n=$(( n + 6 ))
@@ -321,7 +323,7 @@ done < <(printf '%s\n' "$TABLE" | sort -t$'\t' -k9,9nr)
 wait
 echo "runs : $(( $(date +%s) - T0 )) s"
 
-# ---- Le juge ----
+# ---- The judge ----
 printf '%s\n' "$TABLE" > "$WORK/table.tsv"
 python3 -I -B - "$WORK/runs" "$JEUX" "$TEMPS_ON_MIN" "$TEMPS_TEMOIN_MAX" "$RAM_MIN" "$WORK/table.tsv" "$COMPTEUR_ON_MIN" > "$WORK/catalogue.txt" <<'PY'
 import os, re, sys
@@ -360,13 +362,13 @@ for l in open(sys.argv[6], encoding="utf-8"):
             if not x["wrong"]: raison.append(f"{nm} : pas de WRONG CHECKSUMS")
         ne, adrs = on["ecrits"] or (0, [])
         dit.append(f"{on['entete']} ; moteur : {ne} écritures {' '.join(adrs)} ; témoin {te['ecrits'][0] if te['ecrits'] else '?'}")
-        # Le tap voit le bus 16 bits : un octet écrit est relevé à l'adresse paire de son mot.
+        # The tap sees the 16-bit bus: a written byte is recorded at the even address of its word.
         if not adrs or any(int(a.split("x")[0], 16) != int(adr, 16) & ~1 for a in adrs): raison.append(f"le moteur a écrit {adrs}, {adr} seule attendue")
         if te["ecrits"] and te["ecrits"][0]: raison.append("le moteur a écrit au témoin")
         fen = range(T + 200, T + 801)
         vals = [on["val"][n] for n in fen if n in on["val"]]
-        # Relue en fin de trame, une cellule forcée peut porter ce que le jeu vient d'en ôter (un
-        # décompte d'une trame) avant que le moteur la rétablisse au SYSTEM_IO suivant.
+        # Read back at the end of the frame, a forced cell may carry what the game has just taken
+        # from it (a countdown of one frame) before the engine restores it at the next SYSTEM_IO.
         ram = sum(1 for v in vals if val - 1 <= v <= val) / max(1, len(vals))
         if genre in ("temps", "compteur"):
             zf = fen if genre == "temps" else range(T + 200, FIN + 1)

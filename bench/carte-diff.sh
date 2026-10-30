@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Thibaut Lion
-# Différentiel de CARD avec carte : les mêmes appels provoqués (`forcer.lua`) sous le BIOS SNK et
-# sous un romset où notre image est substituée, au départ des mêmes cartes ; compare la réponse et
-# l'interface après l'appel, les écritures en RAM BIOS de l'appel (variables de CARD seules : le
-# relevé porte aussi l'interruption vblank du jeu, qui diffère d'un BIOS à l'autre) et les octets
-# de la carte à la sortie, et les registres de la carte écrits pendant l'appel (adresses).
+# CARD differential with a card: the same forced calls (`forcer.lua`) under the SNK BIOS and
+# under a romset where our image is substituted, starting from the same cards; compares the
+# response and the interface after the call, the call's writes to BIOS RAM (CARD variables only:
+# the record also carries the game's vblank interrupt, which differs from one BIOS to the other)
+# and the bytes of the card on exit, and the card registers written during the call (addresses).
 #
 #   bench/carte-diff.sh <roms> <romset-substitué> <dossier-des-cartes> <travail>
 #
-# <dossier-des-cartes> : formatee.neo (une sauvegarde d'aof, NGH $0044, sous-sauvegarde 0, faite
-# par la référence) et vierge.neo (une carte non formatée). Aucune n'est versionnée.
+# <dossier-des-cartes>: formatee.neo (a save of aof, NGH $0044, sub-save 0, made by the
+# reference) and vierge.neo (an unformatted card). Neither is under version control.
 set -euo pipefail
 ROMS=$1; SUBST=$2; CARTES=$3; W=$4
 ICI=$(cd "$(dirname "$0")" && pwd)
 mkdir -p "$W"
 
-# nom|carte de départ (formatee, vierge, aucune)|entrée|interface à partir de $10FDC4
+# name|starting card (formatee, vierge, aucune)|entry|interface from $10FDC4
 CAS='
 charger|formatee|C00468|0200000000107100004000440000
 chercher-44|formatee|C00468|0100000000107100004000440000
@@ -33,7 +33,7 @@ sans-carte|aucune|C00468|0200000000107100004000440000
 erreur-sauver|vierge|C0046E|0300810000107100004000440000
 '
 
-passe() { # $1 bios (snk|nous) $2 nom $3 carte $4 entrée $5 interface
+passe() { # $1 bios (snk|nous) $2 name $3 card $4 entry $5 interface
   local D="$W/$1-$2" RP="$ROMS" M=()
   [ "$1" = nous ] && RP="$SUBST"
   rm -rf "$D"; mkdir -p "$D/nv"
@@ -44,12 +44,12 @@ passe() { # $1 bios (snk|nous) $2 nom $3 carte $4 entrée $5 interface
     -skip_gameinfo -autoboot_script "$ICI/forcer.lua" > "$D/mame.log" 2>&1 ) || true
 }
 
-# Les écritures de l'appel en RAM BIOS : variables de CARD, et le tampon des données.
+# The call's writes to BIOS RAM: CARD variables, and the data buffer.
 ecritures() { { grep -o 'ram: .*' "$1" || true; } | tr ' ' '\n' \
   | { grep -E '^(10FCF4|10FD0|10FD1|10FDC[4-9A-F]|10FDD[01]|1071)' || true; } | regrouper; }
-# forcer.lua sort les adresses une par une (A_BRUT=1) : le filtre porte sur chaque écriture, pas
-# sur la première d'un groupe. On regroupe ensuite : une écriture du jeu entre deux variables
-# (vblank pendant un appel de plusieurs trames) ne coupe ainsi aucun groupe.
+# forcer.lua outputs the addresses one by one (A_BRUT=1): the filter applies to each write, not
+# to the first one of a group. We group afterwards: a write by the game between two variables
+# (vblank during a call spanning several frames) thus splits no group.
 regrouper() { python3 -c '
 import re, sys
 g = []
@@ -61,7 +61,7 @@ for t in sys.stdin.read().split():
     else:
         g.append([d, f, c])
 print(" ".join("%06X-%06X(%d)" % tuple(x) for x in g), end=" ")'; }
-# Les registres de la carte écrits pendant l'appel, adresses seules : la donnée ne compte pas.
+# The card registers written during the call, addresses only: the data does not count.
 registres() { { grep -o 'registres ecrits: .*' "$1" || true; } | tr ' ' '\n' \
   | { grep -E '^(3A000[4-9]|3A001[4-9]|380010)' || true; } | cut -d= -f1 | tr '\n' ' '; }
 
@@ -79,7 +79,7 @@ while IFS='|' read -r nom carte entree iface; do
     if cmp -s "$W/snk-$nom/c.neo" "$W/nous-$nom/c.neo"; then carte_eq=egale
     else carte_eq="DIFFERE ($({ cmp -l "$W/snk-$nom/c.neo" "$W/nous-$nom/c.neo" || true; } | wc -l | tr -d ' ') octets)"; fi
   fi
-  # Un appel sans retour (MAME planté, jig muet) échoue, même identique des deux côtés.
+  # A call without a return (MAME crashed, silent jig) fails, even if identical on both sides.
   if [ "$a" = "$b" ] && [ "${a#*AUCUN}" = "$a" ] && [ "$ea" = "$eb" ] && [ "$ra" = "$rb" ] && { [ "$carte_eq" = egale ] || [ "$carte_eq" = sans-carte ]; }; then
     ok=$((ok+1)); printf 'PASS  %-16s %s | carte %s\n' "$nom" "$a" "$carte_eq"
   else

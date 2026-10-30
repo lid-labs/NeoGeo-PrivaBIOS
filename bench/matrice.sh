@@ -1,59 +1,59 @@
 #!/bin/bash
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Thibaut Lion
-# Matrice de compatibilité : chaque jeu, sous chaque BIOS, sans fenêtre.
+# Compatibility matrix: each game, under each BIOS, no window.
 #
 #   bench/matrice.sh <dossier-roms> <dossier-travail>
 #
-# Réglages par l'environnement :
-#   BIOS_NULLBIOS  zip contenant sp-s2.sp1, le nullbios (obligatoire sans BIOS_SANS_NULLBIOS=1)
-#   BIOS_SANS_NULLBIOS  1 : pas de colonne nullbios. Elle n'est qu'un repère tiers, et ses runs
-#                  lents (54 à 63 % de vitesse sur garou, kof98, kof2003, mslug3) pèsent 70 % du
-#                  temps émulé d'une matrice à quatre colonnes — calculé depuis les vitesses de
-#                  measured/2026-10-22-matrice-durcissement.tsv, pas chronométré.
-#   BIOS_VARIANTES BIOS supplémentaires à comparer, « nom=chemin » séparés par des espaces.
-#                  Le chemin est soit une image 68000 brute de 128 Kio, soit un zip qui contient
-#                  un membre sp-s2.sp1. Exemple :
+# Settings through the environment:
+#   BIOS_NULLBIOS  zip containing sp-s2.sp1, the nullbios (mandatory without BIOS_SANS_NULLBIOS=1)
+#   BIOS_SANS_NULLBIOS  1: no nullbios column. It is only a third-party landmark, and its slow
+#                  runs (54 to 63% speed on garou, kof98, kof2003, mslug3) weigh 70% of the
+#                  emulated time of a four-column matrix — computed from the speeds in
+#                  measured/2026-10-22-matrice-durcissement.tsv, not timed.
+#   BIOS_VARIANTES extra BIOSes to compare, "name=path" separated by spaces.
+#                  The path is either a raw 128 KiB 68000 image, or a zip that contains
+#                  an sp-s2.sp1 member. Example:
 #                    BIOS_VARIANTES="neopen=$HOME/neopen.sp1 neogeo-bios=$HOME/build/sp-s2.sp1"
-#                  Les noms `snk`, `unibios40` et `nullbios` sont réservés, et un chemin contenant
-#                  une espace n'est pas supporté — la liste se découpe sur les blancs.
-#   BIOS_JEUX      sets à mesurer, séparés par des espaces (défaut : tous les *.zip du dossier)
-#   BIOS_SECONDES  durée émulée par run (défaut 62, soit ~3 720 trames)
-#   BIOS_SHOTS     trames de relevé (défaut : toutes les 100 jusqu'à 3 500)
-#   BIOS_IMAGES    trames dont l'image est écrite (défaut 3500)
-#   BIOS_REF       jeu de BIOS SNK de la colonne `snk`, nom MAME (défaut euro ; japan, us…).
-#                  Les variantes restent sous `-bios euro` : c'est le membre sp-s2.sp1 du set
-#                  euro qu'elles remplacent, et leur région est la leur, pas celle-ci.
-#   BIOS_CACHE     dossier où garder les runs des colonnes snk et unibios40, et d'où les reprendre :
-#                  ils ne dépendent d'aucune image à l'essai. La clé couvre MAME (version et
-#                  configuration effective, `-showconfig`), ce script, bios-probe.lua, le jour (la
-#                  machine prend la date de l'hôte), le jeu, son romset et neogeo.zip (nom, taille,
-#                  date à la seconde), le BIOS et les réglages BIOS_SECONDES, BIOS_SHOTS, BIOS_IMAGES.
-#                  Seul un run sorti en 0, commencé et fini le même jour, est gardé. La colonne
-#                  vitesse_pct d'un run repris est celle du run d'origine (relevée, jamais jugée)
+#                  The names `snk`, `unibios40` and `nullbios` are reserved, and a path containing
+#                  a space is not supported — the list is split on whitespace.
+#   BIOS_JEUX      sets to measure, separated by spaces (default: every *.zip of the folder)
+#   BIOS_SECONDES  emulated duration per run (default 62, i.e. ~3,720 frames)
+#   BIOS_SHOTS     record frames (default: every 100 up to 3,500)
+#   BIOS_IMAGES    frames whose picture is written (default 3500)
+#   BIOS_REF       SNK BIOS set of the `snk` column, MAME name (default euro; japan, us…).
+#                  The variants stay under `-bios euro`: it is the sp-s2.sp1 member of the euro
+#                  set that they replace, and their region is their own, not this one.
+#   BIOS_CACHE     folder where the runs of the snk and unibios40 columns are kept, and taken back
+#                  from: they depend on no image under test. The key covers MAME (version and
+#                  effective configuration, `-showconfig`), this script, bios-probe.lua, the day (the
+#                  machine takes the host's date), the game, its romset and neogeo.zip (name, size,
+#                  date to the second), the BIOS and the settings BIOS_SECONDES, BIOS_SHOTS, BIOS_IMAGES.
+#                  Only a run that exited with 0, started and finished the same day, is kept. The
+#                  vitesse_pct column of a reused run is that of the original run (recorded, never judged)
 #
-# AUCUNE ROM N'EST VERSIONNÉE dans ce dépôt, ni BIOS ni jeu. Le dossier de ROMs est à toi.
+# NO ROM IS VERSIONED in this repository, neither BIOS nor game. The ROM folder is yours.
 #
-# TROIS PIÈGES, tous payés pendant l'écriture de ce banc :
+# THREE PITFALLS, all paid for while writing this bench:
 #
-#  1. LES ZIPS DE JEUX SONT NON-MERGED : chacun embarque sa PROPRE copie complète du set BIOS.
-#     MAME regarde le zip du jeu AVANT neogeo.zip, donc substituer dans neogeo.zip ne fait RIEN.
-#     Un BIOS entièrement à zéro a produit un run identique au vrai avant qu'on s'en aperçoive.
-#     La substitution se fait donc DANS le zip du jeu, ce que fait ce script.
-#  2. MAME accepte un BIOS au mauvais CRC en affichant « WRONG CHECKSUMS … the machine might not
-#     run correctly ». Cette ligne dans le journal est la PREUVE que la substitution est active ;
-#     son absence veut dire que MAME a trouvé le vrai BIOS ailleurs.
-#  3. NE JAMAIS ÉCRIRE À TRAVERS UN LIEN SYMBOLIQUE. Une première version liait les ROMs de
-#     l'utilisateur dans le dossier de travail puis ouvrait ces chemins en écriture : elle a
-#     tronqué un romset à 22 octets. Ce script copie, et refuse d'écrire sur un lien.
+#  1. THE GAME ZIPS ARE NON-MERGED: each one carries its OWN full copy of the BIOS set.
+#     MAME looks at the game's zip BEFORE neogeo.zip, so substituting in neogeo.zip does NOTHING.
+#     An all-zero BIOS produced a run identical to the real one before anyone noticed.
+#     The substitution is therefore made IN the game's zip, which is what this script does.
+#  2. MAME accepts a BIOS with the wrong CRC, displaying "WRONG CHECKSUMS … the machine might not
+#     run correctly". That line in the log is the PROOF that the substitution is active;
+#     its absence means MAME found the real BIOS elsewhere.
+#  3. NEVER WRITE THROUGH A SYMBOLIC LINK. A first version linked the user's ROMs into the
+#     work folder then opened those paths for writing: it truncated a romset to 22 bytes.
+#     This script copies, and refuses to write to a link.
 set -eu
 
 ROMS="${1:?dossier des romsets attendu}"
 WORK="${2:?dossier de travail attendu}"
 ICI="$(cd "$(dirname "$0")" && pwd)"
-# Tout chemin devient absolu AVANT le premier sous-shell : plus bas, chaque run fait un `cd`, et
-# un chemin relatif s'y résoudrait depuis le nouveau répertoire — c'est-à-dire, pour les variantes
-# non substituées, dans le dossier de ROMs de l'utilisateur.
+# Every path becomes absolute BEFORE the first subshell: further down, each run does a `cd`, and
+# a relative path would resolve there from the new directory — that is, for the unsubstituted
+# variants, in the user's ROM folder.
 mkdir -p "$WORK"
 ROMS="$(cd "$ROMS" && pwd)"
 WORK="$(cd "$WORK" && pwd)"
@@ -66,13 +66,13 @@ REF="${BIOS_REF:-euro}"
 case "$REF" in ''|*[!a-z0-9-]*) echo "BIOS_REF refusé : $REF"; exit 1 ;; esac
 
 command -v mame >/dev/null || { echo "mame introuvable"; exit 1; }
-# Un nom inconnu de MAME le fait retomber sur le BIOS par défaut, sans erreur ni « WRONG
-# CHECKSUMS » : la colonne `snk` mesurerait l'Europe sous le nom d'une autre région. On le
-# confronte donc à la liste que MAME publie lui-même.
+# A name unknown to MAME makes it fall back to the default BIOS, with neither error nor "WRONG
+# CHECKSUMS": the `snk` column would measure Europe under the name of another region. So it is
+# checked against the list that MAME itself publishes.
 mame -listbios neogeo 2>/dev/null | awk 'NR > 1 {print $1}' | grep -qx -- "$REF" \
   || { echo "BIOS_REF inconnu de MAME pour neogeo : $REF"; exit 1; }
-# `rm -f` avant chaque écriture : il supprime un éventuel lien symbolique au lieu d'écrire à
-# travers lui. C'est la même précaution que le refus plus bas, appliquée aux images de BIOS.
+# `rm -f` before each write: it removes a possible symbolic link instead of writing through
+# it. It is the same precaution as the refusal further down, applied to the BIOS images.
 mkdir -p "$WORK/M"
 if [ "${BIOS_SANS_NULLBIOS:-0}" = 1 ]; then
   VARIANTES=""
@@ -84,21 +84,22 @@ else
   VARIANTES="nullbios"
 fi
 
-# Chaque variante de BIOS_VARIANTES est déposée sous le même nom de membre, sp-s2.sp1, puisque c'est
-# ce fichier que `-bios euro` fait charger à MAME. Un zip est accepté aussi bien qu'une image nue :
-# les projets tiers livrent tantôt l'un, tantôt l'autre, et exiger un format ferait recopier à la
-# main ce que deux lignes font ici.
+# Each variant of BIOS_VARIANTES is placed under the same member name, sp-s2.sp1, since that is
+# the file `-bios euro` makes MAME load. A zip is accepted as well as a bare image: third-party
+# projects ship sometimes one, sometimes the other, and requiring one format would make people
+# redo by hand what two lines do here.
 for paire in $AUTRES; do
   case "$paire" in *=*) ;; *) echo "variante mal formée, « nom=chemin » attendu : $paire"; exit 1 ;; esac
   nom="${paire%%=*}"; src="${paire#*=}"
-  # Jeu de caractères restreint, plutôt qu'une comparaison insensible à la casse : le nom devient un
-  # composant de chemin, et le système de fichiers de macOS ignore la casse. `NullBIOS` passerait
-  # donc les contrôles ci-dessous tout en désignant le MÊME dossier que `nullbios`, dont il
-  # écraserait l'image — deux lignes de matrice mesurant le même BIOS, chacune avec `controle=ok`.
+  # Restricted character set, rather than a case-insensitive comparison: the name becomes a path
+  # component, and the macOS file system ignores case. `NullBIOS` would therefore pass the
+  # checks below while designating the SAME folder as `nullbios`, whose image it would
+  # overwrite — two matrix rows measuring the same BIOS, each with `controle=ok`.
   case "$nom" in ''|.|..|*[!a-z0-9._-]*) echo "nom de variante refusé : $nom"; exit 1 ;; esac
-  # NOMS RÉSERVÉS. `snk` et `unibios40` désignent les BIOS d'origine dans la boucle de mesure plus
-  # bas : une variante ainsi nommée y serait prise pour eux, mesurée SANS substitution, et sortirait
-  # `controle=ok`. C'est l'invariant du paquet contourné par le nom. `nullbios` est déjà pris.
+  # RESERVED NAMES. `snk` and `unibios40` designate the original BIOSes in the measurement loop
+  # further down: a variant so named would be taken for them there, measured WITHOUT substitution,
+  # and would come out `controle=ok`. It is the package's invariant bypassed through the name.
+  # `nullbios` is already taken.
   case " snk unibios40 nullbios " in *" $nom "*) echo "nom de variante réservé : $nom"; exit 1 ;; esac
   case " $VARIANTES " in *" $nom "*) echo "variante en double : $nom"; exit 1 ;; esac
   [ -s "$src" ] || { echo "image introuvable pour $nom : $src"; exit 1; }
@@ -118,27 +119,27 @@ JEUX="${BIOS_JEUX:-$(cd "$ROMS" && ls *.zip 2>/dev/null | sed 's/\.zip$//' | tr 
 [ -n "$JEUX" ] || { echo "aucun jeu dans $ROMS"; exit 1; }
 for g in $JEUX; do
   case "$g" in */*|..*) echo "nom de set refusé : $g"; exit 1 ;; esac
-  # Vérifié ici plutôt que découvert plus bas : sans ce contrôle, un set absent sortait une erreur
-  # de `cp` au milieu de la fabrication des variantes, loin de sa cause.
+  # Checked here rather than discovered further down: without this check, a missing set produced
+  # a `cp` error in the middle of building the variants, far from its cause.
   [ -s "$ROMS/$g.zip" ] || { echo "set introuvable : $ROMS/$g.zip"; exit 1; }
 done
 
-# Un romset par variante, obtenu en remplaçant le seul membre sp-s2.sp1 d'une COPIE du zip du jeu.
+# One romset per variant, obtained by replacing the sole sp-s2.sp1 member of a COPY of the game's zip.
 #
-# DEUX PRÉCAUTIONS, et elles gardent toutes deux contre le même accident : mesurer un BIOS en
-# croyant en mesurer un autre, sans aucun message.
+# TWO PRECAUTIONS, and both guard against the same accident: measuring one BIOS while
+# believing you measure another, without any message.
 #
-#  - un romset déjà présent n'est réutilisé que si l'empreinte de l'image injectée est la MÊME.
-#    Sans ce contrôle, changer BIOS_NULLBIOS ou BIOS_VARIANTES entre deux runs dans le même dossier
-#    de travail laissait l'ancienne image en place et la matrice mesurait le BIOS précédent ;
-#  - la fabrication passe par un fichier temporaire renommé seulement après un `zip` réussi. Une
-#    interruption entre la copie et le `zip` laissait sinon un romset portant le BIOS SNK
-#    d'origine, que le run suivant acceptait comme s'il était substitué.
+#  - a romset already present is reused only if the hash of the injected image is the SAME.
+#    Without this check, changing BIOS_NULLBIOS or BIOS_VARIANTES between two runs in the same work
+#    folder left the old image in place and the matrix measured the previous BIOS;
+#  - the build goes through a temporary file renamed only after a successful `zip`. An
+#    interruption between the copy and the `zip` otherwise left a romset carrying the original
+#    SNK BIOS, which the next run accepted as if it were substituted.
 for v in $VARIANTES; do
   mkdir -p "$WORK/v-$v"
   empreinte="$(shasum -a 256 "$WORK/img/$v/sp-s2.sp1" | cut -d' ' -f1)"
   marqueur="$WORK/v-$v/.image-sha256"
-  # Un marqueur périmé (ou lien) tombe AVANT de refaire les romsets : interrompu en route, il ne les attesterait plus.
+  # A stale marker (or link) goes BEFORE the romsets are redone: interrupted midway, it would no longer vouch for them.
   { [ ! -L "$marqueur" ] && [ "$(cat "$marqueur" 2>/dev/null)" = "$empreinte" ]; } || rm -f "$marqueur"
   for g in $JEUX; do
     d="$WORK/v-$v/$g.zip"
@@ -149,8 +150,8 @@ for v in $VARIANTES; do
     ( cd "$WORK/img/$v" && zip -q -j -X "$d.part" sp-s2.sp1 )
     mv "$d.part" "$d"
   done
-  # Le marqueur n'est posé qu'une fois TOUS les romsets de la variante fabriqués : interrompu
-  # avant, le run suivant les refait tous plutôt que d'en accepter un au hasard.
+  # The marker is set only once ALL the variant's romsets are built: interrupted
+  # before, the next run redoes them all rather than accepting one at random.
   echo "$empreinte" > "$marqueur"
 done
 
@@ -182,30 +183,30 @@ for g in $JEUX; do
     if [ -n "$cle" ] && [ -s "$CACHE/$cle/rc" ]; then
       rm -rf "$O"; cp -R "$CACHE/$cle" "$O"; rc=$(cat "$O/rc")
     else
-    # NVRAM isolée par run ($O est neuf) : sans cela, MAME partage son dossier nvram/<jeu>/
-    # entre tous les runs du même jeu, BIOS confondus — un crédit laissé par un run se relit
-    # sous le suivant, et le déterminisme annoncé plus haut ne tient plus dès qu'un BIOS crédite.
-    # SDL_MAC_BACKGROUND_APP : sans lui, chaque run passe au premier plan sur macOS, même sans fenêtre.
-    # cfg isolé de même : sans -cfg_directory, MAME réécrit à sa sortie les cfg du dossier de
-    # l'utilisateur (son mame.ini en fixe un, absolu), réglages des touches compris.
+    # NVRAM isolated per run ($O is new): without that, MAME shares its nvram/<jeu>/ folder
+    # among all the runs of the same game, BIOSes mixed — a credit left by one run is read back
+    # under the next, and the determinism claimed above no longer holds as soon as a BIOS credits.
+    # SDL_MAC_BACKGROUND_APP: without it, each run comes to the foreground on macOS, even with no window.
+    # cfg isolated likewise: without -cfg_directory, MAME rewrites on exit the cfg files of the
+    # user's folder (their mame.ini sets one, absolute), key settings included.
     ( cd "$WORK" && SDL_VIDEODRIVER=dummy SDL_MAC_BACKGROUND_APP=1 BIOS_OUT="$O" BIOS_SHOTS="$SHOTS" BIOS_IMAGES="$IMAGES" \
       mame "$g" -rompath "$RP" -video none -sound none -nothrottle -seconds_to_run "$SECONDES" \
       -nvram_directory "$O/nvram" -cfg_directory "$O/cfg" \
       -skip_gameinfo -bios "$B" -autoboot_script "$ICI/bios-probe.lua" >"$O/mame.log" 2>&1 ) || rc=$?
     echo "$rc" > "$O/rc"
-    # Gardé par une copie renommée d'un coup, comme `parcours.sh` : jamais d'entrée à moitié écrite.
+    # Kept through a copy renamed in one go, like `parcours.sh`: never a half-written entry.
     if [ -n "$cle" ] && [ "$rc" -eq 0 ] && [ ! -e "$CACHE/$cle" ] && [ "$(date '+%Y-%m-%d')" = "$jour" ]; then
       t="$CACHE/.$cle.$$"
-      # Une écriture de cache qui échoue ne fait pas échouer la matrice (set -e).
+      # A cache write that fails does not make the matrix fail (set -e).
       if mkdir "$CACHE/.$cle.verrou" 2>/dev/null && cp -R "$O" "$t"; then mv "$t" "$CACHE/$cle" || true; fi; rm -rf "$t"
     fi
     fi
 
-    # LA PREUVE QUE LA SUBSTITUTION A PRIS, lue à chaque run plutôt que supposée. MAME signale
-    # « WRONG CHECKSUMS » quand l'image de BIOS ne correspond pas au CRC qu'il attend : cette ligne
-    # doit donc être présente pour une variante, et absente pour un BIOS d'origine. Sans ce
-    # contrôle, une substitution muette faisait mesurer le BIOS SNK sous le nom d'une variante —
-    # exactement l'accident que les gardes de fabrication ferment en amont, laissé ouvert en aval.
+    # THE PROOF THAT THE SUBSTITUTION TOOK, read at each run rather than assumed. MAME reports
+    # "WRONG CHECKSUMS" when the BIOS image does not match the CRC it expects: this line
+    # must therefore be present for a variant, and absent for an original BIOS. Without this
+    # check, a silent substitution made the SNK BIOS be measured under a variant's name —
+    # exactly the accident that the build guards close upstream, left open downstream.
     controle=ok
     case "$v" in
       snk|unibios40) grep -q 'WRONG CHECKSUMS' "$O/mame.log" && controle='ALERTE:crc-inattendu' ;;

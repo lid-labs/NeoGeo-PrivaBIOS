@@ -1,25 +1,25 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 -- Copyright (C) 2026 Thibaut Lion
--- Jig de l'écran de plantage (`src/c0/plantage.s`), sans fenêtre. Provoque une exception pendant
--- que le jeu tourne, relit l'écran affiché, presse START, et suit la relance.
+-- Crash-screen jig (`src/c0/plantage.s`), windowless. Causes an exception while the game is
+-- running, reads back the displayed screen, presses START, and follows the restart.
 --
---   P_OUT      dossier de sortie (obligatoire) ; le relevé va dans P_OUT/plantage.txt
---   P_MODE     adr : JMP vers une adresse impaire écrit en RAM à P_RAM, PC posé dessus
---              (erreur d'adresse au fetch, groupe 0)
---              ill : ILLEGAL ($4AFC) écrit en RAM de travail à P_RAM, PC posé dessus
---   P_TRAME    trame de l'injection (défaut 1500)
---   P_RAM      adresse de l'ILLEGAL en mode ill (défaut $10E000)
---   P_START    trame de START P1, tenu 3 trames (défaut P_TRAME + 200)
---   P_IMAGES   trames dont l'image (bgra 320×224) est écrite
---   P_FIN      trame de sortie (défaut P_START + 1500)
+--   P_OUT      output folder (mandatory); the record goes to P_OUT/plantage.txt
+--   P_MODE     adr: JMP to an odd address written in RAM at P_RAM, PC set on it
+--              (address error on fetch, group 0)
+--              ill: ILLEGAL ($4AFC) written in work RAM at P_RAM, PC set on it
+--   P_TRAME    frame of the injection (default 1500)
+--   P_RAM      address of the ILLEGAL in ill mode (default $10E000)
+--   P_START    frame of START P1, held 3 frames (default P_TRAME + 200)
+--   P_IMAGES   frames whose picture (bgra 320×224) is written
+--   P_FIN      exit frame (default P_START + 1500)
 --
--- Avant l'injection, les registres D0-D7 et A0-A6 reçoivent des motifs reconnaissables ; A7, SR
--- et USP sont relevés tels quels. À P_START - 1, le plan fixe reconstruit (comme `fixmap.lua`,
--- depuis les écritures au LSPC, la VRAM n'étant pas exposée au Lua) est décodé en texte et
--- confronté aux valeurs attendues : une ligne « VERIF » par champ, ok ou ECART.
--- Le relevé note aussi la table de vecteurs de la cartouche ($000000-$00007F, lue après la
--- remise de la main), le premier créneau $C00402-$C00437 exécuté, chaque reset et chaque
--- changement de la demande USER ($10FDAF/$10FDAE). Aucune autre entrée n'est pressée.
+-- Before the injection, registers D0-D7 and A0-A6 receive recognisable patterns; A7, SR and USP
+-- are recorded as they are. At P_START - 1, the rebuilt fix layer (like `fixmap.lua`, from the
+-- writes to the LSPC, the VRAM not being exposed to Lua) is decoded into text and checked
+-- against the expected values: one "VERIF" line per field, ok or ECART.
+-- The record also notes the cartridge's vector table ($000000-$00007F, read after the
+-- hand-over), the first slot $C00402-$C00437 executed, each reset and each change of the USER
+-- request ($10FDAF/$10FDAE). No other input is pressed.
 if _G.PLANTAGE then return end
 _G.PLANTAGE = {}
 local OUT = os.getenv("P_OUT")
@@ -40,16 +40,16 @@ for n in (os.getenv("P_IMAGES") or ""):gmatch("%d+") do images[tonumber(n)] = tr
 local out = io.open(OUT .. "/plantage.txt", "w")
 local function W(fmt, ...) out:write(string.format(fmt, ...) .. "\n") out:flush() end
 
--- Le plan fixe, reconstruit depuis REG_VRAMADDR / REG_VRAMRW / REG_VRAMMOD.
+-- The fix layer, rebuilt from REG_VRAMADDR / REG_VRAMRW / REG_VRAMMOD.
 local X = { a = 0, mod = 1, v = {} }
 _G.PLANTAGE.tap = p:install_write_tap(0x3C0000, 0x3C0005, "lspc", function(o, d)
   local r = o & 6
   if r == 0 then X.a = d elseif r == 4 then X.mod = d
   elseif r == 2 then X.v[X.a] = d X.a = (X.a + X.mod) & 0xFFFF end end)
--- Le premier créneau de la zone d'entrée exécuté après l'injection.
+-- The first slot of the entry area executed after the injection.
 local injecte, creneau = false, nil
--- Le cadre tel que le 68000 l'empile : les écritures sous A7 entre l'injection et le premier
--- créneau exécuté. C'est le témoin indépendant de ce que l'écran doit montrer.
+-- The frame as the 68000 stacks it: the writes below A7 between the injection and the first
+-- slot executed. It is the independent witness of what the screen must show.
 local cadre = {}
 _G.PLANTAGE.tapc = p:install_read_tap(0xC00408, 0xC00437, "creneau", function(o)
   if injecte and not creneau then creneau = o end end)
@@ -111,9 +111,9 @@ emu.register_frame_done(function()
       s["PC"].value = RAM
       attendu.PC = RAM
     else
-      -- JMP vers une adresse impaire, écrit en RAM : le fetch de la cible lève l'erreur
-      -- d'adresse sans qu'aucune instruction du jeu ne s'exécute après la pose des registres
-      -- (poser le PC impair directement laissait MAME finir une instruction de sa file).
+      -- JMP to an odd address, written in RAM: the fetch of the target raises the address
+      -- error without any game instruction executing after the registers are set
+      -- (setting the odd PC directly let MAME finish an instruction from its queue).
       attendu.ACC = (pc0 | 1) ~ 0x100
       p:write_u16(RAM, 0x4EF9) p:write_u32(RAM + 2, attendu.ACC)
       s["PC"].value = RAM
@@ -142,13 +142,13 @@ emu.register_frame_done(function()
     verif("USP", "USP (%x+)", attendu.USP, 8)
     verif("SR", "SR (%x+)", attendu.SR, 4)
     verif("NGH", "NGH (%x+)", p:read_u16(0x108), 4)
-    -- Le cadre empilé : format A (14 octets) pour l'erreur d'adresse, B (6) pour l'illégale.
+    -- The stacked frame: format A (14 bytes) for the address error, B (6) for the illegal one.
     local b = attendu.A7 - ((MODE == "ill") and 6 or 14)
     local function mot(k) return cadre[b + k] end
     local function long(k) return mot(k) and mot(k + 2) and ((mot(k) << 16) | mot(k + 2)) end
     local t = {} for k = 0, attendu.A7 - b - 2, 2 do t[#t + 1] = mot(k) and string.format("%04X", mot(k)) or "----" end
     W("cadre empile a %08X : %s", b, table.concat(t, " "))
-    -- Le nom et la porte, comparés au texte exact : un code mal posé dans une entrée.
+    -- The name and the gate, compared with the exact text: a code misplaced in an entry.
     local function verif_texte(nom, motif, att)
       local lu = tout:match(motif)
       local bon = (lu == att)

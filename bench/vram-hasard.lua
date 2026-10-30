@@ -1,10 +1,11 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 -- Copyright (C) 2026 Thibaut Lion
--- La mise sous tension du matériel : la VRAM et la RAM de palettes pleines de bruit, avant la première instruction
--- du BIOS. Sous MAME, mesuré le 2026-10-27 sur aof : la VRAM relevée à la trame 1 (SCB1 à SCB3, plan fixe) est à zéro,
--- et une VRAM bruitée seule n'y change aucune image du boot, les palettes de MAME restant noires. Chargé avec `son.lua` par
--- J_AUSSI (scène boot-graphismes de `parcours.sh`) ; ne joue aucune entrée. Le bruit vient d'une graine fixe :
--- deux runs le reçoivent identique. Écrit au chargement du script, avant la première trame.
+-- The hardware's power-on: the VRAM and the palette RAM full of noise, before the BIOS's first
+-- instruction. Under MAME, measured on 2026-10-27 on aof: the VRAM recorded at frame 1 (SCB1 to
+-- SCB3, fix layer) is zero, and a noisy VRAM alone changes no boot picture there, MAME's palettes
+-- staying black. Loaded with `son.lua` through J_AUSSI (scene boot-graphismes of `parcours.sh`);
+-- plays no input. The noise comes from a fixed seed: two runs receive it identical. Written when
+-- the script is loaded, before the first frame.
 local m = manager.machine
 local vr = emu.item(m.devices[":spritegen"].items["0/m_videoram"])
 local p = m.devices[":maincpu"].spaces["program"]

@@ -1,26 +1,26 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Thibaut Lion
-"""Les mutations du parcours (`bench/parcours.sh`) : chacune casse UNE fonction visible du BIOS,
-pour prouver que la scène qui la juge sait échouer.
+"""The mutations of the player's path (`bench/parcours.sh`): each one breaks ONE visible function of the BIOS,
+to prove that the scene judging it can fail.
 
     python3 -I -B bench/parcours-mutations.py --liste
-    python3 -I -B bench/parcours-mutations.py <nom> <copie-des-sources>
-    python3 -I -B bench/parcours-mutations.py --eprouver [--paralleles n] <dossier-roms> <dossier-travail> [noms…]
+    python3 -I -B bench/parcours-mutations.py <name> <copy-of-the-sources>
+    python3 -I -B bench/parcours-mutations.py --eprouver [--paralleles n] <roms-dir> <work-dir> [names…]
 
-La copie est modifiée en place ; elle doit être hors du dépôt (refus sinon). Chaque mutation
-remplace des passages exacts des sources et refuse de s'appliquer si l'un n'y est pas une et une
-seule fois : une mutation qui ne s'applique plus ne prouve rien, elle doit le dire.
+The copy is modified in place; it must be outside the repository (refused otherwise). Each mutation
+replaces exact passages of the sources and refuses to apply if one of them is not there exactly
+once: a mutation that no longer applies proves nothing, it must say so.
 
---eprouver, pour chaque mutation (toutes par défaut) : copie `src/c0` dans le dossier de travail,
-applique la mutation, et lance `parcours.sh --sources <copie> --scenes <ses scènes>`. Elle est
-« tuée » si CHACUNE des scènes visées sort FAIL. Une ligne par mutation, dans l'ordre où elles
-finissent, puis le compte ; sortie en 1 si une mutation survit.
+--eprouver, for each mutation (all by default): copies `src/c0` into the work directory,
+applies the mutation, and runs `parcours.sh --sources <copy> --scenes <its scenes>`. It is
+"killed" if EACH of the targeted scenes exits FAIL. One line per mutation, in the order they
+finish, then the count; exits with 1 if a mutation survives.
 
-LES MUTATIONS SONT ÉPROUVÉES EN PARALLÈLE : chacune a sa copie des sources et son dossier, et rien
-ne passe de l'une à l'autre. --paralleles n à la fois (défaut : la moitié des cœurs moins un),
-chacune avec `parcours.sh --jobs 2`. Les runs témoins (BIOS SNK) ne dépendent d'aucune mutation :
-un seul cache (`parcours.sh --cache`, <dossier-travail>/cache-temoins) les sert à toutes.
+THE MUTATIONS ARE TESTED IN PARALLEL: each has its own copy of the sources and its own directory,
+and nothing passes from one to the other. --paralleles n at a time (default: half the cores minus
+one), each with `parcours.sh --jobs 2`. The witness runs (SNK BIOS) depend on no mutation:
+a single cache (`parcours.sh --cache`, <work-dir>/cache-temoins) serves them to all.
 """
 import concurrent.futures
 import os
@@ -33,7 +33,7 @@ ICI = os.path.dirname(os.path.abspath(__file__))
 PAQUET = os.path.dirname(ICI)
 DEPOT = PAQUET
 
-# nom : (scènes qui doivent échouer, fichier, [(passage, remplacement)…], ce que ça casse)
+# name: (scenes that must fail, file, [(passage, replacement)…], what it breaks)
 MUTATIONS = {
     "boot-texte": (
         "boot-ecran", "ecran.s",
@@ -140,8 +140,8 @@ MUTATIONS = {
           "        dbra    %d4, 7b\n        move.w  MN_MOD, VRAMMOD\n")],
         "le $03 remis à la reprise du menu en jeu, comme avant le correctif",
     ),
-    # Éprouvée et écartée : REG_VRAMMOD non rendu à la reprise survit (aof repose le sien avant
-    # d'écrire), elle ne casse rien de visible sur ce jeu.
+    # Tested and discarded: REG_VRAMMOD not restored on resume survives (aof sets its own again
+    # before writing), it breaks nothing visible on this game.
     "menu-cadre-reste": (
         "menu-reprise", "menu.s",
         [("        bsr     .Lrendre_fix\n        move.w  MN_MOD, VRAMMOD\n", "        nop                     | MUTATION : le plan fixe du jeu non rendu\n        move.w  MN_MOD, VRAMMOD\n")],
@@ -178,7 +178,7 @@ MUTATIONS = {
           '')],
         "la garde de SELECT retirée (DECISIONS §10)",
     ),
-    # Le mode AES (DECISIONS §11).
+    # The AES mode (DECISIONS §11).
     "mode-ignore": (
         "aes-bascule aes-demo", "c0.s",
         [("        move.b  %d0, 0x10FD82\n1:\n",
@@ -214,7 +214,7 @@ MUTATIONS = {
           "        move.b  F_MODE(%a6), %d0\n        moveq   #1, %d3                 | MUTATION : AES au minimum\n")],
         "la ligne MODE ne redescend plus à MVS",
     ),
-    # La couverture (relevé measured/2026-10-23-parcours-couverture-scenes.tsv).
+    # The coverage (record measured/2026-10-23-parcours-couverture-scenes.tsv).
     "defauts-inertes": (
         "dip-defauts", "dip.s",
         [(".Ldefauts:\n        bsr.s   _dip_defauts\n",
@@ -433,8 +433,9 @@ MUTATIONS = {
           '        nop                             | MUTATION : un bloc entre les zones est accepté\n')],
         "l'éditeur lit un bloc soft-DIP refusé, entre la P-ROM fixe et la zone banquée",
     ),
-    # Le menu en jeu complet, le 2026-10-23 (relevé --ref-menu, en-tête) : une par scène, et une par
-    # fonction que sa scène juge avec d'autres (la relance et l'enregistrement de GAME SETTINGS).
+    # The full in-game menu, on 2026-10-23 (record --ref-menu, header): one per scene, and one per
+    # function that its scene judges together with others (the restart and the saving of GAME
+    # SETTINGS).
     "gs-droite-inerte": (
         "gs-compte gs-mmss", "reglages-jeu.s",
         [
@@ -532,8 +533,8 @@ MUTATIONS = {
           "        btst    #0, %d0\n        beq.s   1f\n        nop                             | MUTATION\n")],
         "SET VALUE : haut n'ajoute plus 1",
     ),
-    # Une première version, « B écrit comme A » (A ou B à l'écriture), a survécu : B est lu avant A et
-    # sort sans écrire. Celle-ci retire la sortie par B.
+    # A first version, "B written as A" (A or B on writing), survived: B is read before A and
+    # exits without writing. This one removes the exit through B.
     "annuler-inerte": (
         "me-poke", "memoire.s",
         [
@@ -587,8 +588,8 @@ MUTATIONS = {
           '2:      nop                             | MUTATION : la zone du BIOS modifiable\n')],
         "A et D agissent dans la zone du BIOS",
     ),
-    # Le bus flottant (le 2026-10-24) : la copie du bloc soft-DIP défaite, l'écran TEST relit la
-    # P-ROM sous REG_BRDFIX, comme l'image n°8 sur le matériel.
+    # The floating bus (on 2026-10-24): the copy of the soft-DIP block undone, the TEST screen reads
+    # the P-ROM again under REG_BRDFIX, like image no. 8 on the hardware.
     "bf-intitules-prom": (
         "bf-editeur bf-banque bf-tests bf-jukebox bf-borne", "dip.s",
         [("        add.l   %d0, 6(%a0)\n", "        nop                             | MUTATION : intitulés lus dans la P-ROM\n")],
@@ -605,13 +606,13 @@ MUTATIONS = {
           "        nop                             | MUTATION : le slot vide reçoit la main\n")],
         "sans cartouche, la main remise au slot vide : le watchdog relance la carte en boucle",
     ),
-    # Le flash cart (le 2026-10-28) : un seul parcours des slots, à la trame 1, comme avant ce lot.
+    # The flash cart (on 2026-10-28): a single pass over the slots, at frame 1, as before this lot.
     "carte-lente-ignoree": (
         "flash-cart", "c0.s",
         [("        .equ    ATTENTE_CARTE, 270\n", "        .equ    ATTENTE_CARTE, 1        | MUTATION : un seul parcours\n")],
         "une cartouche muette aux premières trames passe pour un slot vide : le boot finit dans les autotests",
     ),
-    # Le gestionnaire de la carte mémoire (le 2026-10-24) : une mutation par fonction de l'écran MEMORY CARD.
+    # The memory card manager (on 2026-10-24): one mutation per function of the MEMORY CARD screen.
     "cm-liste-vide": (
         "cm-liste", "gestion-carte.s",
         [("1:      cmpi.b  #0xFF, (%a1)\n        beq.s   3f\n        addq.w  #1, %d1\n",
@@ -715,7 +716,7 @@ MUTATIONS = {
         [("        lea     0xD002A0, %a2\n", "        lea     0x000200, %a2           | MUTATION : le nom lu dans la P-ROM\n")],
         "le nom du jeu lu dans la cartouche sous REG_BRDFIX",
     ),
-    # Les réglages de la borne, le 2026-10-25 (relevé --ref-borne de bench/parcours.sh).
+    # The cabinet settings, on 2026-10-25 (record --ref-borne of bench/parcours.sh).
     "bo-sous-ecran-inerte": (
         "bo-ecran", "dip.s",
         [(".Lch_borne:\n        move.w  %d6, F_SV_D6(%a6)\n",
@@ -780,10 +781,10 @@ MUTATIONS = {
           '')],
         "DEMO SOUND OFF coupe aussi le titre après la pièce (le comportement du BIOS SNK)",
     ),
-    # Le catalogue des cheats et CHEATS/DEBUG, le 2026-10-25 (relevé --ref-cheats de bench/parcours.sh).
+    # The cheat catalogue and CHEATS/DEBUG, on 2026-10-25 (record --ref-cheats of bench/parcours.sh).
     "cat-mslug2-perdu": (
         "cheats-vies", "cheats.s",
-        # Sans le nombre de cheats, qui change à chaque lot : la mutation reste applicable.
+        # Without the number of cheats, which changes with each lot: the mutation stays applicable.
         [("        JEU     0x0241, 0xBE57, ", "        | MUTATION : le NGH de mslug2 faussé\n        JEU     0x0242, 0xBE57, ")],
         "l'entrée de mslug2 n'est plus reconnue : pas de ligne INFINITE LIVES",
     ),
@@ -972,7 +973,7 @@ MUTATIONS = {
         [("5:      cmpi.b  #0x10, P1CNT\n", "5:      cmpi.b  #0xF0, P1CNT            | MUTATION : un seul des quatre suffit\n")],
         "START + SELECT + A en partie n'ouvre plus le menu en jeu",
     ),
-    # Les intitulés en région JAPAN (measured/2026-10-27-intitules-japon.tsv).
+    # The labels in the JAPAN region (measured/2026-10-27-intitules-japon.tsv).
     "japon-filtre": (
         "japon-intitules", "dip.s",
         [("2:      addi.w  #0x200, %d2             | $300 / $400 + b\n",
@@ -1003,7 +1004,7 @@ MUTATIONS = {
           "2:      addi.w  #0x300, %d0             | MUTATION : la règle du boot sous la S ROM\n3:      moveq   #0, %d1\n")],
         "un octet hors ASCII s'écrit en tuile $300 + b sous la police de la cartouche, dans le cadre du menu",
     ),
-    # Le CRC32 de la cartouche et les debug dips, le 2026-10-25 (relevé --ref-crc).
+    # The cartridge CRC32 and the debug dips, on 2026-10-25 (record --ref-crc).
     "crc-ordre-cpu": (
         "crc-fixe crc-banques crc-miroir", "crc.s",
         [
@@ -1084,7 +1085,7 @@ MUTATIONS = {
           "        cmpi.b  #16, %d0                | MUTATION : quatre lignes\n        bcs.s   2b\n        moveq   #4, %d6\n")],
         "le sous-écran CABINET SETTINGS n'a plus sa ligne DEBUG DIPS",
     ),
-    # L'écran ABOUT (`about.s`), le 2026-10-28.
+    # The ABOUT screen (`about.s`), on 2026-10-28.
     "ab-ligne-absente": (
         "ab-ecran", "dip.s",
         [
@@ -1106,7 +1107,7 @@ MUTATIONS = {
           '        bra.s   .Lboucle                | MUTATION : START ignoré\n')],
         "START ne referme plus l'écran ABOUT",
     ),
-    # Les commutateurs 2, 3 et 8 de la carte (DECISIONS §21).
+    # Switches 2, 3 and 8 of the board (DECISIONS §21).
     "gel-jamais": (
         "dip-gel", "io.s",
         [("        tst.b   DIPSW\n        bpl     _io_gel\n",
@@ -1178,7 +1179,7 @@ MUTATIONS = {
           "        btst    #1, 0x300001\n        nop                             | MUTATION\n")],
         "$10FEF8 à 2 quel que soit le commutateur 2",
     ),
-    # L'autofire, 7, le 2026-10-27 (relevé --ref-af).
+    # The autofire, 7, on 2026-10-27 (record --ref-af).
     "af-inerte": (
         "af-tir", "io.s",
         [
@@ -1225,7 +1226,7 @@ MUTATIONS = {
           "        cmpi.b  #3, 0x10FD94\n        nop                             | MUTATION\n        nop\n")],
         "commutateur 3 à ON, le panneau passe par le chemin des manettes et son turbo",
     ),
-    # Les garanties sur les défauts d'UniBIOS (DECISIONS §23).
+    # The guarantees on UniBIOS's defects (DECISIONS §23).
     "boot-police-cartouche": (
         "boot-graphismes", "ecran.s",
         [
@@ -1296,7 +1297,7 @@ MUTATIONS = {
           "        jsr     _card\n        nop                             | MUTATION : la RAM du jeu non rendue\n        nop\n")],
         "la copie laisse la sauvegarde dans la RAM du jeu",
     ),
-    # La table du sinus (DECISIONS §18).
+    # The sine table (DECISIONS §18).
     "sinus-ff": (
         "alpha-trajectoire howto-preisle2", "sinus.s",
         [("_table_sinus:\n", "_table_sinus:\n        .fill   256, 2, 0xFFFF          | MUTATION : la zone au remplissage d'avant\n        .if 0\n"),
@@ -1318,7 +1319,7 @@ MUTATIONS = {
           "4:      btst    #7, %d0                 | C: copy the line's save\n        nop                             | MUTATION\n        nop\n")],
         "C ne copie pas",
     ),
-    # Les menus au panneau de mahjong (DECISIONS §30).
+    # The menus on the mahjong panel (DECISIONS §30).
     "pn-sans-traduction": (
         "pn-menu-on pn-valeur pn-verrou pn-jeu", "panneau.s",
         [("        tst.b   PANNEAU\n        bne.s   1f\n",
@@ -1382,12 +1383,12 @@ def appliquer(nom, dossier):
 
 
 def eprouver_une(nom, roms, travail):
-    """Une mutation : sa copie, son parcours. Rend (tuée, ligne de verdict). Une mutation qui ne
-    s'applique plus (`appliquer` sort par sys.exit) ou toute autre erreur donne une ligne ERREUR, comptée
-    comme survivante : dans un thread du pool, une exception ne s'afficherait qu'à la fin."""
+    """One mutation: its copy, its run. Returns (killed, verdict line). A mutation that no
+    longer applies (`appliquer` exits through sys.exit) or any other error gives an ERREUR line,
+    counted as surviving: in a pool thread, an exception would only show at the end."""
     try:
         return _eprouver_une(nom, roms, travail)
-    except BaseException as e:  # SystemExit compris
+    except BaseException as e:  # SystemExit included
         return False, f"ERREUR\t{nom}\t{MUTATIONS[nom][0]}\t{e}"
 
 

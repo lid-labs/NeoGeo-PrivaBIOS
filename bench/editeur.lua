@@ -1,23 +1,23 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 -- Copyright (C) 2026 Thibaut Lion
--- Jig de l'éditeur de soft-DIP (`src/c0/dip.s`), sans fenêtre. Tient le bouton TEST de la
--- carte (champ `:TEST` « Service Mode » de MAME) de la trame 1 à E_TEST, presse des boutons de
--- P1 aux trames voulues, relève le bloc de sauvegarde et BIOS_GAME_DIP, et écrit des images.
+-- Soft-DIP editor jig (`src/c0/dip.s`), windowless. Holds the board's TEST button (MAME's
+-- `:TEST` "Service Mode" field) from frame 1 to E_TEST, presses P1 buttons at the wanted
+-- frames, records the save block and BIOS_GAME_DIP, and writes pictures.
 --
---   E_OUT      dossier de sortie (obligatoire) ; le relevé va dans E_OUT/editeur.txt
---   E_TEST     dernière trame où TEST est tenu (0 : jamais ; défaut 0)
---   E_APPUIS   « trame:bouton » séparés par des virgules, bouton parmi haut bas gauche droite
---              A START ; chaque appui dure 3 trames
---   E_RELEVES  trames où relever $D00124-$D00143, $D00220-$D0029F, $10FD84-$10FD93, les
---              réglages du BIOS ($D00210-$D0021F, `src/c0/reglages.s`) et BIOS_COUNTRY_CODE
---   E_IMAGES   trames dont l'image (bgra 320×224, comme bios-probe.lua) est écrite
---   E_FIN      trame de sortie de MAME (défaut 1200) ; vifs relevés toutes les 100 trames
+--   E_OUT      output folder (mandatory); the record goes to E_OUT/editeur.txt
+--   E_TEST     last frame where TEST is held (0: never; default 0)
+--   E_APPUIS   "frame:button" separated by commas, button among haut bas gauche droite
+--              A START; each press lasts 3 frames
+--   E_RELEVES  frames at which to record $D00124-$D00143, $D00220-$D0029F, $10FD84-$10FD93, the
+--              BIOS settings ($D00210-$D0021F, `src/c0/reglages.s`) and BIOS_COUNTRY_CODE
+--   E_IMAGES   frames whose picture (bgra 320×224, like bios-probe.lua) is written
+--   E_FIN      MAME exit frame (default 1200); vifs recorded every 100 frames
 --
--- Aucune entrée n'est pressée en dehors de celles-ci : pas de pièce, pas de START du banc.
+-- No input is pressed apart from these: no coin, no START from the bench.
 --   E_OUT=… E_TEST=260 E_APPUIS=270:bas,280:droite,300:START mame kof98 -bios euro \
 --     -video none -nvram_directory <neuf> -autoboot_script bench/editeur.lua
--- Le script est relu à chaque reset de la machine (watchdog, ou reset voulu d'un jeu) : la
--- garde _G le fait ne s'installer qu'une fois, et chaque reset est relevé avec sa trame.
+-- The script is reread at each machine reset (watchdog, or a game's intended reset): the
+-- _G guard makes it install only once, and each reset is recorded with its frame.
 if _G.EDITEUR then return end
 _G.EDITEUR = {}
 local OUT = os.getenv("E_OUT")
@@ -65,8 +65,8 @@ emu.register_frame_done(function()
   local tenus = {}
   for _, a in ipairs(appuis) do if n >= a[1] and n < a[1] + 3 then tenus[a[2]] = true end end
   for _, c in pairs(champs) do c:set_value(tenus[c] and 1 or 0) end
-  -- Chaque changement de la demande USER ($10FDAF mode, $10FDAE demande) : on y lit si un
-  -- boot remet la main en demande 0 (premier boot du jeu) ou en demande 2.
+  -- Each change of the USER request ($10FDAF mode, $10FDAE request): it shows whether a boot
+  -- hands over in request 0 (first boot of the game) or in request 2.
   local u = string.format("%02X/%02X", p:read_u8(0x10FDAF), p:read_u8(0x10FDAE))
   if u ~= _G.EDITEUR.user then _G.EDITEUR.user = u out:write(string.format("f%d user=%s\n", n, u)) end
   if releves[n] then

@@ -1,18 +1,18 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 -- Copyright (C) 2026 Thibaut Lion
--- Provoque un appel au BIOS, sans partie : à la première trame >= A_F où le PC est hors du BIOS,
--- écrit A_IFACE (octets hex) à partir de $10FDC4, remplit A_REMPLIR ("adresse:longueur", hex,
--- motif (i*7+$31)&$FF), empile le PC courant comme adresse de retour et saute à A_ENTREE (hex).
--- Relève jusqu'au retour (premier fetch à l'adresse de retour) : écritures en RAM hors pile du
--- BIOS ($10F200-$10F2FF), regroupées ; accès à la carte, et chaque écriture sur la carte ;
--- interface après ; trames écoulées. L'interruption vblank du jeu tombe dans la fenêtre : ses
--- écritures sont dans le relevé, à écarter. Validé sur un chargement : mêmes écritures et mêmes
--- lectures de carte que l'appel naturel.
+-- Causes a call to the BIOS, with no play session: at the first frame >= A_F where the PC is
+-- outside the BIOS, writes A_IFACE (hex bytes) from $10FDC4, fills A_REMPLIR ("adresse:longueur",
+-- hex, pattern (i*7+$31)&$FF), pushes the current PC as return address and jumps to A_ENTREE (hex).
+-- Records up to the return (first fetch at the return address): writes to RAM outside the BIOS
+-- stack ($10F200-$10F2FF), grouped; memory card accesses, and each write to the card; interface
+-- afterwards; frames elapsed. The game's vblank interrupt falls within the window: its writes are
+-- in the record, to be set aside. Validated on a load: same writes and same card reads as the
+-- natural call.
 --   A_F=1200 A_FIN=1500 A_ENTREE=C00468 A_IFACE=<octets> A_OUT=<sortie> mame aof -bios euro \
 --   -memc <carte.neo> ... -autoboot_script bench/forcer.lua
--- Sans A_OUT, la sortie va à J_OUT/o.txt (le dossier du run de `parcours.sh`). Après le retour,
--- « tampon: » porte les octets de la zone A_TAMPON (« adresse:longueur », défaut A_REMPLIR), tels
--- que le jeu les relirait.
+-- Without A_OUT, the output goes to J_OUT/o.txt (the run folder of `parcours.sh`). After the
+-- return, "tampon:" carries the bytes of the A_TAMPON area ("adresse:longueur", default
+-- A_REMPLIR), as the game would read them back.
 if not _G.F then _G.F={n=0,actif=false}
 local m=manager.machine; local cpu=m.devices[":maincpu"]; local p=cpu.spaces["program"]
 local out=io.open(os.getenv("A_OUT") or (os.getenv("J_OUT").."/o.txt"),"a")
@@ -26,7 +26,7 @@ F.sys={} F.tsys=p:install_write_tap(0x380000,0x3A001F,"sys",function(o,d,mk) if 
 F.st={} F.tst=p:install_read_tap(0x380000,0x380001,"st",function(o,d,mk) if F.actif then local k=string.format("%04X/%04X",d,mk) F.st[k]=(F.st[k] or 0)+1 end end)
 F.tcw=p:install_write_tap(0x800000,0x8FFFFF,"cw",function(o,d) if F.actif then F.cw=F.cw+1 F.cwa[#F.cwa+1]=string.format("%X=%02X",o,d&0xFF) end end)
 local function groupe(L)
-  -- A_BRUT=1 : une adresse par écriture, sans regroupement, pour un filtre adresse par adresse.
+  -- A_BRUT=1: one address per write, without grouping, for an address-by-address filter.
   if os.getenv("A_BRUT")=="1" then local t={} for _,x in ipairs(L) do t[#t+1]=string.format("%06X-%06X(1)",x,x) end return table.concat(t," ") end
   local s,pr,st,nb={},nil,nil,0
   for _,a in ipairs(L) do if pr and (a==pr or a==pr+1 or a==pr+2) then pr=a nb=nb+1 else

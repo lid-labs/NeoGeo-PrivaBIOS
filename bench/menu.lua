@@ -1,31 +1,31 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 -- Copyright (C) 2026 Thibaut Lion
--- Jig du menu en jeu (`src/c0/menu.s`), sans fenêtre. Met un jeu en partie (pièce puis START),
--- tient le bouton TEST de la carte, choisit une ligne du menu, et relève ce que le menu rend.
+-- In-game menu jig (`src/c0/menu.s`), windowless. Puts a game into play (coin then START),
+-- holds the board's TEST button, picks a line of the menu, and records what the menu returns.
 --
---   J_OUT      dossier de sortie (obligatoire) ; le relevé va dans J_OUT/menu.txt
---   J_PIECE    trame de la pièce (défaut 400), J_START celle de START (défaut 500), 8 trames
---   J_GESTE    première trame du geste (défaut 1500), tenu J_TENIR trames (défaut 40)
---   J_TEST     1 : TEST tenu pendant le geste (champ MAME `:TEST` « Service Mode ») ; 0 : rien
---              — le run témoin, où le menu ne s'ouvre pas et où le jeu vit les mêmes entrées
---   J_APPUIS   « trame:bouton » séparés par des virgules (bas, haut, A, START), 3 trames
---   J_IMAGES   trames dont l'image (bgra 320×224) est écrite
---   J_HACHES   « de-à » : à chaque trame de cet intervalle, une empreinte de la RAM de travail,
---              de la VRAM, de la RAM de palettes et de l'image (pour aligner un run sur son
---              témoin), et le compte des écritures de REG_SOUND et du Z80 vers le YM2610
---   J_DUMPS    trames où écrire les mêmes fichiers que les relevés « avant » / « après »,
---              nommés dNNNNN-{ram,vram,pal}.bin
---   J_PALS_LIBRES  palettes (1-15, virgules) à laisser libres : à J_GESTE + 15, la colonne 0
---              du plan fixe (masquée à l'écran) reçoit une case sous chacune des autres, pour
---              forcer le repli de `.Lchoisir_palettes` ; écrit dans la VRAM de MAME
---   J_FIN      trame de sortie (défaut 2400)
+--   J_OUT      output folder (mandatory); the record goes to J_OUT/menu.txt
+--   J_PIECE    frame of the coin (default 400), J_START that of START (default 500), 8 frames
+--   J_GESTE    first frame of the gesture (default 1500), held J_TENIR frames (default 40)
+--   J_TEST     1: TEST held during the gesture (MAME field `:TEST` "Service Mode"); 0: nothing
+--              — the witness run, where the menu does not open and the game gets the same inputs
+--   J_APPUIS   "frame:button" separated by commas (bas, haut, A, START), 3 frames
+--   J_IMAGES   frames whose picture (bgra 320×224) is written
+--   J_HACHES   "from-to": at each frame of this interval, a fingerprint of the work RAM, the
+--              VRAM, the palette RAM and the picture (to align a run with its witness), and the
+--              count of writes to REG_SOUND and from the Z80 to the YM2610
+--   J_DUMPS    frames at which to write the same files as the "before" / "after" records,
+--              named dNNNNN-{ram,vram,pal}.bin
+--   J_PALS_LIBRES  palettes (1-15, commas) to leave free: at J_GESTE + 15, column 0 of the fix
+--              layer (masked on screen) receives a tile under each of the others, to force the
+--              fallback of `.Lchoisir_palettes`; written into MAME's VRAM
+--   J_FIN      exit frame (default 2400)
 --
--- LES RELEVÉS « AVANT » ET « APRÈS », à l'instruction près, par deux taps sur MN_SR ($10F802,
--- `menu.s`) : l'écriture qui ouvre le menu, et la lecture qui le referme (MN_COMPTE à $FFFF).
--- Chacun écrit J_OUT/{avant,apres}-{ram,vram,pal}.bin : $100000-$10FFFF, la VRAM entière
--- (item `0/m_videoram` de `:spritegen`), $400000-$401FFF (la banque en place), plus l'adresse
--- VRAM et le pas que MAME tient (items `m_vram_offset`, `m_vram_modulo`).
--- Le script est relu à chaque reset de la machine : la garde _G le fait ne s'installer qu'une fois.
+-- THE "BEFORE" AND "AFTER" RECORDS, to the instruction, through two taps on MN_SR ($10F802,
+-- `menu.s`): the write that opens the menu, and the read that closes it (MN_COMPTE at $FFFF).
+-- Each writes J_OUT/{avant,apres}-{ram,vram,pal}.bin: $100000-$10FFFF, the whole VRAM
+-- (item `0/m_videoram` of `:spritegen`), $400000-$401FFF (the bank in place), plus the VRAM
+-- address and the step that MAME holds (items `m_vram_offset`, `m_vram_modulo`).
+-- The script is reread at each machine reset: the _G guard makes it install only once.
 if _G.MENUJIG then return end
 _G.MENUJIG = {}
 local OUT = os.getenv("J_OUT")
@@ -82,7 +82,7 @@ local function releve(nom)
   occupe = false
 end
 
--- L'ouverture et la fermeture du menu.
+-- The opening and closing of the menu.
 _G.MENUJIG.tav = p:install_write_tap(0x10F802, 0x10F803, "avant", function()
   if not occupe and n > 0 and cpu.state["PC"].value >= 0xC04300 then W("f%d MENU OUVERT", n) releve("avant") end end)
 _G.MENUJIG.tap = p:install_read_tap(0x10F802, 0x10F803, "apres", function()
@@ -90,7 +90,7 @@ _G.MENUJIG.tap = p:install_read_tap(0x10F802, 0x10F803, "apres", function()
     W("f%d MENU FERME adr_retrouvee=%d adr=%04X palettes=%d,%d,%d usage=%04X", n, p:read_u16(0x10F84A),
       p:read_u16(0x10F848), p:read_u16(0x10F872), p:read_u16(0x10F874), p:read_u16(0x10F876), p:read_u16(0x10F878))
     releve("apres") end end)
--- Le son : ce que le 68000 envoie au Z80, et ce que le Z80 écrit au YM2610 (ports 4-7).
+-- The sound: what the 68000 sends to the Z80, and what the Z80 writes to the YM2610 (ports 4-7).
 _G.MENUJIG.tson = p:install_write_tap(0x320000, 0x320001, "son", function(o, d, mk)
   if not occupe and (mk & 0xFF00) ~= 0 then son[#son + 1] = string.format("%02X", (d >> 8) & 0xFF) end end)
 local zio = m.devices[":audiocpu"].spaces["io"]
@@ -103,8 +103,8 @@ local function empreintes()
   occupe = true
   local h = 5381
   for a = 0x100000, 0x10FFFF, 4 do
-    -- hors calendrier (horloge de l'hôte, $10FDD2-$10FDD9), hors zones du menu ($10F4C0-$10F7FF,
-    -- $10F800-$10FAFF) et des états des cheats ($10FB00-$10FB07, `cheats.s`)
+    -- excluding the calendar (host clock, $10FDD2-$10FDD9), the menu's areas ($10F4C0-$10F7FF,
+    -- $10F800-$10FAFF) and the cheat states ($10FB00-$10FB07, `cheats.s`)
     if not (a >= 0x10FDD0 and a < 0x10FDDC) and not (a >= 0x10F4C0 and a < 0x10FB08) then
       h = (h * 33 + p:read_u32(a)) % 2147483647 end
   end

@@ -1,18 +1,18 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 -- Copyright (C) 2026 Thibaut Lion
--- Jig de l'horloge, chargé avec `son.lua` (J_AUSSI), sans fenêtre : l'horloge µPD4990A rend la date
--- qu'on lui donne, et non celle de l'hôte que MAME lui passe. Pour tout lecteur de l'horloge, BIOS
--- de référence compris : le jig ne fausse que le bit que la puce sort, au moment où elle le sort.
---   HL_DATE  « AAMMJJS » : année, mois, jour (BCD) et jour de semaine (0-6) ; l'heure rendue est
+-- Clock jig, loaded with `son.lua` (J_AUSSI), windowless: the µPD4990A clock returns the date it
+-- is given, and not the host's that MAME passes it. For every reader of the clock, reference
+-- BIOS included: the jig only falsifies the bit that the chip outputs, at the moment it outputs it.
+--   HL_DATE  "AAMMJJS": year, month, day (BCD) and day of week (0-6); the time returned is
 --            12:00:00
--- LE MODÈLE, lu dans les pages « UPD4990 » et « Memory mapped registers » du NeoGeo Development
--- Wiki, et dans `src/c0/cal.s` qui les cite avec la fiche NEC : REG_RTCCTRL ($380051) porte DATA IN
--- au bit 0, CLK au bit 1, STB au bit 2 ; la puce prend DATA IN au front montant de CLK, dans un
--- registre de commande de quatre bits ; STB exécute la commande ; après « Register Shift » ($1), le
--- registre à décalage sort sur DATA OUT (REG_STATUS_A, $320001, bit 7) un bit par front montant de
--- CLK, le premier avant tout front : seconde, minute, heure, jour (BCD, 8 bits chacun), jour de
--- semaine (4), mois (4, binaire), année (8, BCD), poids faible d'abord. « Time Read » ($3) charge
--- le registre ; le jig, lui, le charge de sa date à chaque STB de $3.
+-- THE MODEL, read in the "UPD4990" and "Memory mapped registers" pages of the NeoGeo Development
+-- Wiki, and in `src/c0/cal.s` which cites them with the NEC datasheet: REG_RTCCTRL ($380051)
+-- carries DATA IN on bit 0, CLK on bit 1, STB on bit 2; the chip takes DATA IN on the rising edge
+-- of CLK, into a four-bit command register; STB executes the command; after "Register Shift"
+-- ($1), the shift register outputs on DATA OUT (REG_STATUS_A, $320001, bit 7) one bit per rising
+-- edge of CLK, the first before any edge: second, minute, hour, day (BCD, 8 bits each), day of
+-- week (4), month (4, binary), year (8, BCD), least significant first. "Time Read" ($3) loads
+-- the register; the jig, for its part, loads it with its date at each STB of $3.
 if _G.HORLOGE then return end
 _G.HORLOGE = {}
 local G = _G.HORLOGE
@@ -21,7 +21,7 @@ local p = m.devices[":maincpu"].spaces["program"]
 local D = assert(os.getenv("HL_DATE"), "HL_DATE manquant")
 local AA, MM, JJ, S = D:match("^(%x%x)(%x%x)(%x%x)(%d)$")
 assert(AA, "HL_DATE : AAMMJJS attendu")
-local mois = tonumber(MM, 10) -- BCD lu en décimal : le mois binaire de la puce
+local mois = tonumber(MM, 10) -- BCD read as decimal: the chip's binary month
 local champs = { { 0x00, 8 }, { 0x00, 8 }, { 0x12, 8 }, { tonumber(JJ, 16), 8 }, { tonumber(S), 4 }, { mois, 4 }, { tonumber(AA, 16), 8 } }
 local bits = {}
 for _, c in ipairs(champs) do for k = 0, c[2] - 1 do bits[#bits + 1] = (c[1] >> k) & 1 end end
@@ -31,7 +31,7 @@ G.tw = p:install_write_tap(0x380050, 0x380051, "hl_w", function(o, d, mk)
   local v = d & 0xFF
   local c = (v >> 1) & 1
   if c == 1 and clk == 0 then
-    cmd = ((cmd >> 1) | ((v & 1) << 3)) & 0x0F -- poids faible d'abord : le dernier bit entre en haut
+    cmd = ((cmd >> 1) | ((v & 1) << 3)) & 0x0F -- least significant first: the last bit enters at the top
     if decale then idx = idx + 1 end
   end
   clk = c
