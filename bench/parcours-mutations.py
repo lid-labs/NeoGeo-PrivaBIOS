@@ -355,6 +355,12 @@ MUTATIONS = {
           '        tst.b   BIOS_LOGO\n        bra.s   9f                      | MUTATION : jamais de demande 1\n')],
         "en mode AES, la demande 1 n'est jamais donnée",
     ),
+    "logo-sous-les-gels": (
+        "aes-logo-fin", "c0.s",
+        [("        .equ    BIOS_LOGO, 0x10FB52     | request 1 of the AES mode (`_logo_aes`)\n",
+          "        .equ    BIOS_LOGO, 0x10FB08     | MUTATION : l'octet fort de GL_MASQUE\n")],
+        "BIOS_LOGO sous GL_MASQUE : le moteur des cheats l'efface en partie, la demande 1 revient",
+    ),
     "aes-titre-apres-partie": (
         "aes-fin", "c0.s",
         [

@@ -1,0 +1,16 @@
+# kof98 in AES mode (the aes-k98-set NVRAM of bench/parcours.sh), our image, MAME 0.286, -bios euro: START at 2500, A
+# every 60 frames from 2600 to 7000 (the selection screens), then no input; bench/son.lua with
+# J_SUIVRE=10FB08:1,10FDAE:1,10FDAF:1 (BIOS_LOGO before the fix, BIOS_USER_REQUEST, BIOS_USER_MODE).
+# Before the fix (image baa197a1…, BIOS_LOGO at $10FB08, the high byte of GL_MASQUE): the cheat engine clears
+# it at the first frame of play (andi.w on GL_MASQUE), and after the game over the boot animation (request 1)
+# is given again. After the fix (BIOS_LOGO at $10FB52, image dd206616…): scene aes-logo-fin PASS, request 1
+# not given after the game; mutation logo-sous-les-gels (the old address) killed.
+frame	image	BIOS_LOGO	BIOS_USER_REQUEST	BIOS_USER_MODE	event
+184	baa197a1	1	1	0	request 1 at boot
+649	baa197a1	2	2	1	demo
+2501	baa197a1	2	2	2	game starts
+2502	baa197a1	0	2	2	BIOS_LOGO cleared by the cheat engine
+14056	baa197a1	0	2	1	game over, demo
+14059	baa197a1	1	1	0	request 1 given again
+2501	dd206616	-	2	2	game starts
+14056	dd206616	-	2	1	game over, demo; no request 1 after the game (scene aes-logo-fin)

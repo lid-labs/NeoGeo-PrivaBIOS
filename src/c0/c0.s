@@ -66,7 +66,7 @@
 | `objcopy -O binary` copies the allocated sections without looking at their execute bit.
 | Measured: both flags give the same image, to the sha256.
 | ----------------------------------------------------------------------------------
-        .equ    BIOS_LOGO, 0x10FB08     | request 1 of the AES mode (`_logo_aes`)
+        .equ    BIOS_LOGO, 0x10FB52     | request 1 of the AES mode (`_logo_aes`)
         .section .vectors, "a"
 
 | ----------------------------------------------------------------------------------
@@ -2149,9 +2149,11 @@ _remettre_partir:
 | first hand-over of a demo, once only — BIOS_LOGO goes to 2 even without an animation, so
 | that another slot does not receive it in the middle of the rotation. Without AES mode,
 | nothing. $114 = 0 (the BIOS's eyecatcher): nothing either, decision D6.
-| BIOS_LOGO ($10FB08): ours, in the area no game writes (measured, `menu.s`), reset to
-| zero by the boot's clearing; 1 = request 1 given, 2 = done (`.equ` at the top of the
-| file).
+| BIOS_LOGO ($10FB52): ours, in the area no game writes (measured, `menu.s`), after the
+| autofire; reset to zero by the boot's clearing only; 1 = request 1 given, 2 = done (`.equ` at
+| the top of the file). It was at $10FB08 until 2026-10-30, the high byte of GL_MASQUE
+| (`cheats.s`): the cheat engine cleared it at the start of a game, and kof98 got its animation
+| again after a game over (measured, `measured/2026-10-30-aes-logo-fin.tsv`).
 _logo_aes:
         jsr     _borne_remise           | DEMO SOUND: $D00046 according to the request (`reglages.s`)
         cmpi.b  #2, %d2
