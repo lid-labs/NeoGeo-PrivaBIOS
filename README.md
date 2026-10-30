@@ -22,7 +22,7 @@ from SNK or from any game. It is licensed under the GPL-3.0-or-later.
 
 Website: https://bios.sprixe.dev/ (sources in [`site/`](site/), see [`docs/SITE.md`](docs/SITE.md)).
 
-Status: in testing. Technical notes in `docs/` are in French.
+Status: in testing. Many technical notes in `docs/` are still in French and are being translated.
 
 Sprixe BIOS was developed under the working name ReBIOS; that name still appears in dated notes and
 in the backup RAM signature.

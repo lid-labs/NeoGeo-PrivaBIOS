@@ -11,14 +11,16 @@ Sprixe BIOS contains no code from SNK, UniBIOS or any game, and must stay that w
 
 You may observe a BIOS or a game while it runs: the picture, the sound, the RAM and the registers,
 how many times each address is accessed, and the addresses and timing of accesses on the bus, as the
-files in `measured/` do. You may use public documentation (the NeoGeo Development Wiki, MAME's
-driver source as a hardware reference).
+files in `measured/` do. A MAME watchpoint may tell which program counter writes a RAM cell. You may
+use public documentation (the NeoGeo Development Wiki, MAME's driver source as a hardware
+reference).
 
 You must never, for the SNK BIOS, UniBIOS, any other third-party BIOS or a game:
 
 - read, disassemble or decompile the code or the bytes of its ROM;
 - step through its code in a debugger;
-- copy its code or any byte of its ROM.
+- copy its code or any byte of its ROM;
+- use a third-party cheat database (UniBIOS, MAME's `cheat.xml`, websites).
 
 If you are unsure whether something you saw or used crosses this line, say so in the pull request
 before writing code.
@@ -71,5 +73,6 @@ licence, GPL-3.0-or-later.
 
 ## Language
 
-Code comments and the technical notes in `docs/` are in French. Issues, pull requests and
-discussions can be in English or French.
+New text is written in English: notes, code comments, commits and pull requests. Many notes in
+`docs/` and the code comments are still in French and are being translated. Issues and discussions
+can be in English or French.
