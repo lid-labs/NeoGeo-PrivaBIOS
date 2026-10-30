@@ -67,7 +67,7 @@ SCENARIOS = {
     "saut": "400-407:piece,500-507:START,1000-40000:droite,1000-40000%20:B",
     "immobile": "400-407:piece,500-507:START",
     # Les bombes (Metal Slug 2 à 5, le 2026-10-30) : P1 tire, avance et lâche une bombe toutes les
-    # 60 trames ; le compteur descend vite, et remonte à chaque vie ou caisse ramassée.
+    # 60 trames ; le compteur descend vite, et remonte à 10 à chaque vie.
     "bombe": "400-407:piece,500-507:START,600-40000%6:A,1000-40000:droite,1000-40000%60:C",
     # P2 seul (le 2026-10-29) : sa pièce, son START, et il avance en sautant ; P1 ne joue pas. Ses
     # vies, ses bombes et sa fin de partie se lisent alors comme celles de P1.

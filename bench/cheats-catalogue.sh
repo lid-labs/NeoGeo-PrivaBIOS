@@ -18,7 +18,8 @@
 #          comme au témoin. En complément, la cellule vaut la valeur de la table, ou une de moins
 #          (le jeu a décompté depuis le dernier appel du moteur), sur au moins RAM_MIN des relevés.
 #   compteur  un nombre du HUD qui ne bouge plus : un temps de mission qui ne perd
-#          1 que toutes les ~256 trames (le 2026-10-29). Comme temps, sur le rectangle des chiffres,
+#          1 que toutes les ~256 trames (le 2026-10-29), ou les bombes de Metal Slug (le 2026-10-30,
+#          remises à 10 à chaque vie). Comme temps, sur le rectangle des chiffres,
 #          mais de T + 200 à FIN, et d'autres seuils : le compte du témoin ne change que quelques
 #          fois. Sous cheat, la même image sur au moins COMPTEUR_ON_MIN des relevés ; au témoin, deux
 #          images au moins, la plus fréquente sur moins de COMPTEUR_ON_MIN.
