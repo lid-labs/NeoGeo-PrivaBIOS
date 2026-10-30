@@ -28,6 +28,20 @@ Status: in testing.
 Sprixe BIOS was developed under the working name ReBIOS; that name still appears in dated notes and
 in the backup RAM signature.
 
+## Why another BIOS?
+
+UniBIOS is the reference on the Neo Geo, and Razoola's work has served players for two decades.
+Sprixe BIOS takes a different path: written from scratch, GPL-3.0, with its whole source open.
+
+- Autofire as a setting: A, B, C and D one by one, remembered for each game.
+- Game settings changed from the in-game menu, during play.
+- Settings of a game that has never been launched: the editor saves a clean entry.
+- A boot screen drawn only with the BIOS font, nothing from the cartridge's graphics.
+- No continue and silent demo for the whole cabinet.
+
+It is a young project: a beta for MVS boards, tested on one real board so far.
+The detail is in [`docs/COMPARISON.md`](docs/COMPARISON.md).
+
 ## Screenshots
 
 Taken under MAME 0.286 from the image this repository builds (SHA-256 `18da0b0a…`; the boot screen
@@ -77,7 +91,8 @@ cartridge. The in-game menu and autofire screens are over Metal Slug (© SNK).
 **Extras**
 - Jukebox, with a screen saver: black screen after about two minutes, music keeps playing.
 
-Not included: menu colours, US-style credit display, Arcade VS, PC-2-NEO, PICKnMIX. There is no image
+Not included: menu colours, US-style credit display, 4-player adapter, PC-2-NEO, PICKnMIX,
+overclock detection, coin and select remapping for joypads. There is no image
 for the AES console itself.
 
 The menus, and the keys and board switches that lead to them, are mapped in
@@ -89,6 +104,11 @@ Build the image first ([`docs/BUILD.md`](docs/BUILD.md)). The build produces a 1
 byte order, the same as `sp-s2.sp1` in `neogeo.zip`.
 
 ### On an MVS board
+
+This is a beta. Write down your board's settings first. Under MAME, moving from the SNK BIOS or
+UniBIOS 4.0 to Sprixe BIOS and back left the backup RAM's game data intact, with one game and no
+setting changed (`measured/2026-10-30-backup-ram-bascule.tsv`). That was not measured on a real
+board, nor after changing settings here, so treat scores and settings as things you could lose.
 
 1. Burn the image on a 27C1024 EPROM. Most programmers take the MAME byte order as is; if the board
    shows nothing, try the image with its bytes swapped in pairs.
@@ -113,7 +133,8 @@ No ROM of any kind is provided by this repository.
 Measured under MAME 0.286, on the 164 games of our MAME catalogue, each run under Sprixe BIOS, the
 SNK BIOS and UniBIOS 4.0 (`bench/matrice.sh`, `measured/HISTORIQUE.md`):
 
-- 161 of 164 games play under Sprixe BIOS, 162 under the SNK BIOS and under UniBIOS 4.0.
+- 161 of 164 games play under Sprixe BIOS, 162 under the SNK BIOS and under UniBIOS 4.0. This is judged
+  on the picture, under MAME: it is not evidence for real hardware.
 - `mvstemp` and `vliner` freeze under all three BIOSes.
 - `irrmaze` cannot be judged: the harness fails to substitute the BIOS for that set.
 

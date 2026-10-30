@@ -7,7 +7,7 @@ https://bios.sprixe.dev/. It replaces the `sprixe.dev/bios` page of the Sprixe s
 
 | File | Role |
 |---|---|
-| `index.html` | The whole page: header, comparison with UniBIOS 4.0, screens, download, method, FAQ, manual, changelog |
+| `index.html` | The whole page: header, figures, features, "Why another BIOS?", method, install, FAQ |
 | `site.css` | The styles. One dark appearance, in the colours of the BIOS screens |
 | `favicon.svg` | The tab icon |
 | `CNAME` | `bios.sprixe.dev` |
