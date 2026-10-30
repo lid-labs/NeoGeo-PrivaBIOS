@@ -12,8 +12,17 @@ All notable changes to Sprixe BIOS are listed here. The format follows
   action games (P2 playing alone), P1 INFINITE LIFE for five
   fighting games, INFINITE TIME for fourteen more games (Ganryu, Burning Fight, Metal Slug 2 and 4, eight
   fighting games, Street Hoop, Super Sidekicks), NO GAME OVER for nine puzzle, quiz and sport games.
-  81 games and 117 cheats in all.
+- INFINITE TIME for ten more fighting games: Art of Fighting 3, Breakers, Fatal Fury 2, Garou,
+  Gowcaizer, The King of Fighters '98, The Last Blade 2, Ninja Master's, Savage Reign and World
+  Heroes Perfect (#21).
+- INFINITE BOMBS for Metal Slug 2, 3, 4 and 5 (#22).
+- NO GAME OVER for Gururin, Thrash Rally and Zintrick, and P2 INF. LIVES for Twinkle Star Sprites
+  (#23). 93 games and 135 cheats in all.
+- `bench/cheats-catalogue.sh`: a `tres-clair` pixel mode (R + G + B > 700), for white digits over a
+  light background.
 - `bench/cheats-recherche.py`, the tool that searches for cheats under MAME.
+- `bench/cheats-recherche.py`: a `bombe` scenario, and the matching `b` entries in
+  `bench/cheats-catalogue.sh`.
 - `CLAUDE.md`, guidance for AI coding agents. New text in the repository is written in English.
 
 ### Changed
@@ -26,6 +35,9 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 
 ### Fixed
 
+- `bench/cheats-catalogue.sh`: the samsho2 timer zone leaves out the bar above the digits (#16).
+- `bench/parcours-mutations.py`: the `cat-mslug2-perdu` mutation no longer depends on the number of
+  Metal Slug 2 cheats; it had stopped applying when that number changed.
 - README: the status line no longer says that no release exists.
 - Cartridge CRC32: a cartridge without bank chips no longer shows a bank. On a real Super Sidekicks
   cartridge, the bank window read the same word everywhere and the screen showed BANKS 1 X 1024K;
