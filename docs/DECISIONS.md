@@ -1,912 +1,919 @@
-# Décisions, et ce qui les retournerait
+# Decisions, and what would overturn them
 
-Prises à partir du 2026-10-10, à l'issue de la campagne de mesure. Chaque décision porte **ce qui la
-renverserait**, pour qu'on sache la rouvrir sans refaire le chemin. Les §1 à §3 et le §28 disent la
-décision en vigueur ; la méthode est détaillée dans `docs/METHOD.md`.
+Taken from 2026-10-10 on, at the end of the measurement campaign. Each decision carries **what
+would overturn it**, so that it can be reopened without retracing the path. §1 to §3 and §28 state
+the decision in force; the method is detailed in `docs/METHOD.md`.
 
-## 0. La cible de fonctions : la parité UniBIOS, ni plus ni moins
+## 0. The feature target: UniBIOS parity, no more, no less
 
-**Décidé.** Le BIOS vise ce qu'UniBIOS 4.0 offre, et s'arrête là. Un save state sur cartouche
-NeoSD est un **souhait**, pas un engagement.
+**Decided.** The BIOS aims at what UniBIOS 4.0 offers, and stops there. A save state on a NeoSD
+cartridge is a **wish**, not a commitment.
 
-Ce que « parité UniBIOS » recouvre, et où chaque pièce existe déjà :
+What "UniBIOS parity" covers, and where each piece already exists:
 
-| Fonction | Où elle existe aujourd'hui |
+| Feature | Where it exists today |
 |---|---|
-| Région et mode à l'exécution, persistés | NeoPen (`configmenu.s`) + la backup RAM de neogeo-bios |
-| Soft DIPs, test matériel, autotests, checksum | neogeo-bios, qui les a les plus fournis |
-| Carte mémoire, calendrier | neogeo-bios |
-| Menu in-game, gestionnaire d'exceptions, thèmes | NeoPen |
-| **Cheats** | **à écrire** |
-| **Jukebox** | **à écrire** |
-| Hiscores et leurs remises à zéro | à écrire |
+| Region and mode at run time, persisted | NeoPen (`configmenu.s`) + neogeo-bios's backup RAM |
+| Soft DIPs, hardware test, self-tests, checksum | neogeo-bios, which has the most complete ones |
+| Memory card, calendar | neogeo-bios |
+| In-game menu, exception handler, themes | NeoPen |
+| **Cheats** | **to be written** |
+| **Jukebox** | **to be written** |
+| High scores and their resets | to be written |
 
-Aucune ligne n'en est reprise : depuis §1, cette colonne borne le périmètre et rien de plus.
+No row is taken from them: since §1, this column bounds the scope and nothing more.
 
-**Deux de ces fonctions manquent aux deux bases, et une seule est vraiment coûteuse.** Le moteur de
-cheats tient en quelques centaines d'octets — écrire en mémoire depuis une surimpression ; c'est la
-**table par jeu, identifiée par CRC**, qui est sans fin. UniBIOS en a vingt ans d'accumulation. La
-cible s'énonce donc « N jeux », jamais « les cheats ».
+**Two of these features are missing from both bases, and only one is really costly.** The cheat
+engine fits in a few hundred bytes — writing to memory from an overlay; it is the **per-game table,
+identified by CRC**, that is endless. UniBIOS has twenty years of accumulation of it. The target is
+therefore stated as "N games", never "the cheats".
 
-**Le jukebox est borné par le matériel** : le 68000 ne parle pas au YM2610 mais au Z80, et le BIOS
-ne commande le son que lorsque sa propre ROM Z80 tourne — donc **hors jeu seulement**. C'est pour
-cette raison qu'UniBIOS a un jukebox et pas un moniteur sonore en jeu.
+**The jukebox is bounded by the hardware**: the 68000 does not talk to the YM2610 but to the Z80,
+and the BIOS controls the sound only while its own Z80 ROM runs — so **outside games only**. That is
+why UniBIOS has a jukebox and not an in-game sound monitor.
 
-**Ce qui le renverserait** : rien côté fonctions. En revanche, si le save state passait de souhait
-à exigence, il faudrait d'abord lever son verrou — voir « Ce qui reste à trancher ».
+**What would overturn it**: nothing on the feature side. On the other hand, if the save state went
+from wish to requirement, its lock would have to be lifted first — see "Still to be decided".
 
-## 1. La base : zéro, et une salle blanche
+## 1. The base: zero, and a clean room
 
-**Décidé le 2026-10-11.** Le BIOS s'écrit **depuis zéro**. Aucune des bases libres mesurées n'est
-reprise :
+**Decided on 2026-10-11.** The BIOS is written **from scratch**. None of the free bases measured is
+taken over:
 
-| Base | Licence | Jeux du commerce | Ce qu'elle apporte |
+| Base | Licence | Commercial games | What it brings |
 |---|---|---|---|
-| **NeoPen**, source recompilée | **ISC** | **14 / 17** | région à chaud, menus, exceptions, thèmes |
-| *(pour mémoire : son binaire de 2015)* | ISC | *17 / 17* | — |
-| **neogeo-bios** | **GPL-3.0** | 15 / 17 | carte mémoire, calendrier, soft DIPs, autotests, en C |
+| **NeoPen**, source rebuilt | **ISC** | **14 / 17** | region changed on the fly, menus, exceptions, themes |
+| *(for the record: its 2015 binary)* | ISC | *17 / 17* | — |
+| **neogeo-bios** | **GPL-3.0** | 15 / 17 | memory card, calendar, soft DIPs, self-tests, in C |
 | nullbios 0.5 | LGPL-3.0+ | **9 / 17** | — |
 
-**La méthode.** Aucun code de SNK, d'UniBIOS ou d'un jeu n'a été copié ni désassemblé. Le BIOS SNK a
-été **observé en fonctionnement** : sous MAME (image, son, RAM, comptes de lecture par adresse) et,
-au début, par des **traces de bus en co-simulation** (adresses, temps et valeurs des écritures ; les
-lectures n'y portent aucune valeur). Le banc en tire des **contrats** (`specs/traces/`), bornés par
-§8. Le code est écrit par des **agents d'implémentation** neufs, dont les seules entrées sont ces
-contrats et la documentation publique. L'audit du 2026-10-10 a lu les sources de NeoPen et de
-`neogeo-bios` : personne qui les a lues n'écrit le BIOS. Des PC de jeux, relevés sous MAME, ont servi
-au diagnostic.
+**The method.** No code from SNK, UniBIOS or any game was copied or disassembled. The SNK BIOS was
+**observed while it ran**: under MAME (picture, sound, RAM, read counts per address) and, early on,
+through **bus traces in a co-simulation** (addresses, times and values of writes; reads carry no
+value in them). The bench draws **contracts** from them (`specs/traces/`), bounded by §8. The code
+is written by fresh **implementation agents**, whose only inputs are those contracts and public
+documentation. The audit of 2026-10-10 read the sources of NeoPen and `neogeo-bios`: no one who read
+them writes the BIOS. Game PCs, recorded under MAME, were used for diagnosis.
 
-**Ce que la méthode garantit, et ce qu'elle ne garantit pas.** Elle porte sur ce qu'on **donne** aux
-agents, parce que c'est ce qui est contrôlable ; elle ne dit rien de ce qu'un modèle a pu voir à son
-entraînement. Elle a connu un incident, consigné au §28 : quatre mots de la ROM SNK relevés pendant
-une enquête, puis une valeur redérivée par un agent neuf.
+**What the method guarantees, and what it does not.** It bears on what is **given** to the agents,
+because that is what can be controlled; it says nothing of what a model may have seen during its
+training. It had one incident, logged in §28: four words of the SNK ROM recorded during an
+investigation, then a value derived again by a fresh agent.
 
-**Le point de contrôle a tenu, le 2026-10-11.** La couche 0 — la poignée de main de boot, que la
-documentation publique ne couvre pas — a été écrite par un agent n'ayant que le contrat et la
-documentation publique ; 99,99 % des accès en espace programme sont servis par la cartouche sur la
-fenêtre de jugement, et le jeu tourne (`tasks.md`, C0).
+**The checkpoint held, on 2026-10-11.** Layer 0 — the boot handshake, which public documentation
+does not cover — was written by an agent that had only the contract and public documentation;
+99.99% of program-space accesses are served by the cartridge over the judging window, and the game
+runs (`tasks.md`, C0).
 
-**Ce qui le renverserait** : un élément du BIOS qui ne s'écrirait pas sans lire le code de quelqu'un.
+**What would overturn it**: a part of the BIOS that could not be written without reading someone's
+code.
 
-## 2. La licence : GPL-3.0-or-later
+## 2. The licence: GPL-3.0-or-later
 
-**Décidé le 2026-10-28.** Voir §28.
+**Decided on 2026-10-28.** See §28.
 
-## 3. Le code vit dans un dépôt public
+## 3. The code lives in a public repository
 
-**Décidé le 2026-10-28.** Le BIOS, son banc, ses contrats, ses relevés et ces notes sont publiés dans
-leur propre dépôt, sans l'historique du dépôt privé où ils ont été écrits. Voir §28.
+**Decided on 2026-10-28.** The BIOS, its bench, its contracts, its records and these notes are
+published in their own repository, without the history of the private repository where they were
+written. See §28.
 
-## 4. Contribuer en amont : caduque, sauf un signalement
+## 4. Contributing upstream: lapsed, except for one report
 
-**Caduque avec §1** : plus de base, donc plus de fork, et rien de notre code à faire remonter.
+**Lapsed with §1**: no base any more, so no fork, and nothing of our code to send upstream.
 
-Ce qui reste, et vaut d'être fait : signaler à `neogeo-bios` que sa compilation échoue à 96 % sans
-`libc6-dev-m68k-cross`, absent des prérequis de son README, et lui donner le banc qui reproduit
-ses échecs. C'est de la documentation et de la mesure, pas du code.
+What remains, and is worth doing: reporting to `neogeo-bios` that its build fails at 96% without
+`libc6-dev-m68k-cross`, missing from its README's requirements, and giving it the bench that
+reproduces its failures. That is documentation and measurement, not code.
 
-**La contrainte à ne pas rater** : écrire du code pour eux demande de lire leur source, et qui le
-fait ne peut plus écrire le nôtre (§1). Le signalement, lui, n'y oblige pas.
+**The constraint not to miss**: writing code for them requires reading their source, and whoever
+does so can no longer write ours (§1). The report does not require it.
 
-**Ce qui le renverserait** : l'échec du contrôle de §1 — la couche 0 non écrivable depuis la seule
-trace. Reprendre une base rendrait son objet à cette section.
+**What would overturn it**: the failure of §1's check — layer 0 not writable from the trace alone.
+Taking over a base would give this section its purpose back.
 
-## 5. L'attribution est gravée dans l'écran de boot
+## 5. The attribution is engraved in the boot screen
 
-**Décidé.** Le BIOS affichera au démarrage son nom, sa version et une URL qui l'identifie,
-brièvement et de façon sautable. Choix de
-l'utilisateur, le 2026-10-20, révisables : le nom « ReBIOS », l'URL « sprixe.dev/rebios », environ
-une seconde, sautable par n'importe quel bouton ; puis, après la première vidéo (« on peut à peine
-lire »), environ trois secondes avec un rappel « PRESS A BUTTON TO SKIP ». Écrit dans `src/c0/ecran.s`.
-Révisé le 2026-10-28 avec le nom (§29) : l'écran dit « SPRIXE BIOS » et « sprixe.dev/bios ».
+**Decided.** At start-up the BIOS will show its name, its version and a URL that identifies it,
+briefly and skippably. The user's choices, on 2026-10-20, open to revision: the name "ReBIOS", the
+URL "sprixe.dev/rebios", about one second, skippable with any button; then, after the first video
+("you can barely read it"), about three seconds with a reminder "PRESS A BUTTON TO SKIP". Written in
+`src/c0/ecran.s`. Revised on 2026-10-28 with the name (§29): the screen says "SPRIXE BIOS" and
+"sprixe.dev/bios".
 
-**Pourquoi.** Qui grave une image doit savoir ce qu'il fait tourner et où en trouver les sources ;
-l'écran le dit à chaque démarrage.
+**Why.** Whoever burns an image must know what they are running and where to find its sources; the
+screen says so at every start-up.
 
-**La police est celle du SFIX de la carte mère** (choix du 2026-10-20). Le texte du BIOS s'affiche
-sur le plan fixe, dont le LSPC ne lit les tuiles que dans une ROM S — au boot, le SFIX de la carte
-mère : une police rangée dans notre image ne s'afficherait pas. Une police à nous voudrait donc un
-SFIX à nous, c'est-à-dire une deuxième puce à remplacer, et sous MAME un `sfix.sfix` qui servirait
-aussi aux autres BIOS. On garde une seule puce, comme UniBIOS ; les numéros de tuile
-du SFIX standard sont relevés sur l'écran, sans lire la ROM
-(`measured/2026-10-20-sfix-glyphes.tsv`). Un SFIX à nous reste possible plus tard, en édition à
-part : notre BIOS ne peut pas savoir lequel est monté, il en faudrait deux builds.
+**The font is the one in the motherboard's SFIX** (choice of 2026-10-20). The BIOS's text is shown
+on the fix layer, whose tiles the LSPC reads only from an S ROM — at boot, the motherboard's SFIX: a
+font stored in our image would not show. A font of our own would therefore need an SFIX of our own,
+that is a second chip to replace, and under MAME an `sfix.sfix` that would also serve the other
+BIOSes. We keep a single chip, like UniBIOS; the tile numbers of the standard SFIX are recorded from
+the screen, without reading the ROM (`measured/2026-10-20-sfix-glyphes.tsv`). An SFIX of our own
+remains possible later, as a separate edition: our BIOS cannot know which one is fitted, it would
+take two builds.
 
-Ce qui le rend coûteux, et c'est à savoir avant de dessiner : depuis §1 l'écran est une
-**création**, et **la place n'est pas acquise**.
+What makes it costly, and it must be known before drawing: since §1 the screen is a **creation**,
+and **the room for it is not a given**.
 
-**L'arbitrage à ne pas rater** : un écran de boot coûte du temps, et on veut un démarrage rapide.
-Bref, et sautable.
+**The trade-off not to miss**: a boot screen costs time, and we want a fast start-up. Brief, and
+skippable.
 
-## 6. Le nom
+## 6. The name
 
-« ReBIOS » était un nom de travail (2026-10-20). Le 2026-10-28, le nom devient « Sprixe BIOS » :
-voir §29.
+"ReBIOS" was a working name (2026-10-20). On 2026-10-28, the name becomes "Sprixe BIOS": see §29.
 
-## 7. La cible de compatibilité s'écrit noir sur blanc
+## 7. The compatibility target is written in black and white
 
-**Décidé.** Le README du BIOS nommera les jeux qu'il vise, et ce ne sera pas « le Neo Geo ».
+**Decided.** The BIOS's README will name the games it targets, and it will not be "the Neo Geo".
 
-**Pourquoi.** NeoPen annonçait « la compatibilité avec tous les jeux avant d'ajouter des
-fonctions » ; nullbios a **réduit sa cible**, et son README le dit.
+**Why.** NeoPen announced "compatibility with all games before adding features"; nullbios
+**narrowed its target**, and its README says so.
 
-Ce que nous avons : un **oracle différentiel**. On n'a pas besoin de savoir
-ce que `SYSTEM_IO` est censé faire ; on a besoin que le nôtre fasse se comporter Metal Slug comme
-celui de SNK. Ça se vérifie et ça s'automatise.
+What we have: a **differential oracle**. We do not need to know what `SYSTEM_IO` is supposed to do;
+we need ours to make Metal Slug behave as SNK's does. That can be checked and automated.
 
-**La limite à ne pas oublier** : une spécification différentielle donne la compatibilité sur les
-jeux qu'on possède, pas sur les 161 autres. La taxe est réduite, pas abolie.
+**The limit not to forget**: a differential specification gives compatibility on the games we own,
+not on the 161 others. The tax is reduced, not abolished.
 
-## 8. Ce que le contrat généré a le droit de contenir
+## 8. What the generated contract is allowed to contain
 
-Tranché le 2026-10-11, après que #1326 a relevé un premier contrat et que sa review a montré que la
-règle écrite la veille — « les relevés ne portent que des adresses » — bornait le mauvais objet :
-la salle blanche du §1 tient sur ce que **reçoit** l'implémenteur, donc sur le contrat, pas sur les
-relevés du banc.
+Settled on 2026-10-11, after #1326 recorded a first contract and its review showed that the rule
+written the day before — "the records carry only addresses" — bounded the wrong object: the clean
+room of §1 rests on what the implementer **receives**, so on the contract, not on the bench's
+records.
 
-| Dans le contrat | Pourquoi |
+| In the contract | Why |
 |---|---|
-| Les **adresses** lues et écrites **hors de la ROM du BIOS** (`$C00000`-`$C1FFFF`), l'**ordre** des accès, les **comptes** | Comportement d'interface |
-| Les **valeurs écrites** en RAM, en registres et en palette | Produites par l'exécution, et nécessaires : sans elles, l'implémenteur n'a pas de quoi reproduire l'effet |
-| **Hors du contrat** : les adresses **dans** la ROM du BIOS, hors points d'entrée, et les **tables de données** qu'il y lit | Une suite de mots lue dans la ROM est une **table de données SNK**, pas un comportement |
+| The **addresses** read and written **outside the BIOS ROM** (`$C00000`-`$C1FFFF`), the **order** of accesses, the **counts** | Interface behaviour |
+| The **written values** in RAM, registers and palette | Produced by execution, and necessary: without them, the implementer has nothing to reproduce the effect with |
+| **Outside the contract**: the addresses **inside** the BIOS ROM, other than entry points, and the **data tables** it reads there | A sequence of words read from the ROM is an **SNK data table**, not a behaviour |
 
-**Le critère n'est pas automatisable en l'état.** La trace donne, par accès, l'adresse, la valeur et
-l'espace d'adressage, pas les registres du 68000 : elle ne dit pas d'où vient une valeur écrite. Et
-une table lue en PC-relatif sort elle aussi en espace programme, comme un immédiat. §8 fixe la frontière ; décider de quel côté tombe une
-valeur reste un jugement à porter sur chaque appel.
+**The criterion cannot be automated as things stand.** The trace gives, per access, the address, the
+value and the address space, not the 68000's registers: it does not say where a written value comes
+from. And a table read PC-relative also comes out in program space, like an immediate. §8 sets the
+boundary; deciding which side a value falls on remains a judgement to make on each call.
 
-**Deux choses ont changé le 2026-10-11, et elles déplacent la frontière du côté de l'outil.**
+**Two things changed on 2026-10-11, and they move the boundary to the tool's side.**
 
-Une lecture n'a pas de valeur observable : le banc ne pose aucune donnée sur le bus pour une
-lecture — **0 ligne non nulle sur 1 793 296 lectures**, mesuré sur quatre traces. Une valeur lue
-dans la ROM du BIOS ne peut donc pas entrer **directement** dans un contrat.
+A read has no observable value: the bench puts no data on the bus for a read — **0 non-zero line in
+1,793,296 reads**, measured on four traces. A value read from the BIOS ROM therefore cannot enter a
+contract **directly**.
 
-**Mais cela ne tient pas §8 à lui seul, et l'avoir écrit a été une erreur** : une valeur lue puis
-empilée ou recopiée ressort dans la donnée d'une écriture, qui est observable. Le versant lecture
-ferme une porte, pas la famille.
+**But that does not hold §8 by itself, and having written so was a mistake**: a value read then
+pushed or copied comes out in the data of a write, which is observable. The read side closes one
+door, not the family.
 
-Sur le versant écriture, le générateur ne se contente plus de signaler : dès qu'une séquence est
-signalée, il **retient les valeurs en bloc** et n'en garde que les adresses, le contrat disant
-pourquoi. Le grain est le **point d'entrée**, non l'appel : une table signalée sur un seul des sept
-appels à `$C0044A` retient les valeurs des sept. C'est grossier des deux façons — la retenue
-dépasse la table, et elle dépasse l'appel — et c'est le sens voulu : le doute retire la valeur au
-lieu de la laisser passer. Le jugement reste requis dans l'autre sens, puisqu'une table lue en
-PC-relatif échappe au signalement.
+On the write side, the generator no longer merely flags: as soon as a sequence is flagged, it
+**withholds the values as a block** and keeps only the addresses, the contract saying why. The grain
+is the **entry point**, not the call: a table flagged on only one of the seven calls to `$C0044A`
+withholds the values of all seven. It is coarse both ways — the withholding goes beyond the table,
+and beyond the call — and that is the intended direction: doubt removes the value instead of letting
+it through. Judgement remains required in the other direction, since a table read PC-relative
+escapes flagging.
 
-**Une valeur peut porter une adresse que §8 interdit, et le garde par séquence ne la voit pas.**
-Un `jsr` interne au BIOS empile son adresse de retour : c'est une écriture en RAM dont la valeur
-est une adresse de la ROM du BIOS, sans qu'aucune table ait été lue. La famille est « toute valeur
-dérivée du PC », et elle a été trouvée en review après que le premier garde avait été jugé
-suffisant. Un second garde retient donc, site par site, les valeurs qui sont ou complètent une
-adresse de `$C00000`-`$C1FFFF` — mesuré, 161 paires sur les sept appels à `$C0044A`. L'adresse de
-l'écriture reste au contrat, sa valeur non.
+**A value can carry an address that §8 forbids, and the per-sequence guard does not see it.** A
+`jsr` internal to the BIOS pushes its return address: it is a RAM write whose value is a BIOS ROM
+address, without any table having been read. The family is "any value derived from the PC", and it
+was found in review after the first guard had been judged sufficient. A second guard therefore
+withholds, site by site, the values that are or complete an address in `$C00000`-`$C1FFFF` —
+measured, 161 pairs over the seven calls to `$C0044A`. The write's address stays in the contract,
+its value does not.
 
-Ce que cela apprend sur §8 : la frontière ne se tient pas par une liste de cas, mais en se
-demandant **d'où vient** ce qu'on écrit. Une valeur n'est admissible que si rien dans son origine
-ne la relie au contenu de la ROM.
+What this teaches about §8: the boundary is not held by a list of cases, but by asking **where what
+is written comes from**. A value is admissible only if nothing in its origin ties it to the ROM's
+content.
 
-**Un troisième garde protège d'une erreur que la première version a commise** : une valeur
-constante sur une fenêtre n'est pas un état. Sur un dump SNK, les premières trames écrivent les
-motifs du test mémoire, et le contrat de boot annonçait `$5555` partout comme « l'état qu'une
-couche doit reproduire ». Le générateur refuse désormais de nommer état une zone dont **tous** les
-sites portent la même valeur : c'est la signature d'un remplissage, et il le dit.
+**A third guard protects against a mistake the first version made**: a value constant over a window
+is not a state. On an SNK dump, the first frames write the memory-test patterns, and the boot
+contract announced `$5555` everywhere as "the state a layer must reproduce". The generator now
+refuses to call a state an area whose sites **all** carry the same value: it is the signature of a
+fill, and it says so.
 
-**Qui tranche, et quand** : le contrat est relu appel par appel **avant** d'être remis aux agents
-d'implémentation, et §8 est le critère de cette relecture. La règle du §1 porte donc sur « ce qu'on leur
-donne » : ce qui est contrôlable ici, c'est le geste de relire, pas un filtre automatique.
+**Who decides, and when**: the contract is reviewed call by call **before** being handed to the
+implementation agents, and §8 is the criterion of that review. The rule of §1 therefore bears on
+"what is given to them": what can be controlled here is the act of reviewing, not an automatic
+filter.
 
-Pour une table recopiée, le contrat porte **le fait du transfert** — « cet appel copie N mots
-de telle zone vers telle zone » — et non les octets. L'implémenteur a besoin de savoir qu'une copie
-a lieu ; la table, il la produit lui-même.
+For a copied table, the contract carries **the fact of the transfer** — "this call copies N words
+from such area to such area" — and not the bytes. The implementer needs to know that a copy takes
+place; the table, they produce themselves.
 
-**Les points d'entrée sont admis** (`$C0044A`, `$C00450`, `$C004C2`, relevés par #1326) : la table
-de sauts du BIOS est de la documentation publique. Les adresses **internes** de son code ne le sont
-pas, et n'entrent pas.
+**Entry points are admitted** (`$C0044A`, `$C00450`, `$C004C2`, recorded by #1326): the BIOS's jump
+table is public documentation. The **internal** addresses of its code are not, and do not get in.
 
-**L'état des lieux des BIOS existants n'est jamais remis à un agent d'implémentation**
-(`RELECTURE-CONTRATS.md`). Il n'est pas publié, ni les adresses internes des images SNK, UniBIOS et
-neodebug qu'il portait.
+**The survey of existing BIOSes is never handed to an implementation agent**
+(`RELECTURE-CONTRATS.md`). It is not published, nor are the internal addresses of the SNK, UniBIOS
+and neodebug images it carried.
 
-**Ce que cette décision ne garantit pas.** Elle borne ce qu'on transmet, pas ce qu'un modèle a vu à
-l'entraînement — même réserve qu'au §1. Et ce n'est pas un avis juridique : c'est une règle
-d'hygiène de chantier.
+**What this decision does not guarantee.** It bounds what is passed on, not what a model saw in
+training — same reservation as in §1. And it is not legal advice: it is a rule of worksite hygiene.
 
-## 9. Un seul titre après game over : le double titre de la référence n'est pas copié
+## 9. A single title after game over: the reference's double title is not copied
 
-**Décidé le 2026-10-23**, par l'utilisateur.
+**Decided on 2026-10-23**, by the user.
 
-**Ce que fait la référence.** Après un game over avec un crédit restant, le BIOS SNK (`-bios euro`)
-remet le titre à R+2, puis le relance une seconde fois à R+15, par DEMO_END (mesuré sous MAME,
-aof : `measured/2026-10-23-titre-apres-game-over.tsv`, section 1).
+**What the reference does.** After a game over with one credit left, the SNK BIOS (`-bios euro`)
+puts the title back at R+2, then restarts it a second time at R+15, through DEMO_END (measured under
+MAME, aof: `measured/2026-10-23-titre-apres-game-over.tsv`, section 1).
 
-**Pourquoi on ne le copie pas.** La page « USER subroutine » du NeoGeo Development Wiki décrit ce
-second appel comme un bogue probable du BIOS, corrigé dans une révision ultérieure (« à
-confirmer », dit la page), et donne
-$10FEC5 (BIOS_TITLE_MODE) aux jeux pour l'empêcher. Un jeu qui pose $10FEC5 à 1 attend un seul
-titre ; un jeu qui le laisse à 0 tolère les deux. Un seul titre convient donc aux deux cas.
+**Why we do not copy it.** The "USER subroutine" page of the NeoGeo Development Wiki describes this
+second call as a probable BIOS bug, fixed in a later revision ("to be confirmed", says the page),
+and gives games $10FEC5 (BIOS_TITLE_MODE) to prevent it. A game that sets $10FEC5 to 1 expects a
+single title; a game that leaves it at 0 tolerates both. A single title therefore suits both cases.
 
-**Ce que ça coûte.** Un écart assumé avec la référence : PLAYER_START arrive à R+1811 au lieu de
-R+1823 sur ce chemin (même relevé). Le détail et le code sont dans `src/c0/c0.s`, en-tête du
-code 3, « UN SEUL TITRE ».
+**What it costs.** An accepted departure from the reference: PLAYER_START comes at R+1811 instead of
+R+1823 on this path (same record). The detail and the code are in `src/c0/c0.s`, header of code 3,
+"UN SEUL TITRE".
 
-## 10. SELECT est ignoré pendant un SELECT en cours
+## 10. SELECT is ignored during a SELECT in progress
 
-**Décidé le 2026-10-23**, par l'utilisateur : un défaut de la référence se corrige quand on le peut,
-pourvu que l'écart soit documenté.
+**Decided on 2026-10-23**, by the user: a defect of the reference is fixed when we can, provided
+the departure is documented.
 
-**Ce que fait la référence.** SELECT fait appeler au BIOS la routine DEMO_END du jeu qu'on quitte. b2b
-appelle SYSTEM_IO depuis cette routine ; un second appui sur SELECT à ce moment est pris, et DEMO_END
-est rappelé alors que le premier appel n'a pas fini, qui n'est jamais repris (mesuré sous MAME, b2b
-et puzzledp : `measured/2026-10-23-titre-apres-game-over.tsv`, section 6).
+**What the reference does.** SELECT makes the BIOS call the DEMO_END routine of the game being left.
+b2b calls SYSTEM_IO from that routine; a second press of SELECT at that moment is taken, and
+DEMO_END is called again while the first call has not finished, and that call is never resumed
+(measured under MAME, b2b and puzzledp: `measured/2026-10-23-titre-apres-game-over.tsv`, section 6).
 
-**Pourquoi on corrige.** La routine du jeu est rentrée à mi-course, et la sauvegarde de sa RAM en
-backup RAM suit. Sur le run mesuré, la somme sauvegardée est la même avec ou sans le second appui ;
-rien ne garantit qu'un autre jeu s'en sorte aussi bien.
+**Why we fix it.** The game's routine is re-entered halfway through, and the saving of its RAM to
+backup RAM follows. On the measured run, the saved sum is the same with or without the second press;
+nothing guarantees that another game copes as well.
 
-**Ce que fait ReBIOS.** `_io_select` (`src/c0/io.s`) ignore SELECT tant que $10FD81 vaut $04 ou $05,
-valeurs posées avant DEMO_END et rendues à $02 avant la remise. Mesuré
-(`measured/2026-10-23-garde-select.tsv`) : un seul DEMO_END, un seul changement de slot, la remise
-deux trames plus tôt que sans garde ; un SELECT simple est inchangé, et un SELECT après la remise
-est de nouveau pris. Non mesuré : SELECT P2, qui passe par la même garde.
+**What ReBIOS does.** `_io_select` (`src/c0/io.s`) ignores SELECT as long as $10FD81 is $04 or $05,
+values set before DEMO_END and returned to $02 before the hand-over. Measured
+(`measured/2026-10-23-garde-select.tsv`): a single DEMO_END, a single slot change, the hand-over two
+frames earlier than without the guard; a simple SELECT is unchanged, and a SELECT after the
+hand-over is taken again. Not measured: SELECT P2, which goes through the same guard.
 
-## 11. Le mode AES sur une carte MVS
+## 11. AES mode on an MVS board
 
-**Décidé le 2026-10-23**, par l'utilisateur (D1 à D3 et D5) ; D4, D6 et D7 sont les options par
-défaut proposées et non contestées.
+**Decided on 2026-10-23**, by the user (D1 to D3 and D5); D4, D6 and D7 are the default options
+proposed and not contested.
 
-**Ce que c'est.** Une ligne MODE (MVS / AES, D7) dans l'éditeur du BIOS, enregistrée en backup RAM
-(`$D00217`, `src/c0/reglages.s`), MVS par défaut. En AES, le BIOS écrit $00 dans BIOS_MVS_FLAG
-($10FD82) et les jeux construisent eux-mêmes leur version console : PUSH START, CREDITS, menus
-d'options. Aucune image pour une vraie console (D1). Mesures contre le BIOS AES de SNK (`aes -bios
-asia`, six jeux) : `measured/2026-10-23-mode-aes.tsv` ; scènes : `measured/2026-10-23-parcours-aes.tsv`.
+**What it is.** A MODE line (MVS / AES, D7) in the BIOS's editor, saved in backup RAM (`$D00217`,
+`src/c0/reglages.s`), MVS by default. In AES, the BIOS writes $00 to BIOS_MVS_FLAG ($10FD82) and the
+games build their console version themselves: PUSH START, CREDITS, option menus. No image for a real
+console (D1). Measurements against SNK's AES BIOS (`aes -bios asia`, six games):
+`measured/2026-10-23-mode-aes.tsv`; scenes: `measured/2026-10-23-parcours-aes.tsv`.
 
-**Les écarts voulus.**
+**The deliberate departures.**
 
-1. **Le mode n'est pas la machine.** BIOS_MVS_FLAG dit le mode aux jeux ; ce qui dépend du matériel
-   (les bits SELECT du registre brut, à l'écran de boot et au menu en jeu) lit REG_STATUS_B bit 7, qui
-   reste MVS.
-2. **Pas de demande 0 à chaque mise sous tension** (D5) : les scores restent en backup RAM, comme en
-   MVS. Changer de mode ne libère l'entrée d'un jeu que si ce boot vient de l'inscrire.
-3. **La pièce est ignorée** (D2) : les monnayeurs sont verrouillés au boot (REG_SETCL1/2). START seul
-   fait partir le jeu, à la trame de l'appui, comme chez SNK.
-4. **$10FD81 ← 3 au START**, là où SNK le laisse à 2 : la fin de partie revient par le code 3, la démo
-   sur le même slot, au lieu de passer au slot suivant d'une carte multi-slot.
-5. **Multi-slot gardé** (D3). SELECT n'est pris qu'en démo et mène à la démo du jeu suivant, jamais à
-   un titre : c'est le comportement le plus restreint, puisque l'AES n'a qu'un slot et ne fournit aucune référence.
-6. **La demande 1** (l'animation de boot, jeux à $114 = 1) est donnée une fois par mise sous tension,
-   avant la première démo. Au retour, le jeu est restauré depuis la backup RAM, ce que l'AES n'a pas.
-7. **Pas d'eyecatcher du BIOS** (D6), **l'éditeur de soft-DIP est gardé** (D4).
-8. **La ligne MODE n'est pas sous REGION**, pour garder les chemins de touches des relevés.
-9. SUPPOSÉ : START refusé en mode 0 (demandes 0 et 1), non mesuré chez SNK.
-10. **CREDIT_CHECK ne refuse aucune demande en mode AES**, comme chez SNK, qui n'écrit jamais
-   $10FDB0-$10FDB3 : le jeu relit sa demande, et aof affiche « PUSH START » pour P2 au lieu
-   d'« INSERT COIN » (`measured/2026-10-23-aes-credit.tsv`). Écart restant : le mot $10FDB2 (P3/P4)
-   reste écrit à $0000, SUPPOSÉ sans effet, puisque aof et puzzledp l'y posent eux-mêmes avant
-   chaque appel. Un refus en MVS exécute deux instructions de plus.
+1. **The mode is not the machine.** BIOS_MVS_FLAG tells games the mode; what depends on the hardware
+   (the SELECT bits of the raw register, at the boot screen and in the in-game menu) reads
+   REG_STATUS_B bit 7, which stays MVS.
+2. **No request 0 at every power-on** (D5): scores stay in backup RAM, as in MVS. Changing mode
+   frees a game's entry only if this boot has just registered it.
+3. **The coin is ignored** (D2): the coin mechanisms are locked at boot (REG_SETCL1/2). START alone
+   starts the game, on the frame of the press, as with SNK.
+4. **$10FD81 ← 3 at START**, where SNK leaves it at 2: the end of a game comes back through code 3,
+   the demo on the same slot, instead of moving to the next slot of a multi-slot board.
+5. **Multi-slot kept** (D3). SELECT is taken only in the demo and leads to the demo of the next game,
+   never to a title: it is the most restricted behaviour, since the AES has only one slot and
+   provides no reference.
+6. **Request 1** (the boot animation, games with $114 = 1) is given once per power-on, before the
+   first demo. On return, the game is restored from backup RAM, which the AES does not have.
+7. **No BIOS eyecatcher** (D6), **the soft-DIP editor is kept** (D4).
+8. **The MODE line is not under REGION**, to keep the key paths of the records.
+9. ASSUMED: START refused in mode 0 (requests 0 and 1), not measured on SNK.
+10. **CREDIT_CHECK refuses no request in AES mode**, like SNK, which never writes
+   $10FDB0-$10FDB3: the game reads its request again, and aof shows "PUSH START" for P2 instead of
+   "INSERT COIN" (`measured/2026-10-23-aes-credit.tsv`). Remaining departure: the word $10FDB2
+   (P3/P4) stays written at $0000, ASSUMED without effect, since aof and puzzledp set it themselves
+   before each call. A refusal in MVS executes two more instructions.
 
-**Le mode MVS n'est pas identique à l'octet à `main` sur toute la matrice**, et ce n'est pas exigé.
-Les instructions MVS exécutées en jeu sont les mêmes, mais les adresses du BIOS bougent, et trois jeux
-de la matrice (garou, samsho2, ssideki4) divergent après 1800 à 3300 trames dès que la disposition
-change, ne serait-ce que d'un mot jamais exécuté : `measured/2026-10-23-disposition-mvs.tsv`. Toute PR qui
-change la taille du code a ce même effet. Le critère reste donc la non-régression.
+**MVS mode is not byte-identical to `main` over the whole matrix**, and that is not required. The
+MVS instructions executed in game are the same, but the BIOS's addresses move, and three games of
+the matrix (garou, samsho2, ssideki4) diverge after 1800 to 3300 frames as soon as the layout
+changes, even by a single word that is never executed: `measured/2026-10-23-disposition-mvs.tsv`.
+Any PR that changes the size of the code has the same effect. The criterion therefore remains no
+regression.
 
-## 12. GAME SETTINGS et MEMORY EDITOR dans le menu en jeu
+## 12. GAME SETTINGS and MEMORY EDITOR in the in-game menu
 
-Deux écrans de plus dans le menu en jeu (`reglages-jeu.s`, `memoire.s`), le 2026-10-23. Ce qui
-diffère de l'éditeur du boot ou de l'état d'avant :
+Two more screens in the in-game menu (`reglages-jeu.s`, `memoire.s`), on 2026-10-23. What differs
+from the boot editor or from the previous state:
 
-1. **GAME SETTINGS refuse un bloc soft-DIP dans la zone banquée** (`$200000-$2FFFFF`), que l'éditeur
-   du boot accepte : en partie, le jeu a pu changer de banque depuis le boot.
-2. **Les valeurs reçues ne sont pas rendues valides à l'entrée** de GAME SETTINGS : une valeur que le
-   joueur ne touche pas reste celle que le jeu voit.
-3. **Un changement est pris quand le jeu relit l'octet.** Les six jeux mesurés relisent des soft-DIP
-   en partie, mais certains octets ne sont lus qu'à la démo, au titre ou à la demande 0
-   (`measured/2026-10-23-menu-en-jeu-complet.tsv`, section 1). L'écran dit donc « SOME CHANGES NEED
-   RESTART », et la ligne RESTART GAME enregistre puis relance par le watchdog.
-4. **`CH_MAX` passe de 6 cheats à 4** (porté à 16 au §32, dans une fenêtre qui défile) : le cadre du menu (10 + N lignes) doit tenir dans les 392 cases
-   sauvegardées. La table actuelle en a au plus 3. Le cadre sans cheat a deux lignes de plus qu'avant.
-5. **L'éditeur mémoire montre `$100000-$10FFFF`, en lecture seule à partir de `$10F300`** (la RAM du
-   BIOS) : ni écriture ni gel. Le moteur des gels refuse aussi ces adresses de lui-même.
-6. **Quatre gels au plus**, réécrits à chaque appel de SYSTEM_IO en partie, oubliés au boot, à
-   RESTART GAME et à chaque passage de slot, comme les cheats.
-7. **Le crochet en jeu coûte 4 cycles de plus par appel** : un seul `tst.l` teste cheats et gels.
-   Deux tests séparés (26 cycles) faisaient sortir svc de la tolérance de la matrice, par le temps
-   et non par la disposition (même relevé, section 3).
+1. **GAME SETTINGS refuses a soft-DIP block in the banked area** (`$200000-$2FFFFF`), which the boot
+   editor accepts: during a game, the game may have changed bank since boot.
+2. **The values received are not made valid on entering** GAME SETTINGS: a value the player does not
+   touch stays the one the game sees.
+3. **A change is taken when the game reads the byte again.** The six games measured read soft-DIPs
+   again during a game, but some bytes are read only in the demo, at the title or at request 0
+   (`measured/2026-10-23-menu-en-jeu-complet.tsv`, section 1). The screen therefore says "SOME
+   CHANGES NEED RESTART", and the RESTART GAME line saves then restarts through the watchdog.
+4. **`CH_MAX` goes from 6 cheats to 4** (raised to 16 in §32, in a scrolling window): the menu frame
+   (10 + N lines) must fit in the 392 saved cells. The current table has at most 3. The frame
+   without cheats has two more lines than before.
+5. **The memory editor shows `$100000-$10FFFF`, read-only from `$10F300`** (the BIOS's RAM): neither
+   writing nor freezing. The freeze engine also refuses these addresses on its own.
+6. **Four freezes at most**, rewritten at every call of SYSTEM_IO during a game, forgotten at boot,
+   at RESTART GAME and at every slot change, like the cheats.
+7. **The in-game hook costs 4 more cycles per call**: a single `tst.l` tests cheats and freezes. Two
+   separate tests (26 cycles) took svc out of the matrix's tolerance, through timing and not through
+   layout (same record, section 3).
 
-La recherche de cheat n'est pas faite : elle demande un relevé de la RAM du jeu (62 Kio, ou un bitmap
-de 7,8 Kio) là où la zone libre mesurée n'offre qu'environ 1,8 Kio.
+The cheat search is not done: it needs a record of the game's RAM (62 KiB, or a bitmap of 7.8 KiB)
+where the free area measured offers only about 1.8 KiB.
 
-## 13. La cartouche n'est lue que sous REG_CRTFIX
+## 13. The cartridge is read only under REG_CRTFIX
 
-Sur le matériel, la P-ROM ne répond pas sous REG_BRDFIX (`ESSAI-MATERIEL.md`, retour du 2026-10-24).
-MAME la sert dans les deux états ; `bench/bus-flottant.lua` modélise le matériel, et le banc l'applique
-au boot (étage 3f) et aux écrans du BIOS (scènes `bf-*`).
+On the hardware, the P-ROM does not answer under REG_BRDFIX (`ESSAI-MATERIEL.md`, report of
+2026-10-24). MAME serves it in both states; `bench/bus-flottant.lua` models the hardware, and the
+bench applies it at boot (stage 3f) and to the BIOS's screens (scenes `bf-*`).
 
-1. **L'éditeur de soft-DIP du boot lit une copie** : le bloc (nom, valeurs, intitulés) est recopié en
-   RAM sous REG_CRTFIX avant la bascule, dans `$10F464-$10FAFF`, la RAM du menu en jeu, inutilisée au
-   boot et remise à zéro à la sortie. 1 692 octets, 138 intitulés ; au-delà, la case reste en blanc.
-   Aucun jeu mesuré n'en approche.
-2. **Non corrigé, faute de scène possible** : une exception levée pendant l'écran TEST ou l'écran de
-   plantage lit son vecteur sous REG_SWPROM et REG_BRDFIX, donc en bus flottant. Aucune n'est arrivée
-   dans les runs.
-3. **Sans cartouche, ReBIOS ouvre ses autotests en boucle**, au lieu de servir le slot 0 vide. L'image
-   d'avant y remettait la main ; le watchdog relançait la carte toutes les 192 trames, sous MAME
-   (MV-1, MV-2F, MV-4F sans cartouche). Comme la référence, mesurée, $D00108 et REG_SLOT restent au
-   dernier slot parcouru. Les écrans de test de la référence ne sont pas recopiés : ce sont les
-   nôtres (`measured/2026-10-24-machines-sans-cartouche.tsv`, scène `sans-cartouche`).
+1. **The boot soft-DIP editor reads a copy**: the block (name, values, labels) is copied to RAM under
+   REG_CRTFIX before the switch, into `$10F464-$10FAFF`, the in-game menu's RAM, unused at boot and
+   cleared on exit. 1,692 bytes, 138 labels; beyond that, the cell stays blank. No measured game
+   comes close.
+2. **Not fixed, for want of a possible scene**: an exception raised during the test screen or the
+   crash screen reads its vector under REG_SWPROM and REG_BRDFIX, so on a floating bus. None
+   happened in the runs.
+3. **Without a cartridge, ReBIOS opens its self-tests in a loop**, instead of serving the empty slot
+   0. The previous image handed over to it; the watchdog restarted the board every 192 frames, under
+   MAME (MV-1, MV-2F, MV-4F without a cartridge). Like the reference, measured, $D00108 and REG_SLOT
+   stay at the last slot scanned. The reference's test screens are not copied: these are ours
+   (`measured/2026-10-24-machines-sans-cartouche.tsv`, scene `sans-cartouche`).
 
-## 14. Le gestionnaire de carte mémoire et SCORE RESET
+## 14. The memory card manager and SCORE RESET
 
-Deux lignes de plus dans l'écran TEST, le 2026-10-24 : MEMORY CARD (`gestion-carte.s`) et SCORE
-RESET (`cal.s`, `reglages.s`).
+Two more lines in the test screen, on 2026-10-24: MEMORY CARD (`gestion-carte.s`) and SCORE RESET
+(`cal.s`, `reglages.s`).
 
-1. **Les deux lignes se placent avant MODE** : MEMORY CARD à « haut » cinq fois, SCORE RESET à six.
-   Près de HARDWARE TESTS ou du JUKEBOX, elles auraient déplacé les chemins de touches existants
-   (haut ×1 à ×4). La liste de l'éditeur commence à la ligne 7 au lieu de 8, l'aide passe aux
-   lignes 28 et 29.
-2. **Le gestionnaire ne lit jamais la cartouche** : le nom d'un jeu vient de la backup RAM (table des
-   slots `$D00124`, noms à `$D002A0`). Une sauvegarde d'un jeu jamais lancé sur ce BIOS n'a pas de nom.
-3. **Il passe par CARD, l'interface des jeux**, pour effacer (`$04`) et formater (`$00`), et la rend
-   telle quelle en sortant (`$10FCF4`, `$10FD00-$10FD17`, `$10FDC4-$10FDD1`). Un relevé sans écriture,
-   `_carte_releve`, s'ajoute à `card.s`. Sa RAM, `$10F300-$10F3FF`, est remise à zéro en sortant.
-4. **La FAT 1 est montrée telle quelle**, et réparée seulement par la commande suivante qui écrit.
-5. **SCORE RESET à OFF gèle la date que READ_CALENDAR rend aux jeux**, à celle du passage à OFF ;
-   l'heure reste vraie, l'écran de boot garde la vraie date, aucune relance n'est demandée. Sur 32
-   jeux qui l'appellent, 16 réécrivent une table de leur sauvegarde après un saut de 38 jours
-   (`measured/2026-10-24-scores-date.tsv`). Le saut est mesuré en faussant l'horloge sous MAME
-   (`bench/horloge.lua`), pas sur une vraie carte.
-6. **Pas de scores sur carte** : notre backup RAM les garde déjà d'un boot à l'autre, mode AES compris
-   (`measured/2026-10-24-scores-aes.tsv`). Chez UniBIOS, la fonction compense l'absence de backup RAM
-   d'une vraie console, et nous n'avons pas d'image console (D1).
+1. **Both lines are placed before MODE**: MEMORY CARD at "up" five times, SCORE RESET at six. Near
+   HARDWARE TESTS or the JUKEBOX, they would have moved the existing key paths ("up" ×1 to ×4). The
+   editor's list starts at line 7 instead of 8, the help moves to lines 28 and 29.
+2. **The manager never reads the cartridge**: a game's name comes from backup RAM (slot table
+   `$D00124`, names at `$D002A0`). A save of a game never launched on this BIOS has no name.
+3. **It goes through CARD, the games' interface**, to delete (`$04`) and format (`$00`), and gives it
+   back as it was on exit (`$10FCF4`, `$10FD00-$10FD17`, `$10FDC4-$10FDD1`). A read-only scan,
+   `_carte_releve`, is added to `card.s`. Its RAM, `$10F300-$10F3FF`, is cleared on exit.
+4. **FAT 1 is shown as it is**, and repaired only by the next command that writes.
+5. **SCORE RESET at OFF freezes the date READ_CALENDAR returns to games**, at the date it was set to
+   OFF; the time stays true, the boot screen keeps the true date, no restart is requested. Of 32
+   games that call it, 16 rewrite a table of their save after a jump of 38 days
+   (`measured/2026-10-24-scores-date.tsv`). The jump is measured by faking the clock under MAME
+   (`bench/horloge.lua`), not on a real board.
+6. **No scores on the card**: our backup RAM already keeps them from one boot to the next, AES mode
+   included (`measured/2026-10-24-scores-aes.tsv`). With UniBIOS, the feature makes up for the lack
+   of backup RAM on a real console, and we have no console image (D1).
 
-## 15. Les réglages de la borne : FREE PLAY, NO CONTINUE, DEMO SOUND
+## 15. The cabinet settings: FREE PLAY, NO CONTINUE, DEMO SOUND
 
-Un sous-écran de l'écran TEST, le 2026-10-25 (`reglages.s`, `io.s`, `dip.s`, `c0.s`). Mesures :
-`measured/2026-10-25-free-play.tsv` ; seuils : `measured/2026-10-25-parcours-borne.tsv`.
+A sub-screen of the test screen, on 2026-10-25 (`reglages.s`, `io.s`, `dip.s`, `c0.s`).
+Measurements: `measured/2026-10-25-free-play.tsv`; thresholds:
+`measured/2026-10-25-parcours-borne.tsv`.
 
-1. **Un sous-écran, CABINET SETTINGS, à « haut » sept fois**, juste avant SCORE RESET : les chemins
-   « haut » ×1 à ×6 ne bougent pas. Trois lignes de plus dans la liste l'auraient fait déborder.
-   La liste compte désormais 22 entrées pour 21 lignes : une cartouche aux 14 réglages possibles
-   écrirait sa dernière ligne sur l'aide. Le plus grand nombre relevé est 12, et rien ne protège ce cas.
-2. **Les trois réglages tiennent dans `$D0021D`**, bits 0 à 2 (FREE PLAY, NO CONTINUE, DEMO SOUND
-   OFF), enregistrés par le START de la liste sans relance. Une copie en RAM, `$10FB20`, est relue
-   à chaque START ; son bit 7 dit que CREDIT_CHECK ne refuse rien (mode AES ou FREE PLAY).
-3. **Le commutateur « Freeplay » de la carte reste ignoré**, comme avant ce lot : le réglage est
-   dans l'écran TEST. **Révisé le jour même (§17)** : ce choix était faux, le commutateur est honoré.
-4. **En free play, un crédit présent est ôté au START.** Le BIOS SNK n'en ôte aucun.
-5. **NO CONTINUE refuse START au seul joueur dont le continue est affiché** (`BIOS_PLAYER_MOD` à 2),
-   free play compris ; rejoindre une partie ou en commencer une n'est pas touché.
-6. **DEMO SOUND OFF met `$D00046` à 1 pendant les démos seulement** ; le titre qui suit une pièce et
-   la partie gardent leur son. Le BIOS SNK coupe aussi la musique du titre.
-7. **En mode AES, les trois sont inertes et affichent MVS ONLY** : START y part déjà sans crédit, le
-   continue n'y est pas payant, et aof y joue le son de sa démo quelle que soit `$D00046`.
-8. **Le banc donne à chaque run de `parcours.sh` son propre dossier de cfg MAME.** MAME garde les
-   commutateurs posés dans un cfg par jeu : des runs en free play y avaient laissé le commutateur
-   à ON pour les témoins suivants. L'idée d'un free play à ON par défaut sous MAME 0.286 est réfutée.
+1. **A sub-screen, CABINET SETTINGS, at "up" seven times**, just before SCORE RESET: the "up" ×1 to
+   ×6 paths do not move. Three more lines in the list would have made it overflow. The list now has
+   22 entries for 21 lines: a cartridge with the 14 possible settings would write its last line over
+   the help. The largest number recorded is 12, and nothing protects that case.
+2. **The three settings fit in `$D0021D`**, bits 0 to 2 (FREE PLAY, NO CONTINUE, DEMO SOUND OFF),
+   saved by the list's START without a restart. A copy in RAM, `$10FB20`, is read again at every
+   START; its bit 7 says that CREDIT_CHECK refuses nothing (AES mode or FREE PLAY).
+3. **The board's "Freeplay" switch stays ignored**, as before this batch: the setting is in the test
+   screen. **Revised the same day (§17)**: this choice was wrong, the switch is honoured.
+4. **In free play, a credit present is removed at START.** The SNK BIOS removes none.
+5. **NO CONTINUE refuses START only to the player whose continue is shown** (`BIOS_PLAYER_MOD` at 2),
+   free play included; joining a game or starting one is not affected.
+6. **DEMO SOUND OFF sets `$D00046` to 1 during demos only**; the title that follows a coin and the
+   game keep their sound. The SNK BIOS also cuts the title music.
+7. **In AES mode, all three are inert and show MVS ONLY**: START already starts there without a
+   credit, continues are not paid for there, and aof plays its demo sound there whatever `$D00046`
+   is.
+8. **The bench gives each run of `parcours.sh` its own MAME cfg folder.** MAME keeps switch settings
+   in a per-game cfg: runs in free play had left the switch ON there for the following witness runs.
+   The idea of free play ON by default under MAME 0.286 is refuted.
 
-## 16. Le catalogue des cheats et CHEATS/DEBUG
+## 16. The cheat catalogue and CHEATS/DEBUG
 
-Le 2026-10-25 (`cheats.s`, `menu.s`, `reglages.s`, `dip.s`). Un cheat par ligne :
-`measured/2026-10-25-cheats-table.tsv` ; recherche : `2026-10-25-cheats-recherche.tsv` ; jugement
-par le menu : `bench/cheats-catalogue.sh`, `2026-10-25-cheats-catalogue.tsv`.
+On 2026-10-25 (`cheats.s`, `menu.s`, `reglages.s`, `dip.s`). One cheat per line:
+`measured/2026-10-25-cheats-table.tsv`; search: `2026-10-25-cheats-recherche.tsv`; judging through
+the menu: `bench/cheats-catalogue.sh`, `2026-10-25-cheats-catalogue.tsv`.
 
-1. **La table passe de 3 à 35 jeux, 40 cheats**, tous trouvés en boîte noire : RAM relevée par lua
-   sous MAME, cellule forcée, effet vu à l'écran. Aucune base de cheats tierce, aucun code lu.
-2. **Un cheat par jeu nouveau est jugé par le menu du BIOS** (`cheats-catalogue.sh`, 32 sur 32).
-   INFINITE TIME de kof95 n'y est pas : aucun témoin n'y décompte sans KO dans la fenêtre ; sa
-   preuve est le forçage par lua et la planche des images.
-3. **Un cheat de temps qui bloque le déroulé du jeu est écarté** (kof96, kof98). Pour les KOF, on
-   force le décompte entre deux secondes, pas les secondes : forcées, le round ne démarre plus.
-4. **La valeur écrite est celle que le jeu pose au départ**, sous ses soft-DIP par défaut ; un jeu
-   réglé à plus de vies est ramené à cette valeur.
-5. **CHEATS/DEBUG est la quatrième ligne de CABINET SETTINGS**, bit 3 de `$D0021D`, à ON par défaut
-   (un bloc d'avant ce réglage le lit à zéro, donc ON). Actif dans les deux modes : le menu en jeu
-   existe aussi en AES.
-6. **À OFF, le menu en jeu perd ses cheats et MEMORY EDITOR**, et le moteur éteint sans écrire tout
-   cheat ou gel déjà actif. GAME SETTINGS reste : ce sont les soft-DIP du jeu, déjà réglables dans
-   l'écran TEST.
-7. **Le test d'OFF n'est que sur le chemin d'un cheat actif, et la boucle du menu garde ses
-   cycles** : deux tests de plus y avançaient d'une trame la relance de RESTART GAME sur ncombat
-   (scène `gs-mmss`).
+1. **The table goes from 3 to 35 games, 40 cheats**, all found black-box: RAM recorded by lua under
+   MAME, cell forced, effect seen on screen. No third-party cheat database, no code read.
+2. **One cheat per new game is judged through the BIOS's menu** (`cheats-catalogue.sh`, 32 of 32).
+   kof95's INFINITE TIME is not among them: no witness run counts down without a KO in the window;
+   its proof is the forcing by lua and the contact sheet of pictures.
+3. **A time cheat that blocks the game's progress is discarded** (kof96, kof98). For the KOFs, we
+   force the countdown between two seconds, not the seconds: forced, the round no longer starts.
+4. **The value written is the one the game sets at the start**, under its default soft-DIPs; a game
+   set to more lives is brought back to that value.
+5. **CHEATS/DEBUG is the fourth line of CABINET SETTINGS**, bit 3 of `$D0021D`, ON by default (a
+   block from before this setting reads it as zero, so ON). Active in both modes: the in-game menu
+   exists in AES too.
+6. **At OFF, the in-game menu loses its cheats and MEMORY EDITOR**, and the engine switches off,
+   without writing, any cheat or freeze already active. GAME SETTINGS stays: these are the game's
+   soft-DIPs, already settable in the test screen.
+7. **The OFF test is only on the path of an active cheat, and the menu loop keeps its cycles**: two
+   more tests there brought the RESTART GAME restart on ncombat forward by one frame (scene
+   `gs-mmss`).
 
-## 17. Les commutateurs 1 et 7 de la carte, et le geste sans bouton TEST
+## 17. Board switches 1 and 7, and the gesture without a TEST button
 
-Le 2026-10-25, après l'image n°12 (`io.s`, `dip.s`, `menu.s`). Le testeur, MV-2F consolisée sans
-bouton TEST ni monnayeur, commutateur 7 à ON, ne pouvait ni lancer une partie ni ouvrir un menu.
-Mesures : `measured/2026-10-25-dip-free-play.tsv` ; seuils : `measured/2026-10-25-parcours-dip-free-play.tsv`.
+On 2026-10-25, after image no. 12 (`io.s`, `dip.s`, `menu.s`). The tester, with a consolized MV-2F
+without a TEST button or a coin mechanism, switch 7 ON, could neither start a game nor open a menu.
+Measurements: `measured/2026-10-25-dip-free-play.tsv`; thresholds:
+`measured/2026-10-25-parcours-dip-free-play.tsv`.
 
-1. **Le commutateur 7, « Free Play » (REG_DIPSW bit 6), vaut FREE PLAY de CABINET SETTINGS : l'un
-   ou l'autre suffit**, en mode MVS. Sous MAME, le BIOS SNK et UniBIOS 4.0, sur MV-2F et MV-6F,
-   lancent la partie au START sans pièce (P2 : les deux joueurs) et relisent le commutateur à chaud,
-   dans les deux sens. Il n'est lu que sur les chemins de refus (START refusé, CREDIT_CHECK) : un
-   START accepté garde ses cycles.
-2. **CABINET SETTINGS affiche alors FREE PLAY DIP, verrouillé.** Le réglage enregistré n'est pas
-   touché et revient quand le commutateur repasse à OFF.
-3. **Le commutateur 1, « Setting Mode », ouvre l'écran TEST au boot**, comme chez les deux BIOS de
-   référence, qui ne le relisent pas à chaud.
-4. **ÉCART VOULU : START quitte l'écran TEST même commutateur 1 à ON.** Sous MAME, les deux BIOS de
-   référence affichent « DIP-SW 1 OFF !! » et ne rendent la main qu'au commutateur remis à OFF.
-   Confirmé le 2026-10-25 par le testeur sur une MV-2F avec la puce SP-S2 d'origine.
-   ReBIOS affiche « DIP SWITCH 1 IS ON » 180 trames (ou jusqu'à la bascule), puis lance le jeu.
-   Remis à OFF avant START, aucun avertissement, comme le BIOS SNK.
-5. **START + SELECT de P1 tenus ouvrent l'écran TEST au boot, et le menu en jeu en partie**, en plus
-   du bouton TEST. SELECT parce qu'un jeu MVS ne le voit pas : tenu une seconde en partie sous le
-   BIOS SNK, il ne change aucune image sur 154 des 157 jeux mesurés, et les trois autres ne
-   s'écartent que d'une trame ou varient d'un run à l'autre. Une partie jouée normalement (aof,
-   mslug, samsho4, ssideki) ne déclenche pas le geste ; START seul ou SELECT seul non plus.
-   **Depuis le 2026-10-27 (#1450), le geste est refusé si A, B, C et D de P1 sont tenus tous les
-   quatre**, au boot comme en partie (REG_P1CNT bits 4 à 7). Un, deux ou trois d'entre eux tenus, il
-   marche comme seul. La source est matérielle : retour de l'image n°14 (`ESSAI-MATERIEL.md`), le
-   testeur a relevé dans l'INPUT TEST que l'adaptateur BlueRetro tient environ une seconde L/R, A,
-   B, C, D, START et SELECT à sa mise en route, ce qui ouvrait l'écran TEST à chaque boot et le menu
-   en jeu quand il était branché en partie. La première règle, « A à D relâchés », est écartée : un
-   joueur qui frôle A verrait le geste refusé. C'est un écart propre à ReBIOS, le BIOS SNK n'ayant
-   pas ce geste. Scènes : `geste-boot` et `geste-jeu`, runs de l'adaptateur et de START + SELECT + A.
-6. **Le chemin de TEST tenu garde ses cycles au cycle près** ; le geste coûte 30 cycles par appel
-   de SYSTEM_IO quand START n'est pas tenu. Deux cycles de plus sur le chemin de TEST avançaient
-   d'une trame le RESET de la scène `gs-fois`.
-7. **Le juge `chrono_65` ne retient plus que les images d'au moins deux trames.** L'image d'un
-   passage de 52 à 51, vue une trame, était comptée « 61-65 » par la phase seule : la scène
-   `gs-defauts` échouait d'une trame sans changement du comportement jugé.
-8. **Les commutateurs 2 à 6 et 8 ne sont qu'affichés** (INPUT TEST, scène `tests-dip`) : leur
-   comparaison à la référence est un lot à venir. **Fait le 2026-10-27 : §21.**
+1. **Switch 7, "Free Play" (REG_DIPSW bit 6), counts as FREE PLAY in CABINET SETTINGS: either one
+   suffices**, in MVS mode. Under MAME, the SNK BIOS and UniBIOS 4.0, on MV-2F and MV-6F, start the
+   game at START without a coin (P2: both players) and read the switch again while running, in both
+   directions. It is read only on the refusal paths (START refused, CREDIT_CHECK): an accepted START
+   keeps its cycles.
+2. **CABINET SETTINGS then shows FREE PLAY DIP, locked.** The saved setting is not touched and comes
+   back when the switch goes back to OFF.
+3. **Switch 1, "Setting Mode", opens the test screen at boot**, as with both reference BIOSes, which
+   do not read it again while running.
+4. **DELIBERATE DEPARTURE: START leaves the test screen even with switch 1 ON.** Under MAME, both
+   reference BIOSes show "DIP-SW 1 OFF !!" and give control back only once the switch is set back to
+   OFF. Confirmed on 2026-10-25 by the tester on an MV-2F with the original SP-S2 chip.
+   ReBIOS shows "DIP SWITCH 1 IS ON" for 180 frames (or until the switch is flipped), then starts the
+   game. Set back to OFF before START, no warning, like the SNK BIOS.
+5. **P1's START + SELECT held open the test screen at boot, and the in-game menu during a game**, in
+   addition to the TEST button. SELECT because an MVS game does not see it: held for one second
+   during a game under the SNK BIOS, it changes no picture on 154 of the 157 games measured, and the
+   three others differ only by one frame or vary from one run to another. A game played normally
+   (aof, mslug, samsho4, ssideki) does not trigger the gesture; nor does START alone or SELECT alone.
+   **Since 2026-10-27 (#1450), the gesture is refused if P1's A, B, C and D are all four held**, at
+   boot as during a game (REG_P1CNT bits 4 to 7). With one, two or three of them held, it works as on
+   its own. The source is hardware: report on image no. 14 (`ESSAI-MATERIEL.md`), the tester
+   recorded in INPUT TEST that the BlueRetro adapter holds L/R, A, B, C, D, START and SELECT for
+   about one second when it starts up, which opened the test screen at every boot and the in-game
+   menu when it was plugged in during a game. The first rule, "A to D released", is discarded: a
+   player who brushes A would see the gesture refused. It is a departure specific to ReBIOS, since
+   the SNK BIOS does not have this gesture. Scenes: `geste-boot` and `geste-jeu`, runs of the
+   adapter and of START + SELECT + A.
+6. **The held-TEST path keeps its cycles to the cycle**; the gesture costs 30 cycles per SYSTEM_IO
+   call when START is not held. Two more cycles on the TEST path brought the RESET of scene
+   `gs-fois` forward by one frame.
+7. **The `chrono_65` judge now keeps only pictures of at least two frames.** The picture of a change
+   from 52 to 51, seen for one frame, was counted as "61-65" by the phase alone: scene `gs-defauts`
+   failed by one frame with no change in the behaviour judged.
+8. **Switches 2 to 6 and 8 are only displayed** (INPUT TEST, scene `tests-dip`): comparing them to
+   the reference is a batch to come. **Done on 2026-10-27: §21.**
 
-## 18. Une grille générée à `$C02000-$C03FFF`, pour la démo de Super Sidekicks
+## 18. A generated grid at `$C02000-$C03FFF`, for the Super Sidekicks demo
 
-Le 2026-10-25 (`grille.s`, `build/bios.ld`). Mesures : `measured/2026-10-25-ssideki-demo.tsv` ;
-seuils : `measured/2026-10-25-parcours-ssideki.tsv`.
+On 2026-10-25 (`grille.s`, `build/bios.ld`). Measurements: `measured/2026-10-25-ssideki-demo.tsv`;
+thresholds: `measured/2026-10-25-parcours-ssideki.tsv`.
 
-1. **ssideki lit la ROM du BIOS comme une grille de 64 × 64 octets en deux plans**, le haut à
-   `$C03000`, le bas à `$C02000`, sans jamais l'écrire. Notre remplissage `$FF` figeait sa démo après
-   l'intro du stade, chez le testeur comme sous MAME.
-2. **Les octets sont à nous** : un générateur congruentiel 16 bits les tire de 0 à 3 pour le plan
-   haut, de 1 à 63 pour le plan bas. Aucun octet de référence n'est relevé ni copié.
-3. **Ces intervalles sont les seuls essayés qui jouent la démo et cinq parties sans blocage.** Plan
-   bas à 0, ou tiré de 1 à 254, ou autres plans hauts : une partie se bloque, ou la démo perd la
-   moitié de ses images.
-4. **Le lien tient l'adresse** : `build/bios.ld` refuse le lien si le code atteint `$C02000`.
-   `card.s`, `mess.s` et `video.s` passent en zone haute. L'appel `bsr.w _mess_out` d'`int1.s`
-   reste relatif : un `jsr`, deux cycles de plus à chaque INT1, faisait échouer `scores-gel`.
-5. **La preuve** : scène `demo-ssideki` (images et key-on rapportés au témoin SNK) et mutation
-   `grille-haute-ff`, tuée.
-6. **`$C04000-$C041FF` porte une table du sinus** depuis le 2026-10-28 (#1458, `sinus.s`, générée
-   par `bench/generer-sinus.py`) : T[i] = round(65536·|sin(2πi/256)|), et `$0001` pour 1,0 (indices
-   64 et 192). alpham2, preisle2 et lresort la lisent ; sous `$FF`, « haut » menait le vaisseau
-   d'alpham2 aussi à droite. `$0000` le fige, `$FFFF` l'écarte d'un pixel, `$0001` le rend égal au
-   témoin SNK au pixel. kof98, ssideki et bstars2, qui lisaient le `$FF`, n'y perdent rien.
-   Méthode : des tables posées dans notre image, le jeu jugé à l'écran (`measured/2026-10-28-sinus.tsv`).
-   **Un incident l'a précédée** (§28) : l'agent de la première enquête avait relevé quatre mots de la
-   ROM SNK, qui ont orienté son choix du codage de 1,0. Ce codage a été redérivé par un agent neuf,
-   sans accès à ces relevés, par la seule mesure du jeu sur notre image. Preuve : scènes
-   `alpha-trajectoire` et `howto-preisle2`, mutations `sinus-ff` et `sinus-un-ffff`.
-7. **Les autres lecteurs, mesurés le 2026-10-27 et non corrigés** (#1446,
-   `measured/2026-10-27-lecteurs-rom-bios.tsv`). socbrawl se bloque sur un THROW IN, en démo comme en
-   partie, à cause du plan haut à 0..3 que l'intro de ssideki exige ; aucune grille essayée ne tient
-   les deux jeux. Décision de l'utilisateur du 2026-10-27 : la grille reste celle de ssideki,
-   et le blocage de socbrawl est un défaut connu. 3countb, bstars2 et fbfrenzy n'ont pas de
-   défaut vu : leur écart d'images au témoin ne suit pas la grille. Le verdict du catalogue ne voit
-   aucun de ces écarts.
+1. **ssideki reads the BIOS ROM as a grid of 64 × 64 bytes in two planes**, the upper one at
+   `$C03000`, the lower one at `$C02000`, without ever writing it. Our `$FF` fill froze its demo
+   after the stadium intro, at the tester's as under MAME.
+2. **The bytes are ours**: a 16-bit congruential generator draws them from 0 to 3 for the upper
+   plane, from 1 to 63 for the lower plane. No reference byte is recorded or copied.
+3. **These ranges are the only ones tried that play the demo and five games without blocking.**
+   Lower plane at 0, or drawn from 1 to 254, or other upper planes: a game blocks, or the demo loses
+   half of its pictures.
+4. **The link holds the address**: `build/bios.ld` refuses the link if the code reaches `$C02000`.
+   `card.s`, `mess.s` and `video.s` move to the high area. The `bsr.w _mess_out` call in `int1.s`
+   stays relative: a `jsr`, two more cycles at every INT1, made `scores-gel` fail.
+5. **The proof**: scene `demo-ssideki` (pictures and key-ons compared to the SNK witness run) and
+   mutation `grille-haute-ff`, killed.
+6. **`$C04000-$C041FF` carries a sine table** since 2026-10-28 (#1458, `sinus.s`, generated
+   by `bench/generer-sinus.py`): T[i] = round(65536·|sin(2πi/256)|), and `$0001` for 1.0 (indices
+   64 and 192). alpham2, preisle2 and lresort read it; under `$FF`, "up" also took alpham2's ship to
+   the right. `$0000` freezes it, `$FFFF` shifts it by one pixel, `$0001` makes it equal to the SNK
+   witness run to the pixel. kof98, ssideki and bstars2, which read the `$FF`, lose nothing there.
+   Method: tables placed in our image, the game judged on screen (`measured/2026-10-28-sinus.tsv`).
+   **An incident preceded it** (§28): the agent of the first investigation had recorded four words
+   of the SNK ROM, which guided its choice of how to encode 1.0. That encoding was derived again by a
+   fresh agent, without access to those records, by measuring the game on our image only. Proof:
+   scenes `alpha-trajectoire` and `howto-preisle2`, mutations `sinus-ff` and `sinus-un-ffff`.
+7. **The other readers, measured on 2026-10-27 and not fixed** (#1446,
+   `measured/2026-10-27-lecteurs-rom-bios.tsv`). socbrawl blocks on a THROW IN, in the demo as during
+   a game, because of the upper plane at 0..3 that ssideki's intro requires; no grid tried holds both
+   games. The user's decision of 2026-10-27: the grid stays ssideki's, and socbrawl's blocking is a
+   known defect. 3countb, bstars2 and fbfrenzy have no defect seen: their picture difference from
+   the witness run does not follow the grid. The catalogue verdict sees none of these differences.
 
-## 19. Les intitulés soft-DIP en région JAPAN
+## 19. Soft-DIP labels in the JAPAN region
 
-Le 2026-10-27, après l'image n°14 (#1449 ; `dip.s`, `reglages-jeu.s`). En région JAPAN, l'écran TEST
-et GAME SETTINGS affichaient en blanc les intitulés de Super Sidekicks : le bloc japonais les code hors
-de l'ASCII, et `.Lecrire` remplaçait ces octets par une espace. Mesures :
-`measured/2026-10-27-intitules-japon.tsv` ; scènes : `japon-intitules`, `gs-japon`, `gs-japon-garde`.
+On 2026-10-27, after image no. 14 (#1449; `dip.s`, `reglages-jeu.s`). In the JAPAN region, the test
+screen and GAME SETTINGS showed Super Sidekicks' labels blank: the Japanese block encodes them
+outside ASCII, and `.Lecrire` replaced those bytes with a space. Measurements:
+`measured/2026-10-27-intitules-japon.tsv`; scenes: `japon-intitules`, `gs-japon`, `gs-japon-garde`.
 
-1. **Le BIOS SNK japonais écrit chaque octet b d'un intitulé ou d'un choix en tuile $300 + b (haut) et
-   $400 + b (bas)**, l'ASCII compris ; le nom du jeu reste en $100/$200 + b (section 1, ssideki,
-   `-bios japan`, plan fixe reconstruit, aucun octet de ROM lu).
-2. **Les deux banques de la police de la carte ont le même glyphe pour 90 des 95 octets ASCII** :
-   pas pour $5F, $60 ni $7C-$7E (section 2). Les intitulés de ssideki emploient $7C-$7E pour un kanji.
-3. **La S ROM des cartouches n'a pas ces glyphes** : 0 tuile identique sur 50 pour ssideki, kof98,
-   mslug, aof et samsho4 (section 3).
-4. **Écran TEST du boot, copié de SNK, décision de l'utilisateur du 2026-10-27** : en région JAPAN, si
-   les intitulés du bloc portent un octet hors de $20-$7E, toute la liste passe en 8×16, deux rangées
-   par entrée, dans une fenêtre de dix entrées qui défile. Un octet de $20-$5E ou $61-$7B s'écrit en
-   $100/$200 + b, tout autre en $300/$400 + b. Un bloc tout en ASCII, ou une autre région : la liste en
-   8×8 d'avant, inchangée. Le sous-écran CABINET SETTINGS reste en 8×8.
-5. **GAME SETTINGS en partie, ÉCART PROPRE À REBIOS** : le point 4 ne s'y applique pas. Le plan fixe y
-   reste sur la S ROM de la cartouche (REG_BRDFIX couperait la M1 du jeu, `menu.s`), et le point 3 dit
-   qu'on y verrait le décor du jeu. En région JAPAN, les intitulés des réglages et des choix viennent
-   donc du bloc USA (pointeur $11A), si sa structure est celle du bloc japonais : octets $10-$15 égaux,
-   et le nombre de choix (quartet bas) de $16-$1F. Valeurs, défauts et enregistrement restent ceux du
-   bloc japonais. Bloc USA nul, hors de la P-ROM fixe ou de structure différente : les intitulés japonais, filtrés
-   comme avant (un octet hors ASCII en espace).
-   Vu à l'écran sur ssideki (emprunt) et bstars (garde) seulement : qu'une même structure veuille dire
-   les mêmes réglages dans le même ordre reste supposé ailleurs.
-6. **Le défaut (quartet haut de $16-$1F) est masqué** dans la comparaison : il ne change pas la place
-   d'un intitulé, et les défauts du Japon restent ceux qui servent. Sur les 161 jeux du catalogue, 115
-   ont des blocs égaux, 25 ne diffèrent que par leurs défauts (le garde les laisse passer), 19 ont
-   une autre structure et 2 un pointeur refusé (section 4). bstars, dont la structure diffère, juge le
-   garde. Les octets $10-$15 restent comparés à la valeur, comme la décision le demande : 2020bb,
-   ncommand, tpgolf et wjammers, qui n'en diffèrent que par la valeur d'un temps ou d'un compte,
-   gardent leurs intitulés japonais filtrés.
-7. **Le nom du jeu ne vient pas du bloc USA.** GAME SETTINGS ne l'affiche pas ; l'écran TEST le garde
-   en 8×8, comme le BIOS SNK le garde en ASCII.
+1. **The Japanese SNK BIOS writes each byte b of a label or a choice as tile $300 + b (top) and
+   $400 + b (bottom)**, ASCII included; the game's name stays at $100/$200 + b (section 1, ssideki,
+   `-bios japan`, fix layer reconstructed, no ROM byte read).
+2. **Both banks of the board's font have the same glyph for 90 of the 95 ASCII bytes**: not for
+   $5F, $60 nor $7C-$7E (section 2). ssideki's labels use $7C-$7E for a kanji.
+3. **The cartridges' S ROM does not have these glyphs**: 0 identical tile out of 50 for ssideki,
+   kof98, mslug, aof and samsho4 (section 3).
+4. **Boot test screen, copied from SNK, the user's decision of 2026-10-27**: in the JAPAN region, if
+   the block's labels carry a byte outside $20-$7E, the whole list goes to 8×16, two rows per entry,
+   in a scrolling window of ten entries. A byte in $20-$5E or $61-$7B is written as $100/$200 + b,
+   any other as $300/$400 + b. A block entirely in ASCII, or another region: the previous 8×8 list,
+   unchanged. The CABINET SETTINGS sub-screen stays in 8×8.
+5. **GAME SETTINGS during a game, DEPARTURE SPECIFIC TO REBIOS**: point 4 does not apply there. The
+   fix layer stays on the cartridge's S ROM there (REG_BRDFIX would cut off the game's M1,
+   `menu.s`), and point 3 says that the game's scenery would show there. In the JAPAN region, the
+   labels of the settings and choices therefore come from the USA block (pointer $11A), if its
+   structure is that of the Japanese block: bytes $10-$15 equal, and the number of choices (low
+   nibble) of $16-$1F. Values, defaults and saving remain those of the Japanese block. USA block
+   null, outside the fixed P-ROM or of a different structure: the Japanese labels, filtered
+   as before (a non-ASCII byte as a space).
+   Seen on screen on ssideki (borrowing) and bstars (guard) only: that the same structure means the
+   same settings in the same order remains assumed elsewhere.
+6. **The default (high nibble of $16-$1F) is masked** in the comparison: it does not change the place
+   of a label, and Japan's defaults remain the ones used. Of the 161 games in the catalogue, 115
+   have equal blocks, 25 differ only by their defaults (the guard lets them through), 19 have
+   another structure and 2 a refused pointer (section 4). bstars, whose structure differs, judges the
+   guard. Bytes $10-$15 are still compared by value, as the decision requires: 2020bb, ncommand,
+   tpgolf and wjammers, which differ there only by the value of a time or a count, keep their
+   filtered Japanese labels.
+7. **The game's name does not come from the USA block.** GAME SETTINGS does not show it; the test
+   screen keeps it in 8×8, as the SNK BIOS keeps it in ASCII.
 
-## 20. Le CRC32 de la cartouche et les debug dips
+## 20. The cartridge CRC32 and the debug dips
 
-Écrits le 2026-10-25, réappliqués sur main le 2026-10-27 après #1452 et #1453 (#1444 ; `crc.s`,
-`debug.s`, `tests.s`, `dip.s`, `cheats.s`, `c0.s`). Mesures : `measured/2026-10-25-crc-cartouche.tsv`
-et `2026-10-25-debug-dips.tsv` ; seuils : `2026-10-25-parcours-crc-debug.tsv`.
+Written on 2026-10-25, re-applied on main on 2026-10-27 after #1452 and #1453 (#1444; `crc.s`,
+`debug.s`, `tests.s`, `dip.s`, `cheats.s`, `c0.s`). Measurements: `measured/2026-10-25-crc-cartouche.tsv`
+and `2026-10-25-debug-dips.tsv`; thresholds: `2026-10-25-parcours-crc-debug.tsv`.
 
-1. **CARTRIDGE CRC est une ligne de HARDWARE TESTS, juste avant EXIT.** Depuis WORK RAM, « bas »
-   quatre et cinq fois mènent toujours à INPUT TEST et COLOR BARS ; CROSSHATCH passe à « haut » trois
-   fois, CARTRIDGE CRC est à deux, EXIT à une.
-2. **Deux CRC32, la P-ROM fixe et les banques, lus sous REG_CRTFIX** (§13), chaque mot octet bas
-   d'abord : l'ordre des fichiers de MAME. FIXED est `$000000-$0FFFFF`, réduit de moitié tant que la
-   moitié haute est le miroir de la basse (SUPPOSÉ : une puce de 512 Kio vue deux fois sur une carte).
-   BANKS suit le mot de `$2FFFF0` (lu dans `neogeo.cpp`) jusqu'à la première banque déjà vue ; aucune
-   si la fenêtre égale la P-ROM fixe, et rien n'est alors écrit en `$2FFFF0`. Aucune non plus, depuis
-   le 2026-10-29, si la fenêtre ne lit qu'un seul mot, rien écrit non plus : une vraie cartouche
-   ssideki, sans puce de banques, y rend `$5700` partout (`measured/2026-10-29-crc-ssideki-materiel.tsv`).
-3. **Le CRC est celui de ce que lit le 68000, pas celui d'un fichier.** Il égale celui que
-   `bench/crc-cartouche.py` calcule depuis le zip sur 8 jeux sur 10, et les deux CRC de
-   `hash/neogeo.xml` pour mslug2 et kof97. Sous MAME, une P-ROM de 512 Kio est suivie de zéros et
-   donne un CRC de 1 Mio. kof98 (p1 déchiffré au chargement) et mslug3 (banques SMA) ne se recalculent
-   pas hors de MAME ; les cartouches qui banquent ailleurs qu'en `$2FFFF0` ne sont pas reconnues.
-4. **Le mot `$10A` de l'en-tête n'est pas employé** : il diffère de la taille des fichiers P sur 44
-   des 119 sets relevés.
-5. **DEBUG DIPS est la cinquième ligne de CABINET SETTINGS** : elle ne déplace aucun chemin. Un
-   écran de seize bits, DIP 1 et DIP 2 ; la ligne montre le masque en hexadécimal. Pas au menu en
-   jeu : une ligne de plus y déplaçait les chemins des relevés et les cycles de sa boucle (§16 pt 7).
-6. **Un masque OU, pas une valeur**, sur les deux octets que pointe le long de `$10E` (lu dans le
-   wiki, « Debug DIPs »). Ces octets sont des données du jeu sur 36 des 128 jeux relevés. Le masque
-   est réécrit à chaque SYSTEM_IO par le moteur des cheats (bit 15 de `GL_MASQUE`), en démo comme en
-   partie : kof94 remet `$100000` à zéro à chaque départ de démo.
-7. **Jamais enregistré** : RAM seulement, oublié au boot et à chaque passage de slot ; `_sauver_jeu`
-   le retire de la zone le temps de la copie en backup RAM. Un bit que le jeu poserait au même endroit
-   part à zéro en sauvegarde.
-8. **Sous CHEATS/DEBUG OFF, la ligne dit OFF, ne s'ouvre pas, et le masque est oublié** à la sortie
-   de l'écran TEST.
-9. **L'effet n'est vu que sur kof94** (DIP 1 bit 0 : DEBUG OBJE, un visualiseur de sprites) ;
-   samsho2, tophuntr et sengoku2 montrent un outil sous un octet à `$FF`. Ailleurs, l'effet reste
-   SUPPOSÉ.
-10. **Le cadre de l'éditeur passe à cinq lignes de sous-écran**, la liste en 8×16 de §19 gardée :
-    602 octets de pile sous les autotests (`tests.s`). Le code bas finit à `$C01C98`, sous la garde
-    de §18.
-11. **Preuves** : 7 scènes (`crc-*`, `bf-crc*`, `dd-*`) et 12 mutations. Sur l'image réappliquée
-    `8c8caefa…`, les sept scènes et `geste-boot`, `japon-intitules`, `gs-fois`, `tests-grille`,
-    `bf-tests`, `bo-ecran`, `gs-japon`, lancées seules, PASS. Preuves complètes (NR, mutations,
-    catalogue) à la passe finale.
+1. **CARTRIDGE CRC is a line of HARDWARE TESTS, just before EXIT.** From WORK RAM, "down" four and
+   five times still lead to INPUT TEST and COLOR BARS; CROSSHATCH moves to "up" three times,
+   CARTRIDGE CRC is at two, EXIT at one.
+2. **Two CRC32s, the fixed P-ROM and the banks, read under REG_CRTFIX** (§13), each word low byte
+   first: the order of MAME's files. FIXED is `$000000-$0FFFFF`, halved as long as the upper half is
+   the mirror of the lower one (ASSUMED: a 512 KiB chip seen twice on a board). BANKS follows the
+   word at `$2FFFF0` (read in `neogeo.cpp`) up to the first bank already seen; none if the window
+   equals the fixed P-ROM, and nothing is then written to `$2FFFF0`. None either, since
+   2026-10-29, if the window reads only one word, nothing written either: a real ssideki cartridge,
+   without a bank chip, returns `$5700` everywhere there (`measured/2026-10-29-crc-ssideki-materiel.tsv`).
+3. **The CRC is that of what the 68000 reads, not that of a file.** It equals the one
+   `bench/crc-cartouche.py` computes from the zip on 8 games out of 10, and both CRCs of
+   `hash/neogeo.xml` for mslug2 and kof97. Under MAME, a 512 KiB P-ROM is followed by zeros and
+   gives a 1 MiB CRC. kof98 (p1 decrypted at load) and mslug3 (SMA banks) cannot be recomputed
+   outside MAME; cartridges that bank elsewhere than at `$2FFFF0` are not recognised.
+4. **The header word at `$10A` is not used**: it differs from the size of the P files on 44 of the
+   119 sets recorded.
+5. **DEBUG DIPS is the fifth line of CABINET SETTINGS**: it moves no path. A screen of sixteen bits,
+   DIP 1 and DIP 2; the line shows the mask in hexadecimal. Not in the in-game menu: one more line
+   there moved the records' paths and the cycles of its loop (§16 pt 7).
+6. **An OR mask, not a value**, on the two bytes that the long at `$10E` points to (read in the
+   wiki, "Debug DIPs"). These bytes are game data on 36 of the 128 games recorded. The mask is
+   rewritten at every SYSTEM_IO by the cheat engine (bit 15 of `GL_MASQUE`), in the demo as during a
+   game: kof94 clears `$100000` at every demo start.
+7. **Never saved**: RAM only, forgotten at boot and at every slot change; `_sauver_jeu` removes it
+   from the area while copying to backup RAM. A bit the game would set at the same place goes to
+   zero in the save.
+8. **Under CHEATS/DEBUG OFF, the line says OFF, does not open, and the mask is forgotten** on leaving
+   the test screen.
+9. **The effect is seen only on kof94** (DIP 1 bit 0: DEBUG OBJE, a sprite viewer); samsho2,
+   tophuntr and sengoku2 show a tool under a byte at `$FF`. Elsewhere, the effect remains ASSUMED.
+10. **The editor's frame goes to five sub-screen lines**, the 8×16 list of §19 kept: 602 bytes of
+    stack under the self-tests (`tests.s`). The low code ends at `$C01C98`, under the guard of §18.
+11. **Proof**: 7 scenes (`crc-*`, `bf-crc*`, `dd-*`) and 12 mutations. On the re-applied image
+    `8c8caefa…`, the seven scenes and `geste-boot`, `japon-intitules`, `gs-fois`, `tests-grille`,
+    `bf-tests`, `bo-ecran`, `gs-japon`, run alone, PASS. Full proof (NR, mutations, catalogue) at
+    the final pass.
 
-## 21. Les commutateurs 2 à 6 et 8 de la carte
+## 21. Board switches 2 to 6 and 8
 
-Le 2026-10-27 (#1445 ; `io.s`, `c0.s`, `ecran.s`). Décisions de l'utilisateur du même jour, sur le
-relevé fait d'abord en boîte noire : `measured/2026-10-27-dip-2-8.tsv`. Seuils :
+On 2026-10-27 (#1445; `io.s`, `c0.s`, `ecran.s`). The user's decisions of the same day, on the
+record first made black-box: `measured/2026-10-27-dip-2-8.tsv`. Thresholds:
 `measured/2026-10-27-parcours-dip-2-8.tsv`.
 
-1. **Commutateur 8, « Freeze » : copié du BIOS SNK et d'UniBIOS 4.0.** À ON, le jeu est suspendu dès
-   l'appel suivant de SYSTEM_IO ou SYSTEM_INT1, en démo comme en partie : l'image ne bouge plus, les
-   entrées ne lui parviennent plus, le watchdog est servi, et le Z80 continue (son pilote écrit
-   toujours au YM2610). Remis à OFF, le jeu reprend où il était, sans RESET. Sous MAME, les deux
-   références figent 297 à 299 trames sur 299 et reprennent décalées de la durée du gel (sections 2
-   et 3) ; ReBIOS de même (scène `dip-gel`). SUPPOSÉ : que la référence masque les IRQ pendant le gel,
-   comme nous ; seul est mesuré que l'image ne bouge plus.
-2. **ÉCART VOULU : au boot, un message.** Les deux références s'arrêtent écran noir après leur test
-   mémoire. ReBIOS s'arrête au même endroit de son boot, avant son écran, mais affiche DIP SWITCH 8 IS
-   ON et SET IT OFF TO CONTINUE : un écran noir se prend pour une panne. Remis à OFF, le boot reprend
-   (scène `dip-gel-boot`). Hors du boot, le gel passe par SYSTEM_IO et SYSTEM_INT1 : dans les écrans
-   du BIOS (écran TEST, menu en jeu), ni le nôtre ni celui des références n'a été essayé.
-3. **Commutateur 3, « Mahjong Panel » : copié du BIOS SNK.** À ON, BIOS_P1STATUS ($10FD94) vaut 3 et le
-   panneau est balayé à chaque appel par REG_POUTPUT ($09, $12, $24) : les rangées A-G, H-N et PON à
-   REACH tenues dans $10FD95, $10FD96 et $10FD97, leurs fronts dans $10FDA1, $10FDA2 et $10FDA3, sans
-   répétition. La correspondance a été mesurée touche par touche, sous les trois BIOS de référence,
-   avant d'écrire le code (section 8) : complète, les trois identiques. P2 reste une manette
-   ordinaire. Un joystick sur ce commutateur s'y lit dans les trois rangées à la fois, comme chez SNK
-   (section 4) : le front devient le niveau, une direction tenue est vue à chaque trame.
-4. **Le panneau à OFF, défaut corrigé.** Notre image ne lisait aucune touche d'un panneau, à aucune
-   position (section 5). Commutateur 3 à OFF, la référence le lit en joystick, les rangées A-G et H-N
-   confondues : ReBIOS écrit $1B dans REG_POUTPUT avant de lire les manettes, comme elle (scène
-   `dip-mj-off`). Sur un joystick, cette sortie ne change rien. Elle coûte une écriture par appel.
-5. **Commutateur 2, « VS Mode » : copié d'UniBIOS et du BIOS SNK japonais.** Recopié dans $10FEF8,
-   BIOS_4P_REQUESTED (« BIOS RAM locations » : $2, « dip 2 was on »). Le BIOS SNK européen ne le fait
-   pas. kizuna y affiche alors un second compteur CREDIT (scène `dip-4p`). **Pas d'adaptateur 4
-   joueurs** : BIOS_4P_MODE et BIOS_4P_PLUGGED restent à 0.
-6. **Les commutateurs 2 et 3 sont relus à chaque remise de la main**, boot compris : la référence les
-   reprend à la pièce, trois trames après (section 4 et 6 ; scènes `dip-mahjong`, `dip-4p`). SUPPOSÉ :
-   aux autres remises (fin de démo, game over, SELECT), que rien n'a mesurées.
-7. **Commutateurs 4, 5 et 6 : rien côté BIOS.** Ni le BIOS SNK ni UniBIOS ne change une trame d'un jeu
-   pour eux (section 1) ; ils ne font que s'afficher dans leurs écrans de test (COMMUNICATION, NETWORK
-   ID ; section 7). ridhero lit le 6 lui-même, sous les trois BIOS, ReBIOS compris (992 trames de
-   partie sur 1001 égales à la précédente contre 836 sous SNK ; MAME : « runs in slow-mo ») : c'est le
-   jeu, et notre image le sert sans rien faire.
-8. **Pas de noms de commutateurs dans INPUT TEST** : il garde ses huit voyants (§17 pt 8).
-9. **Les trois commutateurs agissent en mode AES aussi** : ce sont des commutateurs de la carte, et le
-   mode AES de ReBIOS n'existe que sur une carte MVS (§11). SUPPOSÉ sans conséquence : un jeu en mode
-   AES ne lit pas BIOS_4P_REQUESTED autrement.
-10. **Le coût en cycles** : par appel de SYSTEM_IO ou SYSTEM_INT1, un test du commutateur 8, l'écriture
-    de $1B et un test de BIOS_P1STATUS, environ 70 cycles. Lancées seules sur l'image du lot
-    (66c240b7…), dix-neuf scènes existantes sensibles au chronométrage (boot, remises, `gs-fois`,
-    `gs-mmss`, `scores-gel`, `aes-texte`, `dip-*`, `geste-*`, `ms-select`…) restent PASS. Preuves
-    complètes (NR, mutations, catalogue) à la passe finale.
-11. **Preuves** : 7 scènes (`dip-gel`, `dip-gel-off`, `dip-gel-boot`, `dip-mahjong`, `dip-mj-off`,
-    `dip-4p`, `dip-4p-off`), chacune contre un témoin de référence, et 11 mutations écrites. Le
-    panneau de mahjong s'ajoute à `bench/son.lua` (`mjA` à `mjReach`, `mjStart`).
+1. **Switch 8, "Freeze": copied from the SNK BIOS and UniBIOS 4.0.** At ON, the game is suspended
+   from the next call of SYSTEM_IO or SYSTEM_INT1, in the demo as during a game: the picture no
+   longer moves, inputs no longer reach it, the watchdog is served, and the Z80 carries on (its
+   driver still writes to the YM2610). Set back to OFF, the game resumes where it was, without a
+   RESET. Under MAME, both references freeze 297 to 299 frames out of 299 and resume offset by the
+   duration of the freeze (sections 2 and 3); ReBIOS likewise (scene `dip-gel`). ASSUMED: that the
+   reference masks IRQs during the freeze, as we do; only that the picture no longer moves is
+   measured.
+2. **DELIBERATE DEPARTURE: at boot, a message.** Both references stop on a black screen after their
+   memory test. ReBIOS stops at the same point of its boot, before its screen, but shows DIP SWITCH 8
+   IS ON and SET IT OFF TO CONTINUE: a black screen is taken for a breakdown. Set back to OFF, the
+   boot resumes (scene `dip-gel-boot`). Outside boot, the freeze goes through SYSTEM_IO and
+   SYSTEM_INT1: in the BIOS's screens (test screen, in-game menu), neither ours nor the references'
+   has been tried.
+3. **Switch 3, "Mahjong Panel": copied from the SNK BIOS.** At ON, BIOS_P1STATUS ($10FD94) is 3 and
+   the panel is scanned at every call through REG_POUTPUT ($09, $12, $24): rows A-G, H-N and PON to
+   REACH held in $10FD95, $10FD96 and $10FD97, their edges in $10FDA1, $10FDA2 and $10FDA3, without
+   repeat. The mapping was measured key by key, under the three reference BIOSes, before writing the
+   code (section 8): complete, the three identical. P2 stays an ordinary joystick. A joystick on this
+   switch is read there in all three rows at once, as with SNK (section 4): the edge becomes the
+   level, a direction held is seen at every frame.
+4. **The panel at OFF, defect fixed.** Our image read no key of a panel, in any position (section
+   5). With switch 3 at OFF, the reference reads it as a joystick, rows A-G and H-N merged: ReBIOS
+   writes $1B to REG_POUTPUT before reading the joysticks, as it does (scene `dip-mj-off`). On a
+   joystick, this output changes nothing. It costs one write per call.
+5. **Switch 2, "VS Mode": copied from UniBIOS and the Japanese SNK BIOS.** Copied into $10FEF8,
+   BIOS_4P_REQUESTED ("BIOS RAM locations": $2, "dip 2 was on"). The European SNK BIOS does not do
+   it. kizuna then shows a second CREDIT counter (scene `dip-4p`). **No 4-player adapter**:
+   BIOS_4P_MODE and BIOS_4P_PLUGGED stay at 0.
+6. **Switches 2 and 3 are read again at every hand-over**, boot included: the reference picks them
+   up again at the coin, three frames later (sections 4 and 6; scenes `dip-mahjong`, `dip-4p`).
+   ASSUMED: at the other hand-overs (end of demo, game over, SELECT), which nothing has measured.
+7. **Switches 4, 5 and 6: nothing on the BIOS side.** Neither the SNK BIOS nor UniBIOS changes one
+   frame of a game for them (section 1); they are only displayed in their test screens
+   (COMMUNICATION, NETWORK ID; section 7). ridhero reads switch 6 itself, under the three BIOSes,
+   ReBIOS included (992 game frames out of 1001 equal to the previous one against 836 under SNK;
+   MAME: "runs in slow-mo"): it is the game, and our image serves it without doing anything.
+8. **No switch names in INPUT TEST**: it keeps its eight indicators (§17 pt 8).
+9. **The three switches act in AES mode too**: they are board switches, and ReBIOS's AES mode exists
+   only on an MVS board (§11). ASSUMED without consequence: a game in AES mode does not read
+   BIOS_4P_REQUESTED differently.
+10. **The cost in cycles**: per call of SYSTEM_IO or SYSTEM_INT1, a test of switch 8, the write of
+    $1B and a test of BIOS_P1STATUS, about 70 cycles. Run alone on the batch's image
+    (66c240b7…), nineteen existing scenes sensitive to timing (boot, hand-overs, `gs-fois`,
+    `gs-mmss`, `scores-gel`, `aes-texte`, `dip-*`, `geste-*`, `ms-select`…) stay PASS. Full proof
+    (NR, mutations, catalogue) at the final pass.
+11. **Proof**: 7 scenes (`dip-gel`, `dip-gel-off`, `dip-gel-boot`, `dip-mahjong`, `dip-mj-off`,
+    `dip-4p`, `dip-4p-off`), each against a reference witness run, and 11 mutations written. The
+    mahjong panel is added to `bench/son.lua` (`mjA` to `mjReach`, `mjStart`).
 
-## 22. L'autofire par jeu, dans le menu en jeu
+## 22. Per-game autofire, in the in-game menu
 
-Le 2026-10-27 (#1454 ; `autofire.s`, `io.s`, `menu.s`, `c0.s`). Décisions de l'utilisateur du même
-jour : dans le menu en jeu, par jeu, gardé en backup RAM ; A, B, C et D séparément ; 15 tirs/s par
-défaut, 30 et 10 en option ; la liste des jeux documentée. Aucun BIOS Neo Geo connu ne le propose.
-Mesure qui le fonde : `measured/2026-10-27-autofire.tsv` (164 jeux) ; liste du joueur :
-`docs/AUTOFIRE.md` ; seuils : `measured/2026-10-27-parcours-autofire.tsv`.
+On 2026-10-27 (#1454; `autofire.s`, `io.s`, `menu.s`, `c0.s`). The user's decisions of the same
+day: in the in-game menu, per game, kept in backup RAM; A, B, C and D separately; 15 shots/s by
+default, 30 and 10 as options; the list of games documented. No known Neo Geo BIOS offers it.
+Measurement it rests on: `measured/2026-10-27-autofire.tsv` (164 games); player's list:
+`docs/AUTOFIRE.md`; thresholds: `measured/2026-10-27-parcours-autofire.tsv`.
 
-1. **Le turbo est dans SYSTEM_IO, entre la lecture de la manette et sa mise en RAM.** Le jeu le voit
-   s'il lit BIOS_P1CURRENT et les cases qui suivent, pas s'il lit REG_P1CNT lui-même. Mesuré avec un
-   prototype hors dépôt, A de P1, à 15 tirs/s : 89 jeux le voient comme un joueur qui tape, 25
-   l'ont irrégulier (ils lisent aussi le registre, ou n'appellent pas SYSTEM_IO une fois par trame :
-   le motif avance d'un pas par appel), 35 ne le voient pas, 15 ne sont pas mesurés. B, C, D et P2
-   ne sont pas mesurés.
-2. **Coût constant**, turbo actif ou non, bouton tenu ou non : ni branchement ni Scc, deux tables
-   par phase (boutons relâchés, phase suivante) préparées quand le réglage change, ~112 cycles par
-   manette et par appel. Quelques jeux divergent pour quelques cycles (mesuré pendant le prototype) :
-   un coût qui varierait avec le réglage ferait d'un jeu réglé un autre jeu.
-3. **La phase repart de 0 dès qu'aucun bouton du réglage n'est tenu** : le premier appui part à
-   l'instant. Une phase par joueur ; **P1 et P2 suivent le même réglage** (choix fait seul : le jeu
-   est réglé, pas le joueur ; un réglage par joueur doublerait l'écran).
-4. **Panneau de mahjong (commutateur 3 à ON) : pas de turbo**, P2 compris. Le balayage du panneau
-   (`_io_mahjong`) ne passe pas par le calcul ; ses touches n'ont pas A à D au même sens (scène
-   `af-mahjong`).
-5. **Une ligne AUTOFIRE entre les cheats et GAME SETTINGS**, à « haut » trois fois depuis RESUME :
-   les chemins « bas », « bas, bas », « haut » et « haut, haut » des relevés ne bougent pas. Le cadre
-   garde ses dix lignes (la ligne vide sous MEMORY EDITOR lui laisse sa place). Elle reste sous
-   CHEATS/DEBUG OFF : ce n'est ni un cheat ni un outil de mise au point. §20 pt 5 écartait une ligne
-   de plus pour les debug dips : celle-ci est demandée au menu en jeu, et la place choisie évite
-   les deux obstacles nommés, les chemins et les cycles de la boucle.
-6. **GAME SETTINGS s'ouvre aux cycles d'avant.** Une première version du choix prenait 20 cycles de
-   plus à l'ouverture du menu : avec ceux du turbo, la relance de RESTART GAME avançait d'une trame
-   (scènes `restart` et `gs-mmss`, RESET à 2393 et 2417 au lieu de 2394 et 2418), alors que chacun
-   seul passait. Le choix passe par `subq #2` et `blt` aux mêmes cycles, et les deux scènes repassent.
-7. **Le sous-écran** : BUTTON A à D (OFF, ON), RATE (10/S, 15/S, 30/S) ; droite, gauche, A comme
-   GAME SETTINGS ; START revient. Le changement vaut à l'instant ; START l'enregistre. Aucun voyant
-   « TURBO » en jeu (choix fait seul : l'écran du jeu n'est pas à nous, le menu en jeu ne le touche
-   qu'en pause).
-8. **En backup RAM, `$D001B0-$D0020F`** : la signature « AUTF », puis 23 fiches de 4 octets (NGH,
-   réglage, contrôle), la plus récente d'abord ; un jeu au réglage par défaut n'a pas de fiche ; au-delà
-   de 23 jeux, le moins récemment réglé perd la sienne. Zone non documentée par « Backup RAM », sans
-   écriture mesurée de jeu ni de BIOS sur 21 jeux, sans lecture sur 22 ; `$D00144-$D001A3`, où la
-   référence range des dates de slot, est laissé.
-9. **Le jeu est le NGH de l'entrée du slot servi** (`$D00124`), écrit au boot depuis l'en-tête : le
-   NGH des cheats, sans lire la cartouche (§13). Chargé à chaque remise de la main au jeu, avant
-   l'attente de la ligne $1F0. **En RAM, `$10FB40-$10FB51`**, dans la zone mesurée libre du menu ; le
-   prototype a relu `$10FB40-$10FB41` inchangés pendant les 158 parties mesurées.
-10. **Preuves** : 4 scènes (`af-tir` contre A tapé au même motif, `af-sauve` après redémarrage,
-    `af-off`, `af-mahjong`) et 7 mutations écrites. Sur l'image du lot (8a328fb6…), lancées seules
-    avec vingt-et-une scènes existantes que le code touche (menu en jeu, cheats, GAME SETTINGS,
-    RESTART, SYSTEM_IO, remises, commutateurs), PASS. Preuves complètes (NR, mutations, catalogue)
-    à la passe finale.
+1. **The turbo is in SYSTEM_IO, between reading the joystick and storing it in RAM.** The game sees
+   it if it reads BIOS_P1CURRENT and the cells that follow, not if it reads REG_P1CNT itself.
+   Measured with a prototype outside the repository, P1's A, at 15 shots/s: 89 games see it as a
+   player tapping, 25 get it irregularly (they also read the register, or do not call SYSTEM_IO once
+   per frame: the pattern advances one step per call), 35 do not see it, 15 are not measured. B, C,
+   D and P2 are not measured.
+2. **Constant cost**, turbo active or not, button held or not: neither branch nor Scc, two tables
+   per phase (buttons released, next phase) prepared when the setting changes, ~112 cycles per
+   joystick and per call. A few games diverge for a few cycles (measured during the prototype): a
+   cost that varied with the setting would make a game with the setting a different game.
+3. **The phase restarts from 0 as soon as no button of the setting is held**: the first press fires
+   instantly. One phase per player; **P1 and P2 follow the same setting** (choice made alone: the
+   game is set, not the player; one setting per player would double the screen).
+4. **Mahjong panel (switch 3 ON): no turbo**, P2 included. The panel scan (`_io_mahjong`) does not
+   go through the computation; its keys do not have A to D in the same sense (scene `af-mahjong`).
+5. **An AUTOFIRE line between the cheats and GAME SETTINGS**, at "up" three times from RESUME: the
+   records' "down", "down, down", "up" and "up, up" paths do not move. The frame keeps its ten lines
+   (the empty line under MEMORY EDITOR leaves room for it). It stays under CHEATS/DEBUG OFF: it is
+   neither a cheat nor a debugging tool. §20 pt 5 ruled out one more line for the debug dips: this
+   one is requested in the in-game menu, and the place chosen avoids the two obstacles named, the
+   paths and the loop's cycles.
+6. **GAME SETTINGS opens with the previous cycles.** A first version of the selection took 20 more
+   cycles when the menu opened: with those of the turbo, the RESTART GAME restart came one frame
+   earlier (scenes `restart` and `gs-mmss`, RESET at 2393 and 2417 instead of 2394 and 2418), while
+   each alone passed. The selection goes through `subq #2` and `blt` with the same cycles, and both
+   scenes pass again.
+7. **The sub-screen**: BUTTON A to D (OFF, ON), RATE (10/S, 15/S, 30/S); right, left, A as in
+   GAME SETTINGS; START goes back. The change applies instantly; START saves it. No "TURBO" indicator
+   during the game (choice made alone: the game's screen is not ours, the in-game menu touches it
+   only while paused).
+8. **In backup RAM, `$D001B0-$D0020F`**: the signature "AUTF", then 23 records of 4 bytes (NGH,
+   setting, check), the most recent first; a game at the default setting has no record; beyond
+   23 games, the least recently set loses its own. An area not documented by "Backup RAM", with no
+   write by a game or the BIOS measured on 21 games, no read on 22; `$D00144-$D001A3`, where the
+   reference stores slot dates, is left alone.
+9. **The game is the NGH of the served slot's entry** (`$D00124`), written at boot from the header:
+   the cheats' NGH, without reading the cartridge (§13). Loaded at every hand-over to the game,
+   before waiting for line $1F0. **In RAM, `$10FB40-$10FB51`**, in the menu's area measured as free;
+   the prototype read `$10FB40-$10FB41` back unchanged during the 158 games measured.
+10. **Proof**: 4 scenes (`af-tir` against A tapped with the same pattern, `af-sauve` after a
+    restart, `af-off`, `af-mahjong`) and 7 mutations written. On the batch's image (8a328fb6…), run
+    alone with twenty-one existing scenes that the code touches (in-game menu, cheats, GAME SETTINGS,
+    RESTART, SYSTEM_IO, hand-overs, switches), PASS. Full proof (NR, mutations, catalogue)
+    at the final pass.
 
-## 23. Les garanties sur les défauts d'UniBIOS
+## 23. The guarantees on UniBIOS's defects
 
-Le 2026-10-27 (#1448 ; `dip.s`). Trois scènes fixent ce que ReBIOS fait là où UniBIOS a un défaut connu
-(`ATTENTES.md` §2). Seuils et mesures : `measured/2026-10-27-parcours-garanties.tsv`.
+On 2026-10-27 (#1448; `dip.s`). Three scenes fix what ReBIOS does where UniBIOS has a known defect
+(`ATTENTES.md` §2). Thresholds and measurements: `measured/2026-10-27-parcours-garanties.tsv`.
 
-1. **L'écran de boot ne lit aucun graphisme de la cartouche** (scène `boot-graphismes`). Il n'emploie
-   que le plan fixe sous REG_BRDFIX, la police de la carte, et masque les sprites par LSP_1st avant de
-   dessiner. Mesuré sous MAME : avec les C ROM et la S ROM d'aof remplacées par du bruit, et la VRAM et
-   les palettes bruitées à la mise sous tension comme sur le matériel, aucune des trames 4 à 188 ne
-   change. Le logo d'UniBIOS 4.0 se brouille dans les mêmes conditions (155 trames sur 190) : le défaut
-   de la scène se reproduit sous MAME. Les trames 2 et 3, avant la première palette du BIOS, montrent le
-   bruit de la mise sous tension et ne sont pas jugées : quelques trames de neige au démarrage, que tout
-   BIOS a, et pas un logo.
-2. **Le son du slot 2 sans cartouche au slot 1** (scène `ms-son-slot2`) : sur la MV-6F, le slot 1 est
-   servi et la démo sonne à 1,21 du RMS du BIOS SNK. Sous MAME, UniBIOS 4.0 y sonne aussi (RMS 2 378) : le
-   défaut d'UniBIOS sur carte multi-slot n'est pas reproduit, et la scène fixe notre comportement, rien de
-   plus. Sur le matériel : non mesuré. La remise à zéro du Z80 hors du premier slot n'a pas de mutation :
-   sous MAME, le Z80 privé de son reset repart et la démo sonne (RMS 2 969 contre 2 958), mesuré.
-3. **L'éditeur du boot sur une entrée jamais initialisée** (scène `dip-vierge`) : un slot dont la table
-   porte un autre jeu, ou qui connaît le jeu mais dont le bloc soft-DIP est quelconque. L'éditeur montre
-   les défauts de la cartouche et enregistre le bloc qu'aurait une NVRAM neuve, et les blocs voisins ne
-   sont pas touchés. Depuis le pt 5, ces deux entrées arrivent à l'éditeur déjà validées, et la passe
-   finale y a vu survivre les mutations de `.Linutilises` et `.Lnormaliser` : la scène les juge sur mslug,
-   dont le bloc, en zone banquée, échappe à `_dip_valider` (run `vierge-m`), et les deux y tombent.
-4. **Corrigé : les réglages inutilisés.** La scène a trouvé que l'éditeur enregistrait tels quels les
-   octets des réglages que la cartouche déclare inutilisés (un temps $FFFF, un compte $FF, un réglage
-   sans choix). Ils prennent désormais à l'entrée de l'éditeur la valeur que l'inscription y écrit
-   (`.Linutilises`). Aucune ligne ne les montre : le joueur ne voit rien de changé. GAME SETTINGS en
-   partie n'est pas touché (§12 pt 2).
-5. **Corrigé sur décision de l'utilisateur du 2026-10-27 : une entrée connue au bloc quelconque.**
-   Mesuré d'abord : sans passer par l'éditeur, le bloc était servi tel quel au jeu, et la partie d'aof
-   changeait entièrement à la trame 3000 (texte japonais, chronomètre à 98), quand une NVRAM de même
-   histoire sans ces octets lui était égale au pixel. `_relire_dip` (`c0.s`) appelle désormais
-   `_dip_valider` (`dip.s`) : les règles de l'éditeur, valeur par valeur — un réglage inutilisé prend
-   ce que la cartouche déclare, une valeur hors de ses bornes le défaut de la cartouche, une valeur
-   valide n'est pas touchée. Scène `dip-corrompue` : GAME_DIP et les 2 000 trames de la partie égales
-   au témoin. Trois choix faits par l'agent : la correction est par valeur et non par entrée entière
-   (comme l'éditeur) ; seul GAME_DIP est corrigé, le bloc de la backup RAM gardant ses octets jusqu'au
-   prochain START de l'éditeur ; un bloc soft-DIP dans la zone banquée (mslug) n'est pas validé, la
-   banque en place n'étant sûre qu'au premier boot. Le coût : quelques centaines de cycles à chaque
-   relecture (boot d'un slot connu, rotation et sélection multi-slot), dans une attente IRQ masquées ;
-   les scènes de ces chemins, lancées seules, restent PASS. Une telle entrée naît d'une backup RAM
-   laissée par un autre BIOS, d'une demande 0 qui ne revient pas sous le BIOS SNK (kof98 finit la sienne
-   par un reset), ou d'une pile usée.
+1. **The boot screen reads no cartridge graphics** (scene `boot-graphismes`). It uses only the fix
+   layer under REG_BRDFIX, the board's font, and hides the sprites through LSP_1st before drawing.
+   Measured under MAME: with aof's C ROMs and S ROM replaced by noise, and the VRAM and palettes
+   filled with noise at power-on as on the hardware, none of frames 4 to 188 changes. UniBIOS 4.0's
+   logo scrambles under the same conditions (155 frames out of 190): the scene's defect reproduces
+   under MAME. Frames 2 and 3, before the BIOS's first palette, show the power-on noise and are not
+   judged: a few frames of snow at start-up, which every BIOS has, and not a logo.
+2. **Slot 2's sound without a cartridge in slot 1** (scene `ms-son-slot2`): on the MV-6F, slot 1 is
+   served and the demo sounds at 1.21 of the SNK BIOS's RMS. Under MAME, UniBIOS 4.0 sounds there
+   too (RMS 2,378): UniBIOS's defect on a multi-slot board is not reproduced, and the scene fixes our
+   behaviour, nothing more. On the hardware: not measured. Resetting the Z80 outside the first slot
+   has no mutation: under MAME, the Z80 deprived of its reset restarts and the demo sounds (RMS 2,969
+   against 2,958), measured.
+3. **The boot editor on an entry never initialised** (scene `dip-vierge`): a slot whose table
+   carries another game, or that knows the game but whose soft-DIP block is arbitrary. The editor
+   shows the cartridge's defaults and saves the block a new NVRAM would have, and the neighbouring
+   blocks are not touched. Since pt 5, these two entries reach the editor already validated, and the
+   final pass saw the mutations of `.Linutilises` and `.Lnormaliser` survive there: the scene judges
+   them on mslug, whose block, in the banked area, escapes `_dip_valider` (run `vierge-m`), and both
+   are caught there.
+4. **Fixed: the unused settings.** The scene found that the editor saved as they were the bytes of
+   the settings that the cartridge declares unused (a time $FFFF, a count $FF, a setting without
+   choices). They now take, on entering the editor, the value that registration writes there
+   (`.Linutilises`). No line shows them: the player sees nothing changed. GAME SETTINGS during a game
+   is not touched (§12 pt 2).
+5. **Fixed on the user's decision of 2026-10-27: a known entry with an arbitrary block.**
+   Measured first: without going through the editor, the block was served as it was to the game,
+   and aof's game changed entirely at frame 3000 (Japanese text, timer at 98), whereas an NVRAM with
+   the same history without these bytes was equal to it to the pixel. `_relire_dip` (`c0.s`) now
+   calls `_dip_valider` (`dip.s`): the editor's rules, value by value — an unused setting takes what
+   the cartridge declares, a value out of its bounds the cartridge's default, a valid value is not
+   touched. Scene `dip-corrompue`: GAME_DIP and the 2,000 frames of the game equal to the witness
+   run. Three choices made by the agent: the correction is per value and not per whole entry (like
+   the editor); only GAME_DIP is corrected, the backup RAM block keeping its bytes until the
+   editor's next START; a soft-DIP block in the banked area (mslug) is not validated, since the bank
+   in place is certain only at first boot. The cost: a few hundred cycles at each reread (boot of a
+   known slot, multi-slot rotation and selection), in a wait with IRQs masked; the scenes of those
+   paths, run alone, stay PASS. Such an entry arises from backup RAM left by another BIOS, from a
+   request 0 that does not come back under the SNK BIOS (kof98 ends its own with a reset), or from a
+   worn battery.
 
-## 24. La page du panneau de mahjong dans INPUT TEST
+## 24. The mahjong panel page in INPUT TEST
 
-Le 2026-10-27 (#1448 ; `tests.s`). Décision de l'utilisateur du même jour, sur le relevé fait en boîte
-noire (`measured/2026-10-27-attentes-reference.tsv`) : copier le BIOS SNK japonais et UniBIOS 4.0, sans
-page 4 joueurs. La scène juge des états, sans seuil.
+On 2026-10-27 (#1448; `tests.s`). The user's decision of the same day, on the record made black-box
+(`measured/2026-10-27-attentes-reference.tsv`): copy the Japanese SNK BIOS and UniBIOS 4.0, without
+a 4-player page. The scene judges states, without a threshold.
 
-1. **Commutateur 3 à ON à l'ouverture d'INPUT TEST, la page MAHJONG PANEL** remplace celle des manettes :
-   A à G, H à N, PON, CHI, KAN, RON, REACH, START, SELECT, chacune suivie de 0 ou de 1 (tenue), puis les
-   voyants COIN, SERVICE, TEST et DIP de la page ordinaire. P2 n'y est pas, comme chez les deux
-   références. Le commutateur n'est lu qu'à l'ouverture, comme elles : basculé pendant le test, la page
-   reste, et les scènes `tests-dip` gardent leur page.
-2. **Le panneau est balayé comme `_io_mahjong`** (§21 pt 3) : REG_POUTPUT ← $09, $12, $24, une rangée à la
-   fois. La sortie reste à $24 en quittant ; le jeu pose la sienne à son premier SYSTEM_IO.
-3. **La preuve sur une manette** (scène `tests-mahjong`) : une manette se lit dans les trois rangées à la
-   fois (§21 pt 3), A allume E, L et REACH, B F et M, haut A, H et PON. La correspondance touche par touche
-   du panneau n'est prouvée que par `dip-mahjong` (§21), dont la page reprend le balayage.
-4. **CONSTATÉ, NON CORRIGÉ : les menus du BIOS ne se parcourent pas au panneau.** Sur la machine janshin
-   de MAME, commutateur 3 à ON comme à OFF, A et B du panneau ne déplacent pas la ligne de l'éditeur : le
-   boot n'écrit pas REG_POUTPUT avant ses écrans, et le panneau ne répond qu'à une rangée choisie. Le BIOS
-   SNK japonais et UniBIOS 4.0 entrent dans HARDWARE TEST par A du panneau, commutateur 3 à ON. Sur une
-   borne de mahjong, la page n'est donc atteignable qu'avec une manette branchée en P1. Corriger demande
-   de choisir quelles touches du panneau mènent les menus : une décision. **Levé par §30.**
+1. **Switch 3 ON when INPUT TEST opens: the MAHJONG PANEL page** replaces the joysticks' page: A to
+   G, H to N, PON, CHI, KAN, RON, REACH, START, SELECT, each followed by 0 or 1 (held), then the
+   COIN, SERVICE, TEST and DIP indicators of the ordinary page. P2 is not on it, as with both
+   references. The switch is read only at opening, like them: flipped during the test, the page
+   stays, and the `tests-dip` scenes keep their page.
+2. **The panel is scanned like `_io_mahjong`** (§21 pt 3): REG_POUTPUT ← $09, $12, $24, one row at a
+   time. The output stays at $24 on leaving; the game sets its own at its first SYSTEM_IO.
+3. **The proof on a joystick** (scene `tests-mahjong`): a joystick is read in all three rows at once
+   (§21 pt 3), A lights E, L and REACH, B F and M, up A, H and PON. The panel's key-by-key mapping is
+   proved only by `dip-mahjong` (§21), whose scan the page reuses.
+4. **OBSERVED, NOT FIXED: the BIOS's menus cannot be navigated with the panel.** On MAME's janshin
+   machine, with switch 3 ON as OFF, the panel's A and B do not move the editor's line: the boot does
+   not write REG_POUTPUT before its screens, and the panel answers only for a selected row. The
+   Japanese SNK BIOS and UniBIOS 4.0 enter HARDWARE TEST with the panel's A, switch 3 ON. On a
+   mahjong cabinet, the page is therefore reachable only with a joystick plugged in as P1. Fixing it
+   requires choosing which panel keys drive the menus: a decision. **Lifted by §30.**
 
-## 25. L'économiseur d'écran du JUKEBOX
+## 25. The JUKEBOX screen saver
 
-Le 2026-10-27 (#1448 ; `jukebox.s`). Décision de l'utilisateur du même jour : copier UniBIOS 4.0, dans le
-JUKEBOX seulement, pas sur CROSSHATCH. Seuil : `measured/2026-10-27-parcours-garanties.tsv`.
+On 2026-10-27 (#1448; `jukebox.s`). The user's decision of the same day: copy UniBIOS 4.0, in the
+JUKEBOX only, not on CROSSHATCH. Threshold: `measured/2026-10-27-parcours-garanties.tsv`.
 
-1. **Mesuré chez UniBIOS 4.0** (`measured/2026-10-27-attentes-reference.tsv`) : dans son JUKEBOX PLAYER,
-   l'écran devient entièrement noir ~7 220 trames après la dernière entrée, la musique continue, une
-   touche le rend ; rien de tel sur 31 min dans son menu principal, son menu TEST ni son menu en jeu.
-2. **Ici, 7 100 trames sans entrée** (~2 min) : les entrées 1 des palettes 1-4, seules couleurs de cet
-   écran, passent à zéro juste après le passage de la ligne $1F0. Le Z80 n'est pas touché.
-3. **Toute entrée de P1 compte**, C et D compris, que le jukebox n'emploie pas ; une entrée tenue empêche
-   l'écran noir.
-4. **La trame du réveil ne fait rien d'autre** : ni code, ni pas, ni sortie. Une touche tenue ensuite n'a
-   plus de front.
-5. **REG_SHADOW n'est pas employé** : il assombrit sans éteindre, et cet écran pose déjà ses palettes.
-6. **Preuve** : scène `jukebox-veille`, contre un témoin que C tapé garde allumé : 71 680 pixels noirs
-   sur 71 680 à la trame 7800, le même RMS que le témoin, le code inchangé au réveil puis 21 → 22.
+1. **Measured on UniBIOS 4.0** (`measured/2026-10-27-attentes-reference.tsv`): in its JUKEBOX
+   PLAYER, the screen goes entirely black ~7,220 frames after the last input, the music continues, a
+   key brings it back; nothing like it over 31 min in its main menu, its TEST menu or its in-game
+   menu.
+2. **Here, 7,100 frames without input** (~2 min): entries 1 of palettes 1-4, the only colours of
+   this screen, go to zero just after line $1F0 is passed. The Z80 is not touched.
+3. **Any P1 input counts**, C and D included, which the jukebox does not use; an input held prevents
+   the black screen.
+4. **The wake-up frame does nothing else**: no code, no step, no exit. A key held afterwards no
+   longer has an edge.
+5. **REG_SHADOW is not used**: it darkens without switching off, and this screen already sets its
+   palettes.
+6. **Proof**: scene `jukebox-veille`, against a witness run that tapping C keeps lit: 71,680 black
+   pixels out of 71,680 at frame 7800, the same RMS as the witness run, the code unchanged at
+   wake-up then 21 → 22.
 
-## 26. La copie d'une sauvegarde dans MEMORY CARD
+## 26. Copying a save in MEMORY CARD
 
-Le 2026-10-27 (#1448 ; `gestion-carte.s`). Décision de l'utilisateur du même jour : une sauvegarde à
-la fois, par un tampon en RAM, « CHANGE CARD AND PRESS A », une confirmation avant d'écraser ; pas de
-COPY ALL.
+On 2026-10-27 (#1448; `gestion-carte.s`). The user's decision of the same day: one save at a time,
+through a RAM buffer, "CHANGE CARD AND PRESS A", a confirmation before overwriting; no COPY ALL.
 
-1. **Mesuré chez UniBIOS 4.0** (`measured/2026-10-27-attentes-reference.tsv`) : COPY GAME DATA, A sur une
-   sauvegarde, « DATA IS COPIED / CHANGE CARD AND PRESS A BUTTON », puis sur une carte qui l'a déjà « GAME
-   IS ALREADY ON THIS CARD / DO YOU WANT TO DELETE OLD DATA ? ».
-2. **C sur une sauvegarde** la lit par CARD $02 (blocs de sa chaîne × 64 octets), puis « CHANGE CARD AND
-   PRESS A B:NO ». C n'était pris nulle part dans cet écran ; A garde DELETE, et B reste « non ».
-3. **A relit la carte en place avant tout**, puis demande « OVERWRITE nnnn-ss? » si elle porte déjà le
-   même NGH et la même sous-sauvegarde, sinon écrit par CARD $03. Mesuré sous MAME : retirée et remise
-   entre deux trames, une carte ne change pas REG_STATUS_B, et la recherche se faisait sur la liste de
-   l'ancienne. Carte absente ou protégée au A : le message, l'attente continue. B ou START renoncent.
-4. **La place en RAM.** La plus grande sauvegarde d'une carte de 2 Kio (seule géométrie servie, `card.s`)
-   fait 27 blocs, 1 728 octets. La RAM du gestionnaire n'en a que 256 ($10F300-$10F3FF), et celle de
-   l'écran TEST ($10F464-$10FAFF) tient la copie du bloc soft-DIP de `dip.s`. Le tampon est donc la RAM de
-   travail du jeu, $100000-$1006BF, dont les 1 728 octets sont mis de côté en VRAM ($0000-$035F, la carte
-   des tuiles des sprites 0 à 13, masqués depuis le boot) avant la lecture et rendus après l'écriture ou le
-   renoncement. Mesuré : un motif posé en $100000 et $1006BE ressort intact. Les autotests WORK RAM, eux,
-   réécrivent la RAM du jeu sous $10F000 sans la rendre (lu dans `tests.s`) : non changé ici.
-5. **Les cartes de plus de 2 Kio ne sont pas concernées** : REG_CRDBANK reste à 0 et CARD refuse toute
-   autre géométrie ($85).
-6. **Preuve** : scène `cm-copier`, la carte changée par `bench/carte-echange.lua` (retirée, puis une autre
-   insérée vingt trames plus tard) : copie sur une carte vide, écrasement confirmé, renoncement ; la
-   source jamais écrite.
+1. **Measured on UniBIOS 4.0** (`measured/2026-10-27-attentes-reference.tsv`): COPY GAME DATA, A on a
+   save, "DATA IS COPIED / CHANGE CARD AND PRESS A BUTTON", then on a card that already has it "GAME
+   IS ALREADY ON THIS CARD / DO YOU WANT TO DELETE OLD DATA ?".
+2. **C on a save** reads it through CARD $02 (blocks of its chain × 64 bytes), then "CHANGE CARD AND
+   PRESS A B:NO". C was taken nowhere in this screen; A keeps DELETE, and B stays "no".
+3. **A reads the card in place again before anything else**, then asks "OVERWRITE nnnn-ss?" if it
+   already carries the same NGH and the same sub-save, otherwise writes through CARD $03. Measured
+   under MAME: removed and put back between two frames, a card does not change REG_STATUS_B, and the
+   search was done on the old card's list. Card missing or protected at A: the message, the wait
+   continues. B or START cancel.
+4. **The room in RAM.** The largest save on a 2 KiB card (the only geometry served, `card.s`) is 27
+   blocks, 1,728 bytes. The manager's RAM has only 256 ($10F300-$10F3FF), and that of the test
+   screen ($10F464-$10FAFF) holds the copy of the soft-DIP block from `dip.s`. The buffer is
+   therefore the game's work RAM, $100000-$1006BF, whose 1,728 bytes are set aside in VRAM
+   ($0000-$035F, the tile map of sprites 0 to 13, hidden since boot) before the read and given back
+   after the write or the cancel. Measured: a pattern set at $100000 and $1006BE comes out intact.
+   The WORK RAM self-tests, for their part, rewrite the game's RAM below $10F000 without giving it
+   back (read in `tests.s`): not changed here.
+5. **Cards larger than 2 KiB are not concerned**: REG_CRDBANK stays at 0 and CARD refuses any other
+   geometry ($85).
+6. **Proof**: scene `cm-copier`, the card changed by `bench/carte-echange.lua` (removed, then another
+   inserted twenty frames later): copy to an empty card, overwrite confirmed, cancel; the source
+   never written.
 
-## 27. Pas de réglage des couleurs des menus
+## 27. No menu colour setting
 
-Le 2026-10-27, décision de l'utilisateur (#1448). UniBIOS 4.0 l'annonce dans ses notes, mais aucun
-réglage de couleur n'a été trouvé dans ses écrans sous MAME (menu principal, GENERAL BIOS SETTINGS,
-REGION SETUP, menu en jeu, menu TEST : `measured/2026-10-27-attentes-reference.tsv`), et aucune demande
-de la scène ne le cite (`ATTENTES.md` §3). Sans référence ni demande, ReBIOS ne l'a pas.
+On 2026-10-27, the user's decision (#1448). UniBIOS 4.0 announces it in its notes, but no colour
+setting was found in its screens under MAME (main menu, GENERAL BIOS SETTINGS, REGION SETUP, in-game
+menu, TEST menu: `measured/2026-10-27-attentes-reference.tsv`), and no request from the scene cites
+it (`ATTENTES.md` §3). Without a reference or a request, ReBIOS does not have it.
 
-## 28. La licence : GPL-3.0-or-later, et la source publiée
+## 28. The licence: GPL-3.0-or-later, and the source published
 
-**Décidé le 2026-10-28.** Sprixe BIOS est publié avec ses sources, sous **GPL-3.0-or-later**.
+**Decided on 2026-10-28.** Sprixe BIOS is published with its sources, under **GPL-3.0-or-later**.
 
-**Pourquoi publier.** La salle blanche devient vérifiable par n'importe qui, sources, contrats et
-relevés à l'appui ; des contributions deviennent possibles.
+**Why publish.** The clean room becomes verifiable by anyone, with sources, contracts and records to
+back it; contributions become possible.
 
-**Pourquoi la GPL-3.0.** Une licence permissive (MIT, ISC) laisserait un tiers reprendre le code et le
-refermer ; une licence non commerciale ne serait plus de l'open source. La GPL-3.0 laisse tout le monde
-modifier, redistribuer et graver sur puce, à condition de fournir les sources de ce qui est distribué.
+**Why the GPL-3.0.** A permissive licence (MIT, ISC) would let a third party take the code and close
+it again; a non-commercial licence would no longer be open source. The GPL-3.0 lets everyone modify,
+redistribute and burn to a chip, provided they supply the sources of what is distributed.
 
-**L'incident de la table du sinus, le 2026-10-28.** Pendant la première enquête sur la dérive du
-vaisseau d'alpham2 (#1458), l'agent chargé de l'enquête a relevé quatre mots de la ROM du BIOS SNK
-(`$C04000`, `$C04080`, `$C04100`, `$C04180`). Il les a effacés, mais ils ont orienté son choix du codage
-de 1,0. Un agent neuf, sans accès à ces relevés, a redérivé ce codage par la seule mesure du jeu sur
-notre image : `$0001`, identique au témoin au pixel sur huit directions (`measured/2026-10-28-sinus.tsv`,
-§18 pt 6). C'est cette valeur, et elle seule, qui est dans le code. Les fichiers de la première enquête
-ne sont pas publiés.
+**The sine table incident, on 2026-10-28.** During the first investigation into the drift of
+alpham2's ship (#1458), the agent in charge of the investigation recorded four words of the SNK BIOS
+ROM (`$C04000`, `$C04080`, `$C04100`, `$C04180`). It deleted them, but they guided its choice of how
+to encode 1.0. A fresh agent, without access to those records, derived that encoding again by
+measuring the game on our image only: `$0001`, identical to the witness run to the pixel in eight
+directions (`measured/2026-10-28-sinus.tsv`, §18 pt 6). That value, and only that one, is in the
+code. The files of the first investigation are not published.
 
-**Ce qui le renverserait** : la découverte d'un élément dérivé d'un code tiers qu'on ne pourrait pas
-retirer ni réécrire. Il serait retiré, puis réécrit en salle blanche.
+**What would overturn it**: the discovery of an element derived from third-party code that could not
+be removed or rewritten. It would be removed, then rewritten in a clean room.
 
-## 29. Le nom : Sprixe BIOS
+## 29. The name: Sprixe BIOS
 
-**Décidé le 2026-10-28 par l'utilisateur. Remplace le nom de travail de §6.** Le BIOS s'appelle
-**Sprixe BIOS**, en deux mots. L'écran de boot dit « SPRIXE BIOS » et « sprixe.dev/bios » (§5).
+**Decided on 2026-10-28 by the user. Replaces the working name of §6.** The BIOS is called
+**Sprixe BIOS**, in two words. The boot screen says "SPRIXE BIOS" and "sprixe.dev/bios" (§5).
 
-**Pourquoi.**
+**Why.**
 
-- Un logiciel libre, `ReBIOS-Project/ReBIOS`, porte déjà ce nom depuis le 2026-10-16. C'est lui
-  aussi un firmware BIOS : le boot legacy sur un PC UEFI. Il est antérieur à notre choix du
+- A free software project, `ReBIOS-Project/ReBIOS`, has already carried that name since 2026-10-16. It too
+  is BIOS firmware: legacy boot on a UEFI PC. It predates our choice of
   2026-10-20.
-- « ReBIOS » est descriptif, donc une marque faible.
-- « SprixeBIOS », en un mot, se prononce mal.
+- "ReBIOS" is descriptive, hence a weak trademark.
+- "SprixeBIOS", in one word, is hard to pronounce.
 
-**La marque.** Celle qu'on vise est **SPRIXE** seule ; elle n'est pas déposée à ce jour.
+**The trademark.** The one we aim for is **SPRIXE** alone; it is not registered to date.
 
-**Ce qui ne change pas.** L'historique garde « ReBIOS » : les entrées datées de ce fichier, du
-`CHANGELOG.md` et du registre de `ESSAI-MATERIEL.md`, et les images déjà envoyées sous ce nom. La
-signature de la backup RAM (`REBIOS`, `src/c0/reglages.s`) est un format interne qui ne s'affiche
-pas : elle reste, pour que les réglages déjà enregistrés sur une carte restent valides.
+**What does not change.** History keeps "ReBIOS": the dated entries of this file, of
+`CHANGELOG.md` and of the register in `ESSAI-MATERIEL.md`, and the images already sent under that
+name. The backup RAM signature (`REBIOS`, `src/c0/reglages.s`) is an internal format that is not
+displayed: it stays, so that settings already saved on a board remain valid.
 
-**Ce qui le renverserait** : une antériorité sur SPRIXE dans ces classes, trouvée avant le dépôt.
+**What would overturn it**: prior rights on SPRIXE in these classes, found before filing.
 
-## 30. Les menus du BIOS au panneau de mahjong
+## 30. The BIOS's menus with the mahjong panel
 
-**Décidé le 2026-10-28 par l'utilisateur (#1455), sur le relevé en boîte noire du même jour**
-(`measured/2026-10-28-panneau-menus-reference.tsv`). Il lève le « constaté, non corrigé » de §24 pt 4.
-Le BIOS SNK japonais et UniBIOS 4.0 s'y pilotent à l'identique ; on reprend ce comportement.
+**Decided on 2026-10-28 by the user (#1455), on the black-box record of the same day**
+(`measured/2026-10-28-panneau-menus-reference.tsv`). It lifts the "observed, not fixed" of §24 pt 4.
+The Japanese SNK BIOS and UniBIOS 4.0 are driven identically there; we take over that behaviour.
 
-1. **Commutateur 3 à ON : le panneau traduit en manette.** A, B, C, D font les boutons A, B, C, D ;
-   E monte, F descend, G va à gauche, H à droite ; START reste START. Les autres touches (I à N, PON
-   à REACH) ne font rien dans les menus.
-2. **Commutateur 3 à OFF : le panneau lu comme un joystick**, REG_POUTPUT à $1B, comme §21 pt 4 :
-   A/H haut, B/I bas, C/J gauche, D/K droite, E/L bouton A, F/M bouton B, G/N bouton C. Le bouton D
-   n'a pas de touche, chez les références comme ici.
-3. **Le commutateur est lu à l'ouverture du menu**, comme le BIOS SNK japonais ; UniBIOS le lit au
-   boot. Basculé menu ouvert, la traduction reste celle de l'ouverture, chez les deux.
-4. **Hors de ce lot** : le menu en jeu s'ouvre par START + SELECT, et le panneau n'a pas de SELECT ;
-   il reste inaccessible sur une borne de mahjong. Ce que font les références en partie n'a pas été
-   mesuré.
+1. **Switch 3 ON: the panel translated into a joystick.** A, B, C, D act as buttons A, B, C, D;
+   E goes up, F goes down, G goes left, H right; START stays START. The other keys (I to N, PON
+   to REACH) do nothing in the menus.
+2. **Switch 3 OFF: the panel read as a joystick**, REG_POUTPUT at $1B, as in §21 pt 4:
+   A/H up, B/I down, C/J left, D/K right, E/L button A, F/M button B, G/N button C. Button D
+   has no key, with the references as here.
+3. **The switch is read when the menu opens**, like the Japanese SNK BIOS; UniBIOS reads it at
+   boot. Flipped with the menu open, the translation stays that of the opening, with both.
+4. **Outside this batch**: the in-game menu opens with START + SELECT, and the panel has no SELECT;
+   it stays inaccessible on a mahjong cabinet. What the references do during a game has not been
+   measured.
 
-## 31. Une cartouche qui tarde : le parcours des slots refait jusqu'à la trame 270
+## 31. A slow cartridge: the slot scan repeated up to frame 270
 
-**Décidé le 2026-10-28 en mode autonome, à confirmer par l'utilisateur**, sur le retour du matériel
-du même jour (`ESSAI-MATERIEL.md`, image n°15) : le NeoSD Pro et le BackBit s'arrêtaient sur l'écran
-de boot, GAME NGH 0000, un slot vide.
+**Decided on 2026-10-28 in autonomous mode, to be confirmed by the user**, on the hardware report
+of the same day (`ESSAI-MATERIEL.md`, image no. 15): the NeoSD Pro and the BackBit stopped on the
+boot screen, GAME NGH 0000, an empty slot.
 
-1. **L'écart à la référence.** Elle parcourt les slots une fois, vers la trame 276
-   (`measured/2026-10-24-slot-crtfix.tsv`). Nous les parcourons dès le boot, pour que l'écran de
-   boot montre l'en-tête du slot servi, et, tant qu'aucun n'est occupé, à chaque trame jusqu'à 270
-   parcours (`c0.s`, ATTENTE_CARTE). Une cartouche trouvée au premier parcours n'attend rien.
-2. **Pourquoi pas un parcours unique à la trame 276** : chaque boot attendrait 4,5 s de plus, et
-   tout le chronométrage sur lequel reposent la matrice et les scènes bougerait.
-3. **Le prix** : sans cartouche, l'écran de boot vient environ 4,5 s plus tard (scène
-   sans-cartouche, HARDWARE TESTS jugé à la trame 700 au lieu de 400).
-4. **SUPPOSÉ** : qu'un flash cart soit muet sur ses premières trames ; mesuré seulement sous MAME,
-   où une cartouche muette sur 30 trames (`bus-flottant.lua`, BF_ABSENTE) est trouvée
-   (`measured/2026-10-28-carte-lente.tsv`). **Non couvert** : un flash cart lent à côté d'une
-   cartouche prompte, que le premier parcours trouve sans lui.
+1. **The departure from the reference.** It scans the slots once, around frame 276
+   (`measured/2026-10-24-slot-crtfix.tsv`). We scan them from boot, so that the boot screen shows
+   the header of the served slot, and, as long as none is occupied, at every frame up to 270
+   scans (`c0.s`, ATTENTE_CARTE). A cartridge found at the first scan waits for nothing.
+2. **Why not a single scan at frame 276**: every boot would wait 4.5 s more, and all the timing on
+   which the matrix and the scenes rest would move.
+3. **The price**: without a cartridge, the boot screen comes about 4.5 s later (scene
+   sans-cartouche, HARDWARE TESTS judged at frame 700 instead of 400).
+4. **ASSUMED**: that a flash cart is silent during its first frames; measured only under MAME,
+   where a cartridge silent for 30 frames (`bus-flottant.lua`, BF_ABSENTE) is found
+   (`measured/2026-10-28-carte-lente.tsv`). **Not covered**: a slow flash cart next to a prompt
+   cartridge, which the first scan finds without it.
 
-## 32. Jusqu'à 16 cheats par jeu, dans une fenêtre qui défile
+## 32. Up to 16 cheats per game, in a scrolling window
 
-**Décidé le 2026-10-29 avec l'utilisateur** : agrandir la base des cheats sans plafond de 4 par jeu,
-toujours trouvés sous MAME, sans base tierce.
+**Decided on 2026-10-29 with the user**: enlarge the cheat database without a ceiling of 4 per game,
+still found under MAME, without a third-party database.
 
-1. **16, pas plus** : un bit par cheat dans CH_ETATS, qui reste un mot contigu à GL_MASQUE. Le
-   crochet garde ainsi son seul `tst.l` sans cheat ni gel, dont les cycles comptent (`cheats.s`).
-2. **Une fenêtre dans le menu, pas un sous-écran** : 4 lignes de cheat au plus, qui défilent
-   derrière le choix. Les chemins de touches restent ceux d'avant : le cheat k à « bas » k + 2
-   fois, AUTOFIRE, GAME SETTINGS et MEMORY EDITOR à « haut » 3, 2 et 1 fois.
-3. **La table au bout de la zone haute** (`build/bios.ld`, section `.cheats`) : au milieu du code,
-   elle repoussait `_mess_out` hors de portée du `bsr.w` de `int1.s`.
-4. **Le format des fiches ne change pas** (32 octets). Mesuré le 2026-10-29 : la zone haute finit
-   à $C0B416, soit 84 Kio libres, de quoi loger plus de 2 000 fiches.
+1. **16, no more**: one bit per cheat in CH_ETATS, which stays a word contiguous to GL_MASQUE. The
+   hook thus keeps its single `tst.l` without cheat or freeze, whose cycles count (`cheats.s`).
+2. **A window in the menu, not a sub-screen**: 4 cheat lines at most, which scroll behind the
+   selection. The key paths stay those from before: cheat k at "down" k + 2 times, AUTOFIRE,
+   GAME SETTINGS and MEMORY EDITOR at "up" 3, 2 and 1 times.
+3. **The table at the end of the high area** (`build/bios.ld`, section `.cheats`): in the middle of
+   the code, it pushed `_mess_out` out of reach of the `bsr.w` in `int1.s`.
+4. **The record format does not change** (32 bytes). Measured on 2026-10-29: the high area ends
+   at $C0B416, that is 84 KiB free, room for more than 2,000 records.
 
-## Ce qui reste à trancher
+## Still to be decided
 
-- **Le verrou du save state** : existe-t-il une voie d'écriture vers une cartouche flash ? Aucun
-  document public ne la décrit, et elle décide à elle seule si la fonction est possible. Les deux
-  autres obstacles se mesurent ici — le temps de capture (~140 Kio lisibles, soit environ quatre
-  trames de gel à estimer au cycle près) et le coût du crochet en jeu.
-- **La cause des segfauts de MAME** sur `garou` et `svc`, le seul résultat de la campagne qu'on ne
-  sache pas interpréter.
-- ~~**Armer le watchdog du banc.**~~ **Tranché, et fait le 2026-10-11** (tâche I3) : le banc
-  cosim (non publié) tient un compte à rebours de 8 trames, rechargé à chaque écriture sur `$300001` et décrémenté
-  sur le front VSYNC ; à zéro, la broche de reset est tirée. Un BIOS qui oublie d'en donner se
-  fait donc réinitialiser au lieu de passer le banc. Démontré des deux côtés : le harnais, qui
-  n'en donne aucun, est réinitialisé aux trames 8 et 16 ; la couche 0, qui en donne, n'enregistre
-  aucun reset sur 20 trames. La carte mémoire et le calendrier **sont** modélisés,
-  seule la date étant figée.
+- **The save state lock**: is there a write path to a flash cartridge? No public document describes
+  it, and it alone decides whether the feature is possible. The two other obstacles can be measured
+  here — the capture time (~140 KiB readable, that is about four frames of freeze, to be estimated
+  to the cycle) and the cost of the in-game hook.
+- **The cause of MAME's segfaults** on `garou` and `svc`, the only result of the campaign that we
+  cannot interpret.
+- ~~**Arm the bench's watchdog.**~~ **Settled, and done on 2026-10-11** (task I3): the cosim bench
+  (not published) keeps a countdown of 8 frames, reloaded at every write to `$300001` and decremented
+  on the VSYNC edge; at zero, the reset pin is pulled. A BIOS that forgets to kick it is therefore
+  reset instead of passing the bench. Demonstrated on both sides: the harness, which never kicks it,
+  is reset at frames 8 and 16; layer 0, which does, records no reset over 20 frames. The memory card
+  and the calendar **are** modelled, only the date being frozen.

@@ -21,6 +21,8 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 - In-game menu: a game can have up to 16 cheats (4 before). The menu shows 4 at a time and scrolls,
   with "CHEATS 5-8/12" under the title when some are hidden.
 - Site: the comparison table no longer lists scores on memory card.
+- Notes in English: `docs/DECISIONS.md`, `MENUS.md`, `AUTOFIRE.md`, `COMPATIBILITE.md`,
+  `ESSAI-MATERIEL.md` and `measured/HISTORIQUE.md`.
 
 ### Fixed
 

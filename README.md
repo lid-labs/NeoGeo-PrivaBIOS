@@ -80,7 +80,7 @@ Not included: menu colours, US-style credit display, Arcade VS, PC-2-NEO, PICKnM
 for the AES console itself.
 
 The menus, and the keys and board switches that lead to them, are mapped in
-[`docs/MENUS.md`](docs/MENUS.md) (in French).
+[`docs/MENUS.md`](docs/MENUS.md).
 
 ## Installation
 
