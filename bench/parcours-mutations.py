@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Thibaut Lion
-"""The mutations of the run (`bench/parcours.sh`): each one breaks ONE visible function of the BIOS,
+"""The mutations of the player's path (`bench/parcours.sh`): each one breaks ONE visible function of the BIOS,
 to prove that the scene judging it can fail.
 
     python3 -I -B bench/parcours-mutations.py --liste

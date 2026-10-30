@@ -75,5 +75,6 @@ licence, GPL-3.0-or-later.
 
 Notes, code comments, commits and pull requests are written in English. Identifiers (labels,
 script names, options), the dated notes listed in [`docs/README.md`](docs/README.md), the
-measurement records `measured/*.tsv` and the bench scripts' runtime output stay in French.
+measurement records `measured/*.tsv`, the generated `specs/traces/` and the runtime messages of the
+bench and build scripts, the assembler and the linker stay in French.
 Issues and discussions can be in English or French.

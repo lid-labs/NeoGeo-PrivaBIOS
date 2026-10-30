@@ -6,7 +6,7 @@
 # of the BIOS. A game value read in RAM, or a bus event, only comes in as a complement. One
 # PASS/FAIL verdict per scene; non-zero exit if a scene fails.
 #
-#   bench/parcours.sh [options] <roms-dir> <work-dir>
+#   bench/parcours.sh [options] <dossier-roms> <dossier-travail>
 #
 #   --image <sp1>        the image to play (default: built from --sources)
 #   --sources <dir>      sources to build (default: src/c0); a throwaway copy is accepted,
@@ -212,7 +212,7 @@
 #                 "snk_min" frames equal to the SNK BIOS on its own card, at most "neuve_max"
 #                 to a fresh card (CARD, CARD_ERROR which formats, the save, the read-back).
 #   ms-select-p2  three cartridges, SELECT P2 at the title of b2b: the previous slot, aof, at its title.
-#   ms-seule      a single cartridge on the MV-6F, SELECT at the title: nothing changes (intended
+#   ms-seule      a single cartridge on the MV-6F, SELECT at the title: nothing changes (deliberate
 #                 departure).
 #   aes-ms-select the AES mode on the MV-6F, SELECT in demo: slot 1, the demo of puzzledp, as
 #                 under SNK's AES BIOS (`aes -cart puzzledp`), never its title.
@@ -1224,13 +1224,13 @@ lancer() {
       mame $args -bios "${BIOS_RUN:-euro}" -video none -sound none -nothrottle -seconds_to_run 400 \
       -nvram_directory "$o/nvram" -cfg_directory "$o/cfg" -skip_gameinfo -autoboot_script "$ICI/$lua" > "$o/mame.log" 2>&1
     echo $? > "$o/rc"; date '+%m/%d/%y %a' >> dates.txt
-    # Kept through a copy renamed in one go: two simultaneous player's paths (the mutations)
+    # Kept through a copy renamed in one go: two simultaneous `parcours.sh` runs (the mutations)
     # never leave a half-written entry; the second gives up.
     if [ -n "$cle" ] && [ "$(cat "$o/rc")" = 0 ] && [ ! -e "$CACHE/$cle" ] \
        && [ "$(sort -u dates.txt)" = "$jour" ]; then
       # mkdir is atomic: a single writer per key. An mv onto a directory already there would go
       # inside it.
-      t="$CACHE/.$cle.$$"   # $$: this player's path (BASHPID does not exist under macOS's bash 3.2)
+      t="$CACHE/.$cle.$$"   # $$: this `parcours.sh` run (BASHPID does not exist under macOS's bash 3.2)
       mkdir "$CACHE/.$cle.verrou" 2>/dev/null && cp -R "$o" "$t" && mv "$t" "$CACHE/$cle"; rm -rf "$t"
     fi ) &
   PIDS="$PIDS $!"

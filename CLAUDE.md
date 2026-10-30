@@ -94,8 +94,10 @@ such as `packages/…` or `cosim.sh` to the private monorepo where the BIOS was 
 Write all new text in English: docs, code comments, commit messages, pull requests. Still in
 French, on purpose: identifiers (labels, script names, options such as `--eprouver`), the dated
 notes (`AUDIT-2026-10-21.md`, `ATTENTES.md`, `RELECTURE-CONTRATS.md`, `tasks.md`) and quotes of
-their headings, the measurement records `measured/*.tsv`, and the bench scripts' runtime output
-(messages, usage lines, output columns), which other scripts and recorded results read.
+their headings, the measurement records `measured/*.tsv`, and the runtime messages of the bench
+and build scripts (messages, usage lines, output columns, which other scripts and recorded results
+read) and of the assembler and linker (`.error` in `src/c0/cheats.s`, `ASSERT` in
+`build/bios.ld`); a Python script that prints its docstring as usage prints it in English.
 `specs/traces/` is generator output, in French too: never edit it by hand.
 
 ## Changes and commits
