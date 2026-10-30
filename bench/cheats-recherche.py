@@ -558,7 +558,7 @@ def main():
     ac = sp.add_parser("action")
     ac.add_argument("--jeux", default="")
     ac.add_argument("--garder", action="store_true")
-    ac.add_argument("--scenario", default="action", choices=("action", "saut", "immobile", "bombe", "saut2", "action2"))
+    ac.add_argument("--scenario", default="action", choices=tuple(SCENARIOS))
     ac.add_argument("--fin", type=int, default=FIN)
     bi = sp.add_parser("bisecter")
     bi.add_argument("candidats")

@@ -49,7 +49,8 @@
 # tell whether a write comes from the BIOS. MAME windowless, one cfg and NVRAM directory per run.
 # Measurements and thresholds: measured/2026-10-25, 2026-10-29 and 2026-10-30-cheats-table.tsv (one
 # line per cheat), and the -cheats-catalogue.tsv of the same dates (the verdicts);
-# 2026-10-30-cheats-rejetes.tsv (#23), 2026-10-30-cheats-sans-vies.tsv (#24).
+# 2026-10-30-cheats-rejetes.tsv (#23), 2026-10-30-cheats-sans-vies.tsv (#24),
+# 2026-10-30-cheats-chronos-2.tsv.
 set -u
 
 ICI="$(cd "$(dirname "$0")" && pwd)"
@@ -207,6 +208,9 @@ trally	0	NO GAME OVER	107105	05	vies	x	2600	13000	-	-
 zintrckb	0	NO GAME OVER	100349	02	vies	x	2500	13000	-	-
 twinspri	1	P2 INF. LIVES	10D005	03	vies	k	1500	13000	-	-
 ncommand	0	INFINITE LIVES	106030	02	vies	x	1500	20000	-	-
+kof2003	0	INFINITE TIME	107D62	60	temps	f	1900	3200	140,10,176,30	tres-clair
+rbff1	0	INFINITE TIME	106AA8	60	temps	f	1900	3200	148,0,180,28	tres-clair
+kizuna	0	INFINITE TIME	10892A	99	temps	f	2700	4000	144,8,174,36	brut
 kof96	1	INFINITE TIME	10A837	32	temps	f	1900	3200	147,14,172,32	brut
 matrim	0	INFINITE TIME	10B90B	3C	temps	f	1900	3200	145,8,174,24	brut
 rbff2	0	INFINITE TIME	107C28	60	temps	f	1900	3200	145,16,175,31	brut

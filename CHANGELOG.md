@@ -18,11 +18,14 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 - INFINITE BOMBS for Metal Slug 2, 3, 4 and 5 (#22).
 - NO GAME OVER for Gururin, Thrash Rally and Zintrick, and P2 INF. LIVES for Twinkle Star Sprites
   (#23).
-- INFINITE LIVES for Ninja Commando (#24). 94 games and 136 cheats in all.
+- INFINITE LIVES for Ninja Commando (#24).
+- INFINITE TIME for The King of Fighters 2003, Real Bout Fatal Fury and Kizuna Encounter. 97 games and
+  139 cheats in all.
 - `bench/cheats-catalogue.sh`: a `tres-clair` pixel mode (R + G + B > 700), for white digits over a
   light background.
 - `bench/cheats-recherche.py`, the tool that searches for cheats under MAME.
-- `bench/cheats-recherche.py`: a `bombe` scenario, and the matching `b` entries in
+- `bench/cheats-recherche.py`: `action` takes any scenario (`passif` for fighting games); a `bombe`
+  scenario, and the matching `b` entries in
   `bench/cheats-catalogue.sh`.
 - `CLAUDE.md`, guidance for AI coding agents. New text in the repository is written in English.
 
