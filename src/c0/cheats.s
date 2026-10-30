@@ -698,5 +698,17 @@ _cheats_table:
         | jusqu'à la trame 20 000 (le témoin perd la partie vers 16 400) ; les vies, 2 au départ.
         JEU     0x0050, 0x004D, 1
         CHEAT   "INFINITE LIVES",  0x106030, 1, 0x02
+        | LES CHRONOMÈTRES DE JEUX DE COMBAT PAR SUITE ATTENDUE, le 2026-10-30 : scénario passif,
+        | l'octet qui décompte depuis 60 ou 99 et se remet à chaque round (filtre_suite), vu figé sur
+        | les images sous cheat ; la zone des chiffres cherchée sur les images d'un run CAT_DENSE.
+        | THE KING OF FIGHTERS 2003.
+        JEU     0x0271, 0x0F9A, 1
+        CHEAT   "INFINITE TIME",   0x107D62, 1, 0x60
+        | REAL BOUT FATAL FURY.
+        JEU     0x0095, 0x8E2F, 1
+        CHEAT   "INFINITE TIME",   0x106AA8, 1, 0x60
+        | KIZUNA ENCOUNTER : le combat ne commence que vers la trame 2700.
+        JEU     0x0216, 0x073D, 1
+        CHEAT   "INFINITE TIME",   0x10892A, 1, 0x99
         FIN_TABLE
         .balign 2
