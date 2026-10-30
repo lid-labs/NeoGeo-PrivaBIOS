@@ -74,9 +74,9 @@ are in [Not compared](#not-compared).
 
 ## Not compared
 
-Sprixe BIOS has these. UniBIOS's site does not settle whether it has an equivalent, so they get
+Sprixe BIOS has this. UniBIOS's site does not settle whether it has an equivalent, so it gets
 no column:
 
-- NO CONTINUE and DEMO SOUND in cabinet settings.
+- NO CONTINUE in cabinet settings.
 
-Free play is not listed: board switch 7 gives it, and UniBIOS's FAQ mentions the same hard dip.
+Free play is not listed: board switch 7 gives it.
