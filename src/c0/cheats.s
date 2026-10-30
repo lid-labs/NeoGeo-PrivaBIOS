@@ -694,5 +694,9 @@ _cheats_table:
         | ZINTRICK.
         JEU     0x0211, 0x1F3E, 1
         CHEAT   "NO GAME OVER",     0x100349, 1, 0x02
+        | NINJA COMMANDO, le 2026-10-30 : la recherche par suite attendue
+        | jusqu'à la trame 20 000 (le témoin perd la partie vers 16 400) ; les vies, 2 au départ.
+        JEU     0x0050, 0x004D, 1
+        CHEAT   "INFINITE LIVES",  0x106030, 1, 0x02
         FIN_TABLE
         .balign 2
