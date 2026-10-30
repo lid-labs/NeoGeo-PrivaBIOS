@@ -1,9 +1,9 @@
 # Notes
 
-Technical notes. Many are still in French and are being translated; the dated notes
-(`AUDIT-2026-10-21.md`, `ATTENTES.md`, `RELECTURE-CONTRATS.md`, `tasks.md`) stay in French. Start
-with [`METHOD.md`](METHOD.md) (English) for how the BIOS was written and tested,
-[`BUILD.md`](BUILD.md) and [`BENCH.md`](BENCH.md) (English) to build and test it.
+Technical notes, in English except the dated notes (`AUDIT-2026-10-21.md`, `ATTENTES.md`,
+`RELECTURE-CONTRATS.md`, `tasks.md`), which stay in French. Start with [`METHOD.md`](METHOD.md) for
+how the BIOS was written and tested, [`BUILD.md`](BUILD.md) and [`BENCH.md`](BENCH.md) to build and
+test it.
 
 Issue numbers (#NNNN) refer to the original private tracker. File paths that do not exist in this
 repository (for example `packages/…`, `board.h`, `neogeo-bus.ts`, `cosim.sh`) refer to the original

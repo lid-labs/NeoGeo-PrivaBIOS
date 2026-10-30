@@ -45,7 +45,7 @@ Record `2026-10-10-matrice-6bios.tsv`, reading in `docs/COMPATIBILITE.md`.
 | 2026-10-16 | #1371 | 19 | **19** | cartridge soft-DIPs, garou excluded (MAME crashes on it): no gain expected | `2026-10-16-matrice-soft-dip.tsv` |
 | 2026-10-16 | — | 164 | **155** | full catalogue, image of #1371 (SNK 162, UniBIOS 162, nullbios 88): 39 gained, vliner lost (it also freezes under SNK) | `2026-10-16-matrice-catalogue.tsv` |
 | 2026-10-17 | #1374 | 22 | **20** | forced start ("game start compulsion"): minasan; the corpus goes to 22 with b2b and minasan | `2026-10-17-matrice-depart-force.tsv` |
-| 2026-10-17 | #1375 | 22 | **21** | MESS_OUT and the handover aligned on the vblank: b2b; garou remains | `2026-10-17-matrice-mess-out.tsv` |
+| 2026-10-17 | #1375 | 22 | **21** | MESS_OUT and the hand-over aligned on the vblank: b2b; garou remains | `2026-10-17-matrice-mess-out.tsv` |
 | 2026-10-19 | — | 164 | **157** | full catalogue, image of #1375 (SNK 162, UniBIOS 162, nullbios 88): b2b and minasan gained, none lost; irrmaze counted without substitution, 156 without it | `2026-10-19-matrice-catalogue.tsv` |
 | 2026-10-19 | #1377 | 22 | **21** | CARD without a card: no gain expected, fidelity of the service (8 calls equal to the reference) | `2026-10-19-matrice-card.tsv` |
 | 2026-10-19 | #1378 | 22 | **21** | READ_CALENDAR: no gain expected, same clock accesses and same writes as the reference | `2026-10-19-matrice-read-calendar.tsv` |
@@ -59,7 +59,7 @@ Record `2026-10-10-matrice-6bios.tsv`, reading in `docs/COMPATIBILITE.md`.
 | 2026-10-21 | — | 22 | **21** | in-game menu (hook in SYSTEM_IO): verdicts identical; lit pixels of neomrdo and svc move (cycles); flipshot repaired along the way (`io.s`) | `2026-10-21-matrice-menu-en-jeu.tsv` |
 | 2026-10-21 | — | 22 | **21** | cheats (engine in SYSTEM_IO, inactive with nothing chosen): verdicts identical | `2026-10-21-matrice-cheats.tsv` |
 | 2026-10-21 | — | 22 | **21** | soft-DIPs in the banked area: mslug finally receives its settings (3 lives); verdicts identical — the matrix did not see the defect | `2026-10-21-matrice-soft-dip-zone-banquee.tsv` |
-| 2026-10-21 | — | 22 | **21** | jukebox (TEST screen, the bench does not open it): verdicts identical | `2026-10-21-matrice-jukebox.tsv` |
+| 2026-10-21 | — | 22 | **21** | jukebox (test screen, the bench does not open it): verdicts identical | `2026-10-21-matrice-jukebox.tsv` |
 | 2026-10-22 | catalogue | 164 | **158** | full catalogue on main 433d86e9 (all of layer 3): 156 → 158 excluding the non-ok controls (161 by the written rule); aodk lost (address error, under diagnosis); several games counted "plays" do not start a game (captures) | `2026-10-22-matrice-catalogue.tsv` |
 | 2026-10-22 | — | 22 | **21** | multi-slot batch 1 (detection, table per slot): 21 unchanged; garou no longer crashes (lit pixels 70804) but does not start a game, not counted | `2026-10-22-matrice-multi-slot-lot1.tsv` |
 | 2026-10-22 | — | 22 | **21** | hardware hardening: verdicts equal, boot 2 frames longer | `2026-10-22-matrice-durcissement.tsv` |
@@ -69,7 +69,7 @@ Record `2026-10-10-matrice-6bios.tsv`, reading in `docs/COMPATIBILITE.md`.
 | 2026-10-22 | — | 22 | **22** | joystick repeat, $10FD81 at START, order of CREDIT_CHECK: verdicts equal; svc +2.6% lit pixels, closer to the snk column (mean gap 2,571 → 344), hence the harness's new reference | `2026-10-22-repetition-et-start-matrice.tsv` |
 | 2026-10-23 | — | 22 | **22** | FRAME_SKIP under INT1, the coin under INT1, code 2 with a credit: verdicts equal, under the tolerance; svc −1% (further from the snk column, but an INT1 lengthened by 4 `nop` without changing anything else already moves it: its game follows the number of INT1 cycles); harness reference unchanged | `2026-10-22-frame-skip-et-mode0-matrice.tsv` |
 | 2026-10-23 | — | 22 | **22** | bookkeeping (PLAY TIME, $10FDB6-$10FDBD, held frame of DEMO_END): verdicts equal, three lit-pixel counts moved under the tolerance (svc and neomrdo closer to the snk column, garou a little further); harness reference unchanged | `2026-10-23-comptabilite-matrice.tsv` |
-| 2026-10-23 | — | 22 | **22** | LEDs, REG_POUTPUT, $10FD80 and REG_SOUND at the handovers, held frames of code 3: verdicts equal, svc −1.96% and neomrdo under the tolerance (further from the snk column); a first trial put kof94 out at −2.22% (the wait after REG_SOUND extended to the demo), discarded; harness reference unchanged | `2026-10-23-led-et-remises-matrice.tsv` |
+| 2026-10-23 | — | 22 | **22** | LEDs, REG_POUTPUT, $10FD80 and REG_SOUND at the hand-overs, held frames of code 3: verdicts equal, svc −1.96% and neomrdo under the tolerance (further from the snk column); a first trial put kof94 out at −2.22% (the wait after REG_SOUND extended to the demo), discarded; harness reference unchanged | `2026-10-23-led-et-remises-matrice.tsv` |
 | 2026-10-23 | — | 22 | **22** | title after game over, SELECT through DEMO_END, held frames of codes 0 and 2: verdicts equal; svc, garou, lbowling and neomrdo move under the tolerance, all closer to the snk column (the boot demo starts three frames later); harness reference unchanged | `2026-10-23-titre-apres-game-over-matrice.tsv` |
 | 2026-10-23 | catalogue | 164 | **161** | full catalogue on main 9789d1f4 (#1413, image ea0de49e…) then d95122a2 (#1414, image 528b7e9c…, the one handed over for the board trial), without nullbios: verdicts of the sprixe column identical between the two images, no game gained or lost; SNK 162, UniBIOS 162; not counted: irrmaze (control), mvstemp and vliner (frozen) | `2026-10-23-matrice-catalogue.tsv` |
 | 2026-10-23 | catalogue | 164 | **161** | full catalogue on main 14b54bb1 (#1417, AES mode, image bc6560f5…, the one handed over for the board trial), MVS mode, without nullbios: no game gained or lost; kof97 stalls 100 frames, three lit-pixel counts move under the rule; SNK 162, UniBIOS 162; same not counted | `2026-10-23-matrice-catalogue-aes.tsv` |
@@ -88,22 +88,22 @@ the image of #1368, and none was delivered as is.
 
 | Trial | What it changes | Result | Source |
 |---|---|---|---|
-| jetable-sr | SR `$2000` written at the handover | kof98 no longer reboots but freezes | record `2026-10-16-kof98-diagnostic-remise.tsv` |
+| jetable-sr | SR `$2000` written at the hand-over | kof98 no longer reboots but freezes | record `2026-10-16-kof98-diagnostic-remise.tsv` |
 | jetable-tblseule | random table alone, on 1 game | kof98 gets past the draw, then reboots | same |
-| jetable-tbl | table + SR `$2000` at the handover | **18/20**: kof98, garou, mslug3, svc play; flipshot and kof94 break | same, lines versioned |
-| jetable4 | table + wait with IRQs open before the handover | 9/10 sensitive games: neomrdo freezes | same, lines versioned |
+| jetable-tbl | table + SR `$2000` at the hand-over | **18/20**: kof98, garou, mslug3, svc play; flipshot and kof94 break | same, lines versioned |
+| jetable4 | table + wait with IRQs open before the hand-over | 9/10 sensitive games: neomrdo freezes | same, lines versioned |
 | vI (agent) | table + wait + coin guard | 7/10: kof98, garou, mslug3 red | agent's report, not versioned |
-| vE' (agent) | vI + handover with IRQs open | 8/10: kof94 and flipshot red | same |
-| vE'' (agent) | vI + open handover aligned on the vblank | 8/10: the same ones | same |
-| vK (agent) | vI + `$80 \| mode` at the handover | 7/10: like vI | same |
+| vE' (agent) | vI + hand-over with IRQs open | 8/10: kof94 and flipshot red | same |
+| vE'' (agent) | vI + open hand-over aligned on the vblank | 8/10: the same ones | same |
+| vK (agent) | vI + `$80 \| mode` at the hand-over | 7/10: like vI | same |
 | table alone | the random table, nothing else, on 6 games | 4/6, exactly vI's gain: the wait and the coin guard are removed | session report, not versioned |
 
 Three hypotheses were refuted by causal test, without a matrix: setting the soft-DIPs, setting the
-per-game backup area, changing the mode of the handover. The cause was elsewhere: request 0 is
+per-game backup area, changing the mode of the hand-over. The cause was elsewhere: request 0 is
 called only at a game's first boot (#1370).
 
 ## Rejected trials, 2026-10-17
 
 | Trial | What it changes | Result | Source |
 |---|---|---|---|
-| jetable-vbl | every handover waits for line `$1F0` then acknowledges the IRQs | 19/22, the same as #1371: b2b no longer makes an address error but stays black (MESS_OUT was missing; delivered with it) | `2026-10-17-matrice-remise-vblank.tsv` |
+| jetable-vbl | every hand-over waits for line `$1F0` then acknowledges the IRQs | 19/22, the same as #1371: b2b no longer makes an address error but stays black (MESS_OUT was missing; delivered with it) | `2026-10-17-matrice-remise-vblank.tsv` |

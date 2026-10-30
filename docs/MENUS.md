@@ -31,7 +31,7 @@ Power-on
       └── a 68000 exception ──► SYSTEM CRASH (plantage.s)
 ```
 
-## The TEST screen: SOFT DIP SETTINGS
+## The test screen: SOFT DIP SETTINGS
 
 **Getting in**: hold the board's TEST button at power-on, until the screen appears. It opens
 after the boot screen, before the game. Without a TEST button (a consolized MVS), two other paths:

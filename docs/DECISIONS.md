@@ -890,7 +890,7 @@ boot screen, GAME NGH 0000, an empty slot.
 
 ## 32. Up to 16 cheats per game, in a scrolling window
 
-**Decided on 2026-10-29 with the user**: enlarge the cheat database without a ceiling of 4 per game,
+**Decided on 2026-10-29 with the user**: enlarge the cheat catalogue without a ceiling of 4 per game,
 still found under MAME, without a third-party database.
 
 1. **16, no more**: one bit per cheat in CH_ETATS, which stays a word contiguous to GL_MASQUE. The
@@ -905,7 +905,7 @@ still found under MAME, without a third-party database.
 
 ## Still to be decided
 
-- **The save state lock**: is there a write path to a flash cartridge? No public document describes
+- **The save state lock**: is there a write path to a flash cart? No public document describes
   it, and it alone decides whether the feature is possible. The two other obstacles can be measured
   here — the capture time (~140 KiB readable, that is about four frames of freeze, to be estimated
   to the cycle) and the cost of the in-game hook.

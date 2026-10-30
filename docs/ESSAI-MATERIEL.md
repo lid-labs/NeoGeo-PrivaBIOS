@@ -32,7 +32,7 @@ as is; hence the two files.
 
 Checked before sending: this exact file, substituted under MAME (`-bios euro`), boots mslug, aof
 and kof98 (`matrice.sh`, 30 s). Its CRC is the one MAME reports for our image. The trial path
-requested: boot screen, game with a coin, second boot, TEST screen and one soft-DIP changed,
+requested: boot screen, game with a coin, second boot, test screen and one soft-DIP changed,
 self-tests, jukebox, in-game menu, return to the original BIOS. Caveats for this image: never run
 on hardware; only one slot served (slot 0); the backup RAM slot table is only partly measured
 against the reference. The expected boot screen is mslug's under MAME, frame 60.
@@ -49,8 +49,8 @@ frame 60 equal to the previous one outside the CLOCK line (lines 153 to 167).
 | 1 | 2026-10-22 | `eeaeeac5` (#1396) | the hardware hardening, from `docs/AUDIT-2026-10-21.md` | `3D83D4C2` | — | `1db82fe1f959b3fecdb844d64fec7734abd1b22309937c4ef9d8b3ebaba8ea5e` | `5A9B62E5` |
 | 2 | 2026-10-22 | `c29b5860` (#1407) | full multi-slot, game save in backup RAM, credit reset to zero at boot, START and coin at the reference's frame, DEMO_END | `9E199F82` | `FCB0` | `8e0ea5b87d49c769d1c763a7edf1685e0f94392132c95e39c97871dfc58ad173` | `8F86BD8B` |
 | 3 | 2026-10-23 | `2152a2e0` (#1410) | joystick repeat, $10FD81 at START, FRAME_SKIP under INT1, the coin under INT1 | `A0CF795A` | `FAC9` | `dcb3a7c2bc6473eb62e69b5e89ff256ac8d68a759c49a2afe31ea601216d56a5` | `DB0C4010` |
-| 4 | 2026-10-23 | `a84b44c2` (#1411) | PLAY TIME, player state cleared at each handover, the held frame of DEMO_END | `3817E1FE` | `4ACC` | `890e65f5816ef2a0047477d27dcdb05bacddafa7752bca27fe638c1bc94ee3c5` | `7A3E60AD` |
-| 5 | 2026-10-23 | `bf73581b` (#1412) | the LEDs and REG_POUTPUT, the handovers and the held end of game | `781135D3` | `9200` | `112480d25eb3889881895ae23c00a04d33c980713f507e94b65f98202b78dbd2` | `66ECA6F7` |
+| 4 | 2026-10-23 | `a84b44c2` (#1411) | PLAY TIME, player state cleared at each hand-over, the held frame of DEMO_END | `3817E1FE` | `4ACC` | `890e65f5816ef2a0047477d27dcdb05bacddafa7752bca27fe638c1bc94ee3c5` | `7A3E60AD` |
+| 5 | 2026-10-23 | `bf73581b` (#1412) | the LEDs and REG_POUTPUT, the hand-overs and the held end of game | `781135D3` | `9200` | `112480d25eb3889881895ae23c00a04d33c980713f507e94b65f98202b78dbd2` | `66ECA6F7` |
 | 6 | 2026-10-23 | `d95122a2` (#1414) | the single title after game over, the SELECT guard, the in-game menu that no longer cuts the game's sound (`2026-10-23-matrice-catalogue.tsv`) | `E11C2833` | `183E` | `528b7e9c7120bdabf29747eaa7993efdb2398df5a177062e1fb7314d1a60716a` | `ACCB9C6B` |
 | 7 | 2026-10-23 | `14b54bb1` (#1417) | AES mode (MODE line of the editor, MVS by default, `DECISIONS.md` §11) (`measured/2026-10-23-matrice-catalogue-aes.tsv`) | `5175C745` | `CE40` | `bc6560f50412bbb23cece3f5d38a4a818c5c606ca5564b4407c983db4bc8127b` | `EDC5657D` |
 | 8 | 2026-10-23 | `516016ce` (#1419) | CREDIT_CHECK in AES mode (aof shows "PUSH START" for P2); 63 scenes (`measured/2026-10-23-matrice-catalogue-credit-aes.tsv`) | `4AC27546` | `C49A` | `6fc2d51b7bf2823575e3dc0436f732314aa045de328a16ff52ff9e277d265ec6` | `BA27826C` |
@@ -85,7 +85,7 @@ the reference's order. Under the floating bus model, the fixed image no longer m
 read at boot, shows 0201 for mslug in slot 0 as in slot 1, and kof98 makes only one reset (its
 own) before running. Regression: stage 3f (`bench/bus-flottant.lua` on aof), which fails with the
 fix removed (4 floating reads). The Z80 is parked before the detection and no longer at the boot's
-slot switch, like the reference, and the handover falls on the same frame as before (188 on aof):
+slot switch, like the reference, and the hand-over falls on the same frame as before (188 on aof):
 full regression PASS on image `88366706…`, matrix and 81 scenes unchanged.
 
 **Same cause, fixed afterwards**: the boot soft-DIP editor switched to REG_BRDFIX for the board's
@@ -99,12 +99,12 @@ the floating bus (`DECISIONS.md` §13).
 
 **Without a cartridge, the board rebooted in a loop**, under MAME too: the BIOS served the empty
 slot 0, and the watchdog restarted the board every 192 frames. It now opens its self-tests
-(`DECISIONS.md` §13, item 3). This is probably part of the loop seen on the board without a
+(`DECISIONS.md` §13 pt 3). This is probably part of the loop seen on the board without a
 cartridge, without proof.
 
 ## Diagnostic image no. 1 — 2026-10-24
 
-`diag/slots/`, built by `build/construire.sh diag/slots <sortie>`: with no cartridge to launch, it
+`diag/slots/`, built by `build/construire.sh diag/slots <output>`: with no cartridge to launch, it
 shows REG_SYSTYPE, REG_STATUS_A, the word at $380000, REG_DIPSW and the Z80's echo, then for each
 slot 0 to 7 the 16 bytes of $000100-$00010F read in six ways (A under REG_BRDFIX, image no. 8;
 B under REG_CRTFIX, the fix; C B + REG_SWPROM; D REG_SLOT written as a word; E after 8 frames;
@@ -135,31 +135,31 @@ Each checked on the exact file: full regression PASS, catalogue 161 out of 164 w
 | No. | Date | `main` | What it adds | Scenes | CRC32 `.rom` | Sum | SHA-256 `.rom` | CRC32 byteswapped |
 |---|---|---|---|---|---|---|---|---|
 | 9 | 2026-10-24 | `a8b3ffb8` (#1425) | reading the header under REG_CRTFIX (#1423), the soft-DIP editor that reads a copy of its block (#1424), self-tests without a cartridge (#1425), GAME SETTINGS and MEMORY EDITOR in the in-game menu (#1422) (`measured/2026-10-24-matrice-catalogue.tsv`) | 86 | `F9889F16` | `86A6` | `70f73d53be4b7c9bd036061e91d26ffc2d529922d4df04db8facac361f49b6cf` | `F331E3A7` |
-| 10 | 2026-10-25 | `13a837d1` (#1427) | MEMORY CARD and SCORE RESET in the TEST screen | 98 | `B4411EDF` | `44FF` | `c4cba5b219ee7c4230ff34dbe2163c751cfcb163506d837734008940353b94e2` | `0E20CF19` |
-| 11 | 2026-10-25 | `a3159605` (#1429) | CABINET SETTINGS in the TEST screen (FREE PLAY, NO CONTINUE, DEMO SOUND) | 106 | `1111B3F0` | `3F02` | `cdaca6b7a397ee5ff8a3820428386bb51406343316fd7addff7e506df8bdd10f` | `B997A318` |
+| 10 | 2026-10-25 | `13a837d1` (#1427) | MEMORY CARD and SCORE RESET in the test screen | 98 | `B4411EDF` | `44FF` | `c4cba5b219ee7c4230ff34dbe2163c751cfcb163506d837734008940353b94e2` | `0E20CF19` |
+| 11 | 2026-10-25 | `a3159605` (#1429) | CABINET SETTINGS in the test screen (FREE PLAY, NO CONTINUE, DEMO SOUND) | 106 | `1111B3F0` | `3F02` | `cdaca6b7a397ee5ff8a3820428386bb51406343316fd7addff7e506df8bdd10f` | `B997A318` |
 | 12 | 2026-10-25 | `4d26ffdc` (#1432) | the cheat catalogue (35 games) and CHEATS/DEBUG in CABINET SETTINGS | 109 | `F8040392` | `F5B8` | `e5b4ea94d82df51ac3530ca731b8b432b993eb10053c5a2329d43dd161cb67d5` | `345FEAB1` |
 
 **Image no. 12 on the board, on 2026-10-25** (switch 7 "Free Play" ON): the game starts in
 slots 1 and 2, sound perfect; no input in play, START refused. ReBIOS ignored switches 1 and 7,
-and the TEST screen was reachable only through the TEST button, absent from this board. Fixed by
+and the test screen was reachable only through the TEST button, absent from this board. Fixed by
 #1439 (`DECISIONS.md` §17).
 
 ## Images no. 13 and no. 14 — 2026-10-25
 
 | No. | `main` | What it adds | Scenes | CRC32 `.rom` | Sum | SHA-256 `.rom` | CRC32 byteswapped |
 |---|---|---|---|---|---|---|---|
-| 13 | `e7179b01` (#1439) | switch 7 honoured, the TEST screen on switch 1 or on START + SELECT held at boot, the in-game menu on START + SELECT | 119 | `7E672E6D` | `1E6E` | `981cd2aff816d11b0cbd2b5dc5a97a04950ed37a17fa30545027f83dd7ced0e8` | `CBA8D402` |
+| 13 | `e7179b01` (#1439) | switch 7 honoured, the test screen on switch 1 or on START + SELECT held at boot, the in-game menu on START + SELECT | 119 | `7E672E6D` | `1E6E` | `981cd2aff816d11b0cbd2b5dc5a97a04950ed37a17fa30545027f83dd7ced0e8` | `CBA8D402` |
 | 14 | `f8cb3e3f` (#1442) | the Super Sidekicks grid (`DECISIONS.md` §18); 142 mutations killed, catalogue identical game by game to the reference | 120 | `B660FA81` | `5B39` | `8f03e1deeff52bf1e7f7120dcf0c5b414f41cc0ff3bca712bd431e74b6f0fd73` | `E9437AD8` |
 
 Each checked on the exact file: full regression PASS, catalogue 161 out of 164 with no game lost
-(ng_mv1f not measured). ReBIOS's deviation on leaving the TEST screen with switch 1 ON
-(§17 item 4) was confirmed on the board with the original BIOS.
+(ng_mv1f not measured). ReBIOS's departure on leaving the test screen with switch 1 ON
+(§17 pt 4) was confirmed on the board with the original BIOS.
 
 **Image no. 14 on the board, on 2026-10-26**: the soft-DIPs tried are honoured by the game, and
 Super Sidekicks runs normally. Without a controller, switch 1 OFF: the boot screen once, then the
-game; switch 1 ON: the boot screen, then the TEST screen. START + SELECT held at power-on: the TEST
+game; switch 1 ON: the boot screen, then the test screen. START + SELECT held at power-on: the TEST
 screen, without a boot screen. START alone in play never opens the menu.
-The TEST screen seen at every boot came from a **BlueRetro** controller adapter: when it starts
+The test screen seen at every boot came from a **BlueRetro** controller adapter: when it starts
 up, it holds L/R, A, B, C, D, START and SELECT for about one second, which the INPUT TEST showed;
 plugged in during play, it opens the in-game menu. Fixed by #1450 (the gesture ignores the
 BlueRetro). Super Sidekicks labels in the JAPAN region: #1449.
