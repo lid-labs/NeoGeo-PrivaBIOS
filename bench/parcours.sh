@@ -1020,9 +1020,9 @@ fi
 # The NO SOFT DIP DATA fixture: a copy of aof's substituted romset, in which only the pointer of
 # the European soft-DIP block of the 68k header ($11E, "68k program header": one long per region
 # at $116, $11A, $11E) is replaced by $00180000, between the fixed P-ROM and the banked area:
-# refused (`src/c0/dip.s`, LE POINTEUR). Nothing else is read in the P-ROM than what the page
-# publishes: "NEO-GEO" at $100, and two vectors of which only the area is checked (SSP in work
-# RAM, reset in the fixed P-ROM or the BIOS); that is what proves the byte order of the file,
+# refused (`src/c0/dip.s`, THE SOFT-DIP BLOCK POINTER). Nothing else is read in the P-ROM than
+# what the page publishes: "NEO-GEO" at $100, and two vectors of which only the area is checked
+# (SSP in work RAM, reset in the fixed P-ROM or the BIOS); that is what proves the byte order of the file,
 # each word being stored there with its bytes swapped (`load16_word_swap`). In the work
 # directory only.
 # THE BANKED AREA FIXTURE, same recipe, the pointer at $00200100: accepted by the boot editor
