@@ -14,7 +14,7 @@ Les défauts (scénario actif, --depuis 3600) sont ceux du combat ; en action, -
 plusieurs cellules casse parfois le jeu et masque la bonne (le 2026-10-29) : `forcer`, une à une, est
 plus sûr.
 
-ACTION. Un run par jeu dans un scénario (action, saut, immobile ; saut2 et action2 pour P2 seul,
+ACTION. Un run par jeu dans un scénario (action, saut, immobile, bombe ; saut2 et action2 pour P2 seul,
 voir SCENARIOS), puis le filtre de suite attendue (`filtre_suite`) : vies, bombes, temps, dans
 <travail>/candidats-action.tsv.
 
@@ -66,6 +66,9 @@ SCENARIOS = {
     # les ennemis (B, le saut de la plupart des jeux d'action), ou rester sur place.
     "saut": "400-407:piece,500-507:START,1000-40000:droite,1000-40000%20:B",
     "immobile": "400-407:piece,500-507:START",
+    # Les bombes (Metal Slug 2 à 5, le 2026-10-30) : P1 tire, avance et lâche une bombe toutes les
+    # 60 trames ; le compteur descend vite, et remonte à 10 à chaque vie.
+    "bombe": "400-407:piece,500-507:START,600-40000%6:A,1000-40000:droite,1000-40000%60:C",
     # P2 seul (le 2026-10-29) : sa pièce, son START, et il avance en sautant ; P1 ne joue pas. Ses
     # vies, ses bombes et sa fin de partie se lisent alors comme celles de P1.
     "saut2": "400-407:pieceDeux,500-507:startDeux,1000-40000:droiteDeux,1000-40000%20:bDeux",
@@ -551,7 +554,7 @@ def main():
     ac = sp.add_parser("action")
     ac.add_argument("--jeux", default="")
     ac.add_argument("--garder", action="store_true")
-    ac.add_argument("--scenario", default="action", choices=("action", "saut", "immobile", "saut2", "action2"))
+    ac.add_argument("--scenario", default="action", choices=("action", "saut", "immobile", "bombe", "saut2", "action2"))
     ac.add_argument("--fin", type=int, default=FIN)
     bi = sp.add_parser("bisecter")
     bi.add_argument("candidats")

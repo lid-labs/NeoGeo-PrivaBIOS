@@ -1,0 +1,11 @@
+# Les jeux d'action sans cellule de vies (#24), le 2026-10-30 : bench/cheats-recherche.py action, scénarios action et saut,
+# jusqu'à la trame 20 000 ; les candidats « vies » des jeux dont le témoin perd la partie forcés seuls dès la trame 700 contre
+# le témoin du même scénario (42 runs), ceux qui tiennent mis à l'épreuve du menu du BIOS. MAME 0.286, -bios euro, --jobs 12.
+#   - ncommand : le témoin perd la partie à 16 371 (action) et 16 944 (saut), au-delà des 12 000 trames du premier passage.
+#     Tiennent $106030 (action), $10F2D2 et $10D088 (saut) ; par le menu, $106030 et $10F2D2 PASS, $10D088 FAIL (fin de partie
+#     sous cheat à 17 020). Retenu : $106030, 2 au départ, le premier du filtre.
+#   - legendos (témoin 7 782 et 6 642) et nam1975 (2 701 et 4 067) : aucun candidat forcé n'ôte la fin de partie.
+#   - burningf, sengoku, shocktro : pas de fin de partie au témoin en 20 000 trames. Sur ses images (trames 3 000 à 11 900),
+#     P1 reste en vie : aucun ennemi ne l'attaque dans ces scénarios ; le jugement par la fin de partie n'y départage rien.
+jeu	cheat	verdict	moteur	mesure
+ncommand	INFINITE LIVES	PASS	106030x18420	fin de partie : témoin 16420, sous cheat aucune (FIN 20000) ; $106030 à $02 sur 1.00
