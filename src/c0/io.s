@@ -673,7 +673,7 @@ _credit_check:
 | ----------------------------------------------------------------------------------
 | THE PART SHARED BY SYSTEM_IO AND SYSTEM_INT1.
 |
-| No input; the hand-overs to the game are in `_systeme_io`, except that of a coin outside
+| The hand-overs to the game are in `_systeme_io`, except that of a coin outside
 | a game, which leaves from here and does not return (end of the routine). Input: %d7.b non-zero
 | under SYSTEM_IO, zero under INT1. Output: %d6 = mask
 | of the coins accepted on this frame (bit 0: coin 1, bit 1: coin 2; bit 7: one

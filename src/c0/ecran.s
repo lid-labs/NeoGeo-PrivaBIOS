@@ -151,7 +151,8 @@ _ecran_boot:
         | FIX_CLEAR fills the fix layer and leaves REG_VRAMMOD at 1 (`video.s`).
         jsr     _lsp_1st
         jsr     _fix_clear
-        | The time, once: READ_CALENDAR stores the date in BCD at $10FDD2-$10FDD8 (`cal.s`).
+        | The time, once: `_read_calendar` stores the date and time in BCD at $10FDD2-$10FDD8
+        | (`cal.s`).
         jsr     _read_calendar
 
         lea     VRAMRW, %a0

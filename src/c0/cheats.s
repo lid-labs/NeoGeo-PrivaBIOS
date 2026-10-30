@@ -41,7 +41,7 @@
 | 2026-10-21, otherwise they survived the change of game.
 |
 | THE ENGINE, `_cheats_appliquer`, called at the start of the menu hook (`menu.s`), hence on every
-| SYSTEM_IO call. No active cheat: the `bsr`, an absolute-address `tst.w`, a taken `beq`
+| SYSTEM_IO call. No active cheat: the `bsr`, an absolute-address `tst.l`, a taken `beq`
 | and the `rts`, nothing written. Active, and in play only (BIOS_USER_MODE
 | $10FDAF = 2, "BIOS RAM locations"): CH_ENTREE checked against the table (a game's first
 | record, otherwise CH_ETATS reset to zero), then the writes of the active records, and nothing

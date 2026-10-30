@@ -39,10 +39,10 @@ FORCER. For each line of <forcages.tsv>, written by hand or taken from the candi
 hex address, size, hex value, scenario), a `forcer` run (the cell written by lua every frame from
 --depuis, 3600) and the witness of the same scenario, up to --fin (12,000); in the log, the changes of
 BIOS_USER_MODE ($10FDAF) give the game over, and the images (--images, 4600, 5600, 6600 by default)
-serve the sheets and the HUD judge (`hud`).
+serve the sheets and judging the HUD.
 
-Clean room: no third-party cheat database. MAME's debugger (watchpoints, `bench/cheats.lua`
-watch mode) may tell WHO writes a cell; no game code is copied.
+Clean room: no third-party cheat database. MAME's debugger (watchpoints) may tell WHO writes a
+cell; no game code is copied.
 """
 import argparse, collections, concurrent.futures as cf, hashlib, os, shutil, subprocess, sys
 import numpy as np

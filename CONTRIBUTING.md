@@ -53,7 +53,8 @@ python3 -I bench/test_generer_contrats.py
 bench/non-regression.sh "$ROMS" <work-dir>
 ```
 
-The CI only builds the image, checks its SHA-256 and runs the generators' tests; it does not run
+The CI only checks tracked files for private data, builds the image, checks its SHA-256 and runs
+the generators' tests (contracts, sine table); it does not run
 MAME. The full regression run is your responsibility, and the pull request says that it passed.
 
 ## Changelog
