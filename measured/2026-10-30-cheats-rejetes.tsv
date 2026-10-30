@@ -1,0 +1,21 @@
+# Les candidats de #23, le 2026-10-30 : la recherche par suite attendue rejouée (bench/cheats-recherche.py action, scénarios
+# action et saut pour P1, action2 et saut2 pour P2 seul), 125 candidats « vies » forcés seuls dès la trame 700 contre le témoin
+# du même scénario ; ceux qui tiennent (le témoin perd la partie, la partie forcée non, images non figées) mis à l'épreuve du
+# menu du BIOS (bench/cheats-catalogue.sh, genre vies). MAME 0.286, -bios euro, --jobs 12.
+# Retenus (4) : gururin $101C17, trally $107105, zintrckb $100349 (NO GAME OVER, comme les autres puzzle et sport), twinspri
+# P2 $10D005. trally et zintrckb : la partie ne commence qu'à la trame 2314 et 2190 (BIOS_USER_MODE), le menu s'ouvre à 2600
+# et 2500 ; à 1500, il ne s'ouvrait pas (le « pas encore en partie » du 2026-10-29).
+# Écartés, par le menu du BIOS :
+#   - crswd2bl $105B4E : la cellule à $02 sur 0.00 des relevés (sa valeur n'est pas celle-là dans la fenêtre) ;
+#   - froman2b $10F266, $10F264, $10F03E, $10F040 : le tap relève des écritures du moteur au témoin (non expliqué ; à voir) ;
+#   - gururin $1014BB : à sa valeur sur 0.80 des relevés ; zintrckb $100449 : fin de partie sous cheat à 7930 ;
+#   - P2 : ncombat $1013C5 (fin de partie sous cheat à 6900), s1945p $1046C8 (3660), twinspri $100540 (8320) et $104D90 (7430).
+# Sans candidat qui tienne : ridhero (le témoin perd à 7025 et 8985, aucun forçage ne l'empêche) ; samsh5sp (P1, jeu de combat)
+# n'est pas rejoué ici.
+# Les verdicts du passage final, image 7e966971… :
+jeu	cheat	verdict	moteur	mesure
+twinspri	INFINITE LIVES	PASS	moteur : 6922 écritures 103744x6922	fin de partie : témoin 9790, sous cheat aucune (FIN 12000) ; $103745 à $03 sur 1.00
+gururin	NO GAME OVER	PASS	moteur : 11420 écritures 101C16x11420	fin de partie : témoin 6300, sous cheat aucune (FIN 13000) ; $101C17 à $02 sur 1.00
+trally	NO GAME OVER	PASS	moteur : 10319 écritures 107104x10319	fin de partie : témoin 5910, sous cheat aucune (FIN 13000) ; $107105 à $05 sur 1.00
+zintrckb	NO GAME OVER	PASS	moteur : 10419 écritures 100348x10419	fin de partie : témoin 3610, sous cheat aucune (FIN 13000) ; $100349 à $02 sur 1.00
+twinspri	P2 INF. LIVES	PASS	moteur : 11407 écritures 10D004x11407	fin de partie : témoin 9560, sous cheat aucune (FIN 13000) ; $10D005 à $03 sur 1.00

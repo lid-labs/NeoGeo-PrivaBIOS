@@ -748,7 +748,8 @@ MUTATIONS = {
     # Le catalogue des cheats et CHEATS/DEBUG, le 2026-10-25 (relevé --ref-cheats de bench/parcours.sh).
     "cat-mslug2-perdu": (
         "cheats-vies", "cheats.s",
-        [("        JEU     0x0241, 0xBE57, 1\n", "        JEU     0x0242, 0xBE57, 1       | MUTATION : le NGH de mslug2 faussé\n")],
+        # Sans le nombre de cheats, qui change à chaque lot : la mutation reste applicable.
+        [("        JEU     0x0241, 0xBE57, ", "        | MUTATION : le NGH de mslug2 faussé\n        JEU     0x0242, 0xBE57, ")],
         "l'entrée de mslug2 n'est plus reconnue : pas de ligne INFINITE LIVES",
     ),
     "cd-trouver-ignore": (
