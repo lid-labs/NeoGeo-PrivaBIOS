@@ -535,7 +535,9 @@ _cheats_table:
         JEU     0x0214, 0xEB0F, 2
         CHEAT   "P1 INFINITE LIFE", 0x108422, 1, 0x00
         CHEAT   "INFINITE TIME",   0x10A837, 1, 0x32
-        | NINJA MASTER'S : $100050, la vie de P1, $D0 au plus haut. Le temps : $10C021.
+        | NINJA MASTER'S : $100050, la vie de P1, $D0 au plus haut. Le temps : $10C021 ; le doute du
+        | 2026-10-25 (personnages figés sous forçage) levé le 2026-10-30 : la partie suit, et seul un P1
+        | qui ne frappe pas garde le round sans fin (`measured/2026-10-30-cheats-table.tsv`).
         JEU     0x0217, 0x4720, 2
         CHEAT   "P1 INFINITE LIFE", 0x100050, 1, 0xD0
         CHEAT   "INFINITE TIME",   0x10C021, 1, 0x99

@@ -12,7 +12,6 @@ All notable changes to Sprixe BIOS are listed here. The format follows
   action games (P2 playing alone), P1 INFINITE LIFE for five
   fighting games, INFINITE TIME for fourteen more games (Ganryu, Burning Fight, Metal Slug 2 and 4, eight
   fighting games, Street Hoop, Super Sidekicks), NO GAME OVER for nine puzzle, quiz and sport games.
-  81 games and 117 cheats in all.
 - INFINITE TIME for ten more fighting games: Art of Fighting 3, Breakers, Fatal Fury 2, Garou,
   Gowcaizer, The King of Fighters '98, The Last Blade 2, Ninja Master's, Savage Reign and World
   Heroes Perfect (#21). 90 games and 127 cheats in all.
