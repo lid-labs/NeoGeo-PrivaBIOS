@@ -402,26 +402,32 @@ _cheats_table:
         CHEAT   "INFINITE TIME",   0x102242, 1, 0x99
         | METAL SLUG 2: the lives, 2 at the start of the game (HUD 1UP=2).
         | On 2026-10-29, by known value (the HUD read at two frames, then the bytes that equal what it
-        | displays): the mission time $1013B4, binary, 60.
-        JEU     0x0241, 0xBE57, 2
+        | displays): the mission time $1013B4, binary, 60. On 2026-10-30, by expected sequence in the
+        | bomb scenario: the bombs $10C348, 10 at start ($10127C is only a copy of it).
+        JEU     0x0241, 0xBE57, 3
         CHEAT   "INFINITE LIVES",  0x101276, 1, 0x02
         CHEAT   "INFINITE TIME",   0x1013B4, 1, 0x3C
+        CHEAT   "INFINITE BOMBS",  0x10C348, 1, 0x0A
         | METAL SLUG X: the lives, 2 at start.
         JEU     0x0250, 0x92D4, 1
         CHEAT   "INFINITE LIVES",  0x101288, 1, 0x02
-        | METAL SLUG 3: the lives, 2 at start.
-        JEU     0x0256, 0xE095, 1
+        | METAL SLUG 3: the lives, 2 at start. The bombs (2026-10-30, bomb scenario): $10EAF5, 10.
+        JEU     0x0256, 0xE095, 2
         CHEAT   "INFINITE LIVES",  0x1002BB, 1, 0x02
+        CHEAT   "INFINITE BOMBS",  0x10EAF5, 1, 0x0A
         | METAL SLUG 4: the lives, 2 at start.
-        | On 2026-10-29, by known value: the mission time $10ED5C, BCD, 60.
-        JEU     0x0263, 0xD875, 3
+        | On 2026-10-29, by known value: the mission time $10ED5C, BCD, 60. The bombs
+        | (2026-10-30, bomb scenario): $10EDED, 10.
+        JEU     0x0263, 0xD875, 4
         CHEAT   "INFINITE LIVES",  0x100A89, 1, 0x02
         CHEAT   "INFINITE TIME",   0x10ED5C, 1, 0x60
         CHEAT   "P2 INF. LIVES",   0x100CFC, 1, 0x02
-        | METAL SLUG 5: the lives, 2 at start.
-        JEU     0x0268, 0x1581, 2
+        CHEAT   "INFINITE BOMBS",  0x10EDED, 1, 0x0A
+        | METAL SLUG 5: the lives, 2 at start. The bombs (2026-10-30, bomb scenario): $10D457, 10.
+        JEU     0x0268, 0x1581, 3
         CHEAT   "INFINITE LIVES",  0x100A41, 1, 0x02
         CHEAT   "P2 INF. LIVES",   0x1050C2, 1, 0x05
+        CHEAT   "INFINITE BOMBS",  0x10D457, 1, 0x0A
         | PULSTAR: the lives, 2 at start.
         JEU     0x0089, 0xA232, 2
         CHEAT   "INFINITE LIVES",  0x10132A, 1, 0x02
@@ -518,9 +524,11 @@ _cheats_table:
         JEU     0x0011, 0xB441, 1
         CHEAT   "INFINITE LIVES",  0x10181F, 1, 0x08
         | TWINKLE STAR SPRITES: the lives, 3 at the highest; the witness run loses the game at frame
-        | 9296.
-        JEU     0x0224, 0xC6FE, 1
+        | 9296. P2's (2026-10-30, P2 alone): $10D005; $100540, the cell ruled out on 2026-10-29, is
+        | only a copy of it (game over under the cheat).
+        JEU     0x0224, 0xC6FE, 2
         CHEAT   "INFINITE LIVES",  0x103745, 1, 0x03
+        CHEAT   "P2 INF. LIVES",   0x10D005, 1, 0x03
         | VIEWPOINT: the lives, 3 at the highest; the witness run loses the game at frame 5989.
         JEU     0x0051, 0x691F, 2
         CHEAT   "INFINITE LIVES",  0x108D99, 1, 0x03
@@ -536,9 +544,12 @@ _cheats_table:
         JEU     0x0214, 0xEB0F, 2
         CHEAT   "P1 INFINITE LIFE", 0x108422, 1, 0x00
         CHEAT   "INFINITE TIME",   0x10A837, 1, 0x32
-        | NINJA MASTER'S: $100050, P1's life, $D0 at the highest.
-        JEU     0x0217, 0x4720, 1
+        | NINJA MASTER'S: $100050, P1's life, $D0 at the highest. The time: $10C021; the doubt of
+        | 2026-10-25 (characters frozen under forcing) lifted on 2026-10-30: the game goes on, and only a
+        | P1 that does not strike keeps the round endless (`measured/2026-10-30-cheats-table.tsv`).
+        JEU     0x0217, 0x4720, 2
         CHEAT   "P1 INFINITE LIFE", 0x100050, 1, 0xD0
+        CHEAT   "INFINITE TIME",   0x10C021, 1, 0x99
         | RAGE OF THE DRAGONS: $1023E6, P1's life, $10 at the highest. The time, by known value:
         | $106B11, the seconds, binary.
         JEU     0x0264, 0x8D79, 2
@@ -566,6 +577,36 @@ _cheats_table:
         | KING OF THE MONSTERS 2: the seconds, BCD.
         JEU     0x0039, 0x9C61, 1
         CHEAT   "INFINITE TIME",   0x1013D2, 1, 0x70
+        | THE TIMERS OF FIGHTING GAMES FOUND ON 2026-10-29 AND PROVED ON 2026-10-30: same
+        | search; the catalogue judges them on the digits' pixels only (the scenery scrolls behind),
+        | or earlier in the round. Value: the highest of the record.
+        | ART OF FIGHTING 3.
+        JEU     0x0096, 0xC5DF, 1
+        CHEAT   "INFINITE TIME",   0x10DF0F, 1, 0x3C
+        | BREAKERS.
+        JEU     0x0230, 0x9C95, 1
+        CHEAT   "INFINITE TIME",   0x107C0B, 1, 0x63
+        | FATAL FURY 2.
+        JEU     0x0047, 0xAED3, 1
+        CHEAT   "INFINITE TIME",   0x10092A, 1, 0x90
+        | THE KING OF FIGHTERS '98.
+        JEU     0x0242, 0x8F29, 1
+        CHEAT   "INFINITE TIME",   0x10A83B, 1, 0x32
+        | SAVAGE REIGN.
+        JEU     0x0059, 0xF782, 1
+        CHEAT   "INFINITE TIME",   0x1084A8, 1, 0x60
+        | GAROU: MARK OF THE WOLVES.
+        JEU     0x0253, 0x6078, 1
+        CHEAT   "INFINITE TIME",   0x107490, 1, 0x60
+        | WORLD HEROES PERFECT.
+        JEU     0x0090, 0x5FA2, 1
+        CHEAT   "INFINITE TIME",   0x10C109, 1, 0x99
+        | THE LAST BLADE 2.
+        JEU     0x0243, 0xB546, 1
+        CHEAT   "INFINITE TIME",   0x10E595, 1, 0x61
+        | GOWCAIZER.
+        JEU     0x0094, 0x4B34, 1
+        CHEAT   "INFINITE TIME",   0x1062E1, 1, 0x3C
         | THE TIMES OF ACTION GAMES BY EXPECTED SEQUENCE, 2026-10-29: the byte that follows exactly
         | v0, v0 − 1… from 30, 50, 59, 60, 90 or 99 (`bench/cheats-recherche.py`, filtre_suite), forced
         | alone; the digits' area computed on the pictures of the forcing.
@@ -643,5 +684,20 @@ _cheats_table:
         | TECMO WORLD SOCCER 96.
         JEU     0x0086, 0xCB1D, 1
         CHEAT   "NO GAME OVER",     0x1014D7, 1, 0x05
+        | ON 2026-10-30, the same search by expected sequence, in the action scenario; judged by the
+        | menu at frame 1500, or as soon as the game starts (trally 2600, zintrckb 2500).
+        | GURURIN.
+        JEU     0x0067, 0x97E7, 1
+        CHEAT   "NO GAME OVER",     0x101C17, 1, 0x02
+        | THRASH RALLY.
+        JEU     0x0038, 0x5FF9, 1
+        CHEAT   "NO GAME OVER",     0x107105, 1, 0x05
+        | ZINTRICK.
+        JEU     0x0211, 0x1F3E, 1
+        CHEAT   "NO GAME OVER",     0x100349, 1, 0x02
+        | NINJA COMMANDO, 2026-10-30: the search by expected sequence
+        | up to frame 20,000 (the witness run loses the game around 16,400); the lives, 2 at start.
+        JEU     0x0050, 0x004D, 1
+        CHEAT   "INFINITE LIVES",  0x106030, 1, 0x02
         FIN_TABLE
         .balign 2

@@ -14,8 +14,8 @@ The defaults (actif scenario, --depuis 3600) are those of fighting games; in act
 Forcing several cells sometimes breaks the game and masks the right one (on 2026-10-29): `forcer`,
 one by one, is safer.
 
-ACTION. One run per game in one scenario (action, saut, immobile; saut2 and action2 for P2 alone,
-see SCENARIOS), then the expected-sequence filter (`filtre_suite`): lives, bombs, time, in
+ACTION. One run per game in one scenario (action, saut, immobile, bombe; saut2 and action2 for P2
+alone, see SCENARIOS), then the expected-sequence filter (`filtre_suite`): lives, bombs, time, in
 <travail>/candidats-action.tsv.
 
 RELEVE. Each game plays two scenarios under `bench/cheats.lua` (releve mode, RAM $100000-$10F2FF
@@ -66,6 +66,9 @@ SCENARIOS = {
     # the enemies (B, the jump of most action games), or stay in place.
     "saut": "400-407:piece,500-507:START,1000-40000:droite,1000-40000%20:B",
     "immobile": "400-407:piece,500-507:START",
+    # The bombs (Metal Slug 2 to 5, on 2026-10-30): P1 shoots, moves forward and drops a bomb every
+    # 60 frames; the counter goes down fast, and goes back up to 10 at each life.
+    "bombe": "400-407:piece,500-507:START,600-40000%6:A,1000-40000:droite,1000-40000%60:C",
     # P2 alone (on 2026-10-29): its coin, its START, and it walks forward jumping; P1 does not play.
     # Its lives, its bombs and its game over then read like P1's.
     "saut2": "400-407:pieceDeux,500-507:startDeux,1000-40000:droiteDeux,1000-40000%20:bDeux",
@@ -555,7 +558,7 @@ def main():
     ac = sp.add_parser("action")
     ac.add_argument("--jeux", default="")
     ac.add_argument("--garder", action="store_true")
-    ac.add_argument("--scenario", default="action", choices=("action", "saut", "immobile", "saut2", "action2"))
+    ac.add_argument("--scenario", default="action", choices=("action", "saut", "immobile", "bombe", "saut2", "action2"))
     ac.add_argument("--fin", type=int, default=FIN)
     bi = sp.add_parser("bisecter")
     bi.add_argument("candidats")

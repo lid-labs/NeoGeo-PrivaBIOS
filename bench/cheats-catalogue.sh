@@ -19,7 +19,8 @@
 #          as in the witness. As a complement, the cell holds the table's value, or one less
 #          (the game counted down since the engine's last call), on at least RAM_MIN of the records.
 #   compteur  a HUD number that no longer moves: a mission time that loses
-#          1 only every ~256 frames (on 2026-10-29). As temps, on the rectangle of the digits,
+#          1 only every ~256 frames (on 2026-10-29), or the bombs of Metal Slug (on 2026-10-30,
+#          reset to 10 at each life). As temps, on the rectangle of the digits,
 #          but from T + 200 to FIN, and with other thresholds: the witness's count changes only a
 #          few times. Under the cheat, the same image on at least COMPTEUR_ON_MIN of the records; in
 #          the witness, two images at least, the most frequent on less than COMPTEUR_ON_MIN.
@@ -31,6 +32,8 @@
 # 6 frames, right, B and C).
 # "j" (jump to die): coin, START, then right held and B every 20 frames,
 # without shooting: P1 rushes, jumping, into the enemies.
+# "b" (bombs, Metal Slug 2 to 5): the bomb scenario of `cheats-recherche.py`, A every 6 frames,
+# right, and C (one bomb) every 60 frames: the witness's counter goes down fast.
 # "f" (fight): coin at 400, START at 500, A every 60 frames from 600 to 3500,
 # right held from 2000 on; "s" (shooter, action): coin, START, A every 60 frames, right
 # held from 1000 on, C every 400 frames from 1500 on. The player does not play: they die,
@@ -44,9 +47,9 @@
 #
 # Clean room: no third-party cheat database, no game code read or traced; the PC serves only to
 # tell whether a write comes from the BIOS. MAME windowless, one cfg and NVRAM directory per run.
-# Measurements and thresholds: measured/2026-10-25-cheats-table.tsv and 2026-10-29-cheats-table.tsv
-# (one line per cheat), 2026-10-25-cheats-catalogue.tsv and 2026-10-29-cheats-catalogue.tsv (the
-# verdicts).
+# Measurements and thresholds: measured/2026-10-25, 2026-10-29 and 2026-10-30-cheats-table.tsv (one
+# line per cheat), and the -cheats-catalogue.tsv of the same dates (the verdicts);
+# 2026-10-30-cheats-rejetes.tsv (#23), 2026-10-30-cheats-sans-vies.tsv (#24).
 set -u
 
 ICI="$(cd "$(dirname "$0")" && pwd)"
@@ -79,9 +82,11 @@ COMPTEUR_ON_MIN=0.9
 
 # game  k  name  adr  value  kind  inputs  T  FIN  zone(x0,y0,x1,y1)  pixels of the zone
 # The pixels: "brut", all colours (a timer in an opaque frame); "clair",
-# R + G + B > 600; otherwise the colour of the digits (COULEURS below), so that scenery scrolling
-# behind them does not count. Chosen on 2026-10-25 on images from the runs, the rectangle around
-# the digits by eye.
+# R + G + B > 600; "tres-clair", > 700 (white digits on a frame where a bright scenery passes);
+# otherwise the colour of the digits (COULEURS below), so that scenery scrolling behind them does
+# not count. Chosen on 2026-10-25 on images from the runs, the rectangle around the digits by eye;
+# for the timers of 2026-10-30, rectangle and pixels searched on the images of a CAT_DENSE run
+# (the largest gap between cheat and witness).
 # Missing from the table: INFINITE TIME of kof95. Under the cheat, the timer keeps its image on all
 # the records, but no T tried gives a witness that counts down without a KO in the window (round 2:
 # 0.38 of the records at the same image; round 3: a KO under the cheat). Its proof is the search's
@@ -92,7 +97,7 @@ kof99	0	INFINITE TIME	10A7E7	32	temps	f	2950	4250	144,12,176,36	brut
 kof2000	0	INFINITE TIME	10A7E6	60	temps	f	2750	4050	146,16,176,31	vert
 kof2002	0	INFINITE TIME	10A7D3	32	temps	f	2320	3620	146,16,173,31	brut
 samsho	0	INFINITE TIME	100A08	99	temps	f	1360	2660	140,38,179,59	clair
-samsho2	0	INFINITE TIME	100AC6	99	temps	f	1330	2630	140,34,179,57	clair
+samsho2	0	INFINITE TIME	100AC6	99	temps	f	1330	2630	140,34,177,53	clair
 samsho4	0	INFINITE TIME	108369	3C	temps	f	1480	2780	142,30,177,49	rouge
 samsho5	0	INFINITE TIME	10836A	60	temps	f	1120	2420	142,30,177,49	jaune
 samsh5sp	0	INFINITE TIME	10836A	60	temps	f	1160	2460	160,32,176,47	jaune
@@ -137,6 +142,10 @@ superspy	0	INFINITE LIVES	10181F	08	vies	s	1500	12000	-	-
 twinspri	0	INFINITE LIVES	103745	03	vies	s	1500	12000	-	-
 viewpoin	0	INFINITE LIVES	108D99	03	vies	s	1500	12000	-	-
 zupapa	0	INFINITE LIVES	1002C1	03	vies	s	1500	12000	-	-
+mslug2	2	INFINITE BOMBS	10C348	0A	compteur	b	1500	2700	114,13,128,20	jaune
+mslug3	1	INFINITE BOMBS	10EAF5	0A	compteur	b	1500	2700	114,13,128,20	jaune
+mslug4	3	INFINITE BOMBS	10EDED	0A	compteur	b	1500	2700	114,13,128,20	jaune
+mslug5	2	INFINITE BOMBS	10D457	0A	compteur	b	1500	2700	114,13,128,20	clair
 mslug2	1	INFINITE TIME	1013B4	3C	compteur	s	1500	4000	145,8,175,31	jaune
 mslug4	1	INFINITE TIME	10ED5C	60	compteur	s	1500	4000	145,8,175,31	jaune
 burningf	0	INFINITE TIME	10D002	60	compteur	s	1500	4000	145,33,174,47	brut
@@ -183,6 +192,21 @@ spinmast	1	P2 INF. LIVES	10503D	02	vies	l	1500	13000	-	-
 viewpoin	1	P2 INF. LIVES	1090ED	03	vies	k	1500	13000	-	-
 zedblade	1	P2 INF. LIVES	100029	03	vies	k	1500	13000	-	-
 fightfev	0	INFINITE TIME	108110	99	temps	f	1900	3200	147,24,172,36	brut
+aof3	0	INFINITE TIME	10DF0F	3C	temps	f	1300	2600	146,16,172,30	brut
+breakers	0	INFINITE TIME	107C0B	63	temps	f	1900	3200	152,15,167,31	vert
+fatfury2	0	INFINITE TIME	10092A	90	temps	f	1300	2600	146,10,173,29	brut
+kof98	0	INFINITE TIME	10A83B	32	temps	f	1900	3200	141,13,173,35	jaune
+savagere	0	INFINITE TIME	1084A8	60	temps	f	1300	2600	147,27,172,36	brut
+garou	0	INFINITE TIME	107490	60	temps	f	1900	3200	153,13,175,27	jaune
+whp	0	INFINITE TIME	10C109	99	temps	f	1900	3200	153,15,174,27	jaune
+lastbld2	0	INFINITE TIME	10E595	61	temps	f	1900	3200	155,20,187,29	blanc
+gowcaizr	0	INFINITE TIME	1062E1	3C	temps	f	1900	3200	149,14,171,35	tres-clair
+ninjamas	1	INFINITE TIME	10C021	99	temps	f	1900	3200	157,28,170,37	rouge
+gururin	0	NO GAME OVER	101C17	02	vies	x	1500	13000	-	-
+trally	0	NO GAME OVER	107105	05	vies	x	2600	13000	-	-
+zintrckb	0	NO GAME OVER	100349	02	vies	x	2500	13000	-	-
+twinspri	1	P2 INF. LIVES	10D005	03	vies	k	1500	13000	-	-
+ncommand	0	INFINITE LIVES	106030	02	vies	x	1500	20000	-	-
 kof96	1	INFINITE TIME	10A837	32	temps	f	1900	3200	147,14,172,32	brut
 matrim	0	INFINITE TIME	10B90B	3C	temps	f	1900	3200	145,8,174,24	brut
 rbff2	0	INFINITE TIME	107C28	60	temps	f	1900	3200	145,16,175,31	brut
@@ -240,13 +264,14 @@ pixels() {
   case "$1" in
     brut) echo "C_SEUIL=0" ;;
     clair) echo "C_SEUIL=600" ;;
+    tres-clair) echo "C_SEUIL=700" ;;
     jaune) echo "C_COULEUR=180,255,160,255,0,120" ;;
     blanc) echo "C_COULEUR=180,255,180,255,180,255" ;;
     vert) echo "C_COULEUR=0,120,150,255,0,120" ;;
     rouge) echo "C_COULEUR=180,255,0,80,0,80" ;;
   esac
 }
-# entrees <T> <f|s|j|x|k|l>: the schedule, cut from T − 10 to T + 150.
+# entrees <T> <f|s|j|x|b|k|l>: the schedule, cut from T − 10 to T + 150.
 entrees() {
   local T=$1 a=$(( $1 - 10 )) b=$(( $1 + 150 )) out="400-407:piece,500-507:START" x
   case "$2" in k|l) out="400-407:pieceDeux,500-507:startDeux" ;; esac
@@ -255,6 +280,7 @@ entrees() {
     s) x="600-40000%60:A 1000-40000:droite 1500-40000%400:C" ;;
     j) x="1000-40000:droite 1000-40000%20:B" ;;
     x) x="600-40000%6:A 1000-40000:droite 1500-40000%300:B 1650-40000%400:C" ;;
+    b) x="600-40000%6:A 1000-40000:droite 1000-40000%60:C" ;;
     k) x="600-40000%6:aDeux 1000-40000:droiteDeux 1500-40000%300:bDeux 1650-40000%400:cDeux" ;;
     l) x="1000-40000:droiteDeux 1000-40000%20:bDeux" ;;
   esac

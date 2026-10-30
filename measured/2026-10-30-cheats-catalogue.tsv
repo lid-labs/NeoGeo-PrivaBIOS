@@ -1,0 +1,31 @@
+# Le catalogue des cheats joué par le BIOS lui-même (bench/cheats-catalogue.sh, --jobs 12), le 2026-10-30, sur les 10 jeux de
+# 2026-10-30-cheats-table.tsv (#21), image 2853e7d1… ; ninjamas garde aussi son P1 INFINITE LIFE. Même banc et mêmes seuils
+# que 2026-10-29-cheats-catalogue.tsv (genre temps : l'image du chronomètre de T + 200 à T + 800). Le catalogue complet n'a pas
+# été rejoué : les autres cheats et leur moteur ne changent pas, et la non-régression passe sur la même image.
+# Puis INFINITE BOMBS pour mslug2 à mslug5 (#22), image dc4a0382… : genre compteur, entrées b (le scénario bombe),
+# l'image des chiffres BOMB (zone 114,13,128,20) de T + 200 à 2700, avant les écrans CONTINUE ; les autres cheats des quatre
+# jeux rejoués au même passage, tous PASS.
+jeu	cheat	verdict	ngh	empreinte	ecritures_du_moteur	nombre	mesure
+aof3	INFINITE TIME	PASS	0096	C5DF	10DF0Ex1220	1220	chronomètre : son image la plus fréquente sur 1.00 des relevés sous cheat (1 images), 0.10 au témoin (11) ; $10DF0F à $3C sur 1.00
+breakers	INFINITE TIME	PASS	0230	9C95	107C0Ax1219	1219	chronomètre : son image la plus fréquente sur 0.93 des relevés sous cheat (3 images), 0.07 au témoin (23) ; $107C0B à $63 sur 1.00
+fatfury2	INFINITE TIME	PASS	0047	AED3	10092Ax1220	1220	chronomètre : son image la plus fréquente sur 1.00 des relevés sous cheat (1 images), 0.08 au témoin (15) ; $10092A à $90 sur 0.98
+kof98	INFINITE TIME	PASS	0242	8F29	10A83Ax1220	1220	chronomètre : son image la plus fréquente sur 1.00 des relevés sous cheat (1 images), 0.08 au témoin (16) ; $10A83B à $32 sur 1.00
+savagere	INFINITE TIME	PASS	0059	F782	1084A8x1220	1220	chronomètre : son image la plus fréquente sur 1.00 des relevés sous cheat (1 images), 0.10 au témoin (11) ; $1084A8 à $60 sur 1.00
+garou	INFINITE TIME	PASS	0253	6078	107490x1220	1220	chronomètre : son image la plus fréquente sur 0.98 des relevés sous cheat (2 images), 0.11 au témoin (10) ; $107490 à $60 sur 0.98
+whp	INFINITE TIME	PASS	0090	5FA2	10C108x1219	1219	chronomètre : son image la plus fréquente sur 1.00 des relevés sous cheat (1 images), 0.07 au témoin (21) ; $10C109 à $99 sur 1.00
+lastbld2	INFINITE TIME	PASS	0243	B546	10E594x1220	1220	chronomètre : son image la plus fréquente sur 1.00 des relevés sous cheat (1 images), 0.11 au témoin (10) ; $10E595 à $61 sur 1.00
+gowcaizr	INFINITE TIME	PASS	0094	4B34	1062E0x1220	1220	chronomètre : son image la plus fréquente sur 0.97 des relevés sous cheat (3 images), 0.10 au témoin (11) ; $1062E1 à $3C sur 1.00
+ninjamas	INFINITE TIME	PASS	0217	4720	10C020x1208	1208	chronomètre : son image la plus fréquente sur 1.00 des relevés sous cheat (1 images), 0.07 au témoin (18) ; $10C021 à $99 sur 1.00
+ninjamas	P1 INFINITE LIFE	PASS	0217	4720	100050x13311	13311	fin de partie : témoin 9740, sous cheat aucune (FIN 15000) ; $100050 à $D0 sur 1.00
+mslug2	INFINITE BOMBS	PASS	0241	BE57	10C348x1095	1095	compteur : son image la plus fréquente sur 0.99 des relevés sous cheat (2 images), 0.48 au témoin (7) ; $10C348 à $0A sur 1.00
+mslug3	INFINITE BOMBS	PASS	0256	E095	10EAF4x1108	1108	compteur : son image la plus fréquente sur 0.99 des relevés sous cheat (2 images), 0.44 au témoin (5) ; $10EAF5 à $0A sur 1.00
+mslug4	INFINITE BOMBS	PASS	0263	D875	10EDECx1084	1084	compteur : son image la plus fréquente sur 0.99 des relevés sous cheat (2 images), 0.54 au témoin (4) ; $10EDED à $0A sur 1.00
+mslug5	INFINITE BOMBS	PASS	0268	1581	10D456x1095	1095	compteur : son image la plus fréquente sur 0.99 des relevés sous cheat (2 images), 0.42 au témoin (7) ; $10D457 à $0A sur 1.00
+mslug2	INFINITE LIVES	PASS	0241	BE57	101276x10420	10420	fin de partie : témoin 4690, sous cheat aucune (FIN 12000) ; $101276 à $02 sur 1.00
+mslug3	INFINITE LIVES	PASS	0256	E095	1002BAx10420	10420	fin de partie : témoin 4440, sous cheat aucune (FIN 12000) ; $1002BB à $02 sur 1.00
+mslug4	INFINITE LIVES	PASS	0263	D875	100A88x10420	10420	fin de partie : témoin 4700, sous cheat aucune (FIN 12000) ; $100A89 à $02 sur 1.00
+mslug5	INFINITE LIVES	PASS	0268	1581	100A40x10419	10419	fin de partie : témoin 5410, sous cheat aucune (FIN 12000) ; $100A41 à $02 sur 1.00
+mslug2	INFINITE TIME	PASS	0241	BE57	1013B4x2408	2408	compteur : son image la plus fréquente sur 1.00 des relevés sous cheat (1 images), 0.75 au témoin (2) ; $1013B4 à $3C sur 1.00
+mslug4	INFINITE TIME	PASS	0263	D875	10ED5Cx2408	2408	compteur : son image la plus fréquente sur 1.00 des relevés sous cheat (1 images), 0.77 au témoin (3) ; $10ED5C à $60 sur 1.00
+mslug4	P2 INF. LIVES	PASS	0263	D875	100CFCx11395	11395	fin de partie : témoin 7720, sous cheat aucune (FIN 13000) ; $100CFC à $02 sur 1.00
+mslug5	P2 INF. LIVES	PASS	0268	1581	1050C2x11408	11408	fin de partie : témoin 7260, sous cheat aucune (FIN 13000) ; $1050C2 à $05 sur 1.00
