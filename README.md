@@ -77,7 +77,7 @@ cartridge. The in-game menu and autofire screens are over Metal Slug (© SNK).
 **Extras**
 - Jukebox, with a screen saver: black screen after about two minutes, music keeps playing.
 
-Not included: menu colours, US-style credit display, Arcade VS, PC-2-NEO, PICKnMIX. There is no image
+Not included: menu colours, US-style credit display, 4-player adapter, PC-2-NEO, PICKnMIX. There is no image
 for the AES console itself.
 
 The menus, and the keys and board switches that lead to them, are mapped in
@@ -89,6 +89,11 @@ Build the image first ([`docs/BUILD.md`](docs/BUILD.md)). The build produces a 1
 byte order, the same as `sp-s2.sp1` in `neogeo.zip`.
 
 ### On an MVS board
+
+This is a beta. Write down your board's settings first. Under MAME, moving from the SNK BIOS or
+UniBIOS 4.0 to Sprixe BIOS and back left the backup RAM's game data intact, with one game and no
+setting changed (`measured/2026-10-30-backup-ram-bascule.tsv`). That was not measured on a real
+board, nor after changing settings here, so treat scores and settings as things you could lose.
 
 1. Burn the image on a 27C1024 EPROM. Most programmers take the MAME byte order as is; if the board
    shows nothing, try the image with its bytes swapped in pairs.
@@ -113,7 +118,8 @@ No ROM of any kind is provided by this repository.
 Measured under MAME 0.286, on the 164 games of our MAME catalogue, each run under Sprixe BIOS, the
 SNK BIOS and UniBIOS 4.0 (`bench/matrice.sh`, `measured/HISTORIQUE.md`):
 
-- 161 of 164 games play under Sprixe BIOS, 162 under the SNK BIOS and under UniBIOS 4.0.
+- 161 of 164 games play under Sprixe BIOS, 162 under the SNK BIOS and under UniBIOS 4.0. This is judged
+  on the picture, under MAME: it is not evidence for real hardware.
 - `mvstemp` and `vliner` freeze under all three BIOSes.
 - `irrmaze` cannot be judged: the harness fails to substitute the BIOS for that set.
 

@@ -31,6 +31,9 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 - In-game menu: a game can have up to 16 cheats (4 before). The menu shows 4 at a time and scrolls,
   with "CHEATS 5-8/12" under the title when some are hidden.
 - Site: the comparison table no longer lists scores on memory card.
+- `docs/COMPARISON.md` and the site: comparison with UniBIOS redone from its official site, read in
+  full, with no row resting on an absence of evidence. The site now says that coding agents wrote
+  the code, warns about the beta and backup RAM, and its button reads "Build v0.1 beta".
 - Notes in English: `docs/DECISIONS.md`, `MENUS.md`, `AUTOFIRE.md`, `COMPATIBILITE.md`,
   `ESSAI-MATERIEL.md` and `measured/HISTORIQUE.md`.
 - Code comments in English: `src/c0/`, `diag/slots/`, `build/harnais/`, `build/bios.ld`. The image

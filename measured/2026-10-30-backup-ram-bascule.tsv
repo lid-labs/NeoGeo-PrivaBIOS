@@ -1,0 +1,20 @@
+# Ce que devient la backup RAM quand on change de BIOS, mesure le 2026-10-30. MAME 0.286, set aof,
+# un seul slot, -video none, aucune entree, 45 s par run. Image SHA-256 dd206616 (build/expected-sha256.txt).
+# Chaque run repart du fichier saveram du run precedent ; on compare les 64 Kio octet par octet.
+# Rien n'est consigne du contenu : seulement le nombre d'octets et les plages qui different.
+# Les runs SNK et UniBIOS ne donnent pas WRONG CHECKSUMS, les runs Sprixe oui. NVRAM d'UniBIOS :
+# MAME la range dans aof_16/, copiee a la main vers aof/ a chaque passage.
+passage	octets differents sur 65536	plages
+SNK puis Sprixe	2	$D0005C-$D0005D
+Sprixe puis SNK	4	$D00020-$D00021 $D0005C-$D0005D
+SNK puis SNK apres le passage par Sprixe	4	$D00020-$D00021 $D0005C-$D0005D
+UniBIOS 4.0 puis Sprixe	4	$D00020-$D00021 $D0005C-$D0005D
+Sprixe puis UniBIOS 4.0	2	$D0005C-$D0005D
+UniBIOS 4.0 puis UniBIOS 4.0 apres le passage par Sprixe	4	$D00020-$D00021 $D0005C-$D0005D
+# LECTURE : les seules cellules touchees sont des cellules de marche : le front de piece $D00020
+# et le compte a rebours du systeme $D0005A-$D0005D (src/c0/c0.s, ou le nom de ces zones est lu
+# dans "Backup RAM"). La signature, la table des slots et le bloc du jeu ne bougent pas.
+# Sprixe n'ecrit pas son bloc de reglages $D00210-$D0021F tant que rien n'est regle : il reste a zero.
+# NON MESURE : un run ou les reglages de Sprixe ont ete modifies, puis le retour a un autre BIOS ;
+# plusieurs jeux ou plusieurs slots ; une vraie carte ; le premier lancement d'UniBIOS, dont les
+# notes de la v2.0 disent qu'il remet a zero la backup RAM MVS.
