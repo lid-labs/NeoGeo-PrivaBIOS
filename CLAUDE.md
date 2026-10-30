@@ -58,7 +58,7 @@ python3 -I -B bench/parcours-mutations.py --eprouver "$ROMS" <work-dir>
 - The CI builds, checks the SHA-256, runs the generators' tests and `garde-publication.sh`. **It does
   not run MAME**: the full regression is run locally, and the pull request says it passed.
 - MAME runs are deterministic, one core each, so running them in parallel changes no verdict.
-  The scripts do so by default; see [Speed](docs/BENCH.md#speed) for their options.
+  See [Speed](docs/BENCH.md#speed) for which scripts do so by default.
 - Work directories go **outside the repository**. Python is run with `-I`.
 - Each script documents its usage in its header (in French).
 
@@ -93,7 +93,7 @@ such as `packages/…` or `cosim.sh` to the private monorepo where the BIOS was 
 
 Write all new text in English: docs, code comments, commit messages, pull requests. Many notes in
 `docs/` and the comments in `src/` and `bench/` are still in French and are being translated.
-Identifiers (labels, script names, options such as `--eprouver`) stay as they are. The dated, frozen
+Identifiers (labels, script names, options such as `--eprouver`) stay as they are. The dated
 notes (`AUDIT-2026-10-21.md`, `ATTENTES.md`, `RELECTURE-CONTRATS.md`, `tasks.md`) stay in French.
 `specs/traces/` is generator output: never edit it by hand.
 
@@ -105,4 +105,3 @@ notes (`AUDIT-2026-10-21.md`, `ATTENTES.md`, `RELECTURE-CONTRATS.md`, `tasks.md`
   the old figure and update every copy.
 - Conventional commits (`feat(cheats): …`, `fix(bench): …`, `docs: …`), signed off for the DCO:
   `git commit -s`.
-- Never commit on `main`; every change goes through a pull request and its template checklist.

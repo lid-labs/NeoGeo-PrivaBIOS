@@ -1,6 +1,6 @@
 # Notes
 
-Technical notes. Many are still in French and are being translated; the dated, frozen notes
+Technical notes. Many are still in French and are being translated; the dated notes
 (`AUDIT-2026-10-21.md`, `ATTENTES.md`, `RELECTURE-CONTRATS.md`, `tasks.md`) stay in French. Start
 with [`METHOD.md`](METHOD.md) (English) for how the BIOS was written and tested,
 [`BUILD.md`](BUILD.md) and [`BENCH.md`](BENCH.md) (English) to build and test it.
