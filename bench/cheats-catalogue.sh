@@ -18,7 +18,8 @@
 #          comme au témoin. En complément, la cellule vaut la valeur de la table, ou une de moins
 #          (le jeu a décompté depuis le dernier appel du moteur), sur au moins RAM_MIN des relevés.
 #   compteur  un nombre du HUD qui ne bouge plus : un temps de mission qui ne perd
-#          1 que toutes les ~256 trames (le 2026-10-29). Comme temps, sur le rectangle des chiffres,
+#          1 que toutes les ~256 trames (le 2026-10-29), ou les bombes de Metal Slug (le 2026-10-30,
+#          remises à 10 à chaque vie). Comme temps, sur le rectangle des chiffres,
 #          mais de T + 200 à FIN, et d'autres seuils : le compte du témoin ne change que quelques
 #          fois. Sous cheat, la même image sur au moins COMPTEUR_ON_MIN des relevés ; au témoin, deux
 #          images au moins, la plus fréquente sur moins de COMPTEUR_ON_MIN.
@@ -29,6 +30,8 @@
 # le menu reste aux commandes de P1. « x » : le scénario action de `cheats-recherche.py` (A toutes les 6 trames, droite, B et C).
 # « j » (sauter pour mourir) : pièce, START, puis droite tenue et B toutes les 20 trames,
 # sans tirer : P1 fonce en sautant dans les ennemis.
+# « b » (bombes, Metal Slug 2 à 5) : le scénario bombe de `cheats-recherche.py`, A toutes les 6 trames,
+# droite, et C (une bombe) toutes les 60 trames : le compteur du témoin descend vite.
 # « f » (combat) : pièce à 400, START à 500, A toutes les 60 trames de 600 à 3500,
 # droite tenue à partir de 2000 ; « s » (tir, action) : pièce, START, A toutes les 60 trames, droite
 # tenue à partir de 1000, C toutes les 400 trames à partir de 1500. Le joueur ne joue pas : il meurt,
@@ -136,6 +139,10 @@ superspy	0	INFINITE LIVES	10181F	08	vies	s	1500	12000	-	-
 twinspri	0	INFINITE LIVES	103745	03	vies	s	1500	12000	-	-
 viewpoin	0	INFINITE LIVES	108D99	03	vies	s	1500	12000	-	-
 zupapa	0	INFINITE LIVES	1002C1	03	vies	s	1500	12000	-	-
+mslug2	2	INFINITE BOMBS	10C348	0A	compteur	b	1500	2700	114,13,128,20	jaune
+mslug3	1	INFINITE BOMBS	10EAF5	0A	compteur	b	1500	2700	114,13,128,20	jaune
+mslug4	3	INFINITE BOMBS	10EDED	0A	compteur	b	1500	2700	114,13,128,20	jaune
+mslug5	2	INFINITE BOMBS	10D457	0A	compteur	b	1500	2700	114,13,128,20	clair
 mslug2	1	INFINITE TIME	1013B4	3C	compteur	s	1500	4000	145,8,175,31	jaune
 mslug4	1	INFINITE TIME	10ED5C	60	compteur	s	1500	4000	145,8,175,31	jaune
 burningf	0	INFINITE TIME	10D002	60	compteur	s	1500	4000	145,33,174,47	brut
@@ -256,7 +263,7 @@ pixels() {
     rouge) echo "C_COULEUR=180,255,0,80,0,80" ;;
   esac
 }
-# entrees <T> <f|s|j|x|k|l> : le plan, coupé de T − 10 à T + 150.
+# entrees <T> <f|s|j|x|b|k|l> : le plan, coupé de T − 10 à T + 150.
 entrees() {
   local T=$1 a=$(( $1 - 10 )) b=$(( $1 + 150 )) out="400-407:piece,500-507:START" x
   case "$2" in k|l) out="400-407:pieceDeux,500-507:startDeux" ;; esac
@@ -265,6 +272,7 @@ entrees() {
     s) x="600-40000%60:A 1000-40000:droite 1500-40000%400:C" ;;
     j) x="1000-40000:droite 1000-40000%20:B" ;;
     x) x="600-40000%6:A 1000-40000:droite 1500-40000%300:B 1650-40000%400:C" ;;
+    b) x="600-40000%6:A 1000-40000:droite 1000-40000%60:C" ;;
     k) x="600-40000%6:aDeux 1000-40000:droiteDeux 1500-40000%300:bDeux 1650-40000%400:cDeux" ;;
     l) x="1000-40000:droiteDeux 1000-40000%20:bDeux" ;;
   esac
