@@ -1,37 +1,37 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Thibaut Lion
-"""Génère les contrats d'appel du BIOS depuis une trace de bus du banc de co-simulation.
+"""Generates the BIOS call contracts from a bus trace of the co-simulation bench.
 
-    ./bench/generer-contrats.py <trace.txt> [<trace2.txt> ...] <dossier-de-sortie> [--boot]
-    ./bench/generer-contrats.py <trace.txt> [<trace2.txt> ...] <dossier-de-sortie> --protocole=<site,...>
+    ./bench/generer-contrats.py <trace.txt> [<trace2.txt> ...] <output-dir> [--boot]
+    ./bench/generer-contrats.py <trace.txt> [<trace2.txt> ...] <output-dir> --protocole=<site,...>
     ./bench/generer-contrats.py <trace.txt> --part-prom
 
-C'est I2 de `docs/tasks.md` : le document qu'un agent d'implémentation reçoit, et le seul, avec la
-documentation publique (`docs/DECISIONS.md` §1). Il est **généré, jamais écrit à la main** — c'est
-ce qui garde la salle blanche praticable : on ne recopie le code de personne, on relit une trace.
+This is I2 of `docs/tasks.md`: the document an implementation agent receives, and the only one, with
+the public documentation (`docs/DECISIONS.md` §1). It is **generated, never written by hand** — that
+is what keeps the clean room workable: nobody's code is copied, a trace is read.
 
-CE QU'IL NE NOMME PAS. Un appel est désigné par l'offset de son point d'entrée dans la ROM du
-BIOS, jamais par un nom de fonction : la correspondance offset → nom est de la documentation
-publique, elle vit ailleurs, et la mêler ici ferait entrer une source non vérifiable dans le
-contrat.
+WHAT IT DOES NOT NAME. A call is designated by the offset of its entry point in the BIOS
+ROM, never by a function name: the offset → name mapping is public
+documentation, it lives elsewhere, and mixing it in here would bring an unverifiable source into the
+contract.
 
-CE QU'IL NE PORTE PAS, et c'est `DECISIONS.md` §8 : les valeurs lues dans la ROM du BIOS n'entrent
-pas dans un contrat, une suite de mots lue là étant une table de données SNK et non un
-comportement. Le générateur ne décide pas tout seul de quel côté tombe une valeur — ce critère
-n'est pas automatisable (§8) —, il **signale** les séquences qui y ressemblent pour que la
-relecture appel par appel tranche avant de remettre le contrat.
+WHAT IT DOES NOT CARRY, and that is `DECISIONS.md` §8: the values read in the BIOS ROM do not go
+into a contract, a sequence of words read there being an SNK data table and not a
+behaviour. The generator does not decide on its own which side a value falls on — that criterion
+cannot be automated (§8) —, it **flags** the sequences that look like one so that the
+call-by-call review settles it before the contract is handed over.
 
-DÉTERMINISME. Deux passages sur la même trace rendent les mêmes octets : aucune date, aucun chemin
-absolu, aucun parcours de dictionnaire non trié n'entre dans la sortie. C'est le critère
-d'acceptation de I2.
+DETERMINISM. Two passes over the same trace give the same bytes: no date, no absolute
+path, no iteration over an unsorted dictionary enters the output. That is the acceptance
+criterion of I2.
 """
 
 import bisect
 import os
 import sys
 
-# La carte mémoire, telle que le co-simulateur (non publié) la câble.
+# The memory map, as the co-simulator (unpublished) wires it.
 ROM_BIOS = (0xC00000, 0xC1FFFF)
 ZONES = (
     ("ram_bios", 0x10FCEE, 0x10FFFF),
@@ -48,38 +48,38 @@ ZONES = (
     ("backup_ram", 0xD00000, 0xD0FFFF),
 )
 
-# Un transfert d'au moins ce nombre de mots consécutifs lus dans la ROM est signalé comme une table
-# possible. Quatre et non un : un mot isolé lu dans la ROM est le lot courant d'un code qui lit ses
-# constantes, et tout signaler reviendrait à ne rien signaler.
+# A transfer of at least this number of consecutive words read in the ROM is flagged as a possible
+# table. Four and not one: an isolated word read in the ROM is the everyday lot of code that reads
+# its constants, and flagging everything would amount to flagging nothing.
 SEUIL_SEQUENCE = 4
 
-# LA TABLE DE SAUTS PUBLIQUE, bornes et pas : $C00402 à $C006FC, une entrée tous les 6 octets.
-# La page « BIOS calls » du NeoGeo Development Wiki la donne, et c'est ce qui en fait de la
-# documentation publique au sens de `DECISIONS.md` §8 : les points d'entrée y sont admis, les
-# adresses internes du code non.
+# THE PUBLIC JUMP TABLE, bounds and step: $C00402 to $C006FC, one entry every 6 bytes.
+# The "BIOS calls" page of the NeoGeo Development Wiki gives it, and that is what makes it
+# public documentation in the sense of `DECISIONS.md` §8: the entry points are admitted there, the
+# internal addresses of the code are not.
 TABLE_SAUTS = (0xC00402, 0xC006FC, 6)
 
-# Les mots hauts d'un long qui pointerait dans la ROM du BIOS : $C00000-$C1FFFF donne $00C0, $00C1.
+# The high words of a long that would point into the BIOS ROM: $C00000-$C1FFFF gives $00C0, $00C1.
 MOTS_HAUTS_ROM = {f"{h:04X}" for h in range(ROM_BIOS[0] >> 16, (ROM_BIOS[1] >> 16) + 1)}
 
 
 def grouper(paires):
-    """Les plages contiguës de même valeur, pour qu'un contrat se lise.
+    """The contiguous ranges of the same value, so that a contract can be read.
 
-    Un vidage de RAM rend des centaines d'adresses portant la même valeur : listées une par une,
-    elles noient les quelques valeurs qui font le contrat. On les regroupe quand l'adresse avance
-    **du pas de la valeur** et que celle-ci ne change pas.
+    A RAM clear yields hundreds of addresses carrying the same value: listed one by one,
+    they drown the few values that make the contract. They are grouped when the address advances
+    **by the step of the value** and the value does not change.
 
-    LE PAS SUIT LA LARGEUR, et ce n'est pas un détail : un pas de 2 admis sur des octets ferait
-    fusionner `$10FD80` et `$10FD82` en une plage, alors que `$10FD81` n'a jamais été écrit — la
-    plage affirmerait une écriture qui n'a pas eu lieu. Un mot avance donc de 2, un octet de 1.
+    THE STEP FOLLOWS THE WIDTH, and it is not a detail: a step of 2 admitted on bytes would
+    merge `$10FD80` and `$10FD82` into one range, while `$10FD81` was never written — the
+    range would assert a write that did not happen. A word therefore advances by 2, a byte by 1.
 
-    Une valeur de mot et une valeur d'octet ne fusionnent jamais, même numériquement égales :
-    `$0000` et `$00` sont des chaînes différentes, et la largeur de l'écriture fait partie du
-    comportement à reproduire.
+    A word value and a byte value never merge, even when numerically equal:
+    `$0000` and `$00` are different strings, and the width of the write is part of the
+    behaviour to reproduce.
 
-    Rend des triplets `(début, fin, valeur)`, `fin` valant `début` sur une plage d'une adresse.
-    L'entrée doit être triée par adresse."""
+    Returns triples `(start, end, value)`, `end` being `start` for a one-address range.
+    The input must be sorted by address."""
     plages = []
     for adresse, valeur in paires:
         if plages:
@@ -92,56 +92,56 @@ def grouper(paires):
 
 
 def octet_de_remplissage(valeur):
-    """L'octet qu'un remplissage répète, ou `None` si cette valeur n'en est pas un.
+    """The byte a fill repeats, or `None` if this value is not one.
 
-    COMPARER LES VALEURS TELLES QUELLES NE RECONNAÎT PAS UN REMPLISSAGE. Une boucle de vidage en
-    `clr.l` écrit des mots `$0000`, et un `move.b` isolé un octet `$00` : ce sont deux chaînes
-    différentes pour le même remplissage à zéro. Mesuré sur la couche 0 — un seul site `$00` parmi
-    389 `$0000` suffisait à faire taire le garde du remplissage. Et le `$5555` du test mémoire de
-    SNK est le même remplissage que `$55`.
+    COMPARING THE VALUES AS THEY ARE DOES NOT RECOGNISE A FILL. A clearing loop in
+    `clr.l` writes words `$0000`, and an isolated `move.b` a byte `$00`: those are two different
+    strings for the same zero fill. Measured on layer 0 — a single `$00` site among
+    389 `$0000` was enough to silence the fill guard. And SNK's memory test `$5555` is the
+    same fill as `$55`.
 
-    On normalise donc un mot dont les deux octets sont égaux sur cet octet. Un mot dont ils
-    diffèrent n'est pas un remplissage, et rend `None`."""
+    A word whose two bytes are equal is therefore normalised to that byte. A word whose bytes
+    differ is not a fill, and returns `None`."""
     if len(valeur) == 2:
         return valeur
     return valeur[:2] if valeur[:2] == valeur[2:] else None
 
 
 def site_écrit(adresse, ul):
-    """L'adresse qu'une écriture désigne, corrigée du décalage de l'octet impair.
+    """The address a write designates, corrected for the offset of the odd byte.
 
-    Le banc journalise l'adresse de **mot** et les deux strobes : `U.` est UDS
-    seul, donc l'octet pair, et `.L` est LDS seul, donc l'impair. Sans cette correction, une
-    écriture d'octet sur `$3A0003` se lirait `$3A0002` — un autre registre du HC259 — et `$10FD83`,
-    le code pays, se confondrait avec `$10FD82`, le type de machine.
+    The bench logs the **word** address and both strobes: `U.` is UDS
+    alone, hence the even byte, and `.L` is LDS alone, hence the odd one. Without this correction, a
+    byte write to `$3A0003` would read as `$3A0002` — another HC259 register — and `$10FD83`,
+    the country code, would be confused with `$10FD82`, the machine type.
 
-    CE N'EST PAS UN COMPTE D'OCTETS, et il ne faut pas le lire comme tel. Une écriture de mot rend
-    son adresse paire et touche deux octets : le site `$10FDA2` de valeur `$0000` dit que les deux
-    le sont. Compter les octets touchés donnerait 86 sites là où ce découpage en rend 58, sur les
-    sept appels à `$C0044A` — mais un site porte sa largeur dans sa valeur, et la largeur fait
-    partie du comportement à reproduire. Fondre un mot en deux octets la perdrait."""
+    IT IS NOT A BYTE COUNT, and it must not be read as one. A word write returns
+    its even address and touches two bytes: the site `$10FDA2` of value `$0000` says both
+    are. Counting the touched bytes would give 86 sites where this split gives 58, over the
+    seven calls to `$C0044A` — but a site carries its width in its value, and the width is
+    part of the behaviour to reproduce. Melting a word into two bytes would lose it."""
     return adresse + 1 if ul == ".L" else adresse
 
 
 def valeur_écrite(ul, donnée):
-    """La valeur écrite, dépouillée de la duplication du bus.
+    """The value written, stripped of the bus duplication.
 
-    UNE ÉCRITURE D'OCTET POSE LA DONNÉE SUR LES DEUX MOITIÉS DU BUS, mesuré le 2026-10-11 sur la
-    couche 0 : un `$80` vers `$10FD82` sort `8080`, un `$01` vers `$10FDAF` sort `0101`. Lire les
-    seize bits rendrait donc une valeur fausse d'un facteur 257. Le strobe dit quelle moitié est
-    la bonne, et c'est celle qu'il sélectionne.
+    A BYTE WRITE PUTS THE DATA ON BOTH HALVES OF THE BUS, measured on 2026-10-11 on
+    layer 0: a `$80` to `$10FD82` comes out as `8080`, a `$01` to `$10FDAF` as `0101`. Reading the
+    sixteen bits would therefore give a value wrong by a factor of 257. The strobe says which half
+    is the right one, and that is the one it selects.
 
-    LÈVE sur un strobe `..`, qui n'a rien transféré : les appelants écartent ces accès à la
-    collecte, et lever plutôt que rendre `None` fait qu'un appelant oublié casse franchement au
-    lieu de produire un contrat avec un trou.
+    RAISES on a `..` strobe, which transferred nothing: the callers drop these accesses at
+    collection, and raising rather than returning `None` makes a forgotten caller break outright
+    instead of producing a contract with a hole.
 
-    Cette fonction ne voit jamais de lecture, et le banc ne pose aucune donnée sur le bus pour une
-    lecture : **0 ligne non nulle sur 1 793 296 lectures**, mesuré sur les quatre traces du lot —
-    279 352, 314 093, 397 666 et 802 185. Une valeur lue n'a donc pas de valeur observable.
+    This function never sees a read, and the bench puts no data on the bus for a
+    read: **0 non-zero lines out of 1,793,296 reads**, measured on the four traces of the lot —
+    279,352, 314,093, 397,666 and 802,185. A value read therefore has no observable value.
 
-    CELA NE SUFFIT PAS À TENIR §8, et l'avoir cru a coûté un tour de review : une valeur lue puis
-    **empilée ou recopiée** ressort dans la donnée d'une écriture. C'est ce que fait un `jsr`
-    interne au BIOS avec son adresse de retour, et c'est `valeurs_dérivées_du_pc` qui l'arrête."""
+    THAT IS NOT ENOUGH TO HOLD §8, and having believed it cost a review round: a value read then
+    **pushed or copied** comes out in the data of a write. That is what a `jsr`
+    internal to the BIOS does with its return address, and `valeurs_dérivées_du_pc` stops it."""
     d = int(donnée, 16)
     if ul == "UL":
         return f"{d:04X}"
@@ -153,10 +153,10 @@ def valeur_écrite(ul, donnée):
 
 
 def zone(adresse):
-    """La zone de la carte qui porte cette adresse, ou None hors carte.
+    """The zone of the map that carries this address, or None outside the map.
 
-    Quand deux plages se recouvrent — `controle_hc259` est inclus dans `registres_systeme` — c'est
-    la plus **étroite** qui gagne, pas la première de la liste : l'ordre de `ZONES` n'entre pas."""
+    When two ranges overlap — `controle_hc259` is included in `registres_systeme` — the
+    **narrowest** one wins, not the first of the list: the order of `ZONES` does not enter."""
     trouvee = None
     for nom, bas, haut in ZONES:
         if bas <= adresse <= haut and (trouvee is None or (haut - bas) < trouvee[1]):
@@ -165,9 +165,9 @@ def zone(adresse):
 
 
 def lire_trace(chemin):
-    """Les accès de la trace, dans l'ordre. Une ligne vaut
-    `période adresse rd|WR UL donnée espace` — le format du co-simulateur (non publié). Les lignes qui n'ont
-    pas cette forme sont les en-têtes et les avertissements de verilator : on les passe."""
+    """The accesses of the trace, in order. A line reads
+    `period address rd|WR UL data space` — the format of the co-simulator (unpublished). Lines that
+    do not have this form are verilator's headers and warnings: they are skipped."""
     accès = []
     with open(chemin, encoding="utf-8", errors="replace") as f:
         for ligne in f:
@@ -183,45 +183,45 @@ def lire_trace(chemin):
 
 
 def retour_de_l_appelant(accès, de, avant=20, après=3):
-    """Les cadres d'appel reconstruits autour de l'entrée, du plus probable au moins probable.
+    """The call frames rebuilt around the entry, from the most likely to the least likely.
 
-    POURQUOI LA TRANSITION D'ESPACE PROGRAMME NE SUFFIT PAS À FERMER UN APPEL. Elle ferme à la
-    sortie suivante de la ROM du BIOS, ce qui est juste quand l'appelant reprend aussitôt — un jeu
-    qui tourne. Mais un gestionnaire d'interruption rend la main **dans** le BIOS, par un `rte` :
-    aucune transition ne le marque. Mesuré sur la fenêtre 330-338, où le BIOS attend, les appels à
-    `$C00438` étaient délimités à 46 769-46 778 accès, soit 0,9997 à 0,9998 trame, au lieu de
-    1 835-1 847.
+    WHY THE PROGRAM-SPACE TRANSITION IS NOT ENOUGH TO CLOSE A CALL. It closes at the
+    next exit from the BIOS ROM, which is right when the caller resumes at once — a game
+    that is running. But an interrupt handler returns control **inside** the BIOS, through an `rte`:
+    no transition marks it. Measured on the window 330-338, where the BIOS waits, the calls to
+    `$C00438` were bounded at 46,769-46,778 accesses, that is 0.9997 to 0.9998 frame, instead of
+    1,835-1,847.
 
-    UN CADRE ÉCRIT APRÈS L'ENTRÉE NE PEUT APPARTENIR QU'À CET APPEL : rien d'autre n'a tourné
-    entre-temps. Un cadre écrit avant peut être celui d'un appel plus ancien, encore vivant sur la
-    pile. D'où l'ordre : d'abord les cadres complétés à l'entrée ou après, du plus proche ; puis
-    ceux d'avant, du plus proche. Sans cette distinction, une sous-routine du jeu qui appelle le
-    BIOS fait fermer l'appel sur **son** retour à elle, et le contrat attribue au BIOS une écriture
-    du jeu — mesuré sur une trace fabriquée, et c'est le test `UneSousRoutineDuJeu`.
+    A FRAME WRITTEN AFTER THE ENTRY CAN ONLY BELONG TO THIS CALL: nothing else ran
+    in between. A frame written before may be that of an older call, still alive on the
+    stack. Hence the order: first the frames completed at or after the entry, nearest first; then
+    those before, nearest first. Without this distinction, a game subroutine that calls the
+    BIOS makes the call close on **its own** return, and the contract attributes a game write to the
+    BIOS — measured on a fabricated trace, and that is the test `UneSousRoutineDuJeu`.
 
-    ON NE CHOISIT PAS, ON PROPOSE : c'est `découper` qui retient le premier candidat auquel le PC
-    revient vraiment. Une paire de mots nuls reconstruit `$000000`, où le PC ne va jamais.
+    WE DO NOT CHOOSE, WE PROPOSE: it is `découper` that keeps the first candidate the PC
+    really returns to. A pair of zero words rebuilds `$000000`, where the PC never goes.
 
-    IL N'Y A JAMAIS PLUS D'UN CANDIDAT APRÈS L'ENTRÉE **sur une entrée de la table de sauts**, et
-    c'est par construction : le `jmp.l` qui occupe le cran consomme les fetches +1 à +3, donc les
-    seules écritures qui tombent dans la fenêtre postérieure sont les empilements du `jsr` qui vient
-    d'entrer. Un appel imbriqué doit laisser le BIOS exécuter quelques instructions avant son propre
-    `jsr`, et son cadre sort de la fenêtre. Hors de la table l'argument ne tient pas, mais
-    `point_entrée_public` écarte ces entrées avant qu'un contrat s'écrive.
+    THERE IS NEVER MORE THAN ONE CANDIDATE AFTER THE ENTRY **on an entry of the jump table**, and
+    that is by construction: the `jmp.l` occupying the slot consumes fetches +1 to +3, so the
+    only writes that fall in the later window are the pushes of the `jsr` that has just
+    entered. A nested call must let the BIOS execute a few instructions before its own
+    `jsr`, and its frame leaves the window. Outside the table the argument does not hold, but
+    `point_entrée_public` drops these entries before a contract is written.
 
-    Mesuré en appui, non en preuve : aucune des 51 entrées des quatre traces du lot n'a deux
-    candidats postérieurs. L'ordre relatif de ces candidats ne décide donc jamais de rien, et une
-    mutation qui l'inverse est sans effet — ce n'est pas un trou de couverture.
+    Measured as support, not as proof: none of the 51 entries of the four traces of the lot has two
+    later candidates. The relative order of these candidates therefore never decides anything, and a
+    mutation that reverses it has no effect — it is not a coverage hole.
 
-    L'ORDRE DES ÉCRITURES N'EST PAS CELUI DES ADRESSES : le 68000 empile le PC bas, puis SR, puis le
-    PC haut. On reconstruit donc par adresse, et un cadre est « complété » à la plus tardive de ses
-    deux écritures.
+    THE ORDER OF THE WRITES IS NOT THAT OF THE ADDRESSES: the 68000 pushes the low PC, then SR, then
+    the high PC. Frames are therefore rebuilt by address, and a frame is "completed" at the later of
+    its two writes.
 
-    LA FENÊTRE EST CALIBRÉE SUR CE QUE LE MATÉRIEL FAIT, et sa marge est mince. Mesuré : un `jsr`
-    empile à +1 et +2 accès de l'entrée ; une exception empile à -15, -13 et -12, les fetches du
-    stub de cartouche qui suit le vecteur comptant pour l'essentiel de l'écart. Un stub plus long
-    de six fetches sortirait le cadre de la fenêtre, et `découper` retomberait sur l'ancienne
-    borne — il le **dit** alors sur `stderr`, au lieu de la reprendre en silence."""
+    THE WINDOW IS CALIBRATED ON WHAT THE HARDWARE DOES, and its margin is thin. Measured: a `jsr`
+    pushes at +1 and +2 accesses from the entry; an exception pushes at -15, -13 and -12, the fetches of the
+    cartridge stub that follows the vector accounting for most of the gap. A stub longer
+    by six fetches would take the frame out of the window, and `découper` would fall back on the old
+    bound — it then **says so** on `stderr`, instead of taking it back silently."""
     indice, valeur = {}, {}
     for j in range(max(0, de - avant), min(len(accès), de + après + 1)):
         _, adresse, sens, ul, donnée, espace = accès[j]
@@ -238,23 +238,24 @@ def retour_de_l_appelant(accès, de, avant=20, après=3):
     return [(a, v) for _, a, v in après_entrée] + [(a, v) for _, a, v in avant_entrée]
 
 def découper(accès):
-    """Les appels du BIOS : entrée par transition d'espace programme, sortie au retour à l'appelant.
+    """The BIOS calls: entry by program-space transition, exit on return to the caller.
 
-    L'entrée est un fetch dans la ROM du BIOS qui suit un fetch hors d'elle. La **sortie** est le
-    moment où le PC atteint l'adresse de retour qu'un cadre de `retour_de_l_appelant` annonce, le
-    premier candidat qui se vérifie l'emportant.
+    The entry is a fetch in the BIOS ROM that follows a fetch outside it. The **exit** is the
+    moment the PC reaches the return address that a frame of `retour_de_l_appelant` announces, the
+    first candidate that checks out winning.
 
-    À DÉFAUT DE CANDIDAT VÉRIFIÉ, repli sur la première sortie de la ROM du BIOS — l'ancien critère,
-    juste quand l'appelant reprend aussitôt. Le repli **se signale sur `stderr`** : il reprend une
-    borne qui peut valoir une trame entière, et le taire laisserait croire à une mesure fine.
+    FAILING A VERIFIED CANDIDATE, fallback on the first exit from the BIOS ROM — the old criterion,
+    right when the caller resumes at once. The fallback **reports itself on `stderr`**: it takes
+    back a bound that can be worth a whole frame, and keeping quiet about it would suggest a fine
+    measurement.
 
-    Un appel laissé ouvert en fin de trace est écarté : sa surface serait tronquée."""
+    A call left open at the end of the trace is dropped: its surface would be truncated."""
     bios = lambda a: ROM_BIOS[0] <= a <= ROM_BIOS[1]
     prog = [(i, a) for i, (_, a, _, _, _, e) in enumerate(accès) if e == "sp"]
 
-    # Les positions de chaque adresse dans le flux de fetches, pour chercher par dichotomie au lieu
-    # de reparcourir depuis le début : la recherche naïve était quadratique, 1,1 s sur 3,2 M
-    # d'accès contre 0,06 s sur 0,4 M.
+    # The positions of each address in the fetch stream, to search by bisection instead
+    # of walking again from the start: the naive search was quadratic, 1.1 s on 3.2 M
+    # accesses against 0.06 s on 0.4 M.
     positions = {}
     for rang, (_, a) in enumerate(prog):
         positions.setdefault(a, []).append(rang)
@@ -281,9 +282,9 @@ def découper(accès):
                 replis += 1
                 par_repli = True
         if fin_ is not None:
-            # `repli` dit COMMENT l'appel s'est fermé, et le protocole en dépend : un appel fermé
-            # par repli n'a pas de cadre, donc son point de sortie n'est pas un retour de `jsr` —
-            # c'est la signature d'une entrée par `jmp`, qui rend la main par un autre `jmp`.
+            # `repli` says HOW the call closed, and the protocol depends on it: a call closed
+            # by fallback has no frame, so its exit point is not a `jsr` return —
+            # it is the signature of an entry by `jmp`, which returns control by another `jmp`.
             appels.append({"entrée": entrée, "de": i, "à": fin_,
                            "période": accès[i][0], "retour": retour, "repli": par_repli})
     if replis:
@@ -292,82 +293,82 @@ def découper(accès):
               f"entière.", file=sys.stderr)
     return appels
 def point_entrée_public(adresse):
-    """Vrai si cette adresse est un cran de la table de sauts publique.
+    """True if this address is a slot of the public jump table.
 
-    POURQUOI CE FILTRE. `découper` tient pour « entrée » toute transition de la P-ROM vers la ROM
-    du BIOS en espace programme. C'est juste pour un appel du jeu vers le BIOS, mais pas pour le
-    chemin inverse : si le BIOS appelle une routine du jeu par `jsr` — le wiki en nomme, comme
-    `PLAYER_START` —, le retour par `rts` ramène dans le BIOS à l'instruction suivant le `jsr`,
-    qui est une adresse **interne**. Elle serait alors publiée comme point d'entrée, en titre du
-    document et dans son nom de fichier.
+    WHY THIS FILTER. `découper` takes as "entry" any transition from the P-ROM to the BIOS
+    ROM in program space. That is right for a call from the game to the BIOS, but not for the
+    reverse path: if the BIOS calls a game routine by `jsr` — the wiki names some, such as
+    `PLAYER_START` —, the return by `rts` brings back into the BIOS at the instruction following the `jsr`,
+    which is an **internal** address. It would then be published as an entry point, in the title of
+    the document and in its file name.
 
-    Aucune des trois traces de BIOS SNK du lot ne porte une telle excursion : toutes leurs
-    transitions tombent sur un cran de la table. Le filtre est donc une garde, pas un correctif
-    d'un défaut observé — mais §8 ne se tient pas sur la chance d'un jeu de traces."""
+    None of the three SNK BIOS traces of the lot carries such an excursion: all their
+    transitions fall on a slot of the table. The filter is therefore a guard, not a fix
+    for an observed defect — but §8 does not rest on the luck of one set of traces."""
     bas, haut, pas = TABLE_SAUTS
     return bas <= adresse <= haut and (adresse - bas) % pas == 0
 
 
 def valeurs_dérivées_du_pc(accès, de, à):
-    """Les sites dont la valeur écrite est, ou complète, une adresse interne de la ROM du BIOS.
+    """The sites whose written value is, or completes, an internal address of the BIOS ROM.
 
-    LE GARDE PAR SÉQUENCE NE VOIT PAS CE CAS, et c'est pourquoi il en faut un second. Un `jsr`
-    interne au BIOS empile son adresse de retour : c'est une écriture en RAM dont la **valeur** est
-    une adresse de la ROM du BIOS, et rien n'a été lu dans une table. La valeur vient du PC.
-    `DECISIONS.md` §8 garde ces adresses hors du contrat, donc ces valeurs doivent en sortir.
+    THE SEQUENCE GUARD DOES NOT SEE THIS CASE, and that is why a second one is needed. A `jsr`
+    internal to the BIOS pushes its return address: it is a RAM write whose **value** is
+    an address of the BIOS ROM, and nothing was read in a table. The value comes from the PC.
+    `DECISIONS.md` §8 keeps these addresses out of the contract, so these values must leave it.
 
-    Mesuré sur les sept appels à `$C0044A` de la fenêtre 505-511 : **161 paires** de mots formant
-    un long dans `$C00000`-`$C1FFFF`, toutes en zone `ram_jeu`, là où descend la pile du BIOS.
+    Measured on the seven calls to `$C0044A` of the window 505-511: **161 pairs** of words forming
+    a long in `$C00000`-`$C1FFFF`, all in zone `ram_jeu`, where the BIOS stack goes down.
 
-UN SEUL CRITÈRE SUFFIT, et c'est mesuré : la valeur **est** un mot haut de la plage (`$00C0`,
-    `$00C1`), donc la moitié haute d'une adresse de ROM, et le site suivant en porte la moitié
-    basse. Comme `MOTS_HAUTS_ROM` se déduit des bornes de `ROM_BIOS`, tout long qui tombe dans la
-    plage a forcément son mot haut dans cet ensemble.
+ONE CRITERION IS ENOUGH, and it is measured: the value **is** a high word of the range (`$00C0`,
+    `$00C1`), hence the high half of a ROM address, and the next site carries its low
+    half. Since `MOTS_HAUTS_ROM` is derived from the bounds of `ROM_BIOS`, any long that falls in the
+    range necessarily has its high word in this set.
 
-    La première version ajoutait un second critère — deux écritures de mot à des adresses
-    consécutives dont le long tombe dans la plage — en annonçant qu'il « rattrapait ce que le
-    premier manque ». Il ne rattrapait rien : sur les quatre traces du lot, les deux critères
-    rendent le **même ensemble** (15, 6, 21 et 4 sites, différence symétrique vide). Et il était
-    plus faible, parce qu'il exigeait l'ordre : le mot haut écrit avant le bas. Sur `snk505`, 10
-    longs de ROM sont écrits dans l'autre ordre, que le critère 1 attrape et que le second
-    manquait. Il est retiré.
+    The first version added a second criterion — two word writes at consecutive
+    addresses whose long falls in the range — announcing that it "caught what the
+    first misses". It caught nothing: on the four traces of the lot, both criteria
+    give the **same set** (15, 6, 21 and 4 sites, empty symmetric difference). And it was
+    weaker, because it required the order: the high word written before the low one. On `snk505`, 10
+    ROM longs are written in the other order, which criterion 1 catches and the second one
+    missed. It is removed.
 
-    CE QUI ÉCHAPPE ENCORE, et il faut le dire plutôt que de le taire. Deux cas, tous deux hors de
-    portée du critère :
+    WHAT STILL ESCAPES, and it must be said rather than kept quiet. Two cases, both out of
+    the criterion's reach:
 
-    - une adresse écrite **octet par octet** ne fait passer aucun `$00C0` ni `$00C1` sur le bus en
-      mot. Aucune des quatre traces ne porte d'écriture d'octet de valeur `$C0` ou `$C1`, mais
-      c'est un constat sur ces traces, pas une garantie ;
-    - une **moitié basse écrite seule** — un offset de 16 bits dans la ROM, sans son mot haut —
-      n'est pas reconnaissable : le critère n'agit que sur la paire. Rien ne permet de la
-      distinguer d'une valeur ordinaire sans connaître le contenu de la ROM, donc ce cas n'est
-      pas mesurable sur une trace.
+    - an address written **byte by byte** puts no `$00C0` or `$00C1` on the bus as a
+      word. None of the four traces carries a byte write of value `$C0` or `$C1`, but
+      that is an observation on these traces, not a guarantee;
+    - a **low half written alone** — a 16-bit offset into the ROM, without its high word —
+      is not recognisable: the criterion acts only on the pair. Nothing allows it to be
+      told apart from an ordinary value without knowing the content of the ROM, so this case is
+      not measurable on a trace.
 
-    Rend l'ensemble des sites à retenir. On retient la **valeur**, pas l'adresse : §8 admet
-    l'adresse d'une écriture en RAM, c'est la valeur qui porte l'adresse interne."""
+    Returns the set of sites to withhold. The **value** is withheld, not the address: §8 admits
+    the address of a RAM write, it is the value that carries the internal address."""
     retenus = set()
     for _, adresse, sens, ul, donnée, espace in accès[de:à]:
         if sens == "WR" and ul == "UL" and espace != "sp" and donnée in MOTS_HAUTS_ROM:
             retenus.add(adresse)
-            retenus.add(adresse + 2)        # le mot bas de la même adresse longue
+            retenus.add(adresse + 2)        # the low word of the same long address
     return retenus
 
 
 def séquences_suspectes(accès, de, à):
-    """Les transferts qui ressemblent à une table recopiée depuis la ROM du BIOS (§8).
+    """The transfers that look like a table copied from the BIOS ROM (§8).
 
-    On ne cherche pas la provenance d'une valeur — la trace ne montre pas les registres, donc
-    personne ne peut l'établir ici. On compte les **mots lus à des adresses croissantes et
-    contiguës dans la ROM, en espace DONNÉE**, et on le signale au-delà du seuil.
+    The provenance of a value is not sought — the trace does not show the registers, so
+    nobody can establish it here. We count the **words read at increasing and
+    contiguous addresses in the ROM, in DATA space**, and flag it beyond the threshold.
 
-    L'ESPACE DONNÉE N'EST PAS UN CAPRICE. Sans ce filtre, le compte attrape le **flux
-    d'instructions** : le 68000 préfetche, donc un code qui s'exécute lit par définition des mots
-    contigus dans la ROM. Mesuré sur `$C0044A` : 46 séquences signalées sans le filtre, dont 22 de
-    quatre mots — c'est l'exécution qu'on voyait, pas des tables.
+    THE DATA SPACE IS NOT A WHIM. Without this filter, the count catches the **instruction
+    stream**: the 68000 prefetches, so code that executes reads by definition contiguous
+    words in the ROM. Measured on `$C0044A`: 46 sequences flagged without the filter, 22 of them of
+    four words — it was the execution we were seeing, not tables.
 
-    CE QUE LE FILTRE RATE, et `DECISIONS.md` §8 le dit du critère lui-même : une table lue en mode
-    PC-relatif sort en espace programme, comme un immédiat, et échappe donc au signalement. C'est
-    la raison pour laquelle le contrat se relit appel par appel au lieu de se valider tout seul."""
+    WHAT THE FILTER MISSES, and `DECISIONS.md` §8 says it of the criterion itself: a table read in
+    PC-relative mode comes out in program space, like an immediate, and so escapes the flagging.
+    That is the reason why the contract is reviewed call by call instead of validating itself."""
     suspectes, début, précédente, n = [], None, None, 0
     for _, adresse, sens, _, _, espace in accès[de:à]:
         if sens == "rd" and espace == "sd" and ROM_BIOS[0] <= adresse <= ROM_BIOS[1]:
@@ -388,17 +389,17 @@ def séquences_suspectes(accès, de, à):
 
 
 def la_main_au_bios(accès):
-    """Pour chaque accès : le dernier accès en espace programme était-il dans la ROM du BIOS ?
+    """For each access: was the last program-space access in the BIOS ROM?
 
-    Un appel peut rendre la main à la cartouche en cours de route — mesuré au START de `puzzledp` :
-    l'appel à `$C0044A` de la trame 560,23 la garde près de deux trames, et 15 025 de ses 16 612
-    écritures tombent pendant que le code de la cartouche s'exécute (zone `ram_jeu`, le démarrage
-    de partie du jeu). Les attribuer à l'appel noierait le contrat sous un comportement qui n'est
-    pas celui du BIOS, et qu'un implémenteur n'a pas à reproduire.
+    A call can hand control back to the cartridge along the way — measured at the START of
+    `puzzledp`: the call to `$C0044A` of frame 560.23 keeps it for nearly two frames, and 15,025 of
+    its 16,612 writes fall while the cartridge code is executing (zone `ram_jeu`, the game's
+    start of play session). Attributing them to the call would drown the contract under a behaviour
+    that is not the BIOS's, and that an implementer does not have to reproduce.
 
-    Le critère reste celui de `découper` : l'espace programme dit qui a la main. Le préfetch du
-    68000 peut décaler la frontière de quelques accès autour d'un transfert ; sur une même trace,
-    le résultat ne change pas, et le déterminisme de I2 tient."""
+    The criterion remains that of `découper`: the program space says who has control. The 68000's
+    prefetch may shift the boundary by a few accesses around a transfer; on a given trace,
+    the result does not change, and the determinism of I2 holds."""
     dedans, au_bios = [], True
     for _, adresse, _, _, _, espace in accès:
         if espace == "sp":
@@ -408,11 +409,11 @@ def la_main_au_bios(accès):
 
 
 def contrat(accès, appels, entrée, dedans=None):
-    """Ce que les appels d'un même point d'entrée ont en commun, et ce qui les sépare."""
+    """What the calls of one entry point have in common, and what sets them apart."""
     miens = [a for a in appels if a["entrée"] == entrée]
     if not miens:
-        # Un point d'entrée dont aucun appel ne s'est fermé n'a pas de contrat : sa surface est
-        # inconnue, pas vide. Rendre None plutôt que de planter sur une liste de périodes vide.
+        # An entry point none of whose calls closed has no contract: its surface is
+        # unknown, not empty. Return None rather than crash on an empty list of periods.
         return None
     if dedans is None:
         dedans = la_main_au_bios(accès)
@@ -424,8 +425,8 @@ def contrat(accès, appels, entrée, dedans=None):
         w = set()
         for i in range(a["de"], a["à"]):
             _, adresse, sens, ul, donnée, espace = accès[i]
-            # `..` : ni UDS ni LDS, donc rien n'a traversé le bus. On l'écarte ici plutôt que
-            # de laisser `valeur_écrite` rendre un None qui finirait dans un `sorted()`.
+            # `..`: neither UDS nor LDS, so nothing crossed the bus. It is dropped here rather than
+            # letting `valeur_écrite` return a None that would end up in a `sorted()`.
             if (sens == "WR" and ul != ".." and espace != "sp"
                     and zone(adresse) not in (None, "rom_bios")):
                 if not dedans[i]:
@@ -433,12 +434,12 @@ def contrat(accès, appels, entrée, dedans=None):
                     continue
                 octet = site_écrit(adresse, ul)
                 w.add(octet)
-                # L'ensemble des valeurs vues à cette adresse : une seule fait un contrat dur,
-                # plusieurs disent « il écrit ici, d'après un état que la trace ne montre pas ».
+                # The set of values seen at this address: a single one makes a hard contract,
+                # several say "it writes here, according to a state the trace does not show".
                 valeurs.setdefault(octet, set()).add(valeur_écrite(ul, donnée))
         écritures.append(w)
     toutes = sorted(set().union(*écritures)) if écritures else []
-    # 811 008 périodes par trame, mesuré entre deux fronts de VSYNC au co-simulateur.
+    # 811,008 periods per frame, measured between two VSYNC edges on the co-simulator.
     périodes = [accès[a["de"]][0] for a in miens] + [accès[a["à"]][0] for a in miens]
     return {
         "entrée": entrée,
@@ -457,24 +458,24 @@ def contrat(accès, appels, entrée, dedans=None):
 
 
 def écrire(c, dossier):
-    """Le document d'un point d'entrée. Markdown, pour qu'il se lise sans outil."""
+    """The document of an entry point. Markdown, so that it reads without a tool."""
     chemin = f"{dossier}/appel_{c['entrée']:06X}.md"
     stables = [e for e in c["écritures"] if e[2] == c["appels"]]
     variables = [e for e in c["écritures"] if e[2] != c["appels"]]
-    # LE GARDE §8. Une valeur écrite en RAM peut sortir d'une table lue dans la ROM du BIOS, et §8
-    # interdit alors de porter les octets : seul le fait du transfert entre dans le contrat. On ne
-    # peut pas le prouver depuis la trace, qui ne montre pas les registres — donc dès qu'une
-    # séquence est signalée sur cet appel, les valeurs sont retenues en bloc. C'est grossier, et
-    # c'est le sens voulu : le doute retire la valeur, il ne la laisse pas passer.
+    # THE §8 GUARD. A value written to RAM can come out of a table read in the BIOS ROM, and §8
+    # then forbids carrying the bytes: only the fact of the transfer enters the contract. It cannot
+    # be proven from the trace, which does not show the registers — so as soon as a
+    # sequence is flagged on this call, the values are withheld wholesale. It is coarse, and
+    # that is the intended direction: doubt removes the value, it does not let it through.
     valeurs_retenues = bool(c["suspectes"])
 
     def colonne(vals, adresse=None):
-        """La cellule de valeur : une seule vue, plusieurs, retenue, ou sans objet.
+        """The value cell: a single one seen, several, withheld, or not applicable.
 
-        LE HC259 EST UN VERROU ADRESSÉ : l'ordre est porté par l'adresse, et la donnée du bus est
-        ignorée par le matériel. Afficher `2 valeurs : $FE, $FF` y ferait croire à une valeur à
-        reproduire, alors que les deux sont sans effet. Le mode `--boot` le disait déjà de sa
-        poignée de main ; un contrat d'appel se lit seul, donc il doit le dire aussi."""
+        THE HC259 IS AN ADDRESSABLE LATCH: the command is carried by the address, and the bus data
+        is ignored by the hardware. Displaying `2 valeurs : $FE, $FF` there would suggest a value to
+        reproduce, while both have no effect. The `--boot` mode already said so of its
+        handshake; a call contract is read on its own, so it must say so too."""
         if adresse is not None and zone(adresse) == "controle_hc259":
             return "sans objet — verrou adressé"
         if adresse is not None and adresse in c["pc"]:
@@ -494,10 +495,10 @@ def écrire(c, dossier):
         f.write(f"- Relevé sur **{c['appels']} appel(s)**, trames {c['trame_de']:.2f} à "
                 f"{c['trame_à']:.2f} — les siennes, non celles de toute la trace\n")
         f.write(f"- Taille, en accès tracés : {', '.join(str(t) for t in c['tailles'])}\n")
-        # §8 : UNE ADRESSE DE RETOUR PEUT ÊTRE INTERNE À LA ROM DU BIOS. C'est le cas d'un
-        # gestionnaire d'interruption, qui rend la main par un `rte` là où le BIOS s'était
-        # interrompu — mesuré sur `$C00438`, qui revient dans la ROM du BIOS. La publier referait la
-        # fuite que le second garde ferme du côté des valeurs.
+        # §8: A RETURN ADDRESS CAN BE INTERNAL TO THE BIOS ROM. That is the case of an
+        # interrupt handler, which returns control by an `rte` where the BIOS had been
+        # interrupted — measured on `$C00438`, which comes back into the BIOS ROM. Publishing it
+        # would recreate the leak that the second guard closes on the values side.
         dehors = [r for r in c["retours"] if not (ROM_BIOS[0] <= r <= ROM_BIOS[1])]
         dedans = len(c["retours"]) - len(dehors)
         morceaux = [f"`${r:06X}`" for r in dehors]
@@ -528,9 +529,10 @@ def écrire(c, dossier):
             f.write("Aucune : les appels relevés écrivent tous les mêmes adresses.\n")
         f.write("\n## Séquences lues dans la ROM du BIOS\n\n")
         if c["suspectes"]:
-            # LES ADRESSES DE CES SÉQUENCES N'ENTRENT PAS ICI : §8 exclut du contrat les adresses
-            # internes de la ROM du BIOS, et une séquence y est par définition. On en donne la
-            # taille, qui suffit à décider s'il faut regarder ; celui qui tranche a la trace.
+            # THE ADDRESSES OF THESE SEQUENCES DO NOT GO HERE: §8 excludes from the contract the
+            # internal addresses of the BIOS ROM, and a sequence is there by definition. Its
+            # size is given, which is enough to decide whether to look; whoever settles it has the
+            # trace.
             f.write(f"**À trancher avant de remettre ce contrat** (`DECISIONS.md` §8) : une suite "
                     f"de mots lue dans la ROM peut être une table de données, qui n'entre pas dans "
                     f"un contrat. Seuil de signalement : {SEUIL_SEQUENCE} mots contigus.\n\n")
@@ -569,18 +571,19 @@ def écrire(c, dossier):
 
 
 def contrat_boot(accès, dossier):
-    """Le contrat de la MISE SOUS TENSION, qui n'est pas un appel et ne se découpe pas comme tel.
+    """The POWER-ON contract, which is not a call and is not split as one.
 
-    Au boot, tout s'exécute dans la ROM du BIOS : il n'y a aucune transition d'espace programme
-    entre elle et la P-ROM, donc `découper()` ne rend rien. Ce que le contrat porte ici est une
-    **séquence** — les vecteurs lus, le point d'entrée, la poignée de main des registres, et ce que
-    la RAM reçoit — et c'est ce que la couche 0 doit reproduire.
+    At boot, everything executes in the BIOS ROM: there is no program-space transition
+    between it and the P-ROM, so `découper()` returns nothing. What the contract carries here is a
+    **sequence** — the vectors read, the entry point, the register handshake, and what
+    the RAM receives — and that is what layer 0 must reproduce.
 
-    §8 TIENT ICI AUSSI : le point d'entrée entre dans le contrat, les adresses internes de la ROM
-    non. On ne porte donc ni la suite des fetchs, ni les adresses du code parcouru."""
+    §8 HOLDS HERE TOO: the entry point enters the contract, the internal addresses of the ROM
+    do not. So neither the sequence of fetches nor the addresses of the code walked through are
+    carried."""
     T = 811008
     vecteurs = [a for a in accès[:8] if a[1] <= 0x0007 and a[2] == "rd"]
-    # Le point d'entrée : le premier fetch dans la ROM du BIOS, vers lequel le vecteur pointe.
+    # The entry point: the first fetch in the BIOS ROM, which the vector points to.
     entrée = next((a[1] for a in accès if a[5] == "sp" and ROM_BIOS[0] <= a[1] <= ROM_BIOS[1]), None)
     contrôle = [(per, site_écrit(adresse, ul), valeur_écrite(ul, donnée))
                 for per, adresse, sens, ul, donnée, _ in accès
@@ -598,27 +601,27 @@ def contrat_boot(accès, dossier):
         e[1].add(octet)
         valeurs.setdefault(octet, set()).add(valeur_écrite(ul, donnée))
     susp_boot = séquences_suspectes(accès, 0, len(accès))
-    # Même garde qu'au contrat d'appel : une séquence signalée retient les valeurs en bloc.
+    # Same guard as in the call contract: a flagged sequence withholds the values wholesale.
     retenues = bool(susp_boot)
-    # Les sites de RAM BIOS dont la valeur ne varie pas sur la fenêtre relevée.
+    # The BIOS RAM sites whose value does not vary over the recorded window.
     #
-    # CE N'EST PAS « L'ÉTAT EN FIN DE BOOT », et la différence a failli produire un contrat faux.
-    # Une valeur constante sur une fenêtre ne dit rien de ce qui suit la fenêtre : sur un dump SNK,
-    # les premières trames portent les motifs du TEST MÉMOIRE — `0x55`, puis `0xAA`, puis une
-    # valeur dérivée de l'adresse —, et les variables du BIOS ne valent quelque chose qu'à partir
-    # de la trame ~300 (`docs/BENCH.md`, piège 7). La fenêtre de boot s'arrête à 9,2.
+    # THIS IS NOT "THE STATE AT THE END OF BOOT", and the difference nearly produced a wrong
+    # contract. A value constant over a window says nothing about what follows the window: on an SNK
+    # dump, the first frames carry the patterns of the MEMORY TEST — `0x55`, then `0xAA`, then a
+    # value derived from the address —, and the BIOS variables only mean something from
+    # frame ~300 on (`docs/BENCH.md`, pitfall 7). The boot window stops at 9.2.
     #
-    # D'où le garde ci-dessous : si TOUS ces sites portent la MÊME valeur, c'est la signature d'un
-    # remplissage — motif de test, ou vidage — et non d'un état. Le contrat le dit alors au lieu
-    # de présenter le motif comme quelque chose à reproduire.
-    # LE SECOND GARDE VAUT ICI AUSSI, et il y manquait. `contrat()` l'appliquait, `contrat_boot`
-    # non : sur la fenêtre 330-338, le contrat publiait les deux moitiés d'une adresse de retour
-    # interne du BIOS, en `$10FF00` et `$10FF02`. La fenêtre de boot n'en montrait rien par
-    # chance — ses longs de ROM tombent en `ram_jeu`, que cette section ne publie pas.
+    # Hence the guard below: if ALL these sites carry the SAME value, it is the signature of a
+    # fill — test pattern, or clear — and not of a state. The contract then says so instead
+    # of presenting the pattern as something to reproduce.
+    # THE SECOND GUARD APPLIES HERE TOO, and it was missing. `contrat()` applied it, `contrat_boot`
+    # did not: on the window 330-338, the contract published both halves of an internal return
+    # address of the BIOS, at `$10FF00` and `$10FF02`. The boot window showed none of it by
+    # luck — its ROM longs fall in `ram_jeu`, which this section does not publish.
     #
-    # L'ADRESSE FUITÉE N'EST PAS RECOPIÉE ICI, et c'est le point : la première version de ce
-    # commentaire la citait en clair, ce qui refaisait la fuite dans le texte même qui la décrit.
-    # Les sites suffisent à retrouver le cas sur la trace ; la valeur n'a pas à être écrite.
+    # THE LEAKED ADDRESS IS NOT COPIED HERE, and that is the point: the first version of this
+    # comment quoted it in clear, which recreated the leak in the very text that describes it.
+    # The sites are enough to find the case again in the trace; the value need not be written.
     pc = valeurs_dérivées_du_pc(accès, 0, len(accès))
     constants = sorted((o, sorted(v)[0]) for o, v in valeurs.items()
                        if len(v) == 1 and zone(o) == "ram_bios" and o not in pc)
@@ -721,34 +724,34 @@ def contrat_boot(accès, dossier):
 
 
 def protocole_trace(accès, sites):
-    """Les événements du protocole d'une trace : écritures sur les sites suivis, remises de main.
+    """The protocol events of a trace: writes to the tracked sites, hand-overs.
 
-    POURQUOI CE MODE EXISTE. `USER` n'est pas une entrée du BIOS mais la routine de la cartouche
-    (`docs/tasks.md`) : aucun contrat d'appel ne dit ce que le BIOS écrit AVANT de lui remettre la
-    main, ni quand il la remet. Ces écritures tombent hors de tout appel délimité, donc hors des
-    contrats — ce mode les relève, sur les sites que l'opérateur donne. Le générateur **ne nomme
-    rien** : le choix des sites se source dans la relecture (§8), pas ici.
+    WHY THIS MODE EXISTS. `USER` is not a BIOS entry but the cartridge's routine
+    (`docs/tasks.md`): no call contract says what the BIOS writes BEFORE handing control
+    to it, nor when it hands it over. These writes fall outside any bounded call, hence outside the
+    contracts — this mode records them, on the sites the operator gives. The generator **names
+    nothing**: the choice of sites is sourced in the review (§8), not here.
 
-    UNE REMISE DE MAIN N'EST PAS UN RETOUR D'APPEL. Les transitions BIOS → cartouche en espace
-    programme sont de deux natures : la borne d'un appel fermé par un cadre vérifié — un `rts`,
-    déjà couvert par les contrats d'appel — et tout le reste : la sortie d'un appel entré par
-    `jmp` (fermé par repli, sans cadre), ou une excursion au milieu d'un appel. Ce reste est le
-    protocole, et c'est ce qu'on chronique.
+    A HAND-OVER IS NOT A CALL RETURN. The BIOS → cartridge transitions in program
+    space are of two kinds: the bound of a call closed by a verified frame — an `rts`,
+    already covered by the call contracts — and everything else: the exit of a call entered by
+    `jmp` (closed by fallback, without a frame), or an excursion in the middle of a call. That rest is the
+    protocol, and that is what is chronicled.
 
-    QUI A LA MAIN suit `la_main_au_bios` : une écriture du jeu sur un site suivi se voit, mais
-    marquée comme sienne — elle n'est pas un comportement du BIOS à reproduire."""
+    WHO HAS CONTROL follows `la_main_au_bios`: a game write on a tracked site is seen, but
+    marked as its own — it is not a BIOS behaviour to reproduce."""
     appels = découper(accès)
     dedans = la_main_au_bios(accès)
     pc = valeurs_dérivées_du_pc(accès, 0, len(accès))
     retenues = bool(séquences_suspectes(accès, 0, len(accès)))
     bios = lambda a: ROM_BIOS[0] <= a <= ROM_BIOS[1]
 
-    # Les écritures ET les lectures qui touchent un site suivi. `touchés` suit la largeur : un
-    # mot couvre son octet pair et l'impair, et un site suivi impair doit voir passer le mot qui
-    # l'écrit. UNE LECTURE EST UN FAIT DE PROTOCOLE AUSSI : un BIOS qui scrute la réponse d'un
-    # port la lit en boucle, et taire ces lectures ferait croire à un envoi aveugle. Sa valeur
-    # n'est pas observable (le banc ne pose aucune donnée sur le bus pour une lecture) : la
-    # chronique le dit, elle n'invente pas d'octet.
+    # The writes AND the reads that touch a tracked site. `touchés` follows the width: a
+    # word covers its even byte and the odd one, and an odd tracked site must see the word that
+    # writes it go by. A READ IS A PROTOCOL FACT TOO: a BIOS that polls the answer of a
+    # port reads it in a loop, and keeping these reads quiet would suggest a blind send. Its value
+    # is not observable (the bench puts no data on the bus for a read): the
+    # chronicle says so, it invents no byte.
     écritures = []
     for i, (période, adresse, sens, ul, donnée, espace) in enumerate(accès):
         if ul == ".." or espace == "sp":
@@ -765,8 +768,9 @@ def protocole_trace(accès, sites):
         écritures.append((période, site_écrit(adresse, ul), valeur,
                           "bios" if dedans[i] else "cartouche"))
 
-    # Les événements répétés se replient : un BIOS qui réécrit le même site à chaque trame ferait
-    # un document de centaines de lignes identiques, où la transition qui compte ne se voit plus.
+    # Repeated events are folded: a BIOS that rewrites the same site every frame would make
+    # a document of hundreds of identical lines, where the transition that matters can no longer be
+    # seen.
     repliées = []
     for période, site, valeur, main in écritures:
         if repliées and repliées[-1][1:4] == (site, valeur, main):
@@ -775,7 +779,7 @@ def protocole_trace(accès, sites):
         else:
             repliées.append((période, site, valeur, main, période, 1))
 
-    # Les transitions BIOS → cartouche, moins les retours d'appel vérifiés par un cadre.
+    # The BIOS → cartridge transitions, minus the call returns verified by a frame.
     retours_vérifiés = {a["à"] for a in appels if not a["repli"]}
     spans = [(a["de"], a["à"], a["entrée"]) for a in appels]
     remises, retours = [], {}
@@ -806,8 +810,8 @@ def protocole_trace(accès, sites):
 
 
 def écrire_protocole(sections, sites, dossier):
-    """Le document du protocole : une section par trace, chronologie des sites suivis et des
-    remises de main. Markdown, mêmes règles que les contrats — §8 compris."""
+    """The protocol document: one section per trace, chronology of the tracked sites and of the
+    hand-overs. Markdown, same rules as the contracts — §8 included."""
     T = 811008
     chemin = f"{dossier}/protocole.md"
     with open(chemin, "w", encoding="utf-8") as f:
@@ -863,27 +867,27 @@ def écrire_protocole(sections, sites, dossier):
 
 
 def part_prom(accès, de=None, à=None):
-    """La part des accès en espace programme qui tombent dans la P-ROM de la cartouche.
+    """The share of program-space accesses that fall in the cartridge's P-ROM.
 
-    Juge de la condition 3 de C0 (`docs/tasks.md`) : après la bascule `SWPROM`, le programme doit
-    s'exécuter depuis la cartouche et non depuis la ROM du BIOS. Sous BIOS SNK la part passe de
-    0,0 % avant la bascule à 96,9 % après
+    Judge of condition 3 of C0 (`docs/tasks.md`): after the `SWPROM` switch, the program must
+    execute from the cartridge and not from the BIOS ROM. Under the SNK BIOS the share goes from
+    0.0 % before the switch to 96.9 % after
     (`measured/2026-10-11-espaces-adressage-puzzledp.tsv`).
 
-LES 128 PREMIERS OCTETS SUIVENT `biosMode`, et c'est tout l'objet du compte. Le co-simulateur
-    (non publié) sert `a < 0x80` depuis le **BIOS** tant que `biosMode` tient, et depuis la **cartouche** après —
-    il le lève sur `SWPROM`. Les exclure toujours sous-compterait la cartouche après la
-    bascule ; ne jamais les exclure ferait passer les lectures du vecteur de reset pour de la
-    cartouche au boot. Le juge suit donc l'état dans la trace : `$3A0003` l'arme, `$3A0013` le
-    lève, et l'état initial est armé comme à la mise sous tension.
+THE FIRST 128 BYTES FOLLOW `biosMode`, and that is the whole point of the count. The co-simulator
+    (unpublished) serves `a < 0x80` from the **BIOS** as long as `biosMode` holds, and from the
+    **cartridge** after — it clears it on `SWPROM`. Always excluding them would undercount the
+    cartridge after the switch; never excluding them would pass the reads of the reset vector off as
+    cartridge at boot. The judge therefore follows the state in the trace: `$3A0003` sets it,
+    `$3A0013` clears it, and the initial state is set as at power-on.
 
-    LA BANQUE `$2xxxxx` N'EST PAS COMPTÉE : le co-simulateur la sert depuis le même tampon de P-ROM,
-    donc du code de cartouche s'y exécute aussi, mais le critère de C0 porte sur `$00xxxx` et la
-    compter changerait la grandeur sans le dire.
+    THE `$2xxxxx` BANK IS NOT COUNTED: the co-simulator serves it from the same P-ROM buffer,
+    so cartridge code executes there too, but the C0 criterion is about `$00xxxx` and
+    counting it would change the quantity without saying so.
 
-    `de` et `à` bornent la fenêtre en trames ; sans eux, c'est celle de la trace."""
+    `de` and `à` bound the window in frames; without them, it is that of the trace."""
     T = 811008
-    bios_bas = True          # à la mise sous tension, le BIOS est en bas de la carte
+    bios_bas = True          # at power-on, the BIOS is at the bottom of the map
     dans = total = 0
     for période, adresse, sens, ul, _, espace in accès:
         if sens == "WR" and 0x3A0000 <= adresse <= 0x3AFFFF:
@@ -900,7 +904,7 @@ LES 128 PREMIERS OCTETS SUIVENT `biosMode`, et c'est tout l'objet du compte. Le 
         if adresse > 0x0FFFFF:
             continue
         if adresse < 0x80 and bios_bas:
-            continue         # servi par le BIOS, pas par la cartouche
+            continue         # served by the BIOS, not by the cartridge
         dans += 1
     if not total:
         return None
@@ -948,8 +952,8 @@ def main(argv):
     if boot and len(argv) != 3:
         print("--boot prend une seule trace : celle du démarrage.", file=sys.stderr)
         return 2
-    # Refuser plutôt que créer : un dossier fabriqué depuis un argument mal tapé disperse les
-    # contrats sans que personne ne le voie.
+    # Refuse rather than create: a directory made from a mistyped argument scatters the
+    # contracts without anyone noticing.
     if not os.path.isdir(argv[-1]):
         print(f"dossier de sortie introuvable : {argv[-1]}", file=sys.stderr)
         return 2
@@ -972,12 +976,12 @@ def main(argv):
             sections.append(protocole_trace(a, set(sites)))
         print(écrire_protocole(sections, sites, argv[-1]))
         return 0
-    # PLUSIEURS TRACES FONT UN SEUL CONTRAT, et c'est une question de justesse avant d'être du
-    # confort : une écriture stable sur les appels d'une seule fenêtre peut n'être stable que dans
-    # son régime — mesuré sur `$C0044A`, dont la fenêtre du BIOS en attente et celle du jeu en
-    # cours ne donnent pas le même noyau. Chaque trace est DÉCOUPÉE SÉPARÉMENT : concaténer avant
-    # de découper fabriquerait, à la jointure de deux fichiers, une fausse transition d'espace
-    # programme, donc un appel fantôme.
+    # SEVERAL TRACES MAKE ONE CONTRACT, and it is a matter of correctness before being one of
+    # convenience: a write stable over the calls of a single window may be stable only in
+    # its regime — measured on `$C0044A`, whose window with the BIOS waiting and the one with the
+    # game running do not give the same core. Each trace is SPLIT SEPARATELY: concatenating before
+    # splitting would fabricate, at the junction of two files, a false program-space
+    # transition, hence a phantom call.
     accès, appels, dedans = [], [], []
     for chemin in argv[1:-1]:
         a = lire_trace(chemin)
@@ -999,7 +1003,7 @@ def main(argv):
         return 2
     écartés = 0
     for entrée in sorted({a["entrée"] for a in appels}):
-        # Hors de la table publique, l'adresse est interne : ni titre, ni nom de fichier.
+        # Outside the public table, the address is internal: no title, no file name.
         if not point_entrée_public(entrée):
             print(f"point d'entrée hors de la table de sauts publique : aucun contrat écrit. "
                   f"C'est probablement un retour depuis une routine du jeu appelée par le BIOS, "

@@ -1,32 +1,32 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 -- Copyright (C) 2026 Thibaut Lion
--- Jig des scores, chargé avec `son.lua` (J_AUSSI), sans fenêtre : la zone de sauvegarde du jeu d'un
--- boot à l'autre, et l'horloge que le jeu lit. `son.lua` joue les entrées et quitte MAME ; celui-ci ne
--- fait que relever (et, si on le lui demande, fausser la date que le BIOS donne au jeu).
+-- Score jig, loaded with `son.lua` (J_AUSSI), windowless: the game's save area from one boot to
+-- the next, and the clock the game reads. `son.lua` plays the inputs and quits MAME; this one only
+-- records (and, if asked to, falsifies the date that the BIOS gives the game).
 --
--- LA ZONE DU JEU : le pointeur long de $00010E et la taille du mot de $000112 (« 68k program
--- header »), lus dans la région de la cartouche montée (`:cslot1:maincpu`), jamais sur le bus.
--- C'est la zone que le BIOS recopie en backup RAM (`src/c0/c0.s`, `_sauver_jeu`).
+-- THE GAME'S AREA: the long pointer at $00010E and the size in the word at $000112 ("68k program
+-- header"), read in the region of the mounted cartridge (`:cslot1:maincpu`), never on the bus.
+-- It is the area that the BIOS copies into backup RAM (`src/c0/c0.s`, `_sauver_jeu`).
 --
--- Réglages :
---   SC_OUT     fichier de sortie (obligatoire)
---   SC_DUMPS   trames où écrire la zone en hexadécimal (« f<n> ZONE <hex> »)
---   SC_FENETRE « a-b » : les octets de la zone que le JEU écrit sur ces trames, qu'il change ou non
---              leur valeur, comptés au bilan (« f<n> ECRITS jeu=<k> changes=<c> »)
---   SC_DATE    « AAMMJJ » (BCD) : la date que le BIOS écrit pour le jeu ($10FDD2 année, $10FDD3 mois,
---              $10FDD4 jour ; « BIOS RAM locations ») est remplacée par celle-ci au vol — une date
---              d'horloge que MAME ne laisse pas choisir (il prend celle de l'hôte)
+-- Settings:
+--   SC_OUT     output file (mandatory)
+--   SC_DUMPS   frames at which to write the area in hexadecimal ("f<n> ZONE <hex>")
+--   SC_FENETRE "a-b": the bytes of the area that the GAME writes on those frames, whether or not it
+--              changes their value, counted in the summary ("f<n> ECRITS jeu=<k> changes=<c>")
+--   SC_DATE    "AAMMJJ" (BCD): the date that the BIOS writes for the game ($10FDD2 year, $10FDD3
+--              month, $10FDD4 day; "BIOS RAM locations") is replaced by this one on the
+--              fly — a clock date that MAME does not let one choose (it takes the host's)
 --
--- CE QUI EST RELEVÉ — ce jig ne consigne aucun PC ni aucun octet de ROM de BIOS (`docs/DECISIONS.md`
--- §8) ; le PC n'est lu que pour dire qui écrit (bios dans $C00000-$C1FFFF, jeu sinon) :
---   « f<n> Z bios=<k> jeu=<k> » : les écritures dans la zone, par côté, sur une trame qui en a ;
---   « f<n> RESTAURE <hex> » (si SC_RESTAURE=1) : la zone telle que le BIOS vient de l'écrire en entier
---     (sa dernière adresse écrite par le BIOS), avant que le jeu y touche ;
---   « f<n> CAL » : un appel du jeu à READ_CALENDAR ($C0045C, « BIOS calls »), compté comme
---     `appels.lua` (la lecture de l'entrée suivie d'une écriture en RAM de travail, le jeu ayant la
---     main, $10FD80 bit 7) ;
---   « f<n> DATE <aa mm jj> » : la date écrite par le BIOS (après substitution) quand elle change ;
---   « f<n> CALLU <k> » : les lectures par le jeu de $10FDD2-$10FDD8 sur la trame.
+-- WHAT IS RECORDED — this jig logs no PC nor any byte of BIOS ROM (`docs/DECISIONS.md` §8); the PC
+-- is read only to say who writes (bios in $C00000-$C1FFFF, game otherwise):
+--   "f<n> Z bios=<k> jeu=<k>": the writes into the area, per side, on a frame that has some;
+--   "f<n> RESTAURE <hex>" (if SC_RESTAURE=1): the area as the BIOS has just written it in full
+--     (its last address written by the BIOS), before the game touches it;
+--   "f<n> CAL": a call by the game to READ_CALENDAR ($C0045C, "BIOS calls"), counted like
+--     `appels.lua` (the read of the entry followed by a write to work RAM, with the game in
+--     control, $10FD80 bit 7);
+--   "f<n> DATE <aa mm jj>": the date written by the BIOS (after substitution) when it changes;
+--   "f<n> CALLU <k>": the reads by the game of $10FDD2-$10FDD8 on the frame.
 if _G.SCORES then return end
 _G.SCORES = {}
 local G = _G.SCORES
@@ -41,7 +41,8 @@ local function cote() local a = cpu.state["PC"].value & 0xFFFFFF return (a >= 0x
 local rg = m.memory.regions[":cslot1:maincpu"]
 assert(rg, "région :cslot1:maincpu introuvable")
 local function l32(a) return (rg:read_u8(a) << 24) | (rg:read_u8(a + 1) << 16) | (rg:read_u8(a + 2) << 8) | rg:read_u8(a + 3) end
--- La région porte les mots octets inversés (`load16_word_swap`) quand « NEO-GEO » ne s'y lit pas tel quel.
+-- The region holds the words byte-swapped (`load16_word_swap`) when "NEO-GEO" does not read there
+-- as is.
 local inv = rg:read_u8(0x100) ~= 0x4E
 local function oct(a) return rg:read_u8(inv and (a ~ 1) or a) end
 local Z0 = (oct(0x10E) << 24) | (oct(0x10F) << 16) | (oct(0x110) << 8) | oct(0x111)
@@ -80,7 +81,7 @@ if ZN > 0 and ZN <= 0x1000 and Z0 >= 0x100000 and Z0 + ZN <= 0x110000 then
   end)
 end
 
--- READ_CALENDAR appelé par le jeu, la méthode d'`appels.lua`.
+-- READ_CALENDAR called by the game, the method of `appels.lua`.
 local e = false
 G.tw = p:install_write_tap(0x100000, 0x10FFFF, "sc_w", function() if e then e = false W("f%d CAL", n) end end)
 G.tr = p:install_read_tap(0x100000, 0x10FFFF, "sc_r", function() e = false end)
@@ -117,7 +118,7 @@ emu.register_frame_done(function()
   if n == F1 then
     local k, c = 0, 0 for _ in pairs(ecrits) do k = k + 1 end for _ in pairs(changes) do c = c + 1 end
     W("f%d ECRITS jeu=%d changes=%d sur %d", n, k, c, ZN)
-    -- Les décalages écrits, en plages « a-b » (hexadécimal, depuis le début de la zone).
+    -- The written offsets, as "a-b" ranges (hexadecimal, from the start of the area).
     local t, a0, a1 = {}, nil, nil
     for a = Z0, Z0 + ZN do
       if ecrits[a] then if not a0 then a0 = a end a1 = a

@@ -1,14 +1,14 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 -- Copyright (C) 2026 Thibaut Lion
--- Jig de la carte mémoire protégée ou retirée, chargé avec `son.lua` (J_AUSSI), sans fenêtre. MAME
--- ne sait pas protéger une carte en écriture : sa machine rend le bit 6 de REG_STATUS_B à 0 dès
--- qu'une carte est là (`neogeo.cpp`, `get_memcard_status` : « we are always write enabled »). Ce jig
--- fausse donc la LECTURE de REG_STATUS_B ($380000, l'octet haut ; « Memory card » : CD1 bit 4, CD2
--- bit 5, protection bit 6), rien d'autre : la carte de MAME, elle, accepte toujours l'écriture.
---   CP_PROTEGE  « a-b » séparés par des virgules : sur ces trames, le bit 6 lu à 1 (protégée)
---   CP_ABSENTE  « a-b » : sur ces trames, les bits 4, 5 et 6 lus à 1, comme MAME sans carte
--- Une ligne « f<n> CP <état> » à chaque changement, dans le son.txt de `son.lua` n'étant pas
--- accessible ici : dans CP_OUT s'il est posé.
+-- Protected or removed memory card jig, loaded with `son.lua` (J_AUSSI), windowless. MAME
+-- cannot write-protect a card: its machine returns bit 6 of REG_STATUS_B at 0 as soon as a card
+-- is there (`neogeo.cpp`, `get_memcard_status`: "we are always write enabled"). This jig
+-- therefore falsifies the READ of REG_STATUS_B ($380000, the high byte; "Memory card": CD1 bit 4,
+-- CD2 bit 5, protection bit 6), nothing else: MAME's card, for its part, always accepts writes.
+--   CP_PROTEGE  "a-b" separated by commas: on these frames, bit 6 read as 1 (protected)
+--   CP_ABSENTE  "a-b": on these frames, bits 4, 5 and 6 read as 1, like MAME without a card
+-- One line "f<n> CP <état>" at each change, the son.txt of `son.lua` not being accessible
+-- here: in CP_OUT if it is set.
 if _G.CARTEPROT then return end
 _G.CARTEPROT = {}
 local G = _G.CARTEPROT

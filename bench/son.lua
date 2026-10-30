@@ -1,59 +1,59 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 -- Copyright (C) 2026 Thibaut Lion
--- Jig de diagnostic du son et du plan fixe autour d'un menu en jeu, et observateur du parcours
--- (`bench/parcours.sh`). Sans fenêtre.
--- Ce jig ne trace aucun code : il compte des écritures (valeur, trame) et classe chacune « B » (BIOS,
--- PC dans $C00000-$C1FFFF) ou « J » (jeu) ; il ne consigne pas le PC.
---   J_OUT       dossier (obligatoire) ; relevé J_OUT/son.txt
---   J_PIECE, J_START   trames (8 trames tenues) ; défauts 400, 500 ; 0 : jamais
---   J_GESTE, J_TENIR   TEST tenu (si J_TEST=1)
---   J_TESTS     « a-b » séparés par des virgules : TEST tenu de la trame a à la trame b, en plus
---   J_APPUIS    « trame:bouton[:durée] » (piece, START, haut, bas, gauche, droite, A, B, C, D,
---               piece2, start2, deuxA, service, select, select2, et pour P2 deuxB, deuxC,
---               deuxD, deuxHaut, deuxBas, deuxGauche, deuxDroite, et le panneau de mahjong mjA…mjReach,
---               mjStart : voir plus bas)
---   J_DSW       « trame:bits » (hex) séparés par des virgules : à partir de cette trame, les
---               commutateurs de la carte dont le bit est à 1 dans « bits » sont mis à ON (le bit
---               de REG_DIPSW à 0, actif bas), les autres à OFF ; par les champs de :DSW de MAME
---   « f<n> SLOT <v> » : chaque écriture de REG_SLOT (voir plus bas)
---   J_TIRS      « de-à:pas:bouton » : appuis de 3 trames
---   J_IMAGES    trames d'image bgra 320×224, « a-b » pour un intervalle
---   J_HACHES    « de-à » : à chaque trame de l'intervalle, « img= » l'empreinte de l'image
---               ENTIÈRE (chaque pixel y entre : `docs/BENCH.md`, piège 4)
---   J_ZONES     « x0,y0,x1,y1 » séparés par des « ; » (pixels, bornes comprises) : dans l'intervalle
---               de J_HACHES, « zK= » l'empreinte de chaque rectangle, K à partir de 1 — ce
---               qu'affiche une zone de l'écran (un chronomètre, une barre de vie)
---   J_SUIVRE    « adr:taille » (hex, taille 1 ou 2), virgules : la valeur à chaque trame, « m »
---               suivi de l'adresse — une valeur du jeu en RAM, en complément de l'écran
---   J_REMISE    « k » séparés par des virgules : l'image k trames après la dernière remise de
---               la main au jeu — une nouvelle valeur du couple mode/demande ($10FDAF/$10FDAE)
---               avec le mode 01 : le premier boot, la relance d'un changement de région, le
---               titre après une pièce —, en J_OUT/rKKKKK.bin. Un instant du JEU, quel que soit
---               le temps que le BIOS a pris avant ; une remise plus tardive la réécrit
---   J_TEXTE     trames où écrire le plan fixe décodé (lignes 2 à 29, « fixNN |…| »),
---               reconstruit depuis les écritures au LSPC comme `autotests.lua`
---   J_TUILES    trames où écrire le plan fixe BRUT, même reconstruction : « fNN tuNN » puis les 40
---               entrées de la ligne en hexadécimal (palette sur 4 bits, tuile sur 12), lignes 2 à
---               29 — les tuiles hors de la police ASCII, que J_TEXTE rend en espaces
---   J_INJ       « trame:code » : un code écrit par lua à REG_SOUND
---   J_POSER     « trame@adr=octets » (hex), virgules : ces octets écrits par lua dans la RAM du
---               jeu en fin de trame — un score de joueur simulé, comme MS_POSER de `multislot.lua`
---   J_BRAM      « trame@adr=octets » (hex), virgules : ces octets écrits dans la backup RAM ($D0xxxx) en
---               fin de trame, par la mémoire partagée « :saveram » de MAME, que REG_SRAMLOCK ne
---               protège pas — un réglage de la borne posé comme l'aurait laissé un autre BIOS
---   J_FIN       sortie
---   J_FLOTTANT  chemin de `bus-flottant.lua`, chargé avec ce jig : la cartouche servie comme le
---               matériel, seulement sous REG_CRTFIX (son en-tête) ; BF_OUT, BF_FIN (avant J_FIN)
---               et BF_HOTE=1 sont à poser aussi, BF_LIBRE=1 pour le témoin sans le modèle
--- Chaque ligne de trame porte aussi « t= » (le temps de la machine en secondes, pour caler le
--- WAV de `-wavwrite` sur les trames) et « cote= » : B si la trame finit avec le PC dans le BIOS,
--- J sinon. Une suite de trames « cote=B » est une pause du jeu (menu en jeu, écran TEST).
--- « fixB=c0-c1,r0-r1 » : le rectangle (colonnes, lignes) des cases du plan fixe que le BIOS a
--- écrites dans la trame, quand il en a écrit — le cadre du menu en jeu, par exemple.
+-- Diagnostic jig for the sound and the fix layer around an in-game menu, and observer of the player's path
+-- (`bench/parcours.sh`). No window.
+-- This jig traces no code: it counts writes (value, frame) and classes each one "B" (BIOS,
+-- PC in $C00000-$C1FFFF) or "J" (game); it does not log the PC.
+--   J_OUT       folder (mandatory); record J_OUT/son.txt
+--   J_PIECE, J_START   frames (8 frames held); defaults 400, 500; 0: never
+--   J_GESTE, J_TENIR   TEST held (if J_TEST=1)
+--   J_TESTS     "a-b" separated by commas: TEST held from frame a to frame b, in addition
+--   J_APPUIS    "frame:button[:duration]" (piece, START, haut, bas, gauche, droite, A, B, C, D,
+--               piece2, start2, deuxA, service, select, select2, and for P2 deuxB, deuxC,
+--               deuxD, deuxHaut, deuxBas, deuxGauche, deuxDroite, and the mahjong panel mjA…mjReach,
+--               mjStart: see below)
+--   J_DSW       "frame:bits" (hex) separated by commas: from that frame on, the
+--               board switches whose bit is 1 in "bits" are set to ON (the bit
+--               of REG_DIPSW at 0, active low), the others to OFF; through the fields of MAME's :DSW
+--   "f<n> SLOT <v>": each write to REG_SLOT (see below)
+--   J_TIRS      "from-to:step:button": presses of 3 frames
+--   J_IMAGES    picture frames bgra 320×224, "a-b" for a range
+--   J_HACHES    "from-to": at each frame of the range, "img=" the hash of the WHOLE
+--               picture (every pixel goes into it: `docs/BENCH.md`, pitfall 4)
+--   J_ZONES     "x0,y0,x1,y1" separated by ";" (pixels, bounds included): within the range
+--               of J_HACHES, "zK=" the hash of each rectangle, K from 1 — what
+--               a zone of the screen displays (a timer, a life bar)
+--   J_SUIVRE    "adr:size" (hex, size 1 or 2), commas: the value at each frame, "m"
+--               followed by the address — a game value in RAM, in addition to the screen
+--   J_REMISE    "k" separated by commas: the picture k frames after the last hand-over of
+--               control to the game — a new value of the mode/request pair ($10FDAF/$10FDAE)
+--               with mode 01: the first boot, the restart after a region change, the
+--               title after a coin —, in J_OUT/rKKKKK.bin. An instant of the GAME, whatever
+--               the time the BIOS took before; a later hand-over rewrites it
+--   J_TEXTE     frames at which to write the decoded fix layer (rows 2 to 29, "fixNN |…|"),
+--               rebuilt from the writes to the LSPC as in `autotests.lua`
+--   J_TUILES    frames at which to write the RAW fix layer, same rebuild: "fNN tuNN" then the 40
+--               entries of the row in hexadecimal (palette on 4 bits, tile on 12), rows 2 to
+--               29 — the tiles outside the ASCII font, which J_TEXTE renders as spaces
+--   J_INJ       "frame:code": a code written by lua to REG_SOUND
+--   J_POSER     "frame@adr=bytes" (hex), commas: these bytes written by lua into the game's
+--               RAM at the end of the frame — a simulated player score, like MS_POSER of `multislot.lua`
+--   J_BRAM      "frame@adr=bytes" (hex), commas: these bytes written into the backup RAM ($D0xxxx) at the
+--               end of the frame, through MAME's shared memory ":saveram", which REG_SRAMLOCK does not
+--               protect — a cabinet setting set as another BIOS would have left it
+--   J_FIN       exit
+--   J_FLOTTANT  path of `bus-flottant.lua`, loaded with this jig: the cartridge served like the
+--               hardware, only under REG_CRTFIX (its header); BF_OUT, BF_FIN (before J_FIN)
+--               and BF_HOTE=1 must be set too, BF_LIBRE=1 for the witness without the model
+-- Each frame line also carries "t=" (the machine time in seconds, to align the
+-- WAV of `-wavwrite` with the frames) and "cote=": B if the frame ends with the PC in the BIOS,
+-- J otherwise. A run of "cote=B" frames is a pause of the game (in-game menu, TEST screen).
+-- "fixB=c0-c1,r0-r1": the rectangle (columns, rows) of the fix-layer cells that the BIOS
+-- wrote in the frame, when it wrote any — the border of the in-game menu, for example.
 if _G.SONJIG then return end
 _G.SONJIG = {}
 if os.getenv("J_FLOTTANT") then dofile(os.getenv("J_FLOTTANT")) end
--- J_AUSSI : un autre jig chargé avec celui-ci (`scores.lua`, `carte-protegee.lua`), qui ne joue aucune entrée.
+-- J_AUSSI: another jig loaded with this one (`scores.lua`, `carte-protegee.lua`), which plays no input.
 if os.getenv("J_AUSSI") then for x in os.getenv("J_AUSSI"):gmatch("[^;]+") do dofile(x) end end
 local OUT = os.getenv("J_OUT")
 local function N(v, d) return tonumber(os.getenv(v) or d) end
@@ -65,14 +65,14 @@ local cpu = m.devices[":maincpu"]
 local p = cpu.spaces["program"]
 local ecran = m.screens:at(1)
 local function F(pt, nom) local x = m.ioport.ports[pt] return x and x.fields[nom] end
--- Sous `aes` (la console de MAME, colonne de référence du mode AES de `parcours.sh`), les
--- manettes sont sous :ctrl1 et il n'y a ni pièce ni TEST : un bouton absent n'est refusé que
--- s'il est demandé (J_APPUIS, J_PIECE, J_START).
+-- Under `aes` (MAME's console, reference column of the AES mode of `parcours.sh`), the
+-- joypads are under :ctrl1 and there is neither coin nor TEST: a missing button is refused only
+-- if it is requested (J_APPUIS, J_PIECE, J_START).
 local function J(n) return F(":edge:joy:JOY1", "P1 " .. n) or F(":ctrl1:joy:JOY", "P1 " .. n) end
--- piece2, start2 : la pièce et le START de P2 ; deuxA : le bouton A de P2 ; service : le bouton
--- SERVICE ; select, select2 : SELECT P1 et P2 — « Next Game »
--- et « Previous Game » de la MV-6F (`neogeo`), « P1/P2 Select » de la console ; un set à une
--- cartouche n'en a pas (`src/c0/menu.s`, LE GESTE).
+-- piece2, start2: P2's coin and START; deuxA: P2's A button; service: the SERVICE
+-- button; select, select2: SELECT P1 and P2 — "Next Game"
+-- and "Previous Game" of the MV-6F (`neogeo`), "P1/P2 Select" of the console; a one-cartridge
+-- set has none (`src/c0/menu.s`, THE GESTURE).
 local champs = {
   piece = F(":AUDIO_COIN", "Coin 1"), piece2 = F(":AUDIO_COIN", "Coin 2"),
   START = F(":edge:joy:START", "1 Player Start") or F(":ctrl1:joy:START_SELECT", "P1 Start"),
@@ -87,15 +87,15 @@ local champs = {
   deuxGauche = F(":edge:joy:JOY2", "P2 Left"), deuxDroite = F(":edge:joy:JOY2", "P2 Right"),
   mjStart = F(":ctrl1:mahjong:START_SELECT", "P1 Start"),
 }
--- Le panneau de mahjong de P1 (machine `janshin` de MAME, neogeo_mj ; mahjong.cpp : trois rangées MJ.0 A-G,
--- MJ.1 H-N, MJ.2 PON, CHI, KAN, RON, REACH) : « mjA » à « mjN », « mjPon », « mjChi », « mjKan », « mjRon »,
--- « mjReach », et « mjStart » ; absents des autres machines.
+-- P1's mahjong panel (MAME's `janshin` machine, neogeo_mj; mahjong.cpp: three rows MJ.0 A-G,
+-- MJ.1 H-N, MJ.2 PON, CHI, KAN, RON, REACH): "mjA" to "mjN", "mjPon", "mjChi", "mjKan", "mjRon",
+-- "mjReach", and "mjStart"; absent from the other machines.
 for i, k in ipairs({ "A", "B", "C", "D", "E", "F", "G" }) do champs["mj" .. k] = F(":ctrl1:mahjong:MJ.0", "P1 Mahjong " .. k) end
 for i, k in ipairs({ "H", "I", "J", "K", "L", "M", "N" }) do champs["mj" .. k] = F(":ctrl1:mahjong:MJ.1", "P1 Mahjong " .. k) end
 for i, k in ipairs({ "Pon", "Chi", "Kan", "Ron", "Reach" }) do champs["mj" .. k] = F(":ctrl1:mahjong:MJ.2", "P1 Mahjong " .. k) end
--- Les commutateurs de la carte : les champs de :DSW, chacun posé par sa valeur de configuration
--- (`user_value`, bits du masque du champ) ; mesuré le 2026-10-23 sous MAME 0.286 (aof) : chaque
--- champ posé seul abaisse son bit de REG_DIPSW ($300001) et lui seul.
+-- The board switches: the fields of :DSW, each one set through its configuration value
+-- (`user_value`, bits of the field's mask); measured on 2026-10-23 under MAME 0.286 (aof): each
+-- field set alone lowers its bit of REG_DIPSW ($300001) and only it.
 local dsw = {}
 for t, v in (os.getenv("J_DSW") or ""):gmatch("(%d+):(%x+)") do dsw[#dsw + 1] = { tonumber(t), tonumber(v, 16) } end
 local dsw_champs = {}
@@ -104,10 +104,10 @@ if #dsw > 0 then
   assert(pt, "port :DSW introuvable")
   for _, f in pairs(pt.fields) do dsw_champs[#dsw_champs + 1] = f end
 end
--- Rien n'est posé avant la première trame de J_DSW : les champs gardent la valeur que MAME charge, celle
--- du cfg du jeu s'il en a un, sinon tous OFF. MAME y enregistre les commutateurs posés à la sortie : un
--- cfg partagé entre runs les transmet (`measured/2026-10-25-free-play.tsv`, section 0). « 1:00 » met
--- tout à OFF quel que soit le cfg.
+-- Nothing is set before the first frame of J_DSW: the fields keep the value MAME loads, that
+-- of the game's cfg if it has one, otherwise all OFF. MAME records there the switches set at exit: a
+-- cfg shared between runs passes them on (`measured/2026-10-25-free-play.tsv`, section 0). "1:00" sets
+-- everything to OFF whatever the cfg.
 local dsw_pose = -1
 assert(PIECE == 0 or champs.piece, "champ introuvable : piece")
 assert(START == 0 or champs.START, "champ introuvable : START")
@@ -152,7 +152,7 @@ local n = 0
 local son, bascules = {}, {}
 local pal = { B = 0, J = 0 }
 local fixw = { B = 0, J = 0 }
--- YM2610 : ports 4/5 (A), 6/7 (B). Compteurs par trame.
+-- YM2610: ports 4/5 (A), 6/7 (B). Counters per frame.
 local ym = { w = 0, fm = 0, adpcma = 0, adpcmb = 0, ssg = 0 }
 local adrA, adrB = 0, 0
 _G.SONJIG.tson = p:install_write_tap(0x320000, 0x320001, "son", function(o, d, mk)
@@ -161,14 +161,14 @@ _G.SONJIG.tbas = p:install_write_tap(0x3A0000, 0x3A001F, "bas", function(o, d, m
   local a = o | (((mk & 0xFF) ~= 0) and 1 or 0)
   if a == 0x3A000B or a == 0x3A001B or a == 0x3A0003 or a == 0x3A0013 or a == 0x3A000F or a == 0x3A001F then
     bascules[#bascules + 1] = string.format("%s%06X", src(), a) end end)
--- REG_SLOT ($380021, « Memory mapped registers ») : « f<n> SLOT <v> » à chaque écriture — le slot
--- servi d'une MV-6F, que le couple mode/demande ne dit pas (un SELECT en démo garde 01/02).
+-- REG_SLOT ($380021, "Memory mapped registers"): "f<n> SLOT <v>" at each write — the served
+-- slot of an MV-6F, which the mode/request pair does not tell (a SELECT in demo keeps 01/02).
 _G.SONJIG.tslot = p:install_write_tap(0x380020, 0x380021, "slot", function(o, d, mk)
   if (mk & 0xFF) ~= 0 then W("f%d SLOT %02X", n, d & 0xFF) end end)
 _G.SONJIG.tpal = p:install_write_tap(0x400000, 0x401FFF, "pal", function() local s = src() pal[s] = pal[s] + 1 end)
--- Le plan fixe reconstruit (REG_VRAMADDR / REG_VRAMRW / REG_VRAMMOD), et les écritures comptées.
+-- The fix layer rebuilt (REG_VRAMADDR / REG_VRAMRW / REG_VRAMMOD), and the writes counted.
 local X = { a = 0, mod = 1, v = {} }
-local fixB = nil -- le rectangle des cases du plan fixe écrites par le BIOS dans la trame
+local fixB = nil -- the rectangle of the fix-layer cells written by the BIOS in the frame
 _G.SONJIG.tvr = p:install_write_tap(0x3C0000, 0x3C0005, "vr", function(o, d)
   local r = o & 6
   if r == 0 then X.a = d elseif r == 4 then X.mod = d
@@ -210,10 +210,10 @@ _G.SONJIG.tbk = zio:install_read_tap(0x0000, 0xFFFF, "bk", function(o, d)
   if b >= 8 and b <= 11 then banques[#banques + 1] = string.format("%d:%02X", b - 8, (o >> 8) & 0xFF) end
   return d end)
 local reponse = -1
--- Après un reset, la prochaine remise compte même si le couple n'a pas changé entre-temps.
+-- After a reset, the next hand-over counts even if the pair has not changed in the meantime.
 _G.SONJIG.reset = emu.add_machine_reset_notifier(function() W("f%d RESET", n) _G.SONJIG.user = "reset" end)
 
--- L'empreinte de l'image entière, 16 pixels par pas : chaque pixel y entre, avec son poids.
+-- The hash of the whole picture, 16 pixels per step: every pixel goes into it, with its weight.
 local up = string.unpack
 local function hache(px)
   local h = 5381
@@ -225,7 +225,7 @@ local function hache(px)
   return h
 end
 
--- Celle d'un rectangle : chaque pixel du rectangle, ligne par ligne (320 pixels de 4 octets).
+-- That of a rectangle: every pixel of the rectangle, row by row (320 pixels of 4 bytes).
 local function hache_zone(px, z)
   local h = 5381
   for y = z[2], z[4] do

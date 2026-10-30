@@ -1,12 +1,13 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 -- Copyright (C) 2026 Thibaut Lion
--- READ_CALENDAR : pour chaque vrai appel à $C0045C (lecture d'entrée suivie d'une écriture en RAM
--- de travail, comme `appels.lua`), relève les accès à l'horloge — écritures à $380050-$380051
--- (REG_RTCCTRL), lectures à $320000-$320001 (REG_STATUS_A) — et les écritures en RAM hors pile
--- du BIOS ($10F200-$10F2FF, exclue : adresses de la référence), jusqu'au retour en espace
--- programme. Une lecture en espace programme au milieu d'un appel (une interruption,
--- supposé) ferme la fenêtre avant sa fin : l'appel sort alors tronqué. Hors appel, les écritures à l'horloge sont gardées en une chaîne (le boot).
--- Écrit aussi le plus petit écart entre deux écritures à l'horloge pendant un appel.
+-- READ_CALENDAR: for each real call to $C0045C (read of the entry followed by a write to work
+-- RAM, like `appels.lua`), records the accesses to the clock — writes to $380050-$380051
+-- (REG_RTCCTRL), reads of $320000-$320001 (REG_STATUS_A) — and the writes to RAM outside the
+-- BIOS stack ($10F200-$10F2FF, excluded: addresses of the reference), until the return to
+-- program space. A read in program space in the middle of a call (an interrupt, assumed)
+-- closes the window before its end: the call then comes out truncated. Outside a call, the
+-- writes to the clock are kept as one string (the boot).
+-- Also writes the smallest gap between two writes to the clock during a call.
 --   A_A=<trames> A_MAX=<appels détaillés> A_OUT=<sortie> mame <jeu> -bios euro ... \
 --   -autoboot_script bench/cal.lua
 if not _G.Y then _G.Y={n=0,e=nil,in_=false,k=0,hors={w=0,r=0}}

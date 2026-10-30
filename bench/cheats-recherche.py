@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Thibaut Lion
-"""La recherche des cheats sous MAME (`src/c0/cheats.s`) : relevés de RAM filtrés, puis forçages.
+"""The cheat search under MAME (`src/c0/cheats.s`): RAM records filtered, then forcings.
 
     python3 -I -B bench/cheats-recherche.py releve [--jeux "<romsets>"] [--garder] [--jobs n] <roms> <travail>
     python3 -I -B bench/cheats-recherche.py action [--scenario s] [--jeux "<romsets>"] [--fin n] [--garder] <roms> <travail>
@@ -9,40 +9,40 @@
     python3 -I -B bench/cheats-recherche.py bisecter <candidats.tsv> --categorie c [--scenario s] [--depuis n] [--fin n]
         [--max n] [--jeux "<romsets>"] <roms> <travail>
 
-BISECTER. Les candidats d'une catégorie forcés tous ensemble, puis le groupe qui tient coupé en deux.
-Les défauts (scénario actif, --depuis 3600) sont ceux du combat ; en action, --depuis 700. Forcer à
-plusieurs cellules casse parfois le jeu et masque la bonne (le 2026-10-29) : `forcer`, une à une, est
-plus sûr.
+BISECTER. The candidates of one category forced all together, then the group that holds cut in two.
+The defaults (actif scenario, --depuis 3600) are those of fighting games; in action, --depuis 700.
+Forcing several cells sometimes breaks the game and masks the right one (on 2026-10-29): `forcer`,
+one by one, is safer.
 
-ACTION. Un run par jeu dans un scénario (action, saut, immobile ; saut2 et action2 pour P2 seul,
-voir SCENARIOS), puis le filtre de suite attendue (`filtre_suite`) : vies, bombes, temps, dans
+ACTION. One run per game in one scenario (action, saut, immobile; saut2 and action2 for P2 alone,
+see SCENARIOS), then the expected-sequence filter (`filtre_suite`): lives, bombs, time, in
 <travail>/candidats-action.tsv.
 
-RELEVE. Chaque jeu joue deux scénarios sous `bench/cheats.lua` (mode releve, RAM $100000-$10F2FF
-toutes les PAS trames), notre image en sp-s2.sp1 :
-  passif  pièce à 400, START à 500, A toutes les 60 trames de 600 à 3500 (la sélection), droite tenue
-          à partir de 2000 : P1 avance sans frapper, prend des coups, perd ses rounds ;
-  actif   le même, puis à partir de 3600 A, B et C martelés en avançant : P2 en prend aussi.
-Le relevé est filtré dès la fin du run, puis effacé (`candidats.tsv` reste). Les filtres :
-  temps   un octet qui perd 1 (binaire ou BCD) à des intervalles de 20 à 200 trames, 6 fois de suite
-          au moins (une hausse, un nouveau round, remet la suite à zéro) ;
-  vie     un octet qui ne baisse que par pas, ne remonte qu'à son maximum (un nouveau round, par
-          paliers ou d'un coup), 3 baisses au moins, 4 valeurs distinctes, et descend sous la
-          moitié de ce maximum ; rangés par KO, puis par valeurs distinctes ; relevé dans les
-          deux scénarios : vie de P1 s'il baisse en passif, vie de P2 s'il ne baisse qu'en actif ;
-  jauge   en actif, un octet qui monte par pas (5 hausses au moins, 4 valeurs distinctes), ne
-          redescend que rarement (une jauge vidée par une super), et ne bouge pas en passif — ou
-          moins : P1 n'y frappe pas.
-Les filtres ne lisent que les relevés ; ils rangent, ils ne prouvent rien.
+RELEVE. Each game plays two scenarios under `bench/cheats.lua` (releve mode, RAM $100000-$10F2FF
+every PAS frames), our image as sp-s2.sp1:
+  passif  coin at 400, START at 500, A every 60 frames from 600 to 3500 (the selection), right held
+          from 2000 on: P1 walks forward without hitting, takes blows, loses its rounds;
+  actif   the same, then from 3600 on A, B and C hammered while walking forward: P2 takes some too.
+The record is filtered as soon as the run ends, then deleted (`candidats.tsv` remains). The filters:
+  temps   a byte that loses 1 (binary or BCD) at intervals of 20 to 200 frames, 6 times in a row
+          at least (a rise, a new round, resets the sequence to zero);
+  vie     a byte that only goes down in steps, only goes back up to its maximum (a new round, in
+          stages or at once), 3 drops at least, 4 distinct values, and goes below half
+          of that maximum; ranked by KO, then by distinct values; recorded in both
+          scenarios: P1's life if it drops in passif, P2's life if it drops only in actif;
+  jauge   in actif, a byte that goes up in steps (5 rises at least, 4 distinct values), only
+          rarely comes back down (a gauge emptied by a super), and does not move in passif — or
+          less: P1 does not hit there.
+The filters read only the records; they rank, they prove nothing.
 
-FORCER. Pour chaque ligne de <forcages.tsv>, écrit à la main ou tiré des candidats (jeu, catégorie,
-adresse hex, taille, valeur hex, scénario), un run `forcer` (la cellule écrite par lua à chaque trame dès --depuis, 3600) et le
-témoin du même scénario, jusqu'à --fin (12 000) ; au journal, les changements de BIOS_USER_MODE
-($10FDAF) donnent la fin de partie, et les images (--images, 4600, 5600, 6600 par défaut) servent
-aux planches et au juge du HUD (`hud`).
+FORCER. For each line of <forcages.tsv>, written by hand or taken from the candidates (game, category,
+hex address, size, hex value, scenario), a `forcer` run (the cell written by lua every frame from
+--depuis, 3600) and the witness of the same scenario, up to --fin (12,000); in the log, the changes of
+BIOS_USER_MODE ($10FDAF) give the game over, and the images (--images, 4600, 5600, 6600 by default)
+serve the sheets and the HUD judge (`hud`).
 
-Salle blanche : aucune base de cheats tierce. Le débogueur de MAME (watchpoints, `bench/cheats.lua`
-mode watch) peut dire QUI écrit une cellule ; aucun code de jeu n'est copié.
+Clean room: no third-party cheat database. MAME's debugger (watchpoints, `bench/cheats.lua`
+watch mode) may tell WHO writes a cell; no game code is copied.
 """
 import argparse, collections, concurrent.futures as cf, hashlib, os, shutil, subprocess, sys
 import numpy as np
@@ -56,18 +56,18 @@ SCENARIOS = {
     "passif": "400-407:piece,500-507:START,600-3500%60:A,2000-40000:droite",
     "actif": "400-407:piece,500-507:START,600-3500%60:A,2000-40000:droite,"
              "3600-40000%8:A,3602-40000%12:B,3604-40000%16:C",
-    # P1 frappe un peu : il perd encore ses rounds, mais une vie forcée lui fait gagner au temps.
+    # P1 hits a little: it still loses its rounds, but a forced life makes it win on time.
     "faible": "400-407:piece,500-507:START,600-3500%60:A,2000-40000:droite,3600-40000%90:A",
-    # Les jeux d'action : P1 tire sans cesse, avance, saute de temps en temps et lâche une bombe ;
-    # il meurt, et perd ses vies une à une.
+    # Action games: P1 shoots nonstop, walks forward, jumps now and then and drops a bomb;
+    # it dies, and loses its lives one by one.
     "action": "400-407:piece,500-507:START,600-40000%6:A,1000-40000:droite,"
               "1500-40000%300:B,1650-40000%400:C",
-    # Mourir vite, sans tirer (l'idée de l'utilisateur, le 2026-10-29) : avancer en sautant dans
-    # les ennemis (B, le saut de la plupart des jeux d'action), ou rester sur place.
+    # Die fast, without shooting (the user's idea, on 2026-10-29): walk forward jumping into
+    # the enemies (B, the jump of most action games), or stay in place.
     "saut": "400-407:piece,500-507:START,1000-40000:droite,1000-40000%20:B",
     "immobile": "400-407:piece,500-507:START",
-    # P2 seul (le 2026-10-29) : sa pièce, son START, et il avance en sautant ; P1 ne joue pas. Ses
-    # vies, ses bombes et sa fin de partie se lisent alors comme celles de P1.
+    # P2 alone (on 2026-10-29): its coin, its START, and it walks forward jumping; P1 does not play.
+    # Its lives, its bombs and its game over then read like P1's.
     "saut2": "400-407:pieceDeux,500-507:startDeux,1000-40000:droiteDeux,1000-40000%20:bDeux",
     "action2": "400-407:pieceDeux,500-507:startDeux,600-40000%6:aDeux,1000-40000:droiteDeux,"
                "1500-40000%300:bDeux,1650-40000%400:cDeux",
@@ -81,7 +81,7 @@ COMBAT = ("aof aof2 aof3 breakers breakrev doubledr fatfursp fatfury1 fatfury2 f
 
 
 def image(travail):
-    """Notre image, construite depuis src/c0 dans le dossier de travail."""
+    """Our image, built from src/c0 in the work directory."""
     sortie = os.path.join(travail, "bios.sp1")
     env = dict(os.environ, BIOS_OBJ=os.path.join(travail, "obj"))
     subprocess.run([os.path.join(PAQUET, "build/construire.sh"), os.path.join(PAQUET, "src/c0"), sortie],
@@ -90,7 +90,7 @@ def image(travail):
 
 
 def romset(roms, travail, jeu, img):
-    """Le set du jeu, sp-s2.sp1 remplacé par notre image (comme `cheats-catalogue.sh`)."""
+    """The game's set, sp-s2.sp1 replaced by our image (as `cheats-catalogue.sh`)."""
     r = os.path.join(travail, "roms")
     os.makedirs(os.path.join(r, "img"), exist_ok=True)
     d = os.path.join(r, jeu + ".zip")
@@ -105,7 +105,7 @@ def romset(roms, travail, jeu, img):
 
 
 def mame(jeu, rompath, sortie, env):
-    """Un run MAME sans fenêtre, sous `cheats.lua`, cfg et NVRAM à part."""
+    """A windowless MAME run, under `cheats.lua`, cfg and NVRAM apart."""
     shutil.rmtree(sortie, ignore_errors=True)
     os.makedirs(sortie)
     e = dict(os.environ, C_OUT=sortie, SDL_VIDEODRIVER="dummy", SDL_MAC_BACKGROUND_APP="1", **env)
@@ -119,7 +119,7 @@ def mame(jeu, rompath, sortie, env):
 
 
 def effacer(sortie):
-    """Le relevé de RAM d'un run (~55 Mo) ôté, présent ou non."""
+    """The RAM record of a run (~55 MB) removed, present or not."""
     for x in ("ram.bin", "ram.idx"):
         try:
             os.remove(os.path.join(sortie, x))
@@ -128,7 +128,7 @@ def effacer(sortie):
 
 
 def journal(sortie):
-    """NGH, empreinte, et les trames où BIOS_USER_MODE change, lus au journal du jig."""
+    """NGH, fingerprint, and the frames where BIOS_USER_MODE changes, read in the jig's log."""
     ngh = emp = None
     user = []
     for l in open(os.path.join(sortie, "cheats.txt")):
@@ -140,7 +140,7 @@ def journal(sortie):
 
 
 def fin_de_partie(user):
-    """La trame où BIOS_USER_MODE quitte 2 pour la première fois après y être venu ; « » sinon."""
+    """The frame where BIOS_USER_MODE leaves 2 for the first time after reaching it; "" otherwise."""
     vu = False
     for n, x in user:
         if x == "02":
@@ -151,13 +151,13 @@ def fin_de_partie(user):
 
 
 def releve(sortie):
-    """Les relevés, une ligne par trame relevée : uint8 [n, TAILLE]."""
+    """The records, one line per recorded frame: uint8 [n, TAILLE]."""
     b = np.fromfile(os.path.join(sortie, "ram.bin"), dtype=np.uint8)
     return b[: len(b) // TAILLE * TAILLE].reshape(-1, TAILLE)
 
 
 def bcd_moins_un(a, b):
-    """b = a − 1 en BCD (deux chiffres valides)."""
+    """b = a − 1 in BCD (two valid digits)."""
     ok = ((a & 0x0F) <= 9) & ((a >> 4) <= 9) & ((b & 0x0F) <= 9) & ((b >> 4) <= 9)
     da = (a >> 4).astype(int) * 10 + (a & 0x0F)
     db = (b >> 4).astype(int) * 10 + (b & 0x0F)
@@ -165,7 +165,7 @@ def bcd_moins_un(a, b):
 
 
 def filtre_temps(R):
-    """Les cellules d'un chronomètre : la plus longue suite de « −1 » réguliers (voir l'en-tête)."""
+    """The cells of a timer: the longest run of regular "−1" (see the header)."""
     out = []
     v = R.astype(np.int16)
     for a in np.nonzero((np.diff(v, axis=0) != 0).sum(axis=0) >= 6)[0]:
@@ -189,17 +189,17 @@ def filtre_temps(R):
 
 
 def profil_vie(s):
-    """(baisses, remontées jusqu'au maximum, remontées interrompues, max, min, KO) d'une série d'octets.
-    Une remontée peut se faire par paliers (la barre qui se remplit au début du round) : elle compte
-    si elle atteint le maximum avant toute baisse."""
+    """(drops, rises up to the maximum, interrupted rises, max, min, KO) of a series of bytes.
+    A rise can happen in stages (the bar that fills at the start of the round): it counts
+    if it reaches the maximum before any drop."""
     d = np.diff(s.astype(np.int16))
     m = int(s.max())
     au_max = interrompues = ko = 0
     monte = False
     bas, debut, baisses = m, 0, 0
     for i, x in enumerate(d):
-        # Un KO : le round finit au plus bas, après 300 trames au moins (30 relevés) et 2 baisses ;
-        # un drapeau qui clignote entre quelques valeurs n'en fait pas.
+        # A KO: the round ends at the lowest, after 300 frames at least (30 records) and 2 drops;
+        # a flag blinking between a few values does not make one.
         if x > 0 and not monte and bas * 8 <= m and i - debut >= 30 and baisses >= 2:
             ko += 1
         if x > 0:
@@ -214,12 +214,12 @@ def profil_vie(s):
 
 
 def filtre_vie(R):
-    """{(adresse, taille, sens): ((KO, valeurs distinctes), valeur pleine, valeur vide)}. La vie peut
-    être un octet ou un mot (big-endian, adresse paire), et compter ce qui reste (sens +) ou les
-    dégâts subis (sens −, la série inversée : elle monte à chaque coup et revient à 0 au round
-    suivant). 4 valeurs au moins : un drapeau qui clignote n'en a que 2. Rangées par KO d'abord : la
-    vie d'un joueur qui perd ses rounds tombe à 0 avant chaque remontée, le chronomètre et la
-    plupart des copies non."""
+    """{(address, size, direction): ((KO, distinct values), full value, empty value)}. Life can
+    be a byte or a word (big-endian, even address), and count what remains (direction +) or the
+    damage taken (direction −, the series inverted: it goes up at each blow and back to 0 at the
+    next round). 4 values at least: a blinking flag has only 2. Ranked by KO first: the
+    life of a player who loses their rounds falls to 0 before each rise, the timer and
+    most copies do not."""
     out = {}
     w = (R[:, 0::2].astype(np.int32) << 8) | R[:, 1::2]
     for taille, X, plein in ((1, R.astype(np.int32), 0xFF), (2, w, 0xFFFF)):
@@ -232,15 +232,15 @@ def filtre_vie(R):
                 if sens == "+" and not (m >= 8 and mn * 2 < m):
                     continue
                 if taille == 2 and int(X[:, a].max()) < 0x100:
-                    continue                # un octet, déjà vu à l'adresse impaire
+                    continue                # a byte, already seen at the odd address
                 pleine, vide = (m, mn) if sens == "+" else (plein - m, plein - mn)
                 out[(a * taille, taille, sens)] = ((ko, nv), pleine, vide)
     return out
 
 
 def filtre_jauge(R, Rp):
-    """(adresse, hausses, max) : en actif, un octet qui monte par pas et ne bouge pas, ou moins, en
-    passif (voir l'en-tête)."""
+    """(address, rises, max): in actif, a byte that goes up in steps and does not move, or less, in
+    passif (see the header)."""
     out = []
     d = np.diff(R.astype(np.int16), axis=0)
     for a in np.nonzero((d > 0).sum(axis=0) >= 5)[0]:
@@ -290,7 +290,7 @@ def cmd_releve(a):
 
 
 def filtrer_combat(jeu, o, lignes):
-    """Les candidats d'un jeu de combat (voir l'en-tête), à la suite de `lignes`."""
+    """The candidates of a fighting game (see the header), appended to `lignes`."""
     try:
         Rp, Ra = releve(o["passif"]), releve(o["actif"])
         ngh, emp, up = journal(o["passif"])
@@ -339,15 +339,16 @@ def cmd_forcer(a):
                "C_SUIVRE": a.suivre.get(jeu, "")}
         rc = mame(jeu, rp, o, env)
         effacer(o)
-        # Figé : trois images identiques (un forçage qui bloque le jeu ne perd pas la partie non plus,
-        # mais il ne prouve rien). Moins de trois images, on ne conclut pas : une seule est toujours
-        # « identique » à elle-même (le 2026-10-29, un passage à une image a tout déclaré figé).
+        # Frozen: three identical images (a forcing that blocks the game does not lose the play
+        # session either, but it proves nothing). Fewer than three images, no conclusion: a single
+        # one is always "identical" to itself (on 2026-10-29, a pass with one image declared
+        # everything frozen).
         imgs = [os.path.join(o, f"f{int(x):05d}.bin") for x in images.split(",")[:3]]
         imgs = [x for x in imgs if os.path.exists(x)]
         h = {hashlib.sha256(open(x, "rb").read()).hexdigest() for x in imgs}
         try:
             u = journal(o)[2]
-        except FileNotFoundError:          # MAME n'a pas démarré le jig
+        except FileNotFoundError:          # MAME did not start the jig
             u = []
         return jeu, sc, nom, rc, u, "fige" if len(imgs) >= 3 and len(h) == 1 else ""
 
@@ -369,16 +370,16 @@ ACTION = ("alpham2 b2b bjourney blazstar burningf crswd2bl crsword ctomaday cybe
 
 
 def filtre_suite(R, departs, remise, min_baisses, max_baisses=60, ecart=(1, 40), fin_k=None):
-    """Les octets qui suivent EXACTEMENT la suite attendue d'un compteur : v0, v0 − 1, v0 − 2…
-    (l'idée de l'utilisateur, le 2026-10-29 : chercher les 3 au départ, garder ceux qui passent à 2
-    après la mort, puis à 1…). La suite est lue sur les valeurs successives distinctes de l'octet,
-    à partir de sa première valeur v0, et, sans remise, jusqu'à 0 : ce qui suit appartient à la démo
-    ou à la partie suivante. Chaque pas doit être − 1, ou, avec remise, 0 → $FF ou
-    si `remise`, un retour à v0 (une vie, un round, une bombe rechargée). Chaque départ de `departs`
-    est essayé en binaire et en BCD. `ecart` : l'écart médian entre deux baisses, en relevés (un
-    compteur d'animation change à chaque relevé). `fin_k` : le relevé de la fin de partie ; un pas
-    hors suite au-delà clôt la suite au lieu de l'écarter. Rend (adresse, départ codé, baisses,
-    relevés des baisses), les plus longues suites d'abord."""
+    """The bytes that follow EXACTLY the expected sequence of a counter: v0, v0 − 1, v0 − 2…
+    (the user's idea, on 2026-10-29: look for the 3s at the start, keep those that go to 2
+    after the death, then to 1…). The sequence is read on the successive distinct values of the
+    byte, from its first value v0 on, and, without reset, down to 0: what follows belongs to the
+    demo or to the next play session. Each step must be − 1, or, with reset, 0 → $FF or
+    if `remise`, a return to v0 (a life, a round, a reloaded bomb). Each start of `departs`
+    is tried in binary and in BCD. `ecart`: the median gap between two drops, in records (an
+    animation counter changes at every record). `fin_k`: the record of the game over; an
+    out-of-sequence step beyond it closes the sequence instead of discarding it. Returns (address,
+    encoded start, drops, records of the drops), the longest sequences first."""
     out = {}
     for v0 in departs:
         for f in ((lambda v: v,) if v0 < 10 else (lambda v: v, lambda v: (v // 10) * 16 + v % 10)):
@@ -397,7 +398,7 @@ def filtre_suite(R, departs, remise, min_baisses, max_baisses=60, ecart=(1, 40),
                         e, baisses = e - 1, baisses + 1
                         quand.append(t)
                         if e <= 0 and not remise:
-                            break               # la dernière vie : la suite s'arrête, la démo remet le compteur
+                            break               # the last life: the sequence stops, the demo resets the counter
                     elif remise and x == f(v0):
                         e = v0
                     else:
@@ -414,7 +415,8 @@ def filtre_suite(R, departs, remise, min_baisses, max_baisses=60, ecart=(1, 40),
 
 
 def cmd_action(a):
-    """Le relevé des jeux d'action : un run par jeu (--scenario, action par défaut), filtré puis effacé."""
+    """The record of action games: one run per game (--scenario, action by default), filtered then
+    deleted."""
     travail = os.path.abspath(a.travail)
     os.makedirs(travail, exist_ok=True)
     img = image(travail)
@@ -428,7 +430,7 @@ def cmd_action(a):
         mame(jeu, rp, o, {"C_MODE": "releve", "C_ENTREES": SCENARIOS[a.scenario], "C_FIN": str(a.fin), "C_PAS": str(PAS)})
         try:
             ngh, emp, u = journal(o)
-        except FileNotFoundError:          # MAME n'a pas démarré le jig : le jeu est écarté, pas le balayage
+        except FileNotFoundError:          # MAME did not start the jig: the game is dropped, not the sweep
             return jeu, []
         fin = fin_de_partie(u)
         lignes = []
@@ -439,18 +441,19 @@ def cmd_action(a):
             effacer(o)
             return jeu, [f"{jeu}\t{ngh}\t{emp}\t-\t-\t-\t-\t{fin}"]
         base = f"{jeu}\t{ngh}\t{emp}"
-        # La fenêtre de la partie : de 700 (les vies posées après START) à 1 000 trames après la fin
-        # de partie, où la démo et la partie suivante remettent les compteurs (relevés du 2026-10-29).
+        # The play-session window: from 700 (the lives set after START) to 1,000 frames after the
+        # game over, where the demo and the next play session reset the counters (records of
+        # 2026-10-29).
         garde = [k for k, n in enumerate(idx) if n >= 700 and (not fin or n <= fin + 1000)]
         R, idx = R[garde], [idx[k] for k in garde]
-        # Les suites attendues : les vies de 1 à 5 au départ, sans remise ; les bombes de 2 à 10,
-        # rechargées ; le temps à 30, 50, 59 (minutes:secondes), 60, 90 ou 99, remis à chaque vie ou stage.
+        # The expected sequences: lives from 1 to 5 at the start, without reset; bombs from 2 to 10,
+        # reloaded; time at 30, 50, 59 (minutes:seconds), 60, 90 or 99, reset at each life or stage.
         fk = next((k for k, n in enumerate(idx) if fin and n >= fin), None)
         vies = filtre_suite(R, range(1, 6), False, 2, 12, None, fk)
-        # Les vies : celles qui baissent quand P1 meurt. Les copies d'une même cellule baissent aux
-        # mêmes relevés ; la dernière vie se perd peu avant la fin de partie. Rangées par l'écart
-        # entre la dernière baisse et la fin de partie, puis par la taille du groupe de baisses
-        # simultanées (la cellule et ses copies d'affichage).
+        # The lives: those that drop when P1 dies. The copies of one cell drop at the
+        # same records; the last life is lost shortly before the game over. Ranked by the gap
+        # between the last drop and the game over, then by the size of the group of simultaneous
+        # drops (the cell and its display copies).
         groupe = collections.Counter(tuple(t // 3 for t in q) for _, _, _, q in vies)
         vies.sort(key=lambda c: (abs(c[3][-1] - fk) if fk is not None else 0, -groupe[tuple(t // 3 for t in c[3])]))
         cats = (("vies", vies),
@@ -472,8 +475,9 @@ def cmd_action(a):
 
 
 def cmd_bisecter(a):
-    """Les candidats d'une catégorie forcés tous ensemble, puis le groupe qui tient coupé en deux,
-    jusqu'à une cellule. Tient : le témoin perd la partie, le run forcé non, et ses images bougent."""
+    """The candidates of one category forced all together, then the group that holds cut in two,
+    down to one cell. Holds: the witness loses the play session, the forced run does not, and its
+    images move."""
     travail = os.path.abspath(a.travail)
     img = image(travail)
     cand = {}

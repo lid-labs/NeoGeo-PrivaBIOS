@@ -1,14 +1,15 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 -- Copyright (C) 2026 Thibaut Lion
--- La carte mémoire, vue de partout : chaque vrai appel du jeu à une entrée du tableau d'appels
--- (comme `appels.lua` : lecture d'entrée suivie d'une écriture en RAM), sauf les entrées appelées
--- à chaque trame ($C00438, $C0044A, $C00450, $C004C2, $C004C8, $C004CE), avec l'interface
--- $10FDC4-$10FDD0 au moment de l'appel ; et chaque trame où la carte ($800000-$8FFFFF) est lue
--- ou écrite, avec ses comptes et ses plages, que l'accès vienne d'un appel ou non. Sert là où le
--- BIOS formate ou sauvegarde sur plusieurs trames, hors de l'entrée CARD.
+-- The memory card, seen from everywhere: each real call by the game to an entry of the call
+-- table (like `appels.lua`: read of the entry followed by a write to RAM), except the entries
+-- called at each frame ($C00438, $C0044A, $C00450, $C004C2, $C004C8, $C004CE), with the
+-- interface $10FDC4-$10FDD0 at the time of the call; and each frame where the card
+-- ($800000-$8FFFFF) is read or written, with its counts and its ranges, whether the access comes
+-- from a call or not. Used where the BIOS formats or saves over several frames, outside the
+-- CARD entry.
 --   A_SANS_ENTREES=1 A_OUT=<sortie> mame <jeu> -bios euro -memc <carte.neo> ... \
 --   -autoboot_script bench/carte.lua
--- Aucun appui n'est injecté : le script est fait pour une partie jouée à la main.
+-- No press is injected: the script is made for a session played by hand.
 if not _G.Y then _G.Y={n=0,e=nil}
 local m=manager.machine; local p=m.devices[":maincpu"].spaces["program"]
 local out=io.open(os.getenv("A_OUT"),"a")

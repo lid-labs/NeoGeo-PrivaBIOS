@@ -1,58 +1,58 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 -- Copyright (C) 2026 Thibaut Lion
--- Jig du bus flottant, sans fenêtre : MAME servi comme le matériel que décrit le wiki, où la
--- cartouche ne répond que sous REG_CRTFIX. Pour juger un BIOS sur ce que MAME, plus permissif,
--- ne montre pas (retour du matériel du 2026-10-24, `docs/ESSAI-MATERIEL.md`, essai 1).
+-- Floating-bus jig, no window: MAME served like the hardware the wiki describes, where the
+-- cartridge answers only under REG_CRTFIX. To judge a BIOS on what MAME, more permissive,
+-- does not show (hardware feedback of 2026-10-24, `docs/ESSAI-MATERIEL.md`, test 1).
 --
 --   SDL_VIDEODRIVER=dummy SDL_MAC_BACKGROUND_APP=1 BF_OUT=<sortie.tsv> \
 --   mame ng_mv2f -bios euro -hashpath <mame>/hash -rompath <roms> -cart1 mslug \
 --     -video none -sound none -nothrottle -nvram_directory <neuf> \
 --     -autoboot_script bench/bus-flottant.lua
 --
--- LE MODÈLE, et d'où il vient (NeoGeo Development Wiki, consulté le 2026-10-24) :
---   - « MVS cartridge pinout », SLOTCS : « SLOTCS goes low when the slot is used », « On
+-- THE MODEL, and where it comes from (NeoGeo Development Wiki, consulted on 2026-10-24):
+--   - "MVS cartridge pinout", SLOTCS: "SLOTCS goes low when the slot is used", "On
 --     multi-slot boards, the signals come from NEO-F0 SLOT0~5. On one slot boards, it's tied to
---     SYSTEMB », et « The System ROM was written to ensure the signal is asserted when it does
---     the slot check » ;
---   - « NEO-F0 » : « SYSTEMB is used to gate the SLOT* outputs » ;
---   - « Signals » : « SYSTEM: low when onboard ROMs selected », « SYSTEMB: inverted SYSTEM » —
---     les ROM de la carte étant la SFIX et la SM1 que choisit REG_BRDFIX ($3A000B), REG_CRTFIX
---     ($3A001B) choisissant celles de la cartouche (« Memory mapped registers »).
--- D'où, SUPPOSÉ dans sa forme exacte : sous REG_BRDFIX, aucun slot n'est sélectionné et rien ne
--- tient le bus sur $000000-$0FFFFF ni sur $200000-$2FFFFF — sauf $000000-$00007F sous
--- REG_SWPBIOS, que la carte sert depuis le BIOS. MESURÉ sur une MV-2F (essai sur matériel, 2026-10-24) : notre
--- image n°8 lit $000108 sous REG_BRDFIX et y trouve E05C, quelle que soit la cartouche, et le
--- mot suivant son `move.w 0x108,%d4` dans `ecran.s` est E05C. MESURÉ sous MAME (`acces-boot.lua`) :
--- la référence écrit REG_CRTFIX juste avant de lire l'en-tête de chaque slot, et REG_BRDFIX après.
+--     SYSTEMB", and "The System ROM was written to ensure the signal is asserted when it does
+--     the slot check";
+--   - "NEO-F0": "SYSTEMB is used to gate the SLOT* outputs";
+--   - "Signals": "SYSTEM: low when onboard ROMs selected", "SYSTEMB: inverted SYSTEM" —
+--     the board's ROMs being the SFIX and the SM1 that REG_BRDFIX ($3A000B) selects, REG_CRTFIX
+--     ($3A001B) selecting those of the cartridge ("Memory mapped registers").
+-- Hence, ASSUMED in its exact form: under REG_BRDFIX, no slot is selected and nothing
+-- holds the bus on $000000-$0FFFFF nor on $200000-$2FFFFF — except $000000-$00007F under
+-- REG_SWPBIOS, which the board serves from the BIOS. MEASURED on an MV-2F (hardware test, 2026-10-24): our
+-- image no. 8 reads $000108 under REG_BRDFIX and finds E05C there, whatever the cartridge, and the
+-- word following its `move.w 0x108,%d4` in `ecran.s` is E05C. MEASURED under MAME (`acces-boot.lua`):
+-- the reference writes REG_CRTFIX just before reading the header of each slot, and REG_BRDFIX after.
 --
--- CE QUE LE JIG REND pour une lecture flottante : le mot à l'adresse du PC — ce que MAME rend
--- lui-même pour un trou de la carte (`unmapped_r` : « the last word on the data bus, which is
--- almost always the opcode of the next instruction due to prefetch »). L'état des bascules au
--- reset est celui de MAME (HC259 à zéro : BRDFIX, vecteurs du BIOS).
+-- WHAT THE JIG RETURNS for a floating read: the word at the PC's address — what MAME returns
+-- itself for a hole in the map (`unmapped_r`: "the last word on the data bus, which is
+-- almost always the opcode of the next instruction due to prefetch"). The state of the latches at
+-- reset is MAME's (HC259 at zero: BRDFIX, BIOS vectors).
 --
--- Réglages par l'environnement :
---   BF_OUT     TSV de sortie (obligatoire)
---   BF_FIN     dernière trame (défaut 900)
---   BF_IMAGES  trames où écrire l'écran brut (bgra, 320 × 224) dans BF_DIR, séparées par des virgules
---   BF_DIR     dossier des captures (défaut : celui de BF_OUT)
---   BF_TEST    <de>-<a> : le bouton TEST tenu sur ces trames (l'éditeur de soft-DIP du boot)
---   BF_LIBRE   1 : ne fausse rien — le même relevé sur le MAME d'origine, en témoin
---   BF_SLOT_MAX n : borne REG_SLOT pour MAME (voir plus bas), 6 pour l'image de diagnostic
---   BF_ABSENTE n : la cartouche rend $FFFF, ce que MAME rend pour un slot vide, sur ses trames 0 à
---              n-1, sous l'une et l'autre bascule — un flash cart qui charge encore son menu à la
---              mise sous tension (retour du matériel du 2026-10-28, `docs/ESSAI-MATERIEL.md`).
---              SUPPOSÉ : ce qu'un flash cart rend pendant ce temps, et combien de temps il le
---              rend ; rien n'en est mesuré. Une lecture flottante sous REG_BRDFIX reste comptée et
---              rendue comme telle : seule la cartouche servie est muette
---   BF_HOTE    1 : chargé par un autre jig (`son.lua`, J_FLOTTANT), qui joue les entrées et quitte
---              MAME : ce jig n'y touche pas, et à BF_FIN il écrit son bilan sans quitter
+-- Settings through the environment:
+--   BF_OUT     output TSV (mandatory)
+--   BF_FIN     last frame (default 900)
+--   BF_IMAGES  frames at which to write the raw screen (bgra, 320 × 224) into BF_DIR, comma-separated
+--   BF_DIR     folder of the captures (default: that of BF_OUT)
+--   BF_TEST    <de>-<a>: the TEST button held over these frames (the boot soft-DIP editor)
+--   BF_LIBRE   1: falsifies nothing — the same record on the original MAME, as a witness
+--   BF_SLOT_MAX n: bounds REG_SLOT for MAME (see below), 6 for the diagnostic image
+--   BF_ABSENTE n: the cartridge returns $FFFF, what MAME returns for an empty slot, over its frames 0 to
+--              n-1, under either latch — a flash cart still loading its menu at
+--              power-on (hardware feedback of 2026-10-28, `docs/ESSAI-MATERIEL.md`).
+--              ASSUMED: what a flash cart returns during that time, and for how long it
+--              returns it; none of it is measured. A floating read under REG_BRDFIX is still counted and
+--              returned as such: only the served cartridge is silent
+--   BF_HOTE    1: loaded by another jig (`son.lua`, J_FLOTTANT), which plays the inputs and quits
+--              MAME: this jig does not touch them, and at BF_FIN it writes its summary without quitting
 --
--- CE QUI EST RELEVÉ — ce jig ne consigne aucun PC ni aucun octet de la ROM du BIOS (`docs/DECISIONS.md`
--- §8) : le PC n'est lu que pour dire qui lit (bios dans $C00000-$C1FFFF, jeu sinon) et à rendre le mot préchargé.
--- Lignes : F (lectures faussées, par trame et par côté, les 40 premières avec leur adresse), R
--- (reset de la machine, watchdog compris), J (le jeu a la main en fin de trame — PC sous
--- $100000 — pour la première fois depuis le dernier reset), B (bascule changée), et un bilan
--- qui compte les trames finies dans le jeu.
+-- WHAT IS RECORDED — this jig logs no PC nor any byte of the BIOS ROM (`docs/DECISIONS.md`
+-- §8): the PC is read only to tell who reads (bios in $C00000-$C1FFFF, game otherwise) and to return the prefetched word.
+-- Lines: F (falsified reads, per frame and per side, the first 40 with their address), R
+-- (machine reset, watchdog included), J (the game has control at the end of the frame — PC below
+-- $100000 — for the first time since the last reset), B (latch changed), and a summary
+-- that counts the frames finished in the game.
 if _G.BUSFLOTTANT then return end
 _G.BUSFLOTTANT = {}
 local G = _G.BUSFLOTTANT
@@ -85,8 +85,8 @@ local function pc() return cpu.state["PC"].value & 0xFFFFFF end
 local function cote() local a = pc() return (a >= 0xC00000 and a <= 0xC1FFFF) and "bios" or "jeu" end
 local function ligne(g, adr, c, note) if fini then return end f:write(string.format("%d\t%s\t%s\t%s\t%s\n", trame, g, adr, c, note or "")) end
 
--- Les bascules par paires, le bit 4 de l'adresse faisant la donnée (« Memory mapped registers ») :
--- $3A0003/$3A0013 les vecteurs, $3A000B/$3A001B les ROM du plan fixe et du Z80.
+-- The latches in pairs, bit 4 of the address being the data ("Memory mapped registers"):
+-- $3A0003/$3A0013 the vectors, $3A000B/$3A001B the ROMs of the fix layer and of the Z80.
 G.t_sys = p:install_write_tap(0x3A0000, 0x3BFFFF, "bf_sys", function(off, data, mask)
   local k = off & 0x0F
   if k == 0x0A then
@@ -127,12 +127,12 @@ end
 G.t_p1 = p:install_read_tap(0x000000, 0x0FFFFF, "bf_p1", lecture)
 G.t_p2 = p:install_read_tap(0x200000, 0x2FFFFF, "bf_p2", lecture)
 
--- UNE ÉCRITURE DE REG_SLOT FAIT TOMBER LES TAPS DE LA P-ROM (MAME y réinstalle la ROM du slot,
--- `set_slot_idx`) : reposés deux lectures du BIOS plus tard, la recette de `multislot.lua`.
--- BF_SLOT_MAX=n : une écriture de REG_SLOT au-delà de n-1 devient n-1. MAME 0.286 indexe son
--- tableau de six slots par la donnée sans la borner (`mvs_state::io_control_w`, `m_slots[data]`) :
--- 6 et 7 le font sortir en erreur de segmentation, mesuré avec l'image de diagnostic. Sur
--- ng_mv2f, 5 n'est pas monté et MAME garde alors le slot d'avant, comme pour 2 à 4.
+-- A WRITE TO REG_SLOT DROPS THE P-ROM TAPS (MAME reinstalls the slot's ROM there,
+-- `set_slot_idx`): set again two BIOS reads later, the recipe of `multislot.lua`.
+-- BF_SLOT_MAX=n: a write to REG_SLOT beyond n-1 becomes n-1. MAME 0.286 indexes its
+-- array of six slots by the data without bounding it (`mvs_state::io_control_w`, `m_slots[data]`):
+-- 6 and 7 make it exit with a segmentation fault, measured with the diagnostic image. On
+-- ng_mv2f, 5 is not mounted and MAME then keeps the previous slot, as for 2 to 4.
 local SLOT_MAX = tonumber(os.getenv("BF_SLOT_MAX") or "")
 G.t_io = p:install_write_tap(0x380000, 0x39FFFF, "bf_io", function(off, data, mask)
   if (off & 0xF0) ~= 0x20 or mask & 0xFF == 0 then return end
@@ -147,8 +147,8 @@ G.t_c0 = p:install_read_tap(0xC00000, 0xC1FFFF, "bf_c0", function()
   G.t_p1:reinstall() G.t_p2:reinstall()
 end)
 
--- Un reset de la machine (le watchdog compris) remet le HC259 à zéro chez MAME : BRDFIX, vecteurs
--- du BIOS. Le premier reset, celui de la mise sous tension, n'est pas compté.
+-- A machine reset (the watchdog included) sets the HC259 back to zero in MAME: BRDFIX, BIOS
+-- vectors. The first reset, the power-on one, is not counted.
 G.reset = emu.add_machine_reset_notifier(function()
   carte_rom, vecteurs, jeu_vu = "BRDFIX", "SWPBIOS", false
   if trame > 0 then resets = resets + 1 ligne("R", "-", "-", "reset de la machine") end

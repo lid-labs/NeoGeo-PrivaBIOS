@@ -1,27 +1,27 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 -- Copyright (C) 2026 Thibaut Lion
--- Sonde de diagnostic MAME : le PC du 68000 et des adresses de RAM choisies, à chaque trame.
+-- MAME diagnostic probe: the 68000's PC and chosen RAM addresses, at each frame.
 --
--- C'est le regard du co-simulateur (non publié) porté dans le vrai MAME — Z80, YM2610 et M1 réels compris.
--- Elle existe parce que le banc MASQUE les gels liés au son (il force les réponses du Z80,
--- mesuré sur `wjammers` : vivant au banc, gelé sous MAME) : le diagnostic de ces gels n'a
--- pas d'autre instrument que MAME lui-même.
+-- It is the co-simulator's view (unpublished) carried into the real MAME — real Z80, YM2610
+-- and M1 included. It exists because the bench MASKS sound-related freezes (it forces the Z80's
+-- answers, measured on `wjammers`: alive on the bench, frozen under MAME): diagnosing these
+-- freezes has no other instrument than MAME itself.
 --
--- Réglages par l'environnement, un lua d'autoboot ne recevant pas d'arguments :
---   SONDE_OUT   fichier TSV de sortie (obligatoire)
---   SONDE_RAM   adresses à lire en octet à chaque trame, hexadécimal, séparées par des
---               virgules (ex. "10FD80,10FDAE,10005A") ; vide = aucune
---   SONDE_DE    première trame relevée (défaut 0)
---   SONDE_A     dernière trame relevée (défaut 3500) ; la machine s'arrête juste après
+-- Settings through the environment, since an autoboot lua receives no arguments:
+--   SONDE_OUT   output TSV file (mandatory)
+--   SONDE_RAM   addresses to read as a byte at each frame, hexadecimal, separated by
+--               commas (e.g. "10FD80,10FDAE,10005A"); empty = none
+--   SONDE_DE    first recorded frame (default 0)
+--   SONDE_A     last recorded frame (default 3500); the machine stops right after
 --
--- Le plan d'entrées est CELUI DE LA MATRICE (bios-probe.lua) : pièce, départ et bouton A sur
--- trois créneaux disjoints d'un cycle de 300 trames — jamais pièce et départ ensemble, qui
--- ouvrent le menu in-game d'UniBIOS. Même plan pour que les deux instruments mesurent le
--- même scénario (la trame d'un gel se compare alors d'un relevé à l'autre).
+-- The input plan is THE MATRIX'S (bios-probe.lua): coin, start and button A on three disjoint
+-- slots of a 300-frame cycle — never coin and start together, which open UniBIOS's in-game
+-- menu. Same plan so that both instruments measure the same scenario (the frame of a freeze
+-- then compares from one record to the other).
 --
--- Le PC est lu une fois par trame, au vblank : c'est grossier exprès — une boucle d'attente
--- qui tient des trames entières y laisse son adresse à chaque ligne, et c'est elle qu'on
--- cherche. Un code qui ne fait que passer ne s'y voit pas ; ce n'est pas l'objet.
+-- The PC is read once per frame, at vblank: it is coarse on purpose — a wait loop that holds
+-- whole frames leaves its address there on each line, and that is what we are looking for.
+-- Code that only passes through does not show there; that is not the point.
 local OUT = os.getenv("SONDE_OUT")
 local RAM = os.getenv("SONDE_RAM") or ""
 local DE  = tonumber(os.getenv("SONDE_DE") or "0")
@@ -31,7 +31,7 @@ if not OUT then print("SONDE: SONDE_OUT manquant") manager.machine:exit() return
 local adresses = {}
 for jeton in RAM:gmatch("[^,]+") do
   local h = jeton:gsub("^%s+", ""):gsub("%s+$", "")
-  h = h:match("^0[xX](%x+)$") or h   -- le préfixe 0x tombe ; « 0 » seul reste une adresse valide
+  h = h:match("^0[xX](%x+)$") or h   -- the 0x prefix drops; "0" alone stays a valid address
   if not h:match("^%x+$") then
     print("SONDE: adresse invalide dans SONDE_RAM : " .. jeton) manager.machine:exit() return
   end
@@ -68,5 +68,5 @@ emu.register_frame_done(function()
     ligne = ligne .. string.format("\t%02X", prog:read_u8(a))
   end
   f:write(ligne .. "\n")
-  f:flush()                     -- un arrêt de MAME avant SONDE_A ne perd alors rien d'écrit
+  f:flush()                     -- a MAME stop before SONDE_A then loses nothing written
 end)

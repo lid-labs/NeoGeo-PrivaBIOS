@@ -1,19 +1,19 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 -- Copyright (C) 2026 Thibaut Lion
--- Sonde MAME de comparaison de BIOS Neo Geo, sans fenêtre (-video none).
+-- MAME probe for comparing Neo Geo BIOSes, windowless (-video none).
 --
--- Elle capture l'écran ET les variables du BIOS en RAM à des trames fixes. Les trames sont fixes
--- EXPRÈS : les BIOS ont des temps de boot très différents — une trame pour nullbios contre ~300
--- pour un dump SNK — et c'est justement un des écarts qu'on veut voir.
+-- It captures the screen AND the BIOS variables in RAM at fixed frames. The frames are fixed ON
+-- PURPOSE: BIOSes have very different boot times — one frame for nullbios against ~300 for an
+-- SNK dump — and that is precisely one of the differences we want to see.
 --
--- Réglages par l'environnement, un lua d'autoboot ne recevant pas d'arguments :
---   BIOS_OUT     dossier de sortie (obligatoire)
---   BIOS_SHOTS   trames où relever, séparées par des virgules
---   BIOS_IMAGES  trames où écrire l'image (défaut : toutes celles de BIOS_SHOTS)
+-- Settings through the environment, since an autoboot lua receives no arguments:
+--   BIOS_OUT     output folder (mandatory)
+--   BIOS_SHOTS   frames at which to record, separated by commas
+--   BIOS_IMAGES  frames at which to write the picture (default: all those of BIOS_SHOTS)
 --
--- Sous -video none, manager.machine.video:snapshot() ne produit AUCUN fichier, faute de rendu.
--- screen:pixels() est la seule voie sans fenêtre ; il rend TROIS valeurs (les octets, la largeur,
--- la hauteur), et les écrire toutes ajoute « 320224 » en ASCII à la fin de chaque capture.
+-- Under -video none, manager.machine.video:snapshot() produces NO file, for lack of rendering.
+-- screen:pixels() is the only windowless way; it returns THREE values (the bytes, the width, the
+-- height), and writing them all appends "320224" in ASCII at the end of each capture.
 local OUT = os.getenv("BIOS_OUT")
 local SHOTS = os.getenv("BIOS_SHOTS") or "100,300,600,900,1200,1800,2400,3000,3500"
 local IMAGES = os.getenv("BIOS_IMAGES") or SHOTS
@@ -29,10 +29,10 @@ local start   = F(":edge:joy:START", "1 Player Start")
 local boutonA = F(":edge:joy:JOY1", "P1 A")
 local ecran   = manager.machine.screens:at(1)
 
--- Signature SPATIALEMENT COMPLÈTE : chaque pixel y contribue. Une première version sommait un
--- octet sur 257 ; elle ratait les petits chiffres d'une minuterie et déclarait « figé » un jeu qui
--- tournait. Mesuré sur League Bowling : somme constante pendant que TIME passait de 06 à 00.
--- vifs compte les pixels allumés, et c'est lui qui distingue un écran noir d'une image.
+-- SPATIALLY COMPLETE signature: every pixel contributes to it. A first version summed one byte
+-- in 257; it missed the small digits of a timer and declared "frozen" a game that was running.
+-- Measured on League Bowling: constant sum while TIME went from 06 to 00.
+-- vifs counts the lit pixels, and it is what tells a black screen from a picture.
 local function resume(px)
   local h, vifs, n = 5381, 0, #px
   for i = 1, n, 4 do
@@ -51,9 +51,9 @@ local frame = 0
 emu.register_frame_done(function()
   frame = frame + 1
 
-  -- JAMAIS la pièce et le départ en même temps : START+COIN ouvre le menu in-game d'UniBIOS, et
-  -- le banc mesure alors ce menu au lieu du jeu. Trois créneaux disjoints dans un cycle de 300
-  -- trames : pièce, puis départ, puis A — certains BIOS attendent un bouton d'action à leur menu.
+  -- NEVER the coin and start at the same time: START+COIN opens UniBIOS's in-game menu, and the
+  -- bench then measures that menu instead of the game. Three disjoint slots in a 300-frame
+  -- cycle: coin, then start, then A — some BIOSes wait for an action button at their menu.
   local c = frame % 300
   if coin    then coin:set_value((c >= 0 and c < 8) and 1 or 0) end
   if start   then start:set_value((c >= 100 and c < 108) and 1 or 0) end
@@ -61,10 +61,10 @@ emu.register_frame_done(function()
 
   if not shot[frame] then return end
 
-  -- L'espace mémoire se relit à chaque relevé plutôt qu'au chargement : au boot d'un dump SNK, la
-  -- RAM de travail porte successivement 0x55, 0xAA puis une valeur dérivée de son adresse — ce
-  -- sont les trois motifs de son test mémoire, et ils ressemblent à s'y méprendre à du bus
-  -- flottant. Les variables du BIOS ne sont lisibles qu'une fois ce test fini (vers la trame 300).
+  -- The memory space is reread at each record rather than at load: at the boot of an SNK dump,
+  -- the work RAM successively holds 0x55, 0xAA then a value derived from its address — these
+  -- are the three patterns of its memory test, and they look deceptively like a floating bus.
+  -- The BIOS variables are only readable once that test is over (around frame 300).
   local mem = manager.machine.devices[":maincpu"].spaces["program"]
   local px = ecran:pixels()
   if img[frame] then
