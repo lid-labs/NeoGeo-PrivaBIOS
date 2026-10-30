@@ -523,9 +523,11 @@ _cheats_table:
         JEU     0x0011, 0xB441, 1
         CHEAT   "INFINITE LIVES",  0x10181F, 1, 0x08
         | TWINKLE STAR SPRITES : les vies, 3 au plus haut ; le témoin perd la partie à la trame
-        | 9296.
-        JEU     0x0224, 0xC6FE, 1
+        | 9296. Celles de P2 (2026-10-30, P2 seul) : $10D005 ; $100540, la cellule écartée le
+        | 2026-10-29, n'en est qu'une copie (fin de partie sous cheat).
+        JEU     0x0224, 0xC6FE, 2
         CHEAT   "INFINITE LIVES",  0x103745, 1, 0x03
+        CHEAT   "P2 INF. LIVES",   0x10D005, 1, 0x03
         | VIEWPOINT : les vies, 3 au plus haut ; le témoin perd la partie à la trame 5989.
         JEU     0x0051, 0x691F, 2
         CHEAT   "INFINITE LIVES",  0x108D99, 1, 0x03
@@ -681,5 +683,16 @@ _cheats_table:
         | TECMO WORLD SOCCER 96.
         JEU     0x0086, 0xCB1D, 1
         CHEAT   "NO GAME OVER",     0x1014D7, 1, 0x05
+        | LE 2026-10-30, la même recherche par suite attendue, en scénario action ; jugés par le
+        | menu à la trame 1500, ou dès que la partie commence (trally 2600, zintrckb 2500).
+        | GURURIN.
+        JEU     0x0067, 0x97E7, 1
+        CHEAT   "NO GAME OVER",     0x101C17, 1, 0x02
+        | THRASH RALLY.
+        JEU     0x0038, 0x5FF9, 1
+        CHEAT   "NO GAME OVER",     0x107105, 1, 0x05
+        | ZINTRICK.
+        JEU     0x0211, 0x1F3E, 1
+        CHEAT   "NO GAME OVER",     0x100349, 1, 0x02
         FIN_TABLE
         .balign 2
