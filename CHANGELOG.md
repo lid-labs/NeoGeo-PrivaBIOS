@@ -23,6 +23,7 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 - `bench/cheats-recherche.py`, the tool that searches for cheats under MAME.
 - `bench/cheats-recherche.py`: a `bombe` scenario, and the matching `b` entries in
   `bench/cheats-catalogue.sh`.
+- `CLAUDE.md`, guidance for AI coding agents. New text in the repository is written in English.
 
 ### Changed
 

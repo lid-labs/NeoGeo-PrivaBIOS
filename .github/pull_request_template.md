@@ -6,7 +6,8 @@
 
 - [ ] **Clean room.** I have never read, disassembled, decompiled, stepped through in a debugger or
       copied the code or ROM bytes of the SNK BIOS, of UniBIOS, of another third-party BIOS or of a
-      game; I have only observed them running. This change contains no byte of their ROMs
+      game; I have only observed them running. I have used no third-party cheat database. This
+      change contains no byte of their ROMs
       ([CONTRIBUTING.md](../CONTRIBUTING.md#clean-room-rules)).
 - [ ] **Scene and mutation.** Each visible change has a scene in `bench/parcours.sh` and a mutation in
       `bench/parcours-mutations.py` that the scene catches (or this change is not visible to the
