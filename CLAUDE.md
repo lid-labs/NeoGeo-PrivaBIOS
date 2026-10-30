@@ -20,9 +20,9 @@ notes and in the backup RAM signature.
    tell which program counter writes a RAM cell. Never use a third-party cheat database (UniBIOS,
    MAME's `cheat.xml`, websites). If unsure whether something crosses the line, stop and ask.
 2. **No ROM, dump, capture of a commercial game or value read from a third-party ROM** is ever
-   committed. `bench/garde-publication.sh` (run by the CI) also fails on machine paths, personal
-   e-mail addresses, Google Drive links and private ticket numbers (`#NNNN`) in `src/`, `bench/` and
-   `build/`. Keep local paths (ROM folders, work directories) out of tracked files.
+   committed. `bench/garde-publication.sh` (run by the CI) fails on tracked ROM files, machine
+   paths, personal e-mail addresses and Google Drive links anywhere, and on private ticket numbers
+   (`#NNNN`) in `src/`, `bench/` and `build/`. Keep local paths out of tracked files.
 3. **Every change the player can see comes with a scene and a mutation**: a scene in
    `bench/parcours.sh` judged on picture or sound against a reference run, thresholds recorded in
    `measured/`, and a mutation in `bench/parcours-mutations.py` that the scene catches
