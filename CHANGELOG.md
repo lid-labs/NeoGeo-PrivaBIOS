@@ -6,6 +6,11 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- Contributing rules: the titles of a third-party cheat list may be read to decide what to look
+  for; its addresses, values and code stay forbidden.
+
 ### Added
 
 - Cheats for 46 more games, 77 cheats: INFINITE LIVES for 26 action games, P2 INF. LIVES for 23

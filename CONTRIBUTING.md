@@ -20,7 +20,11 @@ You must never, for the SNK BIOS, UniBIOS, any other third-party BIOS or a game:
 - read, disassemble or decompile the code or the bytes of its ROM;
 - step through its code in a debugger;
 - copy its code or any byte of its ROM;
-- use a third-party cheat database (UniBIOS, MAME's `cheat.xml`, websites).
+- use the addresses, values or code of a third-party cheat database (UniBIOS, MAME's `cheat.xml`,
+  websites).
+
+The titles of such a list, without addresses or values, may be read to decide what to look for.
+Every cheat is still located and proven here, by observing the game.
 
 If you are unsure whether something you saw or used crosses this line, say so in the pull request
 before writing code.

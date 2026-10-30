@@ -18,7 +18,8 @@ notes and in the backup RAM signature.
    code or ROM bytes of the SNK BIOS, UniBIOS, another third-party BIOS or a game. Observing them
    running under MAME is allowed: picture, sound, RAM, registers, access counts, and watchpoints that
    tell which program counter writes a RAM cell. Never use a third-party cheat database (UniBIOS,
-   MAME's `cheat.xml`, websites). If unsure whether something crosses the line, stop and ask.
+   MAME's `cheat.xml`, websites) for its addresses, values or code; its titles alone may be read to
+   decide what to look for, and every cheat is still located and proven here. If unsure whether something crosses the line, stop and ask.
 2. **No ROM, dump, capture of a commercial game or value read from a third-party ROM** is ever
    committed. `bench/garde-publication.sh` (run by the CI) fails on tracked ROM files, machine
    paths, personal e-mail addresses and Google Drive links anywhere, and on private ticket numbers
