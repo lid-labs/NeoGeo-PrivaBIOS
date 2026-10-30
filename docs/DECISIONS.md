@@ -21,7 +21,7 @@ What "UniBIOS parity" covers, and where each piece already exists:
 | **Jukebox** | **to be written** |
 | High scores and their resets | to be written |
 
-No row is taken from them: since §1, this column bounds the scope and nothing more.
+No line of code is taken from them: since §1, this column bounds the scope and nothing more.
 
 **Two of these features are missing from both bases, and only one is really costly.** The cheat
 engine fits in a few hundred bytes — writing to memory from an overlay; it is the **per-game table,
