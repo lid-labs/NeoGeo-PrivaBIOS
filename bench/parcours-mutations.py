@@ -159,6 +159,11 @@ MUTATIONS = {
           "        ble.s   9f                      | signed: negative as long as the index is under MN_NVIS\n        nop                     | MUTATION\n")],
         "la fenêtre des cheats ne suit plus le choix vers le bas",
     ),
+    "cheats-unefois-reste": (
+        "cheats-unefois", "cheats.s",
+        [("        bclr    %d4, %d3\n", "        nop                     | MUTATION\n")],
+        "un cheat ponctuel reste actif et écrit à chaque trame",
+    ),
     "restart-reprend": (
         "restart", "menu.s",
         [("        beq.w   .Lrelance\n", "        beq.w   .Lreprendre             | MUTATION\n")],
