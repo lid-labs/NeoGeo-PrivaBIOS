@@ -1,24 +1,24 @@
 | SPDX-License-Identifier: GPL-3.0-or-later
 | Copyright (C) 2026 Thibaut Lion
-| HARNAIS DE CHAÎNE — ce n'est PAS la couche 0, et ça ne prétend rien faire démarrer.
+| CHAIN HARNESS — this is NOT layer 0, and it does not claim to boot anything.
 |
-| Son seul rôle est de prouver que `build/construire.sh` produit une image que le co-simulateur
-| (non publié) charge et que le 68000 exécute : il écrit un motif reconnaissable en RAM, puis boucle. Si la trace du
-| co-simulateur porte cette écriture, la chaîne va de la source à l'image chargée.
+| Its only role is to prove that `build/construire.sh` produces an image that the co-simulator
+| (unpublished) loads and that the 68000 executes: it writes a recognisable pattern in RAM, then loops. If the
+| co-simulator's trace carries that write, the chain goes from the source to the loaded image.
 |
-| Il ne donne volontairement aucun coup de pied au watchdog : le banc doit donc le réinitialiser
-| toutes les huit trames (I3), ce qui se vérifie dans la même trace.
+| It deliberately gives no kick to the watchdog: the bench must therefore reset it
+| every eight frames (I3), which can be checked in the same trace.
 |
-| Écrire le BIOS revient à des agents d'implémentation (`docs/DECISIONS.md` §1). Ce fichier est de
-| l'outillage, pas une implémentation.
+| Writing the BIOS falls to implementation agents (`docs/DECISIONS.md` §1). This file is
+| tooling, not an implementation.
 
         .section .vectors, "a"
-        .long   0x10F300        | pile superviseur, sous la RAM BIOS
-        .long   _reset          | vecteur de reset : où le 68000 saute
+        .long   0x10F300        | supervisor stack, below the BIOS RAM
+        .long   _reset          | reset vector: where the 68000 jumps
 
         .text
         .global _reset
 _reset:
-        move.w  #0x5A17, 0x100000   | le motif, à la première adresse de RAM de travail
+        move.w  #0x5A17, 0x100000   | the pattern, at the first work RAM address
 boucle:
         bra.s   boucle

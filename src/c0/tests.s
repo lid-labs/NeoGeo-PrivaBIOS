@@ -1,37 +1,37 @@
 | SPDX-License-Identifier: GPL-3.0-or-later
 | Copyright (C) 2026 Thibaut Lion
 | ==================================================================================
-| LES AUTOTESTS — un sous-menu de l'écran TEST (`dip.s`), ligne « HARDWARE TESTS ».
+| THE SELF-TESTS — a sub-menu of the TEST screen (`dip.s`), line "HARDWARE TESTS".
 |
-| Appelé par `jsr _autotests` depuis l'éditeur de soft-DIP, IRQ masquées (SR = $2700
-| depuis `_demarrage`), backup RAM déverrouillée, plan fixe sur la police de la carte
-| (REG_BRDFIX, posé par `dip.s`). Sortie : tous les registres rendus, palettes 0-15 de la
-| banque 0 à zéro hors de la référence, banque 0 choisie ; l'appelant redessine son écran.
+| Called by `jsr _autotests` from the soft-DIP editor, IRQs masked (SR = $2700
+| since `_demarrage`), backup RAM unlocked, fix layer on the board's font
+| (REG_BRDFIX, set by `dip.s`). Exit: all registers given back, palettes 0-15 of
+| bank 0 at zero apart from the reference, bank 0 selected; the caller redraws its screen.
 |
-| AUCUN ORACLE : ni les tests du BIOS de référence ni ceux d'un BIOS tiers ne sont lus.
-| La remise est « Couche 3 → les autotests, le 2026-10-21 » (`docs/RELECTURE-CONTRATS.md`).
-| « mesuré » : un relevé nommé ; « lu dans » : une page du NeoGeo Development Wiki ;
-| « SUPPOSÉ » : ni l'un ni l'autre.
+| NO ORACLE: neither the reference BIOS's tests nor those of a third-party BIOS are read.
+| The hand-over is "Layer 3 → the self-tests, 2026-10-21" (`docs/RELECTURE-CONTRATS.md`).
+| "measured": a named record; "read in": a page of the NeoGeo Development Wiki;
+| "ASSUMED": neither one nor the other.
 |
-| LES QUATRE TESTS DE MÉMOIRE, mêmes motifs partout : quatre motifs de données ($0000,
-| $FFFF, $5555, $AAAA : chaque bit à 0 et à 1, bits voisins opposés), chacun écrit sur
-| toute la zone puis relu ; puis deux motifs d'adresse : chaque mot reçoit une valeur tirée
-| de son adresse, puis son complément, toute la zone écrite avant toute relecture — une
-| ligne d'adresse collée ou court-circuitée fait que deux mots se recouvrent, et le
-| premier relu porte la valeur de l'autre. Résultat : OK, ou le premier mot fautif, la
-| valeur écrite et la valeur lue. Accès par mots, à des adresses paires seulement.
-|   WORK RAM    $100000-$10FFFF, en deux temps (voir `.Lt_ram`).
-|   PALETTE RAM $400000-$401FFF, les deux banques, par tranches dans le blanking.
-|   VRAM        par REG_VRAMADDR / REG_VRAMRW / REG_VRAMMOD : $0000-$85FF et $8700-$87FF.
-|   BACKUP RAM  $D00000-$D0FFFF, NON destructif : complément mot par mot.
-| Puis INPUT TEST, COLOR BARS et CROSSHATCH, et CARTRIDGE CRC (`crc.s`, le 2026-10-25), juste
-| avant EXIT : depuis WORK RAM, « bas » quatre et cinq fois mènent toujours à INPUT TEST et COLOR
-| BARS ; CROSSHATCH est à « haut » trois fois, CARTRIDGE CRC à deux, EXIT à une.
+| THE FOUR MEMORY TESTS, the same patterns everywhere: four data patterns ($0000,
+| $FFFF, $5555, $AAAA: each bit at 0 and at 1, neighbouring bits opposite), each written over
+| the whole area then read back; then two address patterns: each word receives a value drawn
+| from its address, then its complement, the whole area written before any read-back — a
+| stuck or shorted address line makes two words overlap, and the
+| first one read back carries the value of the other. Result: OK, or the first faulty word,
+| the value written and the value read. Word accesses, at even addresses only.
+|   WORK RAM    $100000-$10FFFF, in two stages (see `.Lt_ram`).
+|   PALETTE RAM $400000-$401FFF, both banks, in slices during blanking.
+|   VRAM        through REG_VRAMADDR / REG_VRAMRW / REG_VRAMMOD: $0000-$85FF and $8700-$87FF.
+|   BACKUP RAM  $D00000-$D0FFFF, NON-destructive: complement word by word.
+| Then INPUT TEST, COLOR BARS and CROSSHATCH, and CARTRIDGE CRC (`crc.s`, 2026-10-25), just
+| before EXIT: from WORK RAM, "down" four and five times still lead to INPUT TEST and COLOR
+| BARS; CROSSHATCH is at "up" three times, CARTRIDGE CRC at two, EXIT at one.
 |
-| L'AFFICHAGE, comme `dip.s` : plan fixe seul, $7000 + 32 × colonne + ligne, REG_VRAMMOD à
-| 32 pour écrire une ligne ; police 8×8 = tuile ASCII, 8×16 = $100/$200 + ASCII ;
-| couleur du trait dans l'entrée 1, entrées 2-15 noires (`measured/2026-10-20-sfix-glyphes.tsv`).
-| Palettes : 1 le texte, 2 la ligne choisie, 3 le titre, 4 l'aide, 5 OK / appuyé, 6 FAIL.
+| THE DISPLAY, like `dip.s`: fix layer only, $7000 + 32 × column + line, REG_VRAMMOD at
+| 32 to write a line; 8×8 font = ASCII tile, 8×16 = $100/$200 + ASCII;
+| stroke colour in entry 1, entries 2-15 black (`measured/2026-10-20-sfix-glyphes.tsv`).
+| Palettes: 1 the text, 2 the chosen line, 3 the title, 4 the help, 5 OK / pressed, 6 FAIL.
 | ==================================================================================
 
         .section .haut, "ax"
@@ -42,8 +42,8 @@
         .equ    VRAMMOD,  0x3C0004
         .equ    LSPCMODE, 0x3C0006
         .equ    P1CNT,    0x300000
-        .equ    WATCHDOG, 0x300001      | en écriture
-        .equ    DIPSW,    0x300001      | en lecture
+        .equ    WATCHDOG, 0x300001      | on write
+        .equ    DIPSW,    0x300001      | on read
         .equ    SYSTYPE,  0x300081
         .equ    STATUS_A, 0x320001
         .equ    P2CNT,    0x340000
@@ -54,22 +54,22 @@
         .equ    PALETTES, 0x400000
         .equ    FOND,     0x401FFE
 
-        | La RAM de travail (« Memory map » : $100000-$10FFFF), en deux zones.
+        | The work RAM ("Memory map": $100000-$10FFFF), in two areas.
         .equ    RAM_BAS,  0x100000
-        .equ    RAM_H,    0x10F000      | la zone haute, gardée par copie
+        .equ    RAM_H,    0x10F000      | the high area, kept by copying
         .equ    RAM_FIN,  0x110000
-        .equ    COPIE,    0x100000      | où la zone haute est mise de côté, déjà testée
-        .equ    TRANCHE,  4096          | octets entre deux coups de pied au watchdog
+        .equ    COPIE,    0x100000      | where the high area is set aside, already tested
+        .equ    TRANCHE,  4096          | bytes between two watchdog kicks
 
-        | Les résultats, dans le cadre : 4 tests × R_TAILLE. +0 état (0 pas lancé, 1 OK,
-        | 2 FAIL, 3 en cours), +1 banque, +2 adresse, +6 écrit, +8 lu.
+        | The results, in the frame: 4 tests × R_TAILLE. +0 state (0 not run, 1 OK,
+        | 2 FAIL, 3 in progress), +1 bank, +2 address, +6 written, +8 read.
         .equ    R_TAILLE, 12
-        .equ    N_MEM,    4             | les tests de mémoire
+        .equ    N_MEM,    4             | the memory tests
         .equ    F_RES,    -(N_MEM * R_TAILLE)
 
-        | La mise en page : la ligne du menu, colonne 3.
-        .equ    CASE_TITRE, 0x7000 + 13 * 32 + 3       | 8×16, lignes 3-4
-        .equ    CASE_MENU,  0x7000 + 3 * 32            | + la ligne
+        | The layout: the menu line, column 3.
+        .equ    CASE_TITRE, 0x7000 + 13 * 32 + 3       | 8×16, lines 3-4
+        .equ    CASE_MENU,  0x7000 + 3 * 32            | + the line
         .equ    CASE_AIDE1, 0x7000 + 3 * 32 + 26
         .equ    CASE_AIDE2, 0x7000 + 3 * 32 + 27
         .equ    N_LIGNES,   9
@@ -82,28 +82,28 @@ _autotests:
         moveq   #(N_MEM * R_TAILLE / 4) - 1, %d0
 1:      clr.l   (%a0)+
         dbra    %d0, 1b
-        moveq   #0, %d7                 | %d7 : la ligne choisie
+        moveq   #0, %d7                 | %d7: the chosen line
         bsr     .Lmenu
-        moveq   #0, %d5                 | un bouton déjà tenu (le A qui ouvre) ne compte pas
+        moveq   #0, %d5                 | a button already held (the A that opens) does not count
         bsr     .Lentrees
 
-| LA BOUCLE DU MENU, une trame par tour. %d5 : les boutons de la trame d'avant.
+| THE MENU LOOP, one frame per turn. %d5: the buttons of the previous frame.
 .Lboucle:
         bsr     .Lsync
         bsr     .Lentrees
-        btst    #5, %d0                 | START : retour à l'écran TEST
+        btst    #5, %d0                 | START: back to the TEST screen
         bne     .Lsortie
-        btst    #0, %d0                 | haut
+        btst    #0, %d0                 | up
         beq.s   2f
         move.w  %d7, %d0
         subq.w  #1, %d7
         bpl.s   1f
         moveq   #N_LIGNES - 1, %d7
-1:      bsr     .Lligne                 | l'ancienne, puis la nouvelle
+1:      bsr     .Lligne                 | the old one, then the new one
         move.w  %d7, %d0
         bsr     .Lligne
         bra.s   .Lboucle
-2:      btst    #1, %d0                 | bas
+2:      btst    #1, %d0                 | down
         beq.s   3f
         move.w  %d7, %d0
         addq.w  #1, %d7
@@ -111,15 +111,15 @@ _autotests:
         bcs.s   1b
         moveq   #0, %d7
         bra.s   1b
-3:      andi.b  #0x18, %d0              | A ou droite : lancer
+3:      andi.b  #0x18, %d0              | A or right: run
         beq.s   .Lboucle
 
-| LANCER LA LIGNE %d7.
+| RUN LINE %d7.
         cmpi.w  #N_LIGNES - 1, %d7      | EXIT
         beq     .Lsortie
         cmpi.w  #4, %d7
         bcc.s   .Lmire
-        lea     F_RES(%a6), %a3         | un test de mémoire : « TESTING » d'abord
+        lea     F_RES(%a6), %a3         | a memory test: "TESTING" first
         move.w  %d7, %d0
         mulu    #R_TAILLE, %d0
         move.b  #3, (%a3,%d0.w)
@@ -130,7 +130,7 @@ _autotests:
         lea     .Ltests, %a0
         movea.l (%a0,%d0.w), %a0
         movem.l %d5/%d7/%a6, -(%sp)
-        jsr     (%a0)                   | sortie : %d0 0 ou 1, %a2, %d1, %d2, %d3
+        jsr     (%a0)                   | exit: %d0 0 or 1, %a2, %d1, %d2, %d3
         movem.l (%sp)+, %d5/%d7/%a6
         lea     F_RES(%a6), %a3
         move.w  %d7, %d4
@@ -161,7 +161,7 @@ _autotests:
         movem.l (%sp)+, %d5/%d7/%a6
 .Lapres:
         bsr     .Lmenu
-        bsr     .Lentrees               | un bouton encore tenu ne compte pas
+        bsr     .Lentrees               | a button still held does not count
         bra     .Lboucle
 
 .Lsortie:
@@ -172,25 +172,26 @@ _autotests:
         rts
 
 | ----------------------------------------------------------------------------------
-| WORK RAM. Ce que le BIOS occupe pendant ce test, lu dans le code : la pile (posée à
-| $10F300 par `_demarrage`, elle descend), et les variables du BIOS de $10F300-$10FFFF
-| encore lues après l'éditeur — BIOS_COUNTRY_CODE, BIOS_GAME_DIP (que l'éditeur tient
-| dans sa table), BIOS_MESS_POINT, le drapeau de `plantage.s` — sans compter le cadre de
-| `dip.s`, dans la pile. La profondeur de la pile ici, comptée dans le code : 4 (jsr de
-| `c0.s`) + 60 (movem de `dip.s`) + 4 + 386 (son cadre, `link #F_LIEN` : 22 × 12 de table, 32
-| de tampon, 4, 1, 1, 4, 4, huit octets d'états, 2, 2, 5 × 12 du sous-écran CABINET SETTINGS, et 4
-| de la liste en 8×16) + 8
-| (bsr, jsr) + 60 (movem ici) + 4 + 48 (ce cadre) + 16 (movem et jsr du lancement) + 12 (trois
-| appels au plus ; le test n'appelle pas `.Lsync`) = 602 octets, donc rien sous $10F0A6 : la zone basse
-| $100000-$10EFFF est libre et se teste sans précaution ; la sauvegarde du jeu y est restaurée
-| après l'éditeur (`_slot_present`, `c0.s`), ce qui rend ce test non destructif pour le jeu. La zone haute $10F000-$10FFFF (4 Kio) est d'abord copiée dans la zone basse
-| tout juste testée, la pile y est déplacée du même écart, la zone haute est testée, puis
-| recopiée. Rien d'autre n'écrit dans la RAM de travail : IRQ masquées, aucun appel au jeu.
-| Enfin la zone basse hors de la copie est relue : son dernier motif d'adresse doit y être
-| intact, sinon une écriture en zone haute l'a touchée (lignes A12-A15). Le sens bas → haut
-| n'est pas pris : une de ces lignes collée à 1 envoie les écritures de $10E0F8-$10E2FF sur
-| la pile réelle avant son déplacement, et la machine plante ou repart au lieu d'un FAIL.
-| Sortie : %d0 0 ou 1, %a2 l'adresse, %d1 écrit, %d2 lu, %d3 = 0.
+| WORK RAM. What the BIOS occupies during this test, read in the code: the stack (set at
+| $10F300 by `_demarrage`, it grows down), and the BIOS variables of $10F300-$10FFFF
+| still read after the editor — BIOS_COUNTRY_CODE, BIOS_GAME_DIP (which the editor holds
+| in its table), BIOS_MESS_POINT, the flag of `plantage.s` — not counting the frame of
+| `dip.s`, in the stack. The stack depth here, counted in the code: 4 (jsr from
+| `c0.s`) + 60 (movem of `dip.s`) + 4 + 386 (its frame, `link #F_LIEN`: 22 × 12 of table, 32
+| of buffer, 4, 1, 1, 4, 4, eight bytes of states, 2, 2, 5 × 12 of the CABINET SETTINGS
+| sub-screen, and 4 of the 8×16 list) + 8
+| (bsr, jsr) + 60 (movem here) + 4 + 48 (this frame) + 16 (movem and jsr of the run) + 12 (three
+| calls at most; the test does not call `.Lsync`) = 602 bytes, so nothing below $10F0A6: the low
+| area $100000-$10EFFF is free and is tested without precaution; the game's save is restored
+| there after the editor (`_slot_present`, `c0.s`), which makes this test non-destructive for
+| the game. The high area $10F000-$10FFFF (4 KiB) is first copied into the low area
+| just tested, the stack is moved there by the same offset, the high area is tested, then
+| copied back. Nothing else writes to the work RAM: IRQs masked, no call to the game.
+| Finally the low area outside the copy is read back: its last address pattern must be
+| intact there, otherwise a write to the high area touched it (lines A12-A15). The low → high
+| direction is not taken: one of these lines stuck at 1 sends the writes of $10E0F8-$10E2FF
+| onto the real stack before it is moved, and the machine crashes or restarts instead of a FAIL.
+| Exit: %d0 0 or 1, %a2 the address, %d1 written, %d2 read, %d3 = 0.
 .Lt_ram:
         lea     RAM_BAS, %a4
         lea     RAM_H, %a5
@@ -202,10 +203,10 @@ _autotests:
         move.w  #(0x1000 / 4) - 1, %d3
 1:      move.l  (%a0)+, (%a1)+
         dbra    %d3, 1b
-        suba.l  #RAM_H - COPIE, %sp     | la pile dans la copie : son contenu y est
+        suba.l  #RAM_H - COPIE, %sp     | the stack in the copy: its contents are there
         lea     RAM_H, %a4
         lea     RAM_FIN, %a5
-        bsr     .Lm_complet             | %d0-%d2, %a2 : le résultat, gardé ci-dessous
+        bsr     .Lm_complet             | %d0-%d2, %a2: the result, kept below
         lea     COPIE, %a0
         lea     RAM_H, %a1
         move.w  #(0x1000 / 4) - 1, %d3
@@ -216,13 +217,13 @@ _autotests:
         bne.s   9f
         lea     COPIE + 0x1000, %a4
         lea     RAM_H, %a5
-        moveq   #-1, %d1                | le dernier motif : l'adresse complémentée
+        moveq   #-1, %d1                | the last pattern: the complemented address
         moveq   #1, %d6
         bsr     .Lm_relire_tout
 9:      moveq   #0, %d3
         rts
 
-| UN TEST COMPLET sur [%a4, %a5) : les six motifs. Clobbers %d0-%d2, %d4, %d6, %a0-%a3.
+| A COMPLETE TEST on [%a4, %a5): the six patterns. Clobbers %d0-%d2, %d4, %d6, %a0-%a3.
 .Lm_complet:
         lea     .Lmotifs, %a3
         moveq   #6 - 1, %d4
@@ -235,9 +236,9 @@ _autotests:
         dbra    %d4, 1b
 9:      rts
 
-| TOUTE LA ZONE [%a4, %a5), par tranches de TRANCHE octets, un coup de pied au watchdog
-| entre deux (au pire la relecture du motif d'adresse : ≈ 54 cycles par mot, ≈ 110 000
-| par tranche, ≈ 1/29 des 3 244 030 cycles du watchdog que cite `c0.s`). %d1, %d6 : voir `.Lm_remplir`.
+| THE WHOLE AREA [%a4, %a5), in slices of TRANCHE bytes, a watchdog kick
+| between two (at worst the read-back of the address pattern: ≈ 54 cycles per word, ≈ 110,000
+| per slice, ≈ 1/29 of the 3,244,030 watchdog cycles that `c0.s` cites). %d1, %d6: see `.Lm_remplir`.
 .Lm_ecrire_tout:
         movea.l %a4, %a0
 1:      lea     TRANCHE(%a0), %a1
@@ -265,9 +266,9 @@ _autotests:
         moveq   #0, %d0
 9:      rts
 
-| ÉCRIRE [%a0, %a1). %d6 = 0 : la donnée %d1 partout ; sinon le motif d'adresse, le mot à
-| l'adresse a recevant (a >> 1) xor %d1 — 15 bits d'index de mot sur 64 Kio, donc une
-| valeur par mot de la zone. Clobbers %d0, %a2.
+| WRITE [%a0, %a1). %d6 = 0: the data %d1 everywhere; otherwise the address pattern, the word at
+| address a receiving (a >> 1) xor %d1 — 15 bits of word index over 64 KiB, hence one
+| value per word of the area. Clobbers %d0, %a2.
 .Lm_remplir:
         movea.l %a0, %a2
         tst.w   %d6
@@ -284,8 +285,8 @@ _autotests:
         bcs.s   2b
         rts
 
-| RELIRE [%a0, %a1), mêmes valeurs. Sortie : %d0 = 0 et Z, ou %d0 = 1 avec %a2 le mot
-| fautif, %d1 l'écrit, %d2 le lu. Clobbers %d0, %d2, %a2 (et %d1 sur faute d'adresse).
+| READ BACK [%a0, %a1), same values. Exit: %d0 = 0 and Z, or %d0 = 1 with %a2 the faulty
+| word, %d1 the written, %d2 the read. Clobbers %d0, %d2, %a2 (and %d1 on an address fault).
 .Lm_verif:
         movea.l %a0, %a2
         tst.w   %d6
@@ -314,17 +315,17 @@ _autotests:
         rts
 
 | ----------------------------------------------------------------------------------
-| PALETTE RAM. Lu dans « Palettes » : $400000-$401FFF, deux banques choisies par
-| REG_PALBANK0/1, et écrire pendant l'affichage fait de la neige. Toute la zone est donc
-| touchée par tranches juste après le passage de la ligne $1F0 : 40 lignes de blanking
-| SUPPOSÉ (le compteur de ligne passe de $1F0 à $1FF puis de $F8 à $10F avant
-| l'affichage), ≈ 30 000 cycles. Les tranches, comptées d'après les durées d'instruction du
-| 68000 (SUPPOSÉ : sans état d'attente sur la RAM de palettes) : 64 mots pour les quatre
-| motifs de données plus l'écriture de l'adresse (≈ 18 000 cycles), 128 pour relire
-| l'adresse et écrire son complément (≈ 12 000), 256 pour relire le complément (≈ 14 000).
-| Le banc ne verrait pas la neige (MAME ne la rend pas) : le découpage n'y est pas jugé.
-| La banque 0 d'abord, la 1 ensuite ; l'écran du menu clignote pendant ce temps, ses
-| palettes étant sous le test. Sortie comme `.Lt_ram`, %d3 la banque fautive.
+| PALETTE RAM. Read in "Palettes": $400000-$401FFF, two banks selected by
+| REG_PALBANK0/1, and writing during display makes snow. The whole area is therefore
+| touched in slices right after line $1F0 passes: 40 lines of blanking
+| ASSUMED (the line counter goes from $1F0 to $1FF then from $F8 to $10F before
+| display), ≈ 30,000 cycles. The slices, counted from the 68000's instruction
+| timings (ASSUMED: no wait state on the palette RAM): 64 words for the four
+| data patterns plus the address write (≈ 18,000 cycles), 128 to read back
+| the address and write its complement (≈ 12,000), 256 to read back the complement (≈ 14,000).
+| The bench would not see the snow (MAME does not render it): the slicing is not judged there.
+| Bank 0 first, bank 1 next; the menu screen flickers meanwhile, its
+| palettes being under test. Exit like `.Lt_ram`, %d3 the faulty bank.
 .Lt_pal:
         moveq   #0, %d3
 .Lp_banque:
@@ -334,7 +335,7 @@ _autotests:
         beq.s   1f
         move.b  %d0, PALBANK1
 1:      lea     PALETTES, %a4
-.Lp_a:  bsr     .Lsync                  | données, puis l'adresse : 64 mots par trame
+.Lp_a:  bsr     .Lsync                  | data, then the address: 64 words per frame
         movea.l %a4, %a0
         lea     128(%a4), %a1
         lea     .Lmotifs, %a3
@@ -352,7 +353,7 @@ _autotests:
         cmpa.l  #PALETTES + 0x2000, %a4
         bcs.s   .Lp_a
         lea     PALETTES, %a4
-.Lp_b:  bsr     .Lsync                  | l'adresse relue, son complément écrit
+.Lp_b:  bsr     .Lsync                  | the address read back, its complement written
         movea.l %a4, %a0
         lea     256(%a4), %a1
         moveq   #0, %d1
@@ -365,7 +366,7 @@ _autotests:
         cmpa.l  #PALETTES + 0x2000, %a4
         bcs.s   .Lp_b
         lea     PALETTES, %a4
-.Lp_c:  bsr     .Lsync                  | le complément relu
+.Lp_c:  bsr     .Lsync                  | the complement read back
         movea.l %a4, %a0
         lea     512(%a4), %a1
         moveq   #-1, %d1
@@ -382,10 +383,10 @@ _autotests:
         moveq   #0, %d0
 9:      rts
 
-| LES DEUX BANQUES REMISES À ZÉRO, par tranches de 1 Kio dans le blanking, la référence
-| $400000 à $8000 dans chacune (« Palettes » : « always has to be pure black ($8000) » ;
-| SUPPOSÉ pour la banque 1, la page ne distingue pas). La banque 0 reste choisie ; le menu
-| repose ses couleurs ensuite. Clobbers %d0, %d1, %d3, %a0.
+| BOTH BANKS RESET TO ZERO, in 1 KiB slices during blanking, the reference
+| $400000 at $8000 in each ("Palettes": "always has to be pure black ($8000)";
+| ASSUMED for bank 1, the page does not distinguish). Bank 0 stays selected; the menu
+| sets its colours again afterwards. Clobbers %d0, %d1, %d3, %a0.
 .Lp_nettoyer:
         moveq   #1, %d3
 1:      bsr     .Lsync
@@ -406,19 +407,19 @@ _autotests:
         rts
 
 | ----------------------------------------------------------------------------------
-| VRAM. Lu dans « VRAM » : zone basse $0000-$7FFF (SCB1, carte du plan fixe à $7000,
-| extension $7500-$7FFF), zone haute $8000-$87FF (SCB2-4 jusqu'à $85FF, listes de sprites
-| des lignes paires et impaires $8600-$86FF, $8700-$87FF libre) ; passer d'une zone à
-| l'autre en reposant REG_VRAMADDR. Les listes $8600-$86FF ne sont PAS testées : la page
-| les donne au LSPC, qui les réécrit pendant l'affichage et ferait mentir la relecture
-| (SUPPOSÉ quant au moment). Restent 32 768 + 1 536 + 256 mots.
-| LE RYTHME, lu dans la même page (Access timing) : 12 cycles entre deux données, 16 entre
-| une donnée et l'adresse suivante, 16 entre une adresse et la lecture de sa donnée. La
-| lecture se fait ici en reposant l'adresse à chaque mot (la page ne dit pas qu'une lecture
-| fait avancer l'adresse), puis trois `nop` (12) avant le `move.w` dont l'accès de donnée
-| vient après ses mots d'extension : plus de 16, compté (SUPPOSÉ sans état d'attente).
-| L'écran montre le motif pendant le test et se redessine après.
-| Sortie comme `.Lt_ram`, %a2 l'adresse VRAM (mot).
+| VRAM. Read in "VRAM": low area $0000-$7FFF (SCB1, fix layer map at $7000,
+| extension $7500-$7FFF), high area $8000-$87FF (SCB2-4 up to $85FF, sprite lists
+| of the even and odd lines $8600-$86FF, $8700-$87FF free); going from one area to
+| the other by setting REG_VRAMADDR again. The lists $8600-$86FF are NOT tested: the page
+| gives them to the LSPC, which rewrites them during display and would make the read-back lie
+| (ASSUMED as to the timing). That leaves 32,768 + 1,536 + 256 words.
+| THE PACE, read in the same page (Access timing): 12 cycles between two data, 16 between
+| a data and the next address, 16 between an address and the read of its data. The
+| read is done here by setting the address again for every word (the page does not say that
+| a read advances the address), then three `nop` (12) before the `move.w` whose data access
+| comes after its extension words: more than 16, counted (ASSUMED with no wait state).
+| The screen shows the pattern during the test and is redrawn afterwards.
+| Exit like `.Lt_ram`, %a2 the VRAM address (word).
 .Lt_vram:
         move.w  #1, VRAMMOD
         lea     .Lmotifs, %a3
@@ -432,7 +433,7 @@ _autotests:
 9:      moveq   #0, %d3
         rts
 
-| UNE PASSE : les trois zones écrites, puis relues. Clobbers %d0, %d2-%d5, %a1, %a2, %a4.
+| ONE PASS: the three areas written, then read back. Clobbers %d0, %d2-%d5, %a1, %a2, %a4.
 .Lv_passe:
         lea     .Lzones, %a4
         moveq   #3 - 1, %d5
@@ -452,8 +453,8 @@ _autotests:
         moveq   #0, %d0
 9:      rts
 
-| LA PREMIÈRE VALEUR %d2 et LE PAS %a1 d'une zone qui part de %d3. Données (%d6 = 0) :
-| %d1 partout. Adresse : (adresse xor %d1), qui avance de +1 pour %d1 = 0 et de -1 pour
+| THE FIRST VALUE %d2 and THE STEP %a1 of an area starting at %d3. Data (%d6 = 0):
+| %d1 everywhere. Address: (address xor %d1), which advances by +1 for %d1 = 0 and by -1 for
 | %d1 = $FFFF.
 .Lv_pas:
         move.w  %d1, %d2
@@ -467,8 +468,8 @@ _autotests:
         subq.w  #2, %a1
 1:      rts
 
-| ÉCRIRE %d4 mots depuis l'adresse VRAM %d3, REG_VRAMMOD à 1. Entre deux données : 16
-| (l'écriture) + 4 + 16 + 10 cycles. Clobbers %d2, %d4.
+| WRITE %d4 words from VRAM address %d3, REG_VRAMMOD at 1. Between two data: 16
+| (the write) + 4 + 16 + 10 cycles. Clobbers %d2, %d4.
 .Lv_remplir:
         move.w  %d3, VRAMADDR
         subq.w  #1, %d4
@@ -478,7 +479,7 @@ _autotests:
         dbra    %d4, 1b
         rts
 
-| RELIRE %d4 mots depuis %d3. Faute : %d0 = 1, %a2 l'adresse, %d1 écrit, %d2 lu.
+| READ BACK %d4 words from %d3. Fault: %d0 = 1, %a2 the address, %d1 written, %d2 read.
 .Lv_verif:
         subq.w  #1, %d4
 1:      move.w  %d3, VRAMADDR
@@ -502,10 +503,10 @@ _autotests:
         moveq   #1, %d0
         rts
 
-| LA VRAM REMISE EN ÉTAT : zone basse et $8700-$87FF à zéro (SUPPOSÉ : rien n'y attend
-| autre chose — à la mise sous tension elle est quelconque, et `ecran.s` n'y pose que
-| LSP_1st et FIX_CLEAR), puis LSP_1st (`video.s`) pour SCB1 du sprite 0 et SCB2-4, comme
-| l'écran de boot ; le menu repose FIX_CLEAR. $8600-$86FF n'a pas été touché.
+| THE VRAM RESTORED: low area and $8700-$87FF at zero (ASSUMED: nothing there expects
+| anything else — at power-on it is arbitrary, and `ecran.s` sets there only
+| LSP_1st and FIX_CLEAR), then LSP_1st (`video.s`) for SCB1 of sprite 0 and SCB2-4, like
+| the boot screen; the menu sets FIX_CLEAR again. $8600-$86FF was not touched.
 .Lv_remettre:
         move.w  #1, VRAMMOD
         move.w  #0x0000, VRAMADDR
@@ -524,29 +525,30 @@ _autotests:
         rts
 
 | ----------------------------------------------------------------------------------
-| BACKUP RAM, NON DESTRUCTIF. Lu dans « Memory map » / « Backup RAM » : $D00000-$D0FFFF, les
-| données des jeux, et nos réglages ($D00210, `reglages.s`). Pour chaque mot : le lire,
-| écrire son complément, le relire, remettre l'original aussitôt, puis vérifier qu'il est
-| revenu. Le complément teste chaque bit dans l'état opposé au sien ; ni motif d'adresse ni
-| motif fixe, qui écraseraient la zone.
-| POURQUOI C'EST SÛR : IRQ masquées (SR = $2700) et aucune autre écriture, donc à tout
-| instant au plus UN mot diffère de l'original, le temps de deux instructions (sa relecture,
-| puis sa remise). Une coupure à ce moment-là laisse ce seul mot complémenté : sur la
-| signature de `c0.s` ou le bloc de `reglages.s`, leur contrôle le refuse ; ailleurs, le jeu
-| le relira tel quel. Un mot fautif est restauré avant d'être rapporté.
-| LE VERROU : lu dans « Memory mapped registers », REG_SRAMUNLOCK ($3A001D) ouvre l'écriture.
-| On l'écrit, mais on ne referme PAS : l'éditeur, après nous, écrit encore le bloc du jeu,
-| et `c0.s` écrit REG_SRAMLOCK juste après son retour. Un watchdog à chaque mot.
+| BACKUP RAM, NON-DESTRUCTIVE. Read in "Memory map" / "Backup RAM": $D00000-$D0FFFF, the
+| games' data, and our settings ($D00210, `reglages.s`). For each word: read it,
+| write its complement, read it back, put the original back at once, then check that it
+| came back. The complement tests each bit in the state opposite to its own; neither address
+| pattern nor fixed pattern, which would overwrite the area.
+| WHY IT IS SAFE: IRQs masked (SR = $2700) and no other write, so at any
+| instant at most ONE word differs from the original, for the time of two instructions (its
+| read-back, then its restoring). A power cut at that moment leaves that single word
+| complemented: on the signature of `c0.s` or the block of `reglages.s`, their check refuses
+| it; elsewhere, the game will read it back as is. A faulty word is restored before being
+| reported.
+| THE LOCK: read in "Memory mapped registers", REG_SRAMUNLOCK ($3A001D) opens writing.
+| We write it, but we do NOT close: the editor, after us, still writes the game's block,
+| and `c0.s` writes REG_SRAMLOCK right after its return. A watchdog on every word.
 .Lt_bram:
         move.b  %d0, SRAMUNLOCK
         lea     0xD00000, %a2
         move.w  #0x8000 - 1, %d4
-1:      move.w  (%a2), %d1              | l'original
+1:      move.w  (%a2), %d1              | the original
         move.w  %d1, %d3
         not.w   %d3
-        move.w  %d3, (%a2)              | le complément
+        move.w  %d3, (%a2)              | the complement
         move.w  (%a2), %d2
-        move.w  %d1, (%a2)              | l'original, remis
+        move.w  %d1, (%a2)              | the original, put back
         cmp.w   %d3, %d2
         bne.s   2f
         cmp.w   (%a2), %d1
@@ -557,29 +559,29 @@ _autotests:
         moveq   #0, %d0
         moveq   #0, %d3
         rts
-2:      move.w  %d3, %d1                | le complément n'a pas tenu
+2:      move.w  %d3, %d1                | the complement did not hold
         bra.s   4f
-3:      move.w  (%a2), %d2              | l'original n'est pas revenu
+3:      move.w  (%a2), %d2              | the original did not come back
 4:      moveq   #1, %d0
         moveq   #0, %d3
         rts
 
 | ----------------------------------------------------------------------------------
-| INPUT TEST. Lu dans « Memory mapped registers », tous actifs à l'état bas : REG_P1CNT
-| ($300000) et REG_P2CNT ($340000) bits 0-7 haut, bas, gauche, droite, A, B, C, D ;
-| REG_STATUS_B ($380000) bits 0-3 START P1, SELECT P1, START P2, SELECT P2 ; REG_STATUS_A
-| ($320001) bits 0, 1 pièces 1 et 2, bit 2 « Service button » ; REG_DIPSW ($300001) les
-| commutateurs de la carte. REG_SYSTYPE ($300081) bit 7, le bouton TEST : mesuré actif à
-| l'état bas (`dip.s`). SUPPOSÉ : les huit commutateurs aux bits 0-7, le n° n au bit n-1
-| (la page nomme les fonctions bit par bit sans numéroter les commutateurs). Pièces 3 et 4
-| (bits 3, 4 de REG_STATUS_A, cartes à 4 ou 6 emplacements) non affichées.
-| Un élément allumé (palette 5) quand son bit est à 0, éteint (palette 4) sinon, redessiné
-| à chaque trame. SORTIE : START P1 tenu 60 trames de suite (≈ 1 s), puisque START est
-| lui-même testé ; le rappel est à l'écran.
-| LE COMMUTATEUR 3 À ON (« Mahjong Panel ») À L'OUVERTURE : la page du panneau de mahjong
-| (`.Lt_mahjong`, DECISIONS §24). Lu une fois, à l'entrée, comme le BIOS SNK japonais et
-| UniBIOS 4.0 (mesuré, `measured/2026-10-27-attentes-reference.tsv`) : basculé pendant le test, la
-| page ne change pas, et le voyant du commutateur s'allume comme avant.
+| INPUT TEST. Read in "Memory mapped registers", all active low: REG_P1CNT
+| ($300000) and REG_P2CNT ($340000) bits 0-7 up, down, left, right, A, B, C, D;
+| REG_STATUS_B ($380000) bits 0-3 START P1, SELECT P1, START P2, SELECT P2; REG_STATUS_A
+| ($320001) bits 0, 1 coins 1 and 2, bit 2 "Service button"; REG_DIPSW ($300001) the
+| board switches. REG_SYSTYPE ($300081) bit 7, the TEST button: measured active
+| low (`dip.s`). ASSUMED: the eight switches at bits 0-7, no. n at bit n-1
+| (the page names the functions bit by bit without numbering the switches). Coins 3 and 4
+| (bits 3, 4 of REG_STATUS_A, 4- or 6-slot boards) not displayed.
+| An element lit (palette 5) when its bit is at 0, unlit (palette 4) otherwise, redrawn
+| on every frame. EXIT: START P1 held 60 frames in a row (≈ 1 s), since START is
+| itself tested; the reminder is on screen.
+| BOARD SWITCH 3 ON ("Mahjong Panel") AT OPENING: the mahjong panel page
+| (`.Lt_mahjong`, DECISIONS §24). Read once, on entry, like the Japanese SNK BIOS and
+| UniBIOS 4.0 (measured, `measured/2026-10-27-attentes-reference.tsv`): toggled during the
+| test, the page does not change, and the switch's light comes on as before.
 .Lt_entrees:
         btst    #2, DIPSW
         beq     .Lt_mahjong
@@ -587,7 +589,7 @@ _autotests:
         jsr     _fix_clear
         move.w  #32, VRAMMOD
         bsr     .Ltitre_ecran
-        lea     .Le_fixes, %a3          | les étiquettes fixes : case, chaîne
+        lea     .Le_fixes, %a3          | the fixed labels: cell, string
 1:      move.w  (%a3)+, %d1
         beq.s   2f
         move.w  #0x1000, %d3
@@ -605,23 +607,23 @@ _autotests:
         lea     .Le_aide, %a2
         bsr     .Lplacer
         bsr     .Lchaine
-        moveq   #0, %d6                 | trames de START P1 tenu
+        moveq   #0, %d6                 | frames of START P1 held
 .Le_trame:
         bsr     .Lsync
         lea     .Le_elements, %a3
-1:      move.l  (%a3)+, %d0             | le registre, 0 en fin de table
+1:      move.l  (%a3)+, %d0             | the register, 0 at the end of the table
         beq.s   3f
         movea.l %d0, %a0
-        move.b  (%a3)+, %d0             | le bit
+        move.b  (%a3)+, %d0             | the bit
         moveq   #0, %d1
-        move.b  (%a3)+, %d1             | la case
+        move.b  (%a3)+, %d1             | the cell
         lsl.w   #8, %d1
         move.b  (%a3)+, %d1
-        move.w  #0x5000, %d3            | appuyé
+        move.w  #0x5000, %d3            | pressed
         move.b  (%a0), %d2
         btst    %d0, %d2
         beq.s   2f
-        move.w  #0x4000, %d3            | relâché
+        move.w  #0x4000, %d3            | released
 2:      movea.l %a3, %a2
         bsr     .Lplacer
         bsr     .Lchaine
@@ -639,16 +641,16 @@ _autotests:
         rts
 
 | ----------------------------------------------------------------------------------
-| LA PAGE DU PANNEAU DE MAHJONG, le 2026-10-27 (DECISIONS §24, décision de l'utilisateur :
-| copier le BIOS SNK japonais et UniBIOS 4.0). MESURÉ chez eux (`measured/2026-10-27-attentes-
-| reference.tsv`) : une page à la place des manettes, une case par touche — A à G, H à N, PON, CHI,
-| KAN, RON, REACH, START, SELECT —, 1 tant qu'elle est tenue, 0 sinon ; puis les pièces, TEST et
-| les commutateurs. Ici la même liste, chaque touche suivie de son 0 ou 1 (palette 5 tenue,
-| 4 relâchée), et les voyants de la page ordinaire pour COIN, SERVICE, TEST et DIP. P2 n'y est pas,
-| comme chez eux. Le panneau est balayé comme `_io_mahjong` (`io.s`) : REG_POUTPUT ← $09, $12, $24,
-| une rangée à la fois lue dans REG_P1CNT, actif bas ; START et SELECT dans REG_STATUS_B. La sortie
-| reste à $24 : le jeu pose la sienne à son premier SYSTEM_IO. Sortie de l'écran : START P1 tenu
-| 60 trames, comme la page ordinaire.
+| THE MAHJONG PANEL PAGE, 2026-10-27 (DECISIONS §24, the user's decision:
+| copy the Japanese SNK BIOS and UniBIOS 4.0). MEASURED on them (`measured/2026-10-27-attentes-
+| reference.tsv`): a page in place of the pads, one cell per key — A to G, H to N, PON, CHI,
+| KAN, RON, REACH, START, SELECT —, 1 while it is held, 0 otherwise; then the coins, TEST and
+| the switches. Here the same list, each key followed by its 0 or 1 (palette 5 held,
+| 4 released), and the lights of the ordinary page for COIN, SERVICE, TEST and DIP. P2 is not
+| there, as on theirs. The panel is scanned like `_io_mahjong` (`io.s`): REG_POUTPUT ← $09, $12,
+| $24, one row at a time read in REG_P1CNT, active low; START and SELECT in REG_STATUS_B. The
+| output stays at $24: the game sets its own at its first SYSTEM_IO. Exit from the screen:
+| START P1 held 60 frames, like the ordinary page.
 .Lt_mahjong:
         bsr     .Lsync
         jsr     _fix_clear
@@ -671,32 +673,32 @@ _autotests:
         lea     .Le_aide, %a2
         bsr     .Lplacer
         bsr     .Lchaine
-        moveq   #0, %d6                 | trames de START P1 tenu
+        moveq   #0, %d6                 | frames of START P1 held
 .Lm_trame:
         bsr     .Lsync
-        | %d4 : les rangées en logique positive, octet 0 A-G, 1 H-N, 2 PON-REACH, 3 START/SELECT.
-        move.b  #0x09, 0x380001         | REG_POUTPUT : rangée A-G
+        | %d4: the rows in positive logic, byte 0 A-G, 1 H-N, 2 PON-REACH, 3 START/SELECT.
+        move.b  #0x09, 0x380001         | REG_POUTPUT: row A-G
         move.b  P1CNT, %d4
         lsl.l   #8, %d4
-        move.b  #0x12, 0x380001         | rangée H-N
+        move.b  #0x12, 0x380001         | row H-N
         move.b  P1CNT, %d4
         lsl.l   #8, %d4
-        move.b  #0x24, 0x380001         | rangée PON-REACH
+        move.b  #0x24, 0x380001         | row PON-REACH
         move.b  P1CNT, %d4
         lsl.l   #8, %d4
         move.b  STATUS_B, %d4
         not.l   %d4
         lea     .Lm_touches, %a3
-1:      move.w  (%a3)+, %d1             | la case, 0 en fin de table
+1:      move.w  (%a3)+, %d1             | the cell, 0 at the end of the table
         beq.s   3f
-        move.b  (%a3)+, %d0             | le bit dans %d4 (rangée × 8 + bit)
+        move.b  (%a3)+, %d0             | the bit in %d4 (row × 8 + bit)
         addq.l  #1, %a3
         move.w  #0x4000, %d3
-        moveq   #0x30, %d5              | « 0 »
+        moveq   #0x30, %d5              | "0"
         btst    %d0, %d4
         beq.s   2f
         move.w  #0x5000, %d3
-        moveq   #0x31, %d5              | « 1 »
+        moveq   #0x31, %d5              | "1"
 2:      movea.l %a3, %a2
         bsr     .Lplacer
         bsr     .Lchaine
@@ -709,7 +711,7 @@ _autotests:
         andi.w  #0xFFFE, %d0
         movea.l %d0, %a3
         bra.s   1b
-3:      lea     .Lm_elements, %a3       | COIN, SERVICE, TEST, DIP : les voyants de la page ordinaire
+3:      lea     .Lm_elements, %a3       | COIN, SERVICE, TEST, DIP: the lights of the ordinary page
 1:      move.l  (%a3)+, %d0
         beq.s   3f
         movea.l %d0, %a0
@@ -740,31 +742,31 @@ _autotests:
         rts
 
 | ----------------------------------------------------------------------------------
-| LES MIRES. Une tuile pleine : MESURÉ sous MAME le 2026-10-21 (notre image, aof, -bios
-| euro, SFIX de la carte de MAME ; sonde lua locale non versionnée qui pose les tuiles
-| $000-$7FF sous une palette dont l'entrée i est un rouge de niveau i, puis lit chaque
-| case 8×8 de la capture) : $000 est pleine de l'index 1, $020 (et $120, $220) pleine de
-| l'index 2, $108-$10F pleines de l'index 10 ; sous $700, aucune tuile pleine d'un autre
-| index que 1, 2 ou 10, et au-delà le contenu « may vary » (« SFIX ROM »), donc pas employé. Trois index pleins,
-| seize palettes : au plus 48 couleurs à la fois, quand quatre barres de 15 pas en
-| demandent 60 — d'où deux pages : ROUGE, VERT, BLEU, puis BLANC. Le pas 0 est le noir du
-| fond. Palette s (1-15) : entrée 1 = rouge s, 2 = vert s, 10 = bleu s (« Colors » :
-| $0RGB) ; page blanche : entrée 1 = gris s. Palette 0 : entrée 1 blanche pour le texte,
-| 2 noire pour le fond (tuile $020 partout). A change de page, START sort.
+| THE TEST PATTERNS. A filled tile: MEASURED under MAME on 2026-10-21 (our image, aof, -bios
+| euro, MAME's board SFIX; local lua probe, not versioned, that sets tiles
+| $000-$7FF under a palette whose entry i is a red of level i, then reads each
+| 8×8 cell of the capture): $000 is filled with index 1, $020 (and $120, $220) filled with
+| index 2, $108-$10F filled with index 10; below $700, no tile filled with an index other
+| than 1, 2 or 10, and beyond that the contents "may vary" ("SFIX ROM"), so not used. Three
+| filled indexes, sixteen palettes: at most 48 colours at once, when four bars of 15 steps
+| need 60 — hence two pages: RED, GREEN, BLUE, then WHITE. Step 0 is the black of the
+| background. Palette s (1-15): entry 1 = red s, 2 = green s, 10 = blue s ("Colors":
+| $0RGB); white page: entry 1 = grey s. Palette 0: entry 1 white for the text,
+| 2 black for the background (tile $020 everywhere). A changes page, START exits.
         .equ    T_ROUGE, 0x000
         .equ    T_VERT,  0x020
         .equ    T_BLEU,  0x108
 .Lt_barres:
-        moveq   #0, %d7                 | la page
+        moveq   #0, %d7                 | the page
         moveq   #0, %d5
         bsr     .Lentrees
 .Lb_page:
         bsr     .Lsync
         bsr     .Lpal_zero
-        move.w  #0x0FFF, PALETTES + 2   | palette 0, entrée 1 : le texte
+        move.w  #0x0FFF, PALETTES + 2   | palette 0, entry 1: the text
         lea     PALETTES + 32, %a0      | palette 1
         moveq   #1, %d4
-1:      move.w  %d4, %d0                | rouge s, ou gris s
+1:      move.w  %d4, %d0                | red s, or grey s
         lsl.w   #8, %d0
         tst.w   %d7
         beq.s   2f
@@ -775,8 +777,8 @@ _autotests:
         bne.s   3f
         move.w  %d4, %d0
         lsl.w   #4, %d0
-        move.w  %d0, 4(%a0)             | vert s
-        move.w  %d4, 20(%a0)            | bleu s, entrée 10
+        move.w  %d0, 4(%a0)             | green s
+        move.w  %d4, 20(%a0)            | blue s, entry 10
 3:      lea     32(%a0), %a0
         addq.w  #1, %d4
         cmpi.w  #16, %d4
@@ -785,18 +787,18 @@ _autotests:
         move.w  #32, VRAMMOD
         tst.w   %d7
         bne.s   5f
-        moveq   #6, %d6                 | rouge, lignes 6-11
+        moveq   #6, %d6                 | red, lines 6-11
         move.w  #T_ROUGE, %d4
         bsr.s   .Lbarre
-        moveq   #12, %d6                | vert, 12-17
+        moveq   #12, %d6                | green, 12-17
         move.w  #T_VERT, %d4
         bsr.s   .Lbarre
-        moveq   #18, %d6                | bleu, 18-23
+        moveq   #18, %d6                | blue, 18-23
         move.w  #T_BLEU, %d4
         bsr.s   .Lbarre
         lea     .Lb_rvb, %a3
         bra.s   6f
-5:      moveq   #6, %d6                 | blanc, 6-23 en trois fois
+5:      moveq   #6, %d6                 | white, 6-23 in three goes
         move.w  #T_ROUGE, %d4
         bsr.s   .Lbarre
         moveq   #12, %d6
@@ -805,7 +807,7 @@ _autotests:
         bsr.s   .Lbarre
         lea     .Lb_blanc, %a3
 6:      moveq   #0, %d3                 | palette 0
-1:      move.w  (%a3)+, %d1             | les textes : case, chaîne
+1:      move.w  (%a3)+, %d1             | the texts: cell, string
         beq.s   .Lb_attente
         movea.l %a3, %a2
         bsr     .Lplacer
@@ -826,14 +828,14 @@ _autotests:
         bra     .Lb_page
 9:      rts
 
-| UNE BARRE : six lignes depuis %d6, tuile %d4, colonnes 4-35, deux colonnes par pas ;
-| le pas 0 laissé au fond noir. REG_VRAMMOD à 32. Clobbers %d0-%d2.
+| ONE BAR: six lines from %d6, tile %d4, columns 4-35, two columns per step;
+| step 0 left to the black background. REG_VRAMMOD at 32. Clobbers %d0-%d2.
 .Lbarre:
         moveq   #6 - 1, %d2
 1:      move.w  %d6, %d1
         addi.w  #0x7000 + 4 * 32, %d1
         move.w  %d1, VRAMADDR
-        moveq   #0, %d1                 | le pas, 0-15
+        moveq   #0, %d1                 | the step, 0-15
 2:      move.w  #0x0020, %d0
         tst.w   %d1
         beq.s   3f
@@ -841,7 +843,7 @@ _autotests:
         ror.w   #4, %d0                 | palette s
         or.w    %d4, %d0
 3:      move.w  %d0, VRAMRW
-        move.w  %d0, VRAMRW             | > 12 cycles : l'écriture d'avant en fait 16
+        move.w  %d0, VRAMRW             | > 12 cycles: the previous write takes 16
         addq.w  #1, %d1
         cmpi.w  #16, %d1
         bcs.s   2b
@@ -849,18 +851,18 @@ _autotests:
         dbra    %d2, 1b
         rts
 
-| CROSSHATCH : des traits pleins de 8 pixels (tuile $020 sous la palette 1, entrée 2
-| blanche) toutes les quatre cases, colonnes 0, 4 … 36 et 39, lignes 2, 6 … 26 et 29 —
-| les bords de la zone visible (« Fix layer » : lignes 2 à 29). Pas de trait d'un pixel :
-| aucune tuile de ce dessin n'est mesurée. START sort.
+| CROSSHATCH: filled 8-pixel strokes (tile $020 under palette 1, entry 2
+| white) every four cells, columns 0, 4 … 36 and 39, lines 2, 6 … 26 and 29 —
+| the edges of the visible area ("Fix layer": lines 2 to 29). No one-pixel stroke:
+| no tile of that drawing is measured. START exits.
 .Lt_grille:
         bsr     .Lsync
         bsr     .Lpal_zero
-        move.w  #0x0FFF, PALETTES + 32 + 4      | palette 1, entrée 2
+        move.w  #0x0FFF, PALETTES + 32 + 4      | palette 1, entry 2
         move.w  #1, VRAMMOD
         move.w  #0x7000, VRAMADDR
-        moveq   #0, %d4                 | la colonne
-1:      moveq   #0, %d6                 | la ligne
+        moveq   #0, %d4                 | the column
+1:      moveq   #0, %d6                 | the line
 2:      move.w  #0x0020, %d0
         move.w  %d4, %d1
         andi.w  #3, %d1
@@ -893,7 +895,7 @@ _autotests:
         beq.s   1b
         rts
 
-| TOUT LE PLAN FIXE en tuile $020, palette 0 (REG_VRAMMOD à 1). Clobbers %d0, %d1.
+| THE WHOLE FIX LAYER in tile $020, palette 0 (REG_VRAMMOD at 1). Clobbers %d0, %d1.
 .Lfond_plein:
         move.w  #1, VRAMMOD
         move.w  #0x7000, VRAMADDR
@@ -904,14 +906,14 @@ _autotests:
         rts
 
 | ----------------------------------------------------------------------------------
-| LE MENU, tout redessiné : palettes après le passage de la ligne $1F0, FIX_CLEAR, titre,
-| lignes, aide. Clobbers %d0-%d4, %d6, %a0-%a3.
+| THE MENU, all redrawn: palettes after line $1F0 passes, FIX_CLEAR, title,
+| lines, help. Clobbers %d0-%d4, %d6, %a0-%a3.
 .Lmenu:
         bsr     .Lsync
         bsr     .Lpal_zero
-        move.w  #0x8000, FOND           | comme `dip.s`
+        move.w  #0x8000, FOND           | like `dip.s`
         lea     .Lcouleurs, %a3
-        lea     PALETTES + 32 + 2, %a0  | palette 1, entrée 1
+        lea     PALETTES + 32 + 2, %a0  | palette 1, entry 1
         moveq   #6 - 1, %d0
 1:      move.w  (%a3)+, (%a0)
         lea     32(%a0), %a0
@@ -936,7 +938,7 @@ _autotests:
         bsr     .Lplacer
         bra     .Lchaine
 
-| LE TITRE en 8×16, palette 3. Clobbers %d1-%d3, %a2.
+| THE TITLE in 8×16, palette 3. Clobbers %d1-%d3, %a2.
 .Ltitre_ecran:
         move.w  #CASE_TITRE, %d1
         move.w  #0x3100, %d3
@@ -949,8 +951,8 @@ _autotests:
         bsr     .Lplacer
         bra     .Lchaine
 
-| LA LIGNE %d0 DU MENU : curseur, intitulé (16), état (12) ; pour un test de mémoire,
-| la ligne suivante porte le détail d'une faute, ou des espaces. Clobbers %d0-%d4, %d6,
+| LINE %d0 OF THE MENU: cursor, label (16), state (12); for a memory test,
+| the next line carries the detail of a fault, or spaces. Clobbers %d0-%d4, %d6,
 | %a2, %a3.
 .Lligne:
         move.w  %d0, %d6
@@ -964,7 +966,7 @@ _autotests:
         cmp.w   %d7, %d6
         bne.s   1f
         move.w  #0x2000, %d3
-        moveq   #0x3E, %d2              | « > »
+        moveq   #0x3E, %d2              | ">"
 1:      bsr     .Lcar
         moveq   #0x20, %d2
         bsr     .Lcar
@@ -992,10 +994,10 @@ _autotests:
         moveq   #12, %d4
         cmpi.b  #2, (%a3)
         bne.s   3f
-        cmpi.w  #1, %d6                 | la palette : la banque fautive
+        cmpi.w  #1, %d6                 | the palette: the faulty bank
         bne.s   3f
         lea     .Ltxt_fail_banque, %a2
-        moveq   #10, %d4                | « FAIL BANK »
+        moveq   #10, %d4                | "FAIL BANK"
         bsr     .Lecrire
         moveq   #0x30, %d2
         add.b   1(%a3), %d2
@@ -1003,7 +1005,7 @@ _autotests:
         lea     .Ltxt_espace, %a2
         moveq   #1, %d4
 3:      bsr     .Lecrire
-        | LE DÉTAIL, une ligne plus bas, colonne 5.
+        | THE DETAIL, one line lower, column 5.
         lea     .Lrangs, %a2
         moveq   #0, %d1
         move.b  (%a2,%d6.w), %d1
@@ -1035,10 +1037,10 @@ _autotests:
 9:      rts
 
 | ----------------------------------------------------------------------------------
-| L'ÉCRITURE DU TEXTE, REG_VRAMMOD à 32 : une donnée = une case vers la droite.
-| `.Lplacer` pose l'adresse %d1 ; `.Lcar` écrit %d2 + %d3 (palette << 12 + décalage de
-| tuile) ; entre deux données, l'appel seul tient plus de 12 cycles, et le `rts` qui suit
-| la dernière plus de 16 avant l'adresse suivante (« VRAM »).
+| THE TEXT WRITING, REG_VRAMMOD at 32: one data = one cell to the right.
+| `.Lplacer` sets address %d1; `.Lcar` writes %d2 + %d3 (palette << 12 + tile
+| offset); between two data, the call alone takes more than 12 cycles, and the `rts` that follows
+| the last one more than 16 before the next address ("VRAM").
 .Lplacer:
         move.w  %d1, VRAMADDR
         rts
@@ -1046,7 +1048,7 @@ _autotests:
         add.w   %d3, %d2
         move.w  %d2, VRAMRW
         rts
-| UNE CHAÎNE terminée par 0, %a2 avancé après le 0. Clobbers %d2.
+| A STRING terminated by 0, %a2 advanced past the 0. Clobbers %d2.
 .Lchaine:
         moveq   #0, %d2
         move.b  (%a2)+, %d2
@@ -1054,7 +1056,7 @@ _autotests:
         bsr.s   .Lcar
         bra.s   .Lchaine
 1:      rts
-| %d4 CARACTÈRES de %a2, sans fin de chaîne. Clobbers %d2, %d4, %a2.
+| %d4 CHARACTERS of %a2, with no string terminator. Clobbers %d2, %d4, %a2.
 .Lecrire:
         subq.w  #1, %d4
 1:      moveq   #0, %d2
@@ -1062,7 +1064,7 @@ _autotests:
         bsr.s   .Lcar
         dbra    %d4, 1b
         rts
-| %d0 CHIFFRES HEXADÉCIMAUX, les hauts de %d4 d'abord. Clobbers %d0, %d2, %d4.
+| %d0 HEXADECIMAL DIGITS, the high ones of %d4 first. Clobbers %d0, %d2, %d4.
 .Lhex:
         subq.w  #1, %d0
 1:      rol.l   #4, %d4
@@ -1070,16 +1072,16 @@ _autotests:
         and.w   %d4, %d2
         cmpi.w  #10, %d2
         bcs.s   2f
-        addq.w  #7, %d2                 | 10-15 → « A »-« F »
+        addq.w  #7, %d2                 | 10-15 → "A"-"F"
 2:      addi.w  #0x30, %d2
         bsr.s   .Lcar
         dbra    %d0, 1b
         rts
 
-| LES BOUTONS DE P1, comme `dip.s`. %d5 : l'état d'avant, mis à jour ; %d0 : les fronts.
-| Bits : 0 haut, 1 bas, 2 gauche, 3 droite, 4 A, 5 START. Clobbers %d1, %d2.
+| P1'S BUTTONS, like `dip.s`. %d5: the previous state, updated; %d0: the edges.
+| Bits: 0 up, 1 down, 2 left, 3 right, 4 A, 5 START. Clobbers %d1, %d2.
 .Lentrees:
-        jsr     _panneau_p1             | %d0 : P1, manette ou panneau traduit (`panneau.s`)
+        jsr     _panneau_p1             | %d0: P1, pad or translated panel (`panneau.s`)
         move.b  %d0, %d2
         not.b   %d2
         andi.b  #0x1F, %d2
@@ -1094,10 +1096,10 @@ _autotests:
         move.b  %d2, %d5
         rts
 
-| LE PASSAGE DE LA LIGNE $1F0, comme `dip.s` (mesuré,
-| `2026-10-17-diagnostic-b2b-minasan.tsv`) ; watchdog à chaque tour. Clobbers %d0.
-| BORNÉE à SYNC_TOURS tours par attente, ≈ 2 trames, ligne vue ou non : le compte est dans
-| `ecran.s`, dont c'est la copie identique.
+| LINE $1F0 PASSING, like `dip.s` (measured,
+| `2026-10-17-diagnostic-b2b-minasan.tsv`); watchdog on every turn. Clobbers %d0.
+| BOUNDED to SYNC_TOURS turns per wait, ≈ 2 frames, line seen or not: the count is in
+| `ecran.s`, of which this is the identical copy.
         .equ    SYNC_TOURS, 5800
 .Lsync:
         move.l  %d1, -(%sp)
@@ -1116,8 +1118,8 @@ _autotests:
         move.l  (%sp)+, %d1
         rts
 
-| LES PALETTES 0-15 de la banque en place à zéro, entrées 1-15 ; la référence $400000 à
-| $8000. À appeler juste après `.Lsync`. Clobbers %d0, %a0.
+| PALETTES 0-15 of the current bank at zero, entries 1-15; the reference $400000 at
+| $8000. To be called right after `.Lsync`. Clobbers %d0, %a0.
 .Lpal_zero:
         lea     PALETTES, %a0
         move.w  #0x8000, (%a0)+
@@ -1127,25 +1129,25 @@ _autotests:
         rts
 
 | ----------------------------------------------------------------------------------
-| LES DONNÉES.
+| THE DATA.
         .balign 2
 .Ltests:
         .long   .Lt_ram, .Lt_pal, .Lt_vram, .Lt_bram
         .long   .Lt_entrees, .Lt_barres, .Lt_grille, _crc_cartouche
-| Les motifs : valeur, puis 0 donnée / 1 adresse (xor de la valeur).
+| The patterns: value, then 0 data / 1 address (xor of the value).
 .Lmotifs:
         .word   0x0000, 0, 0xFFFF, 0, 0x5555, 0, 0xAAAA, 0, 0x0000, 1, 0xFFFF, 1
-| Les zones VRAM testées : début, nombre de mots.
+| The VRAM areas tested: start, number of words.
 .Lzones:
         .word   0x0000, 0x8000, 0x8000, 0x0600, 0x8700, 0x0100
-| L'entrée 1 des palettes 1 à 6, $0RGB (« Colors »). Choix d'aspect, ceux de `dip.s`.
+| Entry 1 of palettes 1 to 6, $0RGB ("Colors"). A choice of looks, those of `dip.s`.
 .Lcouleurs:
         .word   0x0BBB, 0x0FE3, 0x04BF, 0x0777, 0x02F4, 0x0F44
-| La ligne de chaque entrée du menu.
+| The line of each menu entry.
 .Lrangs:
         .byte   7, 9, 11, 13, 16, 17, 18, 19, 21
         .balign 2
-.Lnoms:                                 | 16 caractères chacun
+.Lnoms:                                 | 16 characters each
         .ascii  "WORK RAM        "
         .ascii  "PALETTE RAM     "
         .ascii  "VRAM            "
@@ -1155,7 +1157,7 @@ _autotests:
         .ascii  "CROSSHATCH      "
         .ascii  "CARTRIDGE CRC   "
         .ascii  "EXIT            "
-.Lpal_etats:                             | la palette de chaque état
+.Lpal_etats:                             | the palette of each state
         .word   0x1000, 0x5000, 0x6000, 0x2000
 .Letats:
         .long   .Ltxt_espace, .Ltxt_ok, .Ltxt_fail, .Ltxt_encours
@@ -1173,7 +1175,7 @@ _autotests:
 .Le_aide:       .asciz  "HOLD START P1 1 SEC TO EXIT"
         .balign 2
 
-| L'INPUT TEST. Une case : $7000 + 32 × colonne + ligne.
+| THE INPUT TEST. A cell: $7000 + 32 × column + line.
         .macro  FIXE col, ligne, txt
         .word   0x7000 + 32 * (\col) + (\ligne)
         .asciz  "\txt"
@@ -1229,8 +1231,8 @@ _autotests:
         ELEM    DIPSW, 7, 23, 18, "8"
         .long   0
 
-| LA PAGE DU PANNEAU DE MAHJONG. Une touche : la case, le bit dans %d4 de `.Lm_trame` (rangée × 8 +
-| bit ; 24-31 : REG_STATUS_B), un octet libre, l'intitulé.
+| THE MAHJONG PANEL PAGE. A key: the cell, the bit in %d4 of `.Lm_trame` (row × 8 +
+| bit; 24-31: REG_STATUS_B), a spare byte, the label.
         .macro  TOUCHE bit, col, ligne, txt
         .word   0x7000 + 32 * (\col) + (\ligne)
         .byte   \bit, 0
@@ -1280,7 +1282,7 @@ _autotests:
         ELEM    DIPSW, 7, 23, 20, "8"
         .long   0
 
-| LES MIRES : textes sous la palette 0.
+| THE TEST PATTERNS: texts under palette 0.
 .Lb_rvb:
         FIXE    16, 3, "COLOR BARS"
         FIXE    2, 8, "R"

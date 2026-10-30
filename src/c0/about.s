@@ -1,21 +1,21 @@
 | SPDX-License-Identifier: GPL-3.0-or-later
 | Copyright (C) 2026 Thibaut Lion
 | ==================================================================================
-| L'ÉCRAN ABOUT — les mentions légales et les crédits. Un écran de l'écran TEST : la ligne ABOUT
-| (`dip.s`), juste avant CABINET SETTINGS.
+| THE ABOUT SCREEN — the legal notices and the credits. A screen of the TEST screen: the ABOUT line
+| (`dip.s`), just before CABINET SETTINGS.
 |
-| CE QU'IL DIT : le nom et la version (la chaîne de l'écran de boot, `ecran.s`, pour n'en tenir
-| qu'une), le copyright, l'absence de garantie, le droit de redistribuer sous la GPL version 3 ou
-| ultérieure, où lire la licence et le source, et le testeur du matériel. Ce sont les « Appropriate
-| Legal Notices » que la GPLv3 définit (§0), et que son §5 d) demande à une interface interactive
-| d'une version transmise d'afficher.
+| WHAT IT SAYS: the name and the version (the string of the boot screen, `ecran.s`, so as to keep
+| only one), the copyright, the absence of warranty, the right to redistribute under the GPL version 3 or
+| later, where to read the licence and the source, and the hardware tester. These are the "Appropriate
+| Legal Notices" that the GPLv3 defines (§0), and that its §5 d) asks an interactive interface
+| of a conveyed version to display.
 |
-| L'ÉCRAN, `_a_propos` : appelé par `jsr` depuis `dip.s`, dans son état (REG_BRDFIX, palettes 1-4
-| de `dip.s` : 1 le texte, 3 le titre, 4 l'aide ; IRQ masquées). Tous les registres rendus ;
-| `dip.s` redessine son écran au retour. START : retour, rien d'autre ne compte. Plan fixe seul,
-| $7000 + 32 × colonne + ligne, REG_VRAMMOD à 32. Le titre en 8×16 (tuiles $100 / $200 + ASCII,
-| comme `debug.s`), pour le « v » minuscule de la version, mesuré dans cette police seulement
-| (`ecran.s`, LES GLYPHES) ; le reste en majuscules, police 8×8 du SFIX (tuile = ASCII).
+| THE SCREEN, `_a_propos`: called by `jsr` from `dip.s`, in its state (REG_BRDFIX, palettes 1-4
+| of `dip.s`: 1 the text, 3 the title, 4 the help; IRQs masked). All registers returned;
+| `dip.s` redraws its screen on return. START: back, nothing else counts. Fix layer only,
+| $7000 + 32 × column + line, REG_VRAMMOD at 32. The title in 8×16 (tiles $100 / $200 + ASCII,
+| like `debug.s`), for the lowercase "v" of the version, measured in this font only
+| (`ecran.s`, LES GLYPHES); the rest in capitals, 8×8 font of the SFIX (tile = ASCII).
 | ==================================================================================
 
         .section .haut, "ax"
@@ -28,11 +28,11 @@
         .equ    WATCHDOG, 0x300001
         .equ    STATUS_B, 0x380000
 
-        .equ    CASE_TITRE, 0x7000 + 3 * 32 + 3        | 8×16, lignes 3-4
-        .equ    COL3,       0x7000 + 3 * 32             | la colonne 3, ligne 0
+        .equ    CASE_TITRE, 0x7000 + 3 * 32 + 3        | 8×16, lines 3-4
+        .equ    COL3,       0x7000 + 3 * 32             | column 3, line 0
 
 | ----------------------------------------------------------------------------------
-| L'ÉCRAN. %d5 : les boutons d'avant.
+| THE SCREEN. %d5: the previous buttons.
 _a_propos:
         movem.l %d0-%d7/%a0-%a6, -(%sp)
         bsr     .Lsync
@@ -44,28 +44,28 @@ _a_propos:
         move.w  #CASE_TITRE + 1, %d1
         move.w  #0x3200, %d3
         bsr.s   .Ltitre
-        lea     .Llignes, %a0           | .w la case, .w la palette, le texte, aligné
+        lea     .Llignes, %a0           | .w the cell, .w the palette, the text, aligned
 1:      move.w  (%a0)+, %d1
         beq.s   2f
         move.w  (%a0)+, %d3
         movea.l %a0, %a2
         bsr.s   .Lchaine_en
-        move.l  %a2, %d0                | après le zéro, au mot suivant
+        move.l  %a2, %d0                | after the zero, at the next word
         addq.l  #1, %d0
         andi.w  #0xFFFE, %d0
         movea.l %d0, %a0
         bra.s   1b
 2:      moveq   #0, %d5
-        bsr.s   .Lentrees               | un bouton déjà tenu ne compte pas
+        bsr.s   .Lentrees               | a button already held does not count
 .Lboucle:
         bsr.s   .Lsync
         bsr.s   .Lentrees
-        btst    #5, %d0                 | START : retour
+        btst    #5, %d0                 | START: back
         beq.s   .Lboucle
         movem.l (%sp)+, %d0-%d7/%a0-%a6
         rts
 
-| UNE RANGÉE DU TITRE : le nom, puis la version, à la suite (REG_VRAMMOD avance d'une colonne).
+| ONE ROW OF THE TITLE: the name, then the version, following on (REG_VRAMMOD advances one column).
 .Ltitre:
         move.w  %d1, VRAMADDR
         lea     .Ltxt_nom, %a2
@@ -74,7 +74,7 @@ _a_propos:
         bra.s   .Lchaine
 
 | ----------------------------------------------------------------------------------
-| LES OUTILS, comme `debug.s`.
+| THE TOOLS, like `debug.s`.
 .Lchaine_en:
         move.w  %d1, VRAMADDR
 .Lchaine:
@@ -86,10 +86,10 @@ _a_propos:
         bra.s   .Lchaine
 1:      rts
 
-| LES BOUTONS DE P1, comme `debug.s`. %d5 : l'état d'avant ; %d0 : les fronts. Bit 5 : START.
+| P1'S BUTTONS, like `debug.s`. %d5: the previous state; %d0: the edges. Bit 5: START.
 | Clobbers %d1, %d2.
 .Lentrees:
-        jsr     _panneau_p1             | %d0 : P1, manette ou panneau traduit (`panneau.s`)
+        jsr     _panneau_p1             | %d0: P1, joystick or translated panel (`panneau.s`)
         move.b  %d0, %d2
         not.b   %d2
         andi.b  #0x1F, %d2
@@ -104,7 +104,7 @@ _a_propos:
         move.b  %d2, %d5
         rts
 
-| LE PASSAGE DE LA LIGNE $1F0, copie de celle de `debug.s`. Clobbers %d0.
+| THE PASSING OF LINE $1F0, copy of the one in `debug.s`. Clobbers %d0.
         .equ    SYNC_TOURS, 5800
 .Lsync:
         move.l  %d1, -(%sp)
@@ -124,7 +124,7 @@ _a_propos:
         rts
 
 | ----------------------------------------------------------------------------------
-| LES DONNÉES. Chaque ligne : la case (colonne 3), la palette, le texte ; une case nulle clôt.
+| THE DATA. Each line: the cell (column 3), the palette, the text; a zero cell closes.
         .balign 2
 .Ltxt_nom:      .asciz  "SPRIXE BIOS "
         .balign 2
