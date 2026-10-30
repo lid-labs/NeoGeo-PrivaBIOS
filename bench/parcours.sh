@@ -255,7 +255,7 @@
 #   THE FULL IN-GAME MENU, on 2026-10-23 (GAME SETTINGS, MEMORY EDITOR, the freezes; thresholds in
 #   --ref-menu). The menu opens at 2357 on aof's game (TEST 2337-2376); witness: the partie run, or
 #   the boot editor set the same way (temps1, langue, temps-nc1, fois1). "R": the frame of the RESET
-#   of RESTART GAME, 2418 on ncombat and on puzzledp, measured and required.
+#   of RESTART GAME, 2418 on ncombat and 2417 on puzzledp, measured and required.
 #   gs-compte     ROUND TIME 60 → 65 in game, RESUME: at the next round, at least "trames_min" frames
 #                 show a timer that only ROUND TIME 65 shows (images of temps1 that the witness
 #                 never has): the effect is taken without a relaunch.
@@ -1604,16 +1604,16 @@ veut gs-def && lancer gs-def son.lua "$NOTRE" $MENU_TEST J_APPUIS=$VERS_GS,$CINQ
 veut gs-langue && lancer gs-langue son.lua "$NOTRE" $MENU_TEST J_APPUIS=$VERS_GS,2398:bas,2404:droite,2410:haut,2416:haut,2422:A \
   J_TEXTE=2409 J_REMISE=754 J_FIN=3500
 # ncombat (PLAY TIME 03:00 → 03:01, right) and puzzledp (CONTINUE INFINITE → WITHOUT, A), then
-# RESTART GAME ("up"), A at 2410: the relaunch at R = 2418 on ncombat and on puzzledp, measured
-# on 2026-10-29 with the table of 81 games. This frame follows the phase of the watchdog wait,
+# RESTART GAME ("up"), A at 2410: the relaunch at R = 2418 on ncombat and 2417 on puzzledp,
+# measured on 2026-10-30 with the table of 98 games. This frame follows the phase of the watchdog wait,
 # hence the cycles of the menu since its opening, where `_cheats_trouver` goes through the
 # whole table for an absent game: it moved with the reading of the panel, the cheats window
-# (2417) and the table of 81 games (2418). The inputs after it are those of temps-nc1 and
+# (2417), the table of 81 games (2418) and that of 98 games (2417 on puzzledp). The inputs after it are those of temps-nc1 and
 # fois1, shifted by R (coin at R + 900, START at R + 1000).
 veut gs-nc && lancer gs-nc son.lua "$MS_NC" $MENU_TEST J_APPUIS=$VERS_GS,2398:droite,2404:haut,2410:A,3318:piece:8,3418:START:8 \
   J_TEXTE=2403 J_IMAGES=3718,4418,5418 J_FIN=5419
-veut gs-pz && lancer gs-pz son.lua "$PZ" $MENU_TEST J_APPUIS=$VERS_GS,2398:A,2404:haut,2410:A,3318:piece:8,3418:START:8 \
-  J_TEXTE=2403 J_FIN=11418
+veut gs-pz && lancer gs-pz son.lua "$PZ" $MENU_TEST J_APPUIS=$VERS_GS,2398:A,2404:haut,2410:A,3317:piece:8,3417:START:8 \
+  J_TEXTE=2403 J_FIN=11417
 # NO SOFT DIP DATA in game, on the two fixtures (above), then START and RESUME.
 veut gs-nosd && lancer gs-nosd son.lua "aof -rompath $NOSD" $MENU_TEST J_APPUIS=$VERS_GS,2410:START,2416:bas,2422:bas,2428:A \
   J_TEXTE=2409 J_FIN=2700
@@ -3040,7 +3040,7 @@ def gs_mmss():
 def gs_fois():
     g, a, b = sain("gs-pz", "fois0", "fois1")
     exiger(re.search(r"CONTINUE +WITHOUT", g.texte(2403)), "A ne mène pas CONTINUE de INFINITE à WITHOUT")
-    R = relance(g, 2410)
+    R = relance(g, 2410, 2417)
     rg = premiere_remise(g, R + 1001) - R
     ra, rb = premiere_remise(a, 1001), premiere_remise(b, 1001)
     dit(f"le titre après la partie : R + {rg}, contre {rb} sans continue posé au boot et {ra} avec")

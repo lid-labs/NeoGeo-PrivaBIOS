@@ -366,8 +366,9 @@ _cheats_table:
         JEU     0x0270, 0x1B2F, 1
         CHEAT   "INFINITE TIME",   0x10836A, 1, 0x60
         | SAMURAI SHODOWN V SPECIAL: the seconds, BCD.
-        JEU     0x0272, 0x1851, 1
+        JEU     0x0272, 0x1851, 2
         CHEAT   "INFINITE TIME",   0x10836A, 1, 0x60
+        CHEAT   "P1 INFINITE LIFE", 0x10854E, 1, 0x11
         | FATAL FURY 3: the seconds, BCD.
         JEU     0x0069, 0xEF51, 1
         CHEAT   "INFINITE TIME",   0x105680, 1, 0x60
@@ -711,5 +712,9 @@ _cheats_table:
         | KIZUNA ENCOUNTER: the fight only starts around frame 2700.
         JEU     0x0216, 0x073D, 1
         CHEAT   "INFINITE TIME",   0x10892A, 1, 0x99
+        | THE KING OF FIGHTERS '97: the frame countdown of the second, as kof96 and kof98; forcing
+        | the seconds $10A83A instead freezes the game at KO.
+        JEU     0x0232, 0xFC0D, 1
+        CHEAT   "INFINITE TIME",   0x10A83B, 1, 0x32
         FIN_TABLE
         .balign 2

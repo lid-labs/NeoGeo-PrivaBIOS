@@ -1,0 +1,20 @@
+# Le balayage des vies de P1 de 45 jeux de combat, le 2026-10-30 : bench/cheats-recherche.py releve (scénarios passif et actif),
+# 450 candidats vie_p1, chacun forcé seul dès la trame 3600 jusqu'à 15 000 contre le témoin du même scénario : à sa valeur pleine
+# en scénario actif, à sa valeur vide en scénario passif (990 runs, MAME 0.286, -bios euro, --jobs 12).
+# Plein : 26 candidats tiennent (le témoin perd la partie, la partie forcée non, images non figées), sur 16 jeux.
+# Vide : 10 candidats avancent la fin de partie de plus de 20 %, sur 7 jeux ; 4 candidats, sur 3 jeux, passent les deux sens.
+# Pilote du vide sur des cellules connues : kof94 $108221 5 696 (témoin 7 250), ninjamas $100050 8 254 (12 644), mais rotd $1023E6
+# 11 951, égal au témoin alors que la cellule est prouvée : l'épreuve à vide n'est ni nécessaire ni assez sensible, elle n'a pas
+# été retenue comme preuve. Une cellule sans rapport (kof94 $10C021) donne la fin du témoin à la trame près (7 250).
+# Les 26 par le menu du BIOS (entrées a, menu à 3700, FIN 15 000) : 5 PASS du genre vies. Puis les images lues :
+#   - samsh5sp $10854E : P1 enchaîne les adversaires, le chronomètre tourne ; retenu ;
+#   - kof94 $108221 : déjà dans la table ;
+#   - kof97 $10A83A : les secondes, pas la vie, le jeu figé au KO comme kof94 $10882E ; la cellule voisine $10A83B, le décompte de
+#     trames ($32, comme kof96 et kof98), garde TIME à 60, les KO et les adversaires suivent ; retenu en INFINITE TIME ;
+#   - doubledr $1022B4 : FAUX POSITIF, le jeu reste sur l'écran CONTINUE ;
+#   - fatfury1 $1003AB : FAUX POSITIF, la barre de P1 baisse sous forçage.
+# Le genre vies ne suffit donc pas à nommer une cellule : 2 PASS sur 5 étaient faux, vus sur les images.
+# Bilan : 2 cheats pour 45 jeux. Les 21 autres FAIL : fin de partie sous cheat, témoin sans fin de partie, ou cellule pas à sa valeur.
+jeu	cheat	verdict	moteur	mesure
+samsh5sp	P1 INFINITE LIFE	PASS	10854Ex11208	fin de partie : témoin 6240, sous cheat aucune (FIN 15000) ; $10854E à $11 sur 1.00
+kof97	INFINITE TIME	PASS	10A83Ax1220	chronomètre : son image la plus fréquente sur 1.00 des relevés sous cheat (1 images), 0.13 au témoin (12) ; $10A83B à $32 sur 1.00

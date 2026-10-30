@@ -34,6 +34,8 @@
 # without shooting: P1 rushes, jumping, into the enemies.
 # "b" (bombs, Metal Slug 2 to 5): the bomb scenario of `cheats-recherche.py`, A every 6 frames,
 # right, and C (one bomb) every 60 frames: the witness's counter goes down fast.
+# "a" (active fight): the actif scenario of `cheats-recherche.py`, "f" up to 3500, then P1 hits
+# with A, B and C.
 # "f" (fight): coin at 400, START at 500, A every 60 frames from 600 to 3500,
 # right held from 2000 on; "s" (shooter, action): coin, START, A every 60 frames, right
 # held from 1000 on, C every 400 frames from 1500 on. The player does not play: they die,
@@ -50,7 +52,7 @@
 # Measurements and thresholds: measured/2026-10-25, 2026-10-29 and 2026-10-30-cheats-table.tsv (one
 # line per cheat), and the -cheats-catalogue.tsv of the same dates (the verdicts);
 # 2026-10-30-cheats-rejetes.tsv (#23), 2026-10-30-cheats-sans-vies.tsv (#24),
-# 2026-10-30-cheats-chronos-2.tsv.
+# 2026-10-30-cheats-chronos-2.tsv, 2026-10-30-cheats-balayage-vies.tsv.
 set -u
 
 ICI="$(cd "$(dirname "$0")" && pwd)"
@@ -207,6 +209,8 @@ gururin	0	NO GAME OVER	101C17	02	vies	x	1500	13000	-	-
 trally	0	NO GAME OVER	107105	05	vies	x	2600	13000	-	-
 zintrckb	0	NO GAME OVER	100349	02	vies	x	2500	13000	-	-
 twinspri	1	P2 INF. LIVES	10D005	03	vies	k	1500	13000	-	-
+samsh5sp	1	P1 INFINITE LIFE	10854E	11	vies	a	3700	15000	-	-
+kof97	0	INFINITE TIME	10A83B	32	temps	a	5000	6300	146,10,174,30	jaune
 ncommand	0	INFINITE LIVES	106030	02	vies	x	1500	20000	-	-
 kof2003	0	INFINITE TIME	107D62	60	temps	f	1900	3200	140,10,176,30	tres-clair
 rbff1	0	INFINITE TIME	106AA8	60	temps	f	1900	3200	148,0,180,28	tres-clair
@@ -275,7 +279,7 @@ pixels() {
     rouge) echo "C_COULEUR=180,255,0,80,0,80" ;;
   esac
 }
-# entrees <T> <f|s|j|x|b|k|l>: the schedule, cut from T − 10 to T + 150.
+# entrees <T> <f|s|j|x|b|a|k|l>: the schedule, cut from T − 10 to T + 150.
 entrees() {
   local T=$1 a=$(( $1 - 10 )) b=$(( $1 + 150 )) out="400-407:piece,500-507:START" x
   case "$2" in k|l) out="400-407:pieceDeux,500-507:startDeux" ;; esac
@@ -285,6 +289,7 @@ entrees() {
     j) x="1000-40000:droite 1000-40000%20:B" ;;
     x) x="600-40000%6:A 1000-40000:droite 1500-40000%300:B 1650-40000%400:C" ;;
     b) x="600-40000%6:A 1000-40000:droite 1000-40000%60:C" ;;
+    a) x="600-3500%60:A 2000-40000:droite 3600-40000%8:A 3602-40000%12:B 3604-40000%16:C" ;;
     k) x="600-40000%6:aDeux 1000-40000:droiteDeux 1500-40000%300:bDeux 1650-40000%400:cDeux" ;;
     l) x="1000-40000:droiteDeux 1000-40000%20:bDeux" ;;
   esac
