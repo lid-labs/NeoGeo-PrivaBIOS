@@ -74,5 +74,6 @@ licence, GPL-3.0-or-later.
 ## Language
 
 New text is written in English: notes, code comments, commits and pull requests. Many notes in
-`docs/` and the code comments are still in French and are being translated. Issues and discussions
-can be in English or French.
+`docs/` and the code comments are still in French and are being translated. Identifiers (labels,
+script names, options) stay as they are, and so do the dated, frozen notes listed in
+[`docs/README.md`](docs/README.md). Issues and discussions can be in English or French.

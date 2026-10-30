@@ -17,7 +17,7 @@ notes and in the backup RAM signature.
    [`docs/METHOD.md`](docs/METHOD.md)). Never read, disassemble, decompile, step through or copy the
    code or ROM bytes of the SNK BIOS, UniBIOS, another third-party BIOS or a game. Observing them
    running under MAME is allowed: picture, sound, RAM, registers, access counts, and watchpoints that
-   tell which program counter writes a RAM cell. Never read a third-party cheat database (UniBIOS,
+   tell which program counter writes a RAM cell. Never use a third-party cheat database (UniBIOS,
    MAME's `cheat.xml`, websites). If unsure whether something crosses the line, stop and ask.
 2. **No ROM, dump, capture of a commercial game or value read from a third-party ROM** is ever
    committed. `bench/garde-publication.sh` (run by the CI) also fails on machine paths, personal
@@ -36,11 +36,11 @@ notes and in the backup RAM signature.
 ## Commands
 
 ```bash
-# Build (Docker, nothing installed on the host; amd64 emulation on Apple Silicon).
+# Build (Docker plus python3 on the host; amd64 emulation on Apple Silicon).
 ./build/construire.sh src/c0 sprixe-bios.sp1
 
 # The image must match build/expected-sha256.txt. A source change that changes the image
-# updates that file in the same commit; a comment-only change must leave it unchanged.
+# updates that file in the same commit.
 shasum -a 256 sprixe-bios.sp1; cat build/expected-sha256.txt
 
 # Generator tests and the sine table check (no MAME, also run by the CI).
@@ -57,8 +57,8 @@ python3 -I -B bench/parcours-mutations.py --eprouver "$ROMS" <work-dir>
 
 - The CI builds, checks the SHA-256, runs the generators' tests and `garde-publication.sh`. **It does
   not run MAME**: the full regression is run locally, and the pull request says it passed.
-- MAME runs are deterministic, one core each: run them in parallel, never one at a time
-  (`--jobs`; see [Speed](docs/BENCH.md#speed) for each script's default).
+- MAME runs are deterministic, one core each, so running them in parallel changes no verdict.
+  The scripts do so by default; see [Speed](docs/BENCH.md#speed) for their options.
 - Work directories go **outside the repository**. Python is run with `-I`.
 - Each script documents its usage in its header (in French).
 
@@ -92,21 +92,17 @@ such as `packages/…` or `cosim.sh` to the private monorepo where the BIOS was 
 ## Language
 
 Write all new text in English: docs, code comments, commit messages, pull requests. Many notes in
-`docs/`, the comments in `src/` and `bench/`, and the generated `specs/` are still in French and are
-being translated. Identifiers (labels, script names, options such as `--eprouver`) stay as they are.
-The dated, frozen notes (`AUDIT-2026-10-21.md`, `ATTENTES.md`, `RELECTURE-CONTRATS.md`, `tasks.md`)
-stay in French.
+`docs/` and the comments in `src/` and `bench/` are still in French and are being translated.
+Identifiers (labels, script names, options such as `--eprouver`) stay as they are. The dated, frozen
+notes (`AUDIT-2026-10-21.md`, `ATTENTES.md`, `RELECTURE-CONTRATS.md`, `tasks.md`) stay in French.
+`specs/traces/` is generator output: never edit it by hand.
 
 ## Changes and commits
 
 - `CHANGELOG.md`: one line under `## [Unreleased]` for any change a user can notice.
-- Public figures (scenes, mutations, games, cheats) appear in `README.md` (badges and text),
-  `docs/BENCH.md`, `docs/COMPARISON.md` and `site/index.html`: update them together.
+- Public figures (scenes, mutations, games, cheats) are repeated across `README.md` (badges and
+  text), `docs/BENCH.md`, `docs/COMPARISON.md`, `site/index.html` and `CHANGELOG.md`: grep for
+  the old figure and update every copy.
 - Conventional commits (`feat(cheats): …`, `fix(bench): …`, `docs: …`), signed off for the DCO:
   `git commit -s`.
 - Never commit on `main`; every change goes through a pull request and its template checklist.
-
-## mdma
-
-- **Workflow** : `default`
-- **Git** : `default`
