@@ -1,196 +1,196 @@
-# La carte des menus de Sprixe BIOS
+# The map of Sprixe BIOS menus
 
-Où est chaque écran, et la touche qui y mène. Relevé dans le code le 2026-10-25 (main à `703cf222`),
-AUTOFIRE ajouté le 2026-10-27 (#1454), ABOUT le 2026-10-28 :
-les intitulés sont ceux de l'écran, la source de chaque écran est entre parenthèses. Les commandes
-sont celles du joueur 1, sur front (un appui compte une fois).
+Where each screen is, and the key that leads to it. Read in the code on 2026-10-25 (main at
+`703cf222`), AUTOFIRE added on 2026-10-27 (#1454), ABOUT on 2026-10-28:
+the labels are those of the screen, the source of each screen is in parentheses. The controls
+are player 1's, edge-triggered (a press counts once).
 
 ```
-Mise sous tension
-├── Écran de boot (ecran.s) ── un bouton le passe
-├── TEST tenu, ou START + SELECT tenus, ou commutateur 1 à ON ──► SOFT DIP SETTINGS (dip.s)
+Power-on
+├── Boot screen (ecran.s) ── a button skips it
+├── TEST held, or START + SELECT held, or switch 1 at ON ──► SOFT DIP SETTINGS (dip.s)
 │     ├── REGION
-│     ├── les réglages de la cartouche (selon le jeu)
-│     ├── ABOUT ──► mentions légales et crédits (about.s)
+│     ├── the cartridge's settings (depending on the game)
+│     ├── ABOUT ──► legal notices and credits (about.s)
 │     ├── CABINET SETTINGS ──► FREE PLAY, NO CONTINUE, DEMO SOUND, CHEATS/DEBUG (reglages.s), DEBUG DIPS (debug.s)
 │     ├── SCORE RESET
-│     ├── MEMORY CARD ──► liste des sauvegardes, FORMAT CARD, EXIT (gestion-carte.s)
+│     ├── MEMORY CARD ──► list of saves, FORMAT CARD, EXIT (gestion-carte.s)
 │     ├── MODE
 │     ├── HARDWARE TESTS ──► WORK RAM … CROSSHATCH, CARTRIDGE CRC (crc.s), EXIT (tests.s)
 │     ├── JUKEBOX (jukebox.s)
 │     └── RESET TO DEFAULTS
-└── Le jeu
-      ├── TEST, ou START + SELECT, tenus ~1/3 s en partie ──► IN-GAME MENU (menu.s)
+└── The game
+      ├── TEST, or START + SELECT, held ~1/3 s during play ──► IN-GAME MENU (menu.s)
       │     ├── RESUME
       │     ├── RESTART GAME
-      │     ├── les cheats du jeu, ON/OFF (cheats.s)
+      │     ├── the game's cheats, ON/OFF (cheats.s)
       │     ├── AUTOFIRE (autofire.s)
       │     ├── GAME SETTINGS (reglages-jeu.s)
       │     └── MEMORY EDITOR (memoire.s)
-      ├── SELECT hors partie, multi-slot ──► jeu suivant (P1) ou précédent (P2)
-      └── une exception du 68000 ──► SYSTEM CRASH (plantage.s)
+      ├── SELECT outside play, multi-slot ──► next game (P1) or previous (P2)
+      └── a 68000 exception ──► SYSTEM CRASH (plantage.s)
 ```
 
-## L'écran TEST : SOFT DIP SETTINGS
+## The test screen: SOFT DIP SETTINGS
 
-**Y entrer** : tenir le bouton TEST de la carte à la mise sous tension, jusqu'à l'écran. Il s'ouvre
-après l'écran de boot, avant le jeu. Sans bouton TEST (une MVS consolisée), deux autres chemins :
+**Getting in**: hold the board's TEST button at power-on, until the screen appears. It opens
+after the boot screen, before the game. Without a TEST button (a consolized MVS), two other paths:
 
-- tenir START et SELECT de P1 ensemble dès la mise sous tension : ils passent l'écran de boot et
-  ouvrent celui-ci. Refusé si A, B, C et D sont tenus tous les quatre en même temps, ce que fait
-  l'adaptateur BlueRetro à sa mise en route ; avec un, deux ou trois d'entre eux, le geste marche ;
-- mettre le commutateur 1 de la carte (« Setting Mode ») à ON : l'écran s'ouvre à chaque mise sous
-  tension tant qu'il y reste. START en sort quand même : resté à ON, DIP SWITCH 1 IS ON s'affiche
-  environ trois secondes (ou jusqu'à ce qu'on le rebascule), puis le jeu ; rebasculé à OFF pendant
-  l'écran, le jeu tout de suite. Sous MAME, le BIOS SNK et UniBIOS refusent d'en sortir tant qu'il
-  est à ON (« DIP-SW 1 OFF !! »).
+- hold P1's START and SELECT together from power-on: they skip the boot screen and
+  open this one. Refused if A, B, C and D are all four held at the same time, which the
+  BlueRetro adapter does when it starts up; with one, two or three of them, the gesture works;
+- set board switch 1 ("Setting Mode") to ON: the screen opens at every power-on
+  as long as it stays there. START still leaves it: left at ON, DIP SWITCH 1 IS ON shows for
+  about three seconds (or until it is switched back), then the game; switched back to OFF during
+  the screen, the game right away. Under MAME, the SNK BIOS and UniBIOS refuse to leave it while it
+  is at ON ("DIP-SW 1 OFF !!").
 
-**Commandes** : HAUT/BAS choisit la ligne, en boucle ; GAUCHE/DROITE change la valeur ; A passe à la
-valeur suivante et repart au début après la dernière (pour une borne à un bouton) ; START
-enregistre et lance le jeu.
+**Controls**: UP/DOWN chooses the line, wrapping around; LEFT/RIGHT changes the value; A goes to the
+next value and starts over after the last one (for a one-button cabinet); START
+saves and starts the game.
 
-**Le plus court chemin : « haut » depuis la première ligne**, parce que la liste boucle et que le
-nombre de réglages de la cartouche varie d'un jeu à l'autre. Ces chemins ne dépendent pas du jeu :
+**The shortest path: "up" from the first line**, because the list wraps around and the
+number of cartridge settings varies from one game to another. These paths do not depend on the game:
 
-| « haut » × | Ligne | Ce qu'elle fait |
+| "up" × | Line | What it does |
 |---|---|---|
-| 0 | REGION | JAPAN, USA, EUROPE ; changée, START relance la machine dans cette région |
-| 1 | RESET TO DEFAULTS | GAUCHE, DROITE ou A remet les réglages de la cartouche à leurs défauts |
-| 2 | JUKEBOX | GAUCHE, DROITE ou A l'ouvre |
-| 3 | HARDWARE TESTS | GAUCHE, DROITE ou A l'ouvre |
-| 4 | MODE | MVS, AES ; changé, START relance la machine dans ce mode |
-| 5 | MEMORY CARD | GAUCHE, DROITE ou A ouvre le gestionnaire de carte |
-| 6 | SCORE RESET | ON, OFF ; à OFF, les jeux qui effacent leurs records quand la date change les gardent |
-| 7 | CABINET SETTINGS | GAUCHE, DROITE ou A ouvre les réglages de la borne |
-| 8 | ABOUT | GAUCHE, DROITE ou A ouvre les mentions légales et les crédits |
+| 0 | REGION | JAPAN, USA, EUROPE; once changed, START restarts the machine in that region |
+| 1 | RESET TO DEFAULTS | LEFT, RIGHT or A resets the cartridge's settings to their defaults |
+| 2 | JUKEBOX | LEFT, RIGHT or A opens it |
+| 3 | HARDWARE TESTS | LEFT, RIGHT or A opens it |
+| 4 | MODE | MVS, AES; once changed, START restarts the machine in that mode |
+| 5 | MEMORY CARD | LEFT, RIGHT or A opens the card manager |
+| 6 | SCORE RESET | ON, OFF; at OFF, the games that erase their high scores when the date changes keep them |
+| 7 | CABINET SETTINGS | LEFT, RIGHT or A opens the cabinet settings |
+| 8 | ABOUT | LEFT, RIGHT or A opens the legal notices and the credits |
 
-Les réglages de la cartouche commencent à « bas » une fois. REGION, MODE, SCORE RESET et CABINET
-SETTINGS ne sont pas des réglages de la cartouche : RESET TO DEFAULTS ne les touche pas.
+The cartridge's settings start at "down" once. REGION, MODE, SCORE RESET and CABINET
+SETTINGS are not cartridge settings: RESET TO DEFAULTS does not touch them.
 
-En région JAPAN, quand la cartouche donne ses intitulés en japonais, la liste s'écrit en grands
-caractères, comme le BIOS SNK japonais : deux rangées par ligne, dix lignes à l'écran, et la liste
-défile avec la ligne choisie. Les commandes et les chemins « haut » ne changent pas
+In the JAPAN region, when the cartridge gives its labels in Japanese, the list is written in large
+characters, like the Japanese SNK BIOS: two rows per line, ten lines on screen, and the list
+scrolls with the chosen line. The controls and the "up" paths do not change
 (`DECISIONS.md` §19).
 
 ### ABOUT
 
-Le nom et la version, le copyright, l'absence de garantie, la licence (GPL version 3 ou
-ultérieure), l'adresse du source et le testeur du matériel. START revient à la liste.
+The name and the version, the copyright, the absence of warranty, the licence (GPL version 3 or
+later), the address of the source and the hardware tester. START goes back to the list.
 
 ### CABINET SETTINGS
 
-Cinq lignes ; HAUT/BAS choisit, GAUCHE, DROITE ou A change la valeur. START revient à la liste, et
-c'est le START de la liste qui enregistre, sans relance.
+Five lines; UP/DOWN chooses, LEFT, RIGHT or A changes the value. START goes back to the list, and
+it is the list's START that saves, without a restart.
 
-| Ligne | Valeurs | Effet |
+| Line | Values | Effect |
 |---|---|---|
-| FREE PLAY | OFF, ON, DIP | START lance une partie sans pièce, P2 compris. DIP : le commutateur 7 de la carte est à ON, ce qui suffit ; la ligne ne change plus |
-| NO CONTINUE | OFF, ON | START est refusé pendant le décompte du continue |
-| DEMO SOUND | ON, OFF | À OFF, les démos sont muettes ; titre et partie gardent le son |
-| CHEATS/DEBUG | ON, OFF | À OFF, le menu en jeu n'offre plus ni cheats ni MEMORY EDITOR |
-| DEBUG DIPS | le masque en hexadécimal, ou OFF | GAUCHE, DROITE ou A ouvre l'écran des debug dips ; OFF sous CHEATS/DEBUG OFF, et la ligne ne s'ouvre pas |
+| FREE PLAY | OFF, ON, DIP | START starts a game without a coin, P2 included. DIP: board switch 7 is at ON, which is enough; the line no longer changes |
+| NO CONTINUE | OFF, ON | START is refused during the continue countdown |
+| DEMO SOUND | ON, OFF | At OFF, the demos are silent; title and play keep the sound |
+| CHEATS/DEBUG | ON, OFF | At OFF, the in-game menu no longer offers cheats or MEMORY EDITOR |
+| DEBUG DIPS | the mask in hexadecimal, or OFF | LEFT, RIGHT or A opens the debug dips screen; OFF under CHEATS/DEBUG OFF, and the line does not open |
 
-En mode AES, les trois premières affichent MVS ONLY et sont sans effet ; CHEATS/DEBUG vaut dans les
-deux modes. Le commutateur 7 de la carte (« Free Play ») met la borne en free play comme FREE PLAY ON,
-et il est relu machine allumée. Détail : `DECISIONS.md` §15 et §16.
+In AES mode, the first three show MVS ONLY and have no effect; CHEATS/DEBUG applies in both
+modes. Board switch 7 ("Free Play") puts the cabinet in free play like FREE PLAY ON,
+and it is read again while the machine is on. Details: `DECISIONS.md` §15 and §16.
 
-**DEBUG DIPS** : deux rangées de huit bits, DIP 1 et DIP 2. GAUCHE/DROITE choisit le bit, HAUT/BAS la
-rangée, A le bascule ; START revient. Les bits choisis sont mis à 1 dans les deux octets que le jeu
-lit pour ses outils de mise au point, à chaque trame, en démo comme en partie ; ils ne sont jamais
-enregistrés et s'effacent à la mise hors tension (`DECISIONS.md` §20).
+**DEBUG DIPS**: two rows of eight bits, DIP 1 and DIP 2. LEFT/RIGHT chooses the bit, UP/DOWN the
+row, A toggles it; START goes back. The chosen bits are set to 1 in the two bytes that the game
+reads for its debugging tools, every frame, in the demo as in play; they are never
+saved and are cleared at power-off (`DECISIONS.md` §20).
 
 ### MEMORY CARD
 
-HAUT/BAS choisit une sauvegarde (NGH, sous-numéro, blocs, nom du jeu), FORMAT CARD ou EXIT. A sur
-une sauvegarde l'efface, A sur FORMAT CARD formate la carte ; les deux demandent confirmation (A oui,
-B non). C sur une sauvegarde la copie : CHANGE CARD AND PRESS A, on change de carte, A l'écrit ; si la
-nouvelle carte a déjà cette sauvegarde, OVERWRITE ? demande confirmation. B renonce. START revient. Sans carte : NO CARD ; carte vierge : CARD NOT FORMATTED ; carte protégée :
+UP/DOWN chooses a save (NGH, sub-number, blocks, game name), FORMAT CARD or EXIT. A on
+a save erases it, A on FORMAT CARD formats the card; both ask for confirmation (A yes,
+B no). C on a save copies it: CHANGE CARD AND PRESS A, the card is changed, A writes it; if the
+new card already has that save, OVERWRITE ? asks for confirmation. B gives up. START goes back. No card: NO CARD; blank card: CARD NOT FORMATTED; protected card:
 WRITE PROTECTED.
 
 ### HARDWARE TESTS
 
-HAUT/BAS choisit, en boucle depuis WORK RAM, A lance, START revient.
+UP/DOWN chooses, wrapping around from WORK RAM, A starts, START goes back.
 
-| « haut » × | Test | Ce qu'il montre |
+| "up" × | Test | What it shows |
 |---|---|---|
-| — | WORK RAM, PALETTE RAM, VRAM, BACKUP RAM | OK, ou FAIL avec l'adresse, la valeur écrite et la valeur lue |
-| — | INPUT TEST (« bas » × 4) | l'état des entrées ; START tenu 1 s pour sortir. Commutateur 3 de la carte à ON à l'ouverture : la page du panneau de mahjong, 0 ou 1 par touche (A à N, PON à REACH, START, SELECT) |
-| — | COLOR BARS (« bas » × 5) | des barres de couleur ; A change de page |
-| 3 | CROSSHATCH | une mire de réglage |
-| 2 | CARTRIDGE CRC | le CRC32 de la P-ROM de la cartouche, FIXED puis BANKS, à comparer à celui du romset ; START arrête le calcul (`DECISIONS.md` §20) |
-| 1 | EXIT | retour à la liste |
+| — | WORK RAM, PALETTE RAM, VRAM, BACKUP RAM | OK, or FAIL with the address, the value written and the value read |
+| — | INPUT TEST ("down" × 4) | the state of the inputs; START held 1 s to leave. Board switch 3 at ON on opening: the mahjong panel page, 0 or 1 per key (A to N, PON to REACH, START, SELECT) |
+| — | COLOR BARS ("down" × 5) | colour bars; A changes page |
+| 3 | CROSSHATCH | an alignment test pattern |
+| 2 | CARTRIDGE CRC | the CRC32 of the cartridge's P-ROM, FIXED then BANKS, to compare with the romset's; START stops the computation (`DECISIONS.md` §20) |
+| 1 | EXIT | back to the list |
 
 ### JUKEBOX
 
-HAUT/BAS change le code de 1, GAUCHE/DROITE de 16, A joue, B arrête, START sort. Les codes 01 à 03
-sont sautés. Si rien ne joue, l'écran conseille le code 07 (PLAY 07 FIRST IF SILENT). Après environ
-deux minutes sans toucher à rien, l'écran devient noir et la musique continue ; une touche le rallume
-sans rien faire d'autre (`DECISIONS.md` §25).
+UP/DOWN changes the code by 1, LEFT/RIGHT by 16, A plays, B stops, START leaves. Codes 01 to 03
+are skipped. If nothing plays, the screen suggests code 07 (PLAY 07 FIRST IF SILENT). After about
+two minutes without touching anything, the screen goes black and the music keeps playing; a key
+turns it back on without doing anything else (`DECISIONS.md` §25).
 
-## Le menu en jeu : IN-GAME MENU
+## The in-game menu: IN-GAME MENU
 
-**Y entrer** : en partie (pas en démo), tenir TEST environ 1/3 s, ou START et SELECT de P1 ensemble
-(sans bouton TEST), sauf avec A, B, C et D tenus tous les quatre (l'adaptateur BlueRetro, comme au
-boot). Le jeu se met en pause, la musique continue.
+**Getting in**: during play (not in the demo), hold TEST about 1/3 s, or P1's START and SELECT
+together (without a TEST button), except with A, B, C and D all four held (the BlueRetro adapter, as at
+boot). The game pauses, the music keeps playing.
 
-**Commandes** : HAUT/BAS choisit, A ou START valide. Sur une ligne de cheat, A ou START bascule ON/OFF
-et le menu reste ouvert. Un jeu a jusqu'à 16 cheats ; le cadre en montre 4, et la liste défile derrière
-le curseur. Au-delà de 4, la ligne sous le titre dit lesquels sont montrés (« CHEATS 5-8/12 »).
+**Controls**: UP/DOWN chooses, A or START confirms. On a cheat line, A or START toggles ON/OFF
+and the menu stays open. A game has up to 16 cheats; the frame shows 4, and the list scrolls behind
+the cursor. Beyond 4, the line under the title says which ones are shown ("CHEATS 5-8/12").
 
-| Depuis RESUME | Ligne | Ce qu'elle fait |
+| From RESUME | Line | What it does |
 |---|---|---|
-| — | RESUME | rend le jeu là où il était |
-| « bas » × 1 | RESTART GAME | relance la machine |
-| « bas » × 2 et suivants | un cheat par ligne, jusqu'à 16 | seulement pour les jeux de la table (`measured/2026-10-25-cheats-table.tsv`) |
-| « haut » × 3 | AUTOFIRE | le tir automatique de A, B, C et D, gardé pour ce jeu |
-| « haut » × 2 | GAME SETTINGS | les soft-DIP du jeu, en partie |
-| « haut » × 1 | MEMORY EDITOR | la RAM du jeu |
+| — | RESUME | returns the game where it was |
+| "down" × 1 | RESTART GAME | restarts the machine |
+| "down" × 2 and following | one cheat per line, up to 16 | only for the games in the table (`measured/2026-10-25-cheats-table.tsv`) |
+| "up" × 3 | AUTOFIRE | autofire for A, B, C and D, kept for this game |
+| "up" × 2 | GAME SETTINGS | the game's soft-DIPs, during play |
+| "up" × 1 | MEMORY EDITOR | the game's RAM |
 
-**Sous CHEATS/DEBUG à OFF**, les cheats et MEMORY EDITOR disparaissent : « haut » × 1 mène alors à
-GAME SETTINGS, « haut » × 2 à AUTOFIRE.
+**Under CHEATS/DEBUG at OFF**, the cheats and MEMORY EDITOR disappear: "up" × 1 then leads to
+GAME SETTINGS, "up" × 2 to AUTOFIRE.
 
 ### AUTOFIRE
 
-Quatre lignes BUTTON A à BUTTON D, chacune OFF ou ON, puis RATE : 15/S par défaut, 30/S ou 10/S
-(tirs par seconde). HAUT/BAS choisit ; DROITE met ON (ou la cadence au-dessus), GAUCHE met OFF (ou
-la cadence au-dessous), A bascule (ou passe à la cadence suivante) ; START revient.
+Four lines BUTTON A to BUTTON D, each OFF or ON, then RATE: 15/S by default, 30/S or 10/S
+(shots per second). UP/DOWN chooses; RIGHT sets ON (or the rate above), LEFT sets OFF (or
+the rate below), A toggles (or goes to the next rate); START goes back.
 
-Un bouton à ON, tenu, tire tout seul : le jeu le voit appuyé puis relâché, au rythme choisi, et le
-premier appui part tout de suite. Le réglage vaut pour les joueurs 1 et 2, et il est gardé pour ce
-jeu, même machine éteinte : chaque jeu a le sien, et un jeu qu'on n'a jamais réglé n'en a pas. Il
-n'a d'effet que sur les jeux qui lisent la manette par le BIOS : la liste, jeu par jeu, est dans
-`AUTOFIRE.md`. Coupé avec le panneau de mahjong (commutateur 3 à ON). Détail : `DECISIONS.md` §22.
+A button at ON, held, fires by itself: the game sees it pressed then released, at the chosen rate,
+and the first press goes out right away. The setting applies to players 1 and 2, and it is kept for
+this game, even with the machine off: each game has its own, and a game that was never set has
+none. It only has an effect on the games that read the joystick through the BIOS: the list, game by
+game, is in `AUTOFIRE.md`. Off with the mahjong panel (switch 3 at ON). Details: `DECISIONS.md` §22.
 
 ### GAME SETTINGS
 
-Les réglages de la cartouche, puis RESET TO DEFAULTS et RESTART GAME ; ni REGION ni MODE. En région
-JAPAN, les intitulés sont ceux que la cartouche donne pour les USA, quand ses deux listes de réglages
-ont la même forme ; sinon ils restent en blanc (`DECISIONS.md` §19).
-HAUT/BAS choisit, GAUCHE, DROITE ou A change, START revient. Certains jeux ne relisent un réglage
-qu'au début d'un round ou d'une partie (SOME CHANGES NEED RESTART) : RESTART GAME enregistre et
-relance.
+The cartridge's settings, then RESET TO DEFAULTS and RESTART GAME; neither REGION nor MODE. In the
+JAPAN region, the labels are those the cartridge gives for the USA, when its two lists of settings
+have the same shape; otherwise they stay blank (`DECISIONS.md` §19).
+UP/DOWN chooses, LEFT, RIGHT or A changes, START goes back. Some games only read a setting again
+at the start of a round or of a game (SOME CHANGES NEED RESTART): RESTART GAME saves and
+restarts.
 
 ### MEMORY EDITOR
 
-| Écran | Commandes |
+| Screen | Controls |
 |---|---|
-| La page | HAUT/BAS change de ligne (8 octets), GAUCHE/DROITE d'octet ; B tenu + HAUT/BAS change de page ; A édite, C va à une adresse, D gèle l'octet ou le dégèle ; START revient |
-| SET VALUE | HAUT/BAS change de 1, GAUCHE/DROITE de $10 ; A écrit, B annule |
-| GOTO ADDRESS | GAUCHE/DROITE choisit le chiffre, HAUT/BAS le change ; A valide, B annule |
+| The page | UP/DOWN changes line (8 bytes), LEFT/RIGHT byte; B held + UP/DOWN changes page; A edits, C goes to an address, D freezes the byte or unfreezes it; START goes back |
+| SET VALUE | UP/DOWN changes by 1, LEFT/RIGHT by $10; A writes, B cancels |
+| GOTO ADDRESS | LEFT/RIGHT chooses the digit, UP/DOWN changes it; A confirms, B cancels |
 
-La fenêtre couvre la RAM de travail, $100000-$10FFFF, en boucle. La zone du BIOS
-($10F300-$10FFFF) s'affiche en READ ONLY : A et D n'y font rien. Les octets gelés sont listés en bas
-(FROZEN) ; le moteur les réécrit à chaque trame.
+The window covers the work RAM, $100000-$10FFFF, wrapping around. The BIOS area
+($10F300-$10FFFF) is shown as READ ONLY: A and D do nothing there. The frozen bytes are listed at
+the bottom (FROZEN); the engine writes them again every frame.
 
-## Les autres écrans
+## The other screens
 
-- **L'écran de boot** : SYSTEM, REGION, CLOCK, CARD, GAME NGH, puis PRESS A BUTTON TO SKIP ; un
-  bouton passe l'attente.
-- **Le commutateur 8 de la carte (« Freeze ») à ON au boot** : avant l'écran de boot, DIP SWITCH 8 IS
-  ON et SET IT OFF TO CONTINUE, jusqu'à ce qu'on le rebascule ; le BIOS SNK reste écran noir. En jeu,
-  il fige la partie sans rien afficher, comme le BIOS SNK (`DECISIONS.md` §21).
-- **SELECT sur une carte multi-slot** : SELECT P1 passe au jeu suivant, SELECT P2 au précédent ;
-  les conditions sont dans `io.s`.
-- **SYSTEM CRASH** : l'exception ou ses causes possibles, les registres et le NGH du jeu ; START relance.
-- **Sans cartouche** : la machine ouvre HARDWARE TESTS au lieu de redémarrer en boucle
+- **The boot screen**: SYSTEM, REGION, CLOCK, CARD, GAME NGH, then PRESS A BUTTON TO SKIP; a
+  button skips the wait.
+- **Board switch 8 ("Freeze") at ON at boot**: before the boot screen, DIP SWITCH 8 IS
+  ON and SET IT OFF TO CONTINUE, until it is switched back; the SNK BIOS stays on a black screen.
+  In a game, it freezes play without showing anything, like the SNK BIOS (`DECISIONS.md` §21).
+- **SELECT on a multi-slot board**: SELECT P1 goes to the next game, SELECT P2 to the previous one;
+  the conditions are in `io.s`.
+- **SYSTEM CRASH**: the exception or its possible causes, the registers and the game's NGH; START restarts.
+- **Without a cartridge**: the machine opens HARDWARE TESTS instead of rebooting in a loop
   (`DECISIONS.md` §13).
