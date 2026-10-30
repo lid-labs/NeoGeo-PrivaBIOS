@@ -23,6 +23,8 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 - Site: the comparison table no longer lists scores on memory card.
 - Notes in English: `docs/DECISIONS.md`, `MENUS.md`, `AUTOFIRE.md`, `COMPATIBILITE.md`,
   `ESSAI-MATERIEL.md` and `measured/HISTORIQUE.md`.
+- Code comments in English: `src/c0/`, `diag/slots/`, `build/harnais/`, `build/bios.ld`. The image
+  is unchanged.
 
 ### Fixed
 
