@@ -269,7 +269,7 @@ _demarrage:
 
         | THE HANDSHAKE, in this order.
         move.b  %d0, 0x3A0003           | REG_SWPBIOS: BIOS vector table
-        move.b  %d0, 0x3A000B           | REG_BRDFIX : the board's SFIX and SM1
+        move.b  %d0, 0x3A000B           | REG_BRDFIX: the board's SFIX and SM1
 
         | RELEASING THE TWO COIN LOCKOUTS. Read in "Memory mapped registers":
         | REG_RESETCL1 ($380065) and REG_RESETCL2 ($380067) let lockouts 1 and 2 float, data
@@ -466,7 +466,7 @@ _vider:
         | THE MODE CHOSEN ON SCREEN (MODE line of `dip.s`, `reglages.s`): $80 MVS or $00 AES
         | in BIOS_MVS_FLAG, in place of the descriptor. That is what games read (record
         | `measured/2026-10-23-mode-aes.tsv`); the machine, for its part, stays an MVS
-        | (REG_STATUS_B bit 7). Here, before the boot screen that displays it. Intended
+        | (REG_STATUS_B bit 7). Here, before the boot screen that displays it. Deliberate
         | departure: DECISIONS §11.
         jsr     _reglages_mode
         cmpi.b  #0xFF, %d0
@@ -885,7 +885,7 @@ _sans_cartouche:
 | (measured, same jig, `MS_LECT_JEU`, one game alone, 4,000 frames including a game:
 | only $D00034-$D00035, $D00046-$D00047, $D00100-$D00101, $D00108 and the table
 | $D00124+ are read).
-| Intended departure: GAME_DIP goes into the block BEFORE request 0 and not on its
+| Deliberate departure: GAME_DIP goes into the block BEFORE request 0 and not on its
 | return — the soft-DIP editor needs it before the hand-over, and the decoding is the one
 | that was measured equal to the reference at the hand-over (22 games).
 | Not written, ASSUMED without effect (no reader in the corpus): the date $D00104 (fresh
@@ -1818,7 +1818,7 @@ _remise_tenue:
         bsr     _int1_tenu              | the next vblank
         move.w  #0x4000, 0x3C0006       | REG_LSPCMODE, as at every hand-over
         move.b  %d2, 0x10FDAE           | BIOS_USER_REQUEST
-        move.b  %d4, 0x10FD80           | BIOS_SYSTEM_MODE : the game has the vblank (%d4, above)
+        move.b  %d4, 0x10FD80           | BIOS_SYSTEM_MODE: the game has the vblank (%d4, above)
         nop                             | 16 + 4: the 20 cycles of the earlier `move.b #0x82`
         move.b  #0x00, 0x10FEBF         | BIOS_BRAM_USED, measured
         move.b  %d0, 0x3A0013           | REG_SWPROM
@@ -1952,7 +1952,7 @@ _retour_selection:
         moveq   #3, %d2                 | BIOS_USER_REQUEST = title (measured: $03)
         | IN AES MODE, THE NEXT GAME'S DEMO: no BIOS title in AES (`_io_select_aes`, `io.s`;
         | "USER subroutine": on AES, the BIOS goes no further than request 2).
-        | Intended departure, DECISIONS §11.
+        | Deliberate departure, DECISIONS §11.
         tst.b   0x10FD82
         bne.s   1f
         moveq   #2, %d2                 | AES mode: BIOS_USER_REQUEST = demo

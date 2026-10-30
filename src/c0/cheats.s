@@ -6,7 +6,7 @@
 |
 | NO ORACLE: neither the reference BIOS, nor a third-party BIOS, nor a third-party cheat base
 | (UniBIOS's, MAME's cheat.xml, a code site) is read. The hand-over is
-| "Layer 3 → the cheats, 2026-10-21" (`docs/RELECTURE-CONTRATS.md`).
+| "Couche 3 → les cheats, le 2026-10-21" (`docs/RELECTURE-CONTRATS.md`).
 | "measured": jig `bench/cheats.lua` under MAME 0.286, -bios euro, -video none, our image,
 | 2026-10-21 (records handed to the coordinating agent); "read in": a page of the NeoGeo
 | Development Wiki; "ASSUMED": neither one nor the other.

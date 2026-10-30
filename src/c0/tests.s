@@ -9,7 +9,7 @@
 | bank 0 at zero apart from the reference, bank 0 selected; the caller redraws its screen.
 |
 | NO ORACLE: neither the reference BIOS's tests nor those of a third-party BIOS are read.
-| The hand-over is "Layer 3 → the self-tests, 2026-10-21" (`docs/RELECTURE-CONTRATS.md`).
+| The hand-over is "Couche 3 → les autotests, le 2026-10-21" (`docs/RELECTURE-CONTRATS.md`).
 | "measured": a named record; "read in": a page of the NeoGeo Development Wiki;
 | "ASSUMED": neither one nor the other.
 |

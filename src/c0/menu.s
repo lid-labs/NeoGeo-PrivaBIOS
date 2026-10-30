@@ -5,7 +5,7 @@
 | game then gives it back as it was. TEST opens the BIOS menus (`dip.s` at boot).
 |
 | NO ORACLE: neither the reference BIOS nor a third-party BIOS is read. The hand-over is
-| "Layer 3 → the in-game menu, 2026-10-21" (`docs/RELECTURE-CONTRATS.md`).
+| "Couche 3 → le menu en jeu, le 2026-10-21" (`docs/RELECTURE-CONTRATS.md`).
 | "measured": a named record (jig `bench/menu.lua` and lua probes of 2026-10-21, MAME
 | 0.286, -bios euro, our image, 22 games of the corpus, ~3,600 frames each, coin and START
 | scheduled like `bios-probe.lua`; records not versioned, handed to the main
