@@ -1,0 +1,18 @@
+# L'écran CARTRIDGE CRC (src/c0/crc.s) sur une vraie cartouche Super Sidekicks (ssideki, NGH 0052), photo du testeur
+# reçue le 2026-10-29, image du BIOS d'avant ce relevé. Ce que l'écran affichait, et d'où vient la ligne BANKS.
+#
+# MÉTHODE. « affiché » : lu sur la photo. « fichier » : le CRC32 de 052-p1.p1 dans le zip ssideki de $ROMS (unzip -lv),
+# 524 288 octets, la seule P-ROM du romset. « recherche » : un programme C hors du dépôt a calculé, pour chacun des
+# 65 536 mots w, le CRC32 (celui de zip) d'1 Mio où w est répété, ses octets dans l'ordre des fichiers de MAME (octet
+# bas d'abord, comme l'écran les somme) ; un seul mot donne le CRC affiché. Candidats écartés avant elle : 1 Mio de $FF
+# (956BAC74), de $00 (A738EA1C), la P1 deux fois (770F88B2), la P1 suivie de $00 (9EB0F048) ou de $FF (BB9D02AD), la P1
+# octets permutés deux fois (62C98795).
+#
+# CONCLUSION. La P-ROM fixe est lue juste. La fenêtre $200000-$2FFFFF de cette cartouche, sans puce de banques, rend
+# le mot $5700 sur tout le Mio (SUPPOSÉ : le bus flottant) ; l'écran l'a comptée comme une banque. Corrigé : une banque 0
+# qui ne lit qu'un mot sur les seize tranches de sa signature donne BANKS NONE (scène crc-flottant de bench/parcours.sh,
+# jig bench/crc-flottant.lua, mutation crc-flottant-ignore).
+ligne	affiché	fichier ou recherche	verdict
+SLOT et NGH	SLOT 1 NGH 0052	ssideki est le NGH 052	égal
+FIXED	0512K 9CD97256	052-p1.p1 : 524 288 octets, CRC32 9cd97256	égal
+BANKS	1 X 1024K A9F75D87	1 Mio du seul mot $5700 (octets 00 57 dans l'ordre des fichiers) : A9F75D87, seul des 65 536 mots	faux : pas de puce de banques, BANKS NONE attendu

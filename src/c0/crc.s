@@ -43,6 +43,12 @@
 |          sa P-ROM fixe dans la fenêtre. D'où, sans lire le code du jeu :
 |            - la fenêtre égale à la P-ROM fixe, mot pour mot : PAS DE BANQUE, et rien n'est
 |              écrit en $2FFFF0 (sous MAME, écrire 0 y pointerait hors de la ROM, mesuré) ;
+|            - la fenêtre qui ne lit qu'un seul mot sur seize tranches de 4 Kio, une tous les
+|              64 Kio : PAS DE BANQUE, rien n'est écrit en $2FFFF0. MESURÉ sur une vraie
+|              cartouche ssideki (P-ROM de 512 Kio sans puce de banques), photo du testeur du
+|              2026-10-29 : BANKS 1 X 1024K A9F75D87, le CRC32 d'1 Mio du seul mot $5700
+|              (`measured/2026-10-29-crc-ssideki-materiel.tsv`). SUPPOSÉ : aucune vraie banque
+|              n'est un seul mot sur ces 64 Kio répartis ;
 |            - sinon, banques 0, 1, 2… jusqu'à la première dont le CRC égale celui d'une
 |              banque d'avant (un miroir, ou la retombée sur la 0), huit au plus. Elle n'est
 |              pas comptée, et son octet n'entre pas dans le CRC des banques.
@@ -198,6 +204,7 @@ _crc_cartouche:
         move.l  #MIO, %d0
         bsr     .Legal
         bne.s   .Lbanques
+.Lsans_banque:
         move.w  #CASE_BANQ, %d1
         move.w  #0x1000, %d3
         lea     .Ltxt_sans_banque, %a2
@@ -205,6 +212,10 @@ _crc_cartouche:
         bra     .Ltermine
 
 .Lbanques:
+        | La fenêtre qui ne lit qu'un seul mot : pas de puce, le bus flottant (voir l'en-tête).
+        | Avant toute écriture en $2FFFF0, comme ci-dessus.
+        bsr     .Lconstante
+        beq.s   .Lsans_banque
         move.w  #1, F_ECRIT(%a6)
         moveq   #-1, %d7                | le CRC de toutes les banques, à la suite
         moveq   #0, %d6                 | %d6 : la banque
@@ -337,6 +348,31 @@ _crc_cartouche:
         move.l  (%a1,%d1.w), %d1
         eor.l   %d1, %d7
         dbra    %d4, 1b
+        rts
+
+| LA FENÊTRE NE LIT-ELLE QU'UN MOT ? Seize tranches de 4 Kio, une tous les 64 Kio, un mot
+| comparé au précédent. Z si oui. Toutes les lectures passent par `.Lmot`, la même instruction :
+| un bus flottant qui rendrait le mot suivant la lecture (le jig `bus-flottant.lua`) rend
+| alors partout le même. ~56 cycles par mot, ~0,15 s. Clobbers %d0-%d4, %a0, %a3.
+.Lconstante:
+        lea     FENETRE, %a0
+        bsr.s   .Lmot
+        move.w  %d1, %d2                | %d2 : le premier mot
+        lea     FENETRE, %a3
+        moveq   #16 - 1, %d3
+1:      movea.l %a3, %a0
+        move.w  #BLOC / 2 - 1, %d4
+2:      bsr.s   .Lmot
+        cmp.w   %d1, %d2
+        dbne    %d4, 2b
+        bne.s   9f
+        move.b  %d0, WATCHDOG
+        adda.l  #0x10000, %a3
+        dbra    %d3, 1b
+        moveq   #0, %d0                 | Z
+9:      rts
+.Lmot:
+        move.w  (%a0)+, %d1
         rts
 
 | %d0 OCTETS ÉGAUX en %a0 et %a1 ? Z si oui. Par blocs de BLOC octets, un coup de pied au

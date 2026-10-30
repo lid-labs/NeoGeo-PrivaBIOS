@@ -538,7 +538,9 @@ et `2026-10-25-debug-dips.tsv` ; seuils : `2026-10-25-parcours-crc-debug.tsv`.
    d'abord : l'ordre des fichiers de MAME. FIXED est `$000000-$0FFFFF`, réduit de moitié tant que la
    moitié haute est le miroir de la basse (SUPPOSÉ : une puce de 512 Kio vue deux fois sur une carte).
    BANKS suit le mot de `$2FFFF0` (lu dans `neogeo.cpp`) jusqu'à la première banque déjà vue ; aucune
-   si la fenêtre égale la P-ROM fixe, et rien n'est alors écrit en `$2FFFF0`.
+   si la fenêtre égale la P-ROM fixe, et rien n'est alors écrit en `$2FFFF0`. Aucune non plus, depuis
+   le 2026-10-29, si la fenêtre ne lit qu'un seul mot, rien écrit non plus : une vraie cartouche
+   ssideki, sans puce de banques, y rend `$5700` partout (`measured/2026-10-29-crc-ssideki-materiel.tsv`).
 3. **Le CRC est celui de ce que lit le 68000, pas celui d'un fichier.** Il égale celui que
    `bench/crc-cartouche.py` calcule depuis le zip sur 8 jeux sur 10, et les deux CRC de
    `hash/neogeo.xml` pour mslug2 et kof97. Sous MAME, une P-ROM de 512 Kio est suivie de zéros et

@@ -57,7 +57,7 @@ runs of the same configuration give identical output, except the speed column.
 result; 4 (full run only), `parcours.sh`. A deliberate change of behaviour needs a new recorded
 result, not a looser threshold.
 
-As of 28 October 2026: 159 scenes and 205 mutations, all caught.
+As of 29 October 2026: 160 scenes and 206 mutations, all caught.
 
 Work directories, captures and MAME state are written under the work directory you pass, outside the
 repository.
