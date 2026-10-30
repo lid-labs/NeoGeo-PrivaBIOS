@@ -674,7 +674,7 @@ _dip_table:
         move.b  %d0, WATCHDOG
 
         | THE REGION OR THE MODE HAS CHANGED: it is saved, then the machine restarts. The games
-        | read the region at their init (log quoted by `c0.s`), and the boot derives from it the
+        | read the region at their init (record quoted by `c0.s`), and the boot derives from it the
         | soft-DIP pointer and CARD_REGION: only a full boot brings them back into agreement.
         | THE RESTART BY THE WATCHDOG, not by a jump to the reset vector. Read in
         | "Watchdog": without a kick, it "resets the whole system", after
