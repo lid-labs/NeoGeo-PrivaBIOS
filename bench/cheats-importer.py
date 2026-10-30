@@ -7,9 +7,9 @@
 
 <cheat-dir> holds the collection's <romset>.xml, <ngh.tsv> the lines "romset NGH fingerprint".
 
-Only what the engine can do is kept: a cheat that runs every frame, unconditionally, with at most
-two word-sized-or-less writes to work RAM (a .pd counts as its two words). The cheats already in the
-table come first, a game never exceeds CH_MAX, and a cell already forced is not imported twice.
+Only what the engine can do is kept: a cheat with at most two unconditional writes to work RAM (a
+.pd counts as its two words), every frame or once (UNEFOIS). The cheats already in the table come
+first, a game never exceeds CH_MAX, and a cell is not forced twice nor set twice to one value.
 """
 import collections
 import re
@@ -29,9 +29,10 @@ def ecritures(cheat):
     """The writes [(address, size, value)] of a cheat the engine can run; None otherwise."""
     if cheat.find("parameter") is not None:
         return None
-    w = []
+    w, etats = [], set()
     for s in cheat.findall("script"):
-        if s.get("state", "run") != "run" or s.get("condition"):
+        etats.add(s.get("state", "run"))
+        if s.get("condition"):
             return None
         for a in s.findall("action"):
             m = ACTION.match(a.text or "")
@@ -46,12 +47,12 @@ def ecritures(cheat):
                 w += [(adr, 2, val >> 16), (adr + 2, 2, val & 0xFFFF)]
             else:
                 return None
-    if not 1 <= len(w) <= 2:
+    if not 1 <= len(w) <= 2 or etats not in ({"run"}, {"on"}):
         return None
     for adr, t, _ in w:
         if not 0x100000 <= adr <= 0x10F2FF or (t == 2 and adr & 1):
             return None
-    return w
+    return w, etats == {"on"}
 
 
 def nom(desc, pris):
@@ -81,14 +82,15 @@ def lire(chemin):
     """The importable cheats of a game: (desc, writes), the usual ones first."""
     r = E.fromstring(open(chemin, errors="replace").read())
     c = [(x.get("desc", "").strip(), ecritures(x)) for x in r.findall("cheat")]
-    return sorted([x for x in c if x[0] and x[1]], key=lambda x: rang(x[0]))
+    c = [(d, *e) for d, e in c if d and e]
+    return sorted(c, key=lambda x: (x[2], rang(x[0])))
 
 
-def ligne(n, w):
+def ligne(n, w, unefois):
     v = [f'"{n}"']
     for adr, t, val in w:
         v += [f"0x{adr:06X}", str(t), f"0x{val:0{2 * t}X}"]
-    return "        CHEAT   " + ", ".join(v)
+    return ("        UNEFOIS " if unefois else "        CHEAT   ") + ", ".join(v)
 
 
 def main():
@@ -105,12 +107,14 @@ def main():
         if m:
             cur = (int(m[1], 16), int(m[2], 16))
             blocs[cur] = dict(jeu=i, fin=i, nb=int(m[3]), cases=set(), noms=set())
-        c = re.match(r'\s+CHEAT\s+"([^"]*)",\s*(0x[0-9A-Fa-f]+)', l)
+        c = re.match(r'\s+(CHEAT|UNEFOIS)\s+"([^"]*)",\s*(0x[0-9A-Fa-f]+),\s*\d,\s*(0x[0-9A-Fa-f]+)', l)
         if c and cur:
             b = blocs[cur]
             b["fin"] = i
-            b["noms"].add(c[1])
-            b["cases"].add(int(c[2], 16))
+            b["noms"].add(c[2])
+            if c[1] == "CHEAT":
+                b["cases"].add(int(c[3], 16))
+            b["cases"].add((int(c[3], 16), int(c[4], 16)))
     ajouts = collections.defaultdict(list)
     nouveaux, journal = [], ["jeu\tngh\tempreinte\tnom\tintitule MAME\tecritures"]
     for cle, j in sorted(jeux.items(), key=lambda x: x[1]):
@@ -120,16 +124,20 @@ def main():
             continue
         b = blocs.get(cle, dict(nb=0, cases=set(), noms=set()))
         pris, add = set(b["noms"]), []
-        for desc, w in cand:
+        for desc, w, unefois in cand:
             if b["nb"] + len(add) >= CH_MAX:
                 break
-            if any(a in b["cases"] for a, _, _ in w):
+            if unefois and any((a, v) in b["cases"] for a, _, v in w):
+                continue
+            if not unefois and any(a in b["cases"] for a, _, _ in w):
                 continue
             n = nom(desc, pris)
             if not n:
                 continue
-            b["cases"] |= {a for a, _, _ in w}
-            add.append(ligne(n, w))
+            b["cases"] |= {(a, v) for a, _, v in w}
+            if not unefois:
+                b["cases"] |= {a for a, _, _ in w}
+            add.append(ligne(n, w, unefois))
             journal.append(f"{j}\t{cle[0]:04X}\t{cle[1]:04X}\t{n}\t{desc}\t" + " ".join(f"{a:06X}/{t}/{v:X}" for a, t, v in w))
         if not add:
             continue
@@ -143,7 +151,7 @@ def main():
     for i, l in enumerate(L):
         S.append(l)
         S += ajouts.get(i, [])
-        if i == fin:
+        if i == fin and nouveaux:
             S += ["        | The games below come from the MAME XML Cheats Collection (`bench/cheats-importer.py`),",
                   "        | not proven one by one here.", *nouveaux]
     open(src, "w", encoding="utf-8").write("\n".join(S))

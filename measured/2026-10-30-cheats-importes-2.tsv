@@ -1,0 +1,251 @@
+jeu	ngh	empreinte	nom	intitule MAME	ecritures
+aodk	0074	93C1	P1 DRAIN ALL ENR	P1 Drain All Energy Now!	100066/1/0 100067/1/0
+aodk	0074	93C1	P2 DRAIN ALL ENR	P2 Drain All Energy Now!	100166/1/0 100167/1/0
+aof	0044	42B6	P1 DRAIN ALL ENR	P1 Drain All Energy Now!	1092CD/1/1
+aof	0044	42B6	P2 DRAIN ALL ENR	P2 Drain All Energy Now!	1093CD/1/1
+aof	0044	42B6	P1 DRAIN ALL POW	P1 Drain All Power Now!	1094A4/1/0
+aof	0044	42B6	P2 DRAIN ALL POW	P2 Drain All Power Now!	1095A4/1/0
+aof	0044	42B6	FINISH THIS FIGH	Finish this Fight Now!	108406/1/0
+aof2	0056	2DFA	P1 DRAIN ALL ENR	P1 Drain All Energy Now!	1092ED/1/1
+aof2	0056	2DFA	P2 DRAIN ALL ENR	P2 Drain All Energy Now!	1093ED/1/1
+aof2	0056	2DFA	P1 DRAIN ALL POW	P1 Drain All Power Now!	1094A4/1/0
+aof2	0056	2DFA	P2 DRAIN ALL POW	P2 Drain All Power Now!	1095A4/1/0
+aof2	0056	2DFA	FINISH THIS FIGH	Finish this Fight Now!	108406/1/0
+aof2	0056	2DFA	NEXT FIGHT BOSS	Next fight = Boss Now!	108429/1/E
+aof2	0056	2DFA	NEXT FIGHT SPEC	Next fight = Special BossNow!	108429/1/F
+aof3	0096	C5DF	P1 DRAIN ALL ENR	P1 Drain All Energy Now!	100468/1/0 100469/1/1
+aof3	0096	C5DF	P2 DRAIN ALL ENR	P2 Drain All Energy Now!	100568/1/0 100569/1/1
+aof3	0096	C5DF	P1 DRAIN ALL POW	P1 Drain All Power Now!	10046A/1/0 10046B/1/1
+aof3	0096	C5DF	P2 DRAIN ALL POW	P2 Drain All Power Now!	10056A/1/0 10056B/1/1
+aof3	0096	C5DF	FINISH THIS ROUN	Finish this Round Now!	10DF0F/1/0
+aof3	0096	C5DF	GO TO FIRST BOSS	Go to First Boss Now!	104BEB/1/7
+aof3	0096	C5DF	GO TO FINAL BOSS	Go to Final Boss Now!	104BEB/1/8
+b2b	0071	E928	KILL BOSS WITH 1	Kill Boss with 1 Hit Now!	107247/1/0
+bangbead	0259	A494	P1 GET NO POW NO	P1 Get No Power Now!	10444C/1/0 104461/1/0
+bangbead	0259	A494	P2 GET NO POW NO	P2 Get No Power Now!	104476/1/0 10448B/1/0
+breakers	0230	9C95	P1 DRAIN ALL ENR	P1 Drain All Energy Now!	107332/1/0
+breakers	0230	9C95	P2 DRAIN ALL ENR	P2 Drain All Energy Now!	107892/1/0
+breakers	0230	9C95	GOTO BOSS FIGHT	Goto Boss Fight Screen Now!	1070C5/1/9
+breakrev	0245	B255	P1 DRAIN ALL ENR	P1 Drain All Energy Now!	10734E/1/0
+breakrev	0245	B255	P2 DRAIN ALL ENR	P2 Drain All Energy Now!	1078AE/1/0
+breakrev	0245	B255	GOTO BOSS FIGHT	Goto Boss Fight Screen Now!	1070D1/1/A
+bstars	0002	EF35	SET STRIKES TO 2	Set Strikes to 2 Now!	10107E/1/2
+bstars	0002	EF35	SET BALLS TO 3 N	Set Balls to 3 Now!	10107D/1/3
+bstars	0002	EF35	SET OUTS TO 2 NO	Set Outs to 2 Now!	10107C/1/2
+bstars2	0041	86F9	SET STRIKES TO 2	Set Strikes to 2 Now!	10442C/1/2
+bstars2	0041	86F9	SET BALLS TO 3 N	Set Balls to 3 Now!	10442D/1/3
+bstars2	0041	86F9	SET OUTS TO 2 NO	Set Outs to 2 Now!	10442B/1/2
+burningf	0018	A9E4	FINISH THIS STAG	Finish This Stage Now!	1001BE/1/5
+doubledr	0082	1CB9	P1 DRAIN ALL ENR	P1 Drain All Energy Now!	100450/1/68
+doubledr	0082	1CB9	P2 DRAIN ALL ENR	P2 Drain All Energy Now!	100550/1/68
+doubledr	0082	1CB9	UNLOCK SECRET CH	Unlock Secret Characters Now!	108E84/1/1
+eightman	0025	BDFA	P1 PERMANENT 8 2	P1 Permanent '8 Power' 'OFF'	100CC2/1/0
+fatfursp	0058	189F	P1 DRAIN ALL ENR	P1 Drain all Energy Now!	10049A/1/0
+fatfursp	0058	189F	P2 DRAIN ALL ENR	P2 Drain all Energy Now!	10059A/1/0
+fatfursp	0058	189F	FINISH ROUND NOW	Finish Round Now!	10092A/1/0
+fatfursp	0058	189F	P1 PLAY WITH RYO	P1 Play with Ryo Sakazaki	101E93/1/10
+fatfursp	0058	189F	P2 PLAY WITH RYO	P2 Play with Ryo Sakazaki	101F93/1/10
+fatfury1	0033	A9A5	QUICK TIMER ON N	Quick Timer 'ON' Now!	1042F5/1/FF
+fatfury1	0033	A9A5	QUICK TIMER OFF	Quick Timer 'OFF' Now!	1042F5/1/1E
+fatfury1	0033	A9A5	P1 DRAIN ALL ENR	P1 Drain All Energy Now!	1003B8/2/101
+fatfury1	0033	A9A5	P2 DRAIN ALL ENR	P2 Drain All Energy Now!	1004B8/2/101
+fatfury1	0033	A9A5	DRAIN ALL ENRG N	Drain All Energy Now! CPU	1005B8/2/101
+fatfury1	0033	A9A5	FINISH THIS ROUN	Finish this Round Now!	1042F3/1/1
+fatfury2	0047	AED3	P1 DRAIN ALL ENR	P1 Drain all Energy Now!	1003CB/1/0
+fatfury2	0047	AED3	P2 DRAIN ALL ENR	P2 Drain all Energy Now!	1004CB/1/0
+fatfury2	0047	AED3	FINISH ROUND NOW	Finish Round Now!	10092A/1/0
+fatfury3	0069	EF51	P1 DRAIN ALL ENR	P1 Drain all Energy Now!	100489/1/0
+fatfury3	0069	EF51	P2 DRAIN ALL ENR	P2 Drain all Energy Now!	100589/1/0
+fatfury3	0069	EF51	FINISH THIS ROUN	Finish this Round Now!	105680/1/0
+fatfury3	0069	EF51	P1 ROUNDS WON 2	P1 Rounds Won = 2  Now!	105666/1/2
+fatfury3	0069	EF51	P2 ROUNDS WON 2	P2 Rounds Won = 2  Now!	105667/1/2
+fbfrenzy	0034	6160	FINISH QUARTER N	Finish Quarter Now!	100AD8/1/0 100AD9/1/0
+fightfev	0060	06A2	P1 DRAIN ALL ENR	P1 Drain all Energy Now!	10C602/1/0
+fightfev	0060	06A2	P2 DRAIN ALL ENR	P2 Drain all Energy Now!	10C702/1/0
+fightfev	0060	06A2	FINISH ROUND NOW	Finish Round Now!	108110/1/0
+flipshot	0247	C16D	FINISH THIS ROUN	Finish this Round Now!	1037AE/1/1
+galaxyfg	0078	086F	P1 DRAIN ALL ENR	P1 Drain all Energy Now!	10103C/1/0
+galaxyfg	0078	086F	P2 DRAIN ALL ENR	P2 Drain all Energy Now!	101152/1/0
+galaxyfg	0078	086F	FIGHT YACOPU FIR	Fight Yacopu [First Boss] Now!	105C49/1/8
+galaxyfg	0078	086F	FIGHT FELDEN FIN	Fight Felden [Final Boss] Now!	105C49/1/9
+galaxyfg	0078	086F	FIGHT ROUWE SECR	Fight Rouwe [Secret Boss] Now!	105C49/1/A
+garou	0253	6078	P1 DRAIN ALL ENR	P1 Drain All Energy Now!	10048E/1/0
+garou	0253	6078	P2 DRAIN ALL ENR	P2 Drain All Energy Now!	10058E/1/0
+garou	0253	6078	P1 DRAIN ALL POW	P1 Drain All Power Now!	1004BE/1/0
+garou	0253	6078	P2 DRAIN ALL POW	P2 Drain All Power Now!	1005BE/1/0
+garou	0253	6078	FINISH THIS ROUN	Finish this Round Now!	107490/1/0
+garou	0253	6078	CURRENT NORMAL L	Current Normal Level is Final Level Now!	107439/1/8
+garou	0253	6078	CURRENT SURVIVAL	Current Survival Level is Final Level Now!	107439/1/E
+ghostlop	0228	B962	P1 FINISH CURREN	P1 Finish Current Round Now!	10C20D/1/1
+ghostlop	0228	B962	P2 FINISH CURREN	P2 Finish Current Round Now!	10C1B9/1/1
+goalx3	0209	80F0	P1 SET SCORE 99	P1 Set score = 99 Now!	1004F1/1/63
+goalx3	0209	80F0	P2 SET SCORE 99	P2 Set score = 99 Now!	1004F3/1/63
+gowcaizr	0094	4B34	P1 DRAIN ALL ENR	P1 Drain All Energy Now	102D09/1/0
+gowcaizr	0094	4B34	P2 DRAIN ALL ENR	P2 Drain All Energy Now	1035BF/1/0
+gowcaizr	0094	4B34	FINISH THIS ROUN	Finish this Round Now!	1062E1/1/0
+kizuna	0216	073D	P1 DRAIN ALL ENR	P1 Drain All Energy Now!	108313/1/0
+kizuna	0216	073D	P2 DRAIN ALL ENR	P2 Drain All Energy Now!	108513/1/0
+kof2001	0262	CFA8	P1 DRAIN ALL ENR	P1 Drain All Energy Now!	108239/1/0
+kof2001	0262	CFA8	P2 DRAIN ALL ENR	P2 Drain All Energy Now!	108439/1/0
+kof2001	0262	CFA8	FINISH THIS ROUN	Finish this Round Now!	10A7D2/1/0 10A7D3/1/1
+kof2002	0265	C423	P1 DRAIN ALL ENR	P1 Drain All Energy Now!	108239/1/0
+kof2002	0265	C423	P2 DRAIN ALL ENR	P2 Drain All Energy Now!	108439/1/0
+kof2002	0265	C423	P1 DRAIN ALL POW	P1 Drain All Power Now!	1082E3/1/0 1081E8/1/0
+kof2003	0271	0F9A	FINISH THIS ROUN	Finish this Round Now!	107D62/1/0
+kof94	0055	4489	P1 DRAIN ALL ENR	P1 Drain all Energy Now!	108221/1/0
+kof94	0055	4489	P2 DRAIN ALL ENR	P2 Drain all Energy Now!	108421/1/0
+kof94	0055	4489	FINISH ROUND NOW	Finish Round Now!	10882E/1/0
+kof94	0055	4489	P1 PLAY WITH RUG	P1 Play with Rugal	108231/1/8
+kof94	0055	4489	P2 PLAY WITH RUG	P2 Play with Rugal	108431/1/8
+kof95	0084	0A7E	P1 DRAIN ALL ENR	P1 Drain all Energy Now!	108221/1/0
+kof95	0084	0A7E	P2 DRAIN ALL ENR	P2 Drain all Energy Now!	108421/1/0
+kof95	0084	0A7E	FINISH ROUND NOW	Finish Round Now!	10A836/1/0
+kotm	0016	5114	DRAIN ENRG ENEMY	Drain Energy Enemy 1 Now!	10226B/1/1
+kotm	0016	5114	DRAIN ENRG ENE 2	Drain Energy Enemy 2 Now!	10236B/1/1
+kotm2	0039	9C61	P1 MAX POW NOW!	P1 Enable Max Power Now!	1013E3/1/2
+kotm2	0039	9C61	P2 MAX POW NOW!	P2 Enable Max Power Now!	1014E3/1/2
+lastblad	0234	B3E9	STORY PART 1 STA	Story Part 1 (Stage 7)	10AC43/1/6
+lastblad	0234	B3E9	STORY PART 2 STA	Story Part 2 (Stage 8)	10AC43/1/7
+lastblad	0234	B3E9	FIRST BOSS	First Boss	10AC43/1/8
+lastblad	0234	B3E9	FINAL BOSS.	Final Boss.	10AC43/1/9
+lastbld2	0243	B546	FINISH THIS FIGH	Finish this Fight Now!	10E595/1/0
+lastbld2	0243	B546	GO TO CHAR BOSS	Go to Character Boss Now!	10E581/1/6
+lastbld2	0243	B546	GO TO FINAL BOSS	Go to Final Boss Now!	10E581/1/7
+legendos	0029	7711	DRAIN P1 S OPPON	Drain P1's Opponent's Energy Now!	100463/1/1
+legendos	0029	7711	DRAIN P2 S OPPON	Drain P2's Opponent's Energy Now!	100863/1/1
+marukodq	0206	88FB	GOOD ANSWER ENDS	Good answer ends quiz Now!	100821/1/1
+matrim	0266	5F99	FINISH THIS ROUN	Finish this Round Now!	10B90B/1/1
+minasan	0027	D5BB	MAKE 2 STEP NOW!	Make 2 step Now!	10131C/1/2
+mslugx	0250	92D4	P1 GET 50 PRISON	P1 Get 50 Prisoners Now!	10C5FD/1/32
+mslugx	0250	92D4	P2 GET 50 PRISON	P2 Get 50 Prisoners Now!	10C601/1/32
+neobombe	0093	5602	OPEN DISPLAYED D	Open Displayed Door Now!	10A877/1/0
+neocup98	0244	AB34	P1 SET SCORE 99	P1 Set score = 99 Now!	1051EA/1/63
+neocup98	0244	AB34	P2 SET SCORE 99	P2 Set score = 99 Now!	1051EE/1/63
+ninjamas	0217	4720	P1 DRAIN ALL ENR	P1 Drain All Energy Now!	100050/1/0
+ninjamas	0217	4720	P2 DRAIN ALL ENR	P2 Drain All Energy Now!	101050/1/0
+ninjamas	0217	4720	P1 DRAIN ALL POW	P1 Drain All Power Now!	1000AE/1/0
+ninjamas	0217	4720	P2 DRAIN ALL POW	P2 Drain All Power Now!	1010AE/1/0
+ninjamas	0217	4720	GOTO TO FIRST BO	Goto to First Boss Now!	10C017/1/A
+ninjamas	0217	4720	GOTO TO FINAL BO	Goto to Final Boss Now!	10C017/1/B
+ninjamas	0217	4720	GOTO ENDING NOW!	Goto Ending Now!	10C017/1/C
+nitd	0260	3085	KILL BOSS WITH 1	Kill Boss with 1 hit Now!	1029B7/1/0 100011/1/0
+nitd	0260	3085	GO TO FINAL STAG	Go to Final Stage Now!	10004A/1/4
+nitd	0260	3085	GO TO FINAL AREA	Go to Final Area Now!	10004B/1/4
+pbobbl2n	0248	5F90	FINISH THIS ROUN	Finish this Round Now!	10D5D7/1/8 10D600/2/0
+pbobblen	0083	19FA	QUICK FINISH CHE	Quick Finish Cheat	105A9D/1/0 105AB1/1/0
+pgoal	0219	6FFA	GO INTO INJURY T	Go into Injury Time Now!	104C28/1/0
+popbounc	0237	A3D4	FINISH THIS STAG	Finish this Stage Now!	10820B/1/0
+pspikes2	0068	B80B	P1 DRAIN ALL ENR	P1 Drain All Energy Now!	1018F9/1/0 102CD5/1/0
+pspikes2	0068	B80B	P2 DRAIN ALL ENR	P2 Drain All Energy Now!	1018FB/1/0 102CD7/1/0
+pspikes2	0068	B80B	FINISH GAME NOW!	Finish Game Now!	102B4D/1/1 102B4B/1/0
+puzzldpr	0235	CFF1	LEVEL 39 WHEN LE	Level 39 when level ends	1001E5/1/25
+puzzledp	0202	CF3A	LEVEL 39 WHEN LE	Level 39 when level ends	1001E5/1/25
+quizdai2	0042	BE81	ANSWER ENDS QUIZ	Answer ends quiz Now!	10097B/1/1 101AC6/1/0
+quizkof	0080	7AA7	ANSWER ENDS QUIZ	Answer ends quiz Now!	103C70/1/1 103C72/1/0
+ragnagrd	0218	636F	P1 DRAIN ALL ENR	P1 Drain All Energy Now!	109089/1/0
+ragnagrd	0218	636F	P2 DRAIN ALL ENR	P2 Drain All Energy Now!	109361/1/0
+ragnagrd	0218	636F	FINISH THIS ROUN	Finish this Round Now!	10022E/2/1
+rbff1	0095	8E2F	P1 DRAIN ALL ENR	P1 Drain All Energy Now!	100489/1/0
+rbff1	0095	8E2F	P2 DRAIN ALL ENR	P2 Drain All Energy Now!	100589/1/0
+rbff1	0095	8E2F	FINISH THIS ROUN	Finish this Round Now!	106AA8/1/0
+rbff1	0095	8E2F	LEFT WALL WILL C	Left Wall will collapse with 1 hit Now!	10969F/1/0
+rbff1	0095	8E2F	RIGHT WALL WILL	Right Wall will collapse with 1 hit Now!	1096A1/1/0
+rbff2	0240	7F97	P1 DRAIN ALL ENR	P1 Drain All Energy Now!	10048B/1/0
+rbff2	0240	7F97	P2 DRAIN ALL ENR	P2 Drain All Energy Now!	10058B/1/0
+rbff2	0240	7F97	FINISH THIS ROUN	Finish this Round Now!	107C28/1/0
+rbff2	0240	7F97	FIGHT KRAUSER NE	Fight Krauser Next Now!	107BB5/1/8
+rbff2	0240	7F97	FIGHT GEESE NEXT	Fight Geese Next Now!	107BB5/1/9
+rbff2	0240	7F97	FIGHT ALFRED NEX	Fight Alfred Next Now!	107BB5/1/A
+rbff2	0240	7F97	GOTO ENDING NEXT	Goto Ending Next Now!	107BB5/1/B
+rbffspec	0223	2249	P1 DRAIN ALL ENR	P1 Drain All Energy Now!	10048B/1/0
+rbffspec	0223	2249	P2 DRAIN ALL ENR	P2 Drain All Energy Now!	10058B/1/0
+rbffspec	0223	2249	FINISH THIS ROUN	Finish this Round Now!	106AB4/1/0
+rbffspec	0223	2249	GOTO BOSS KRAUSE	Goto Boss (Krauser) Now!	106A35/1/9
+rbffspec	0223	2249	GOTO SECRET BOSS	Goto Secret Boss (Geese) Now!	106A35/1/A
+rotd	0264	8D79	P1 DRAIN ALL ENR	P1 Drain All Energy Now! (Active Char)	1024CF/1/0 1024D3/1/0
+rotd	0264	8D79	P2 DRAIN ALL ENR	P2 Drain All Energy Now! (Active Char)	102357/1/0 10235B/1/0
+rotd	0264	8D79	P2 DRAIN ALL E 2	P2 Drain All Energy Now! (Inactive Char)	102647/1/0 10264B/1/0
+rotd	0264	8D79	P1 DRAIN ALL POW	P1 Drain All Power Now!	1024E3/1/0
+rotd	0264	8D79	P2 DRAIN ALL POW	P2 Drain All Power Now!	10236B/1/0
+samsh5sp	0272	1851	P1 DRAIN ALL ENR	P1 Drain All Energy Now!	108445/1/0
+samsh5sp	0272	1851	P2 DRAIN ALL ENR	P2 Drain All Energy Now!	108655/1/0
+samsh5sp	0272	1851	FINISH THIS ROUN	Finish this Round Now!	10836B/1/0
+samsho	0045	39BC	FINISH THIS ROUN	Finish this Round Now!	100A09/1/0
+samsho	0045	39BC	GOTO BOSS FIGHT	Goto Boss Fight Screen Now!	100A93/1/C
+samsho3	0087	E4CB	P1 DRAIN ALL ENR	P1 Drain All Energy Now!	108573/1/0
+samsho3	0087	E4CB	P2 DRAIN ALL ENR	P2 Drain All Energy Now!	108673/1/0
+samsho3	0087	E4CB	P1 DRAIN ALL POW	P1 Drain All Power Now!	10857C/1/0
+samsho3	0087	E4CB	P2 DRAIN ALL POW	P2 Drain All Power Now!	10867C/1/0
+samsho3	0087	E4CB	FINISH THIS ROUN	Finish this Round Now!	10849E/1/0
+samsho4	0222	2643	P1 DRAIN ALL ENR	P1 Drain All Energy Now!	108443/1/0
+samsho4	0222	2643	P2 DRAIN ALL ENR	P2 Drain All Energy Now!	108643/1/0
+samsho5	0270	1B2F	P1 DRAIN ALL ENR	P1 Drain All Energy Now!	108445/1/0
+samsho5	0270	1B2F	P2 DRAIN ALL ENR	P2 Drain All Energy Now!	108655/1/0
+samsho5	0270	1B2F	FINISH THIS ROUN	Finish this Round Now!	10836B/1/0
+savagere	0059	F782	FINISH THIS ROUN	Finish this Round Now!	1084A8/1/0
+sdodgeb	0208	FF82	TIME UP NOW!	Time Up Now!	1065AB/1/0
+sdodgeb	0208	FF82	P1 DRAIN ALL POW	P1 Drain All Power Now!	105FD2/2/0
+sdodgeb	0208	FF82	P2 DRAIN ALL POW	P2 Drain All Power Now!	105FDA/2/0
+sengoku2	0040	CEF6	P1 STANDARD WEAP	P1 Standard Weapon	102D29/1/0
+sengoku2	0040	CEF6	P2 STANDARD WEAP	P2 Standard Weapon	102E29/1/0
+sengoku2	0040	CEF6	P1 GET BLUE SPHE	P1 Get Blue Sphere	102D29/1/1
+sengoku2	0040	CEF6	P1 GET PINK SPHE	P1 Get Pink Sphere	102D29/1/2
+socbrawl	0031	0B89	P2 NEVER SCORE A	P2 Never score a Penalty Kick	10D4A1/1/0
+socbrawl	0031	0B89	FINISH THIS GAME	Finish this Game Now!	10BDB9/1/0 10BDB8/1/0
+socbrawl	0031	0B89	P1 SET SCORE 99	P1 Set score = 99 Now!	10B3A2/1/63
+socbrawl	0031	0B89	P2 SET SCORE 99	P2 Set score = 99 Now!	10B3A4/1/63
+spinmast	0062	915F	DRAIN BOSS ENRG	Drain Boss Energy Now!	106CE2/1/1
+ssideki	0052	FEF0	FINISH THIS GAME	Finish this Game Now!	108ED3/1/0 108ED2/1/0
+ssideki	0052	FEF0	P1 SET SCORE 99	P1 Set score = 99 Now!	1090F2/1/99
+ssideki	0052	FEF0	P1 PENALTIES S 2	P1 Penalties Scored = 5 Now!	1090F6/1/5
+ssideki	0052	FEF0	P2 SET SCORE 99	P2 Set score = 99 Now!	1090F3/1/99
+ssideki	0052	FEF0	P2 PENALTIES S 2	P2 Penalties Scored = 5 Now!	1090F7/1/5
+ssideki2	0061	3C6E	P1 SET SCORE 99	P1 Set score = 99 Now!	1044C4/1/63
+ssideki2	0061	3C6E	P2 SET SCORE 99	P2 Set score = 99 Now!	1044C8/1/63
+ssideki3	0081	A84D	P1 SET SCORE 99	P1 Set score = 99 Now!	1051EA/1/63
+ssideki3	0081	A84D	P2 SET SCORE 99	P2 Set score = 99 Now!	1051EE/1/63
+ssideki4	0215	4AD3	P1 SET SCORE 99	P1 Set score = 99 Now!	105A2A/1/63
+ssideki4	0215	4AD3	P2 SET SCORE 99	P2 Set score = 99 Now!	105A2E/1/63
+strhoop	0079	6DB5	MAKE THIS THE SE	Make this the Second Half Now!	101A49/1/2
+strhoop	0079	6DB5	P1 GET 99 POINTS	P1 Get 99 Points Now!	101A0B/1/99
+strhoop	0079	6DB5	P1 EMPTY SUPERSH	P1 Empty Supershoot Now!	101A5A/1/0
+strhoop	0079	6DB5	P2 GET 99 POINTS	P2 Get 99 Points Now!	101A0F/1/99
+strhoop	0079	6DB5	P2 EMPTY SUPERSH	P2 Empty Supershoot Now!	101A5C/1/0
+twinspri	0224	C6FE	P1 GET AN INSTAN	P1 Get an Instant LV1 Attack Now!	10C088/1/10
+twinspri	0224	C6FE	P1 GET AN INST 2	P1 Get an Instant LV2 Attack Now!	10C088/1/20
+twinspri	0224	C6FE	P1 GET AN INST 3	P1 Get an Instant Boss Attack Now!	10C088/1/30
+twinspri	0224	C6FE	P2 GET AN INSTAN	P2 Get an Instant LV1 Attack Now!	10D088/1/10
+twinspri	0224	C6FE	P2 GET AN INST 2	P2 Get an Instant LV2 Attack Now!	10D088/1/20
+twinspri	0224	C6FE	P2 GET AN INST 3	P2 Get an Instant Boss Attack Now!	10D088/1/30
+twsoc96	0086	CB1D	FINISH THIS GAME	Finish this Game Now!	1014D7/1/1 1014D6/1/0
+twsoc96	0086	CB1D	P1 SET SCORE 99	P1 Set score = 99 Now!	1014CF/1/99
+twsoc96	0086	CB1D	P2 SET SCORE 99	P2 Set score = 99 Now!	1014D1/1/99
+wakuwak7	0225	7F39	P1 DRAIN ALL ENR	P1 Drain All Energy Now!	10014A/1/0 10014B/1/0
+wakuwak7	0225	7F39	P2 DRAIN ALL ENR	P2 Drain All Energy Now!	10028A/1/0 10028B/1/0
+wakuwak7	0225	7F39	FINISH THIS ROUN	Finish this Round Now!	100B02/1/0
+wh1	0053	783E	P1 DRAIN ALL ENR	P1 Drain All Energy Now!	10600A/1/0 10602E/1/0
+wh1	0053	783E	P2 DRAIN ALL ENR	P2 Drain All Energy Now!	10610A/1/0 10612E/1/0
+wh1	0053	783E	FINISH THIS ROUN	Finish this Round Now!	10B008/1/1
+wh2	0057	1419	P1 DRAIN ALL ENR	P1 Drain All Energy Now!	10600C/2/0
+wh2	0057	1419	P2 DRAIN ALL ENR	P2 Drain All Energy Now!	10610C/2/0
+wh2	0057	1419	FINISH THIS ROUN	Finish this Round Now!	10C109/1/1
+wh2j	0064	8B26	P1 DRAIN ALL ENR	P1 Drain All Energy Now!	10600C/2/0
+wh2j	0064	8B26	P2 DRAIN ALL ENR	P2 Drain All Energy Now!	10610C/2/0
+wh2j	0064	8B26	FINISH THIS ROUN	Finish this Round Now!	10C109/1/1
+whp	0090	5FA2	P1 DRAIN ALL ENR	P1 Drain All Energy Now!	10600C/2/0
+whp	0090	5FA2	P2 DRAIN ALL ENR	P2 Drain All Energy Now!	10610C/2/0
+whp	0090	5FA2	P1 DRAIN ALL POW	P1 Drain All Power Now!	106A16/2/0 106A18/2/0
+whp	0090	5FA2	P2 DRAIN ALL POW	P2 Drain All Power Now!	106B16/2/0 106B18/2/0
+whp	0090	5FA2	FINISH THIS ROUN	Finish this Round Now!	10C109/1/1
+whp	0090	5FA2	P2 WINS NOW!	P2 Wins Now!	10C123/1/F0
+whp	0090	5FA2	P2 WINS NOW! 2	P2 Wins Now!	10C122/1/F0
+wjammers	0065	2657	FINISH SET NOW!	Finish Set Now!	10008D/1/0
+wjammers	0065	2657	P1 SET SCORE 99	P1 Set score = 99 Now!	100873/1/99
+wjammers	0065	2657	P2 SET SCORE 99	P2 Set score = 99 Now!	1008F3/1/99
+zupapa	0070	EC13	FINISH THIS ROUN	Finish this Round Now!	1002BD/1/0
+zupapa	0070	EC13	KILL 1ST BOSS NO	Kill 1st Boss Now!	10B17B/1/0
+zupapa	0070	EC13	KILL CEMETERY BO	Kill Cemetery Boss Now!	10B157/1/0
+zupapa	0070	EC13	KILL JURASSIC BO	Kill Jurassic Boss Now!	10B167/1/0
+zupapa	0070	EC13	KILL JUNGLE BOSS	Kill Jungle Boss Now!	10B173/1/0
+zupapa	0070	EC13	KILL LEVEL 7 BOS	Kill Level 7 Boss Now!	10B15F/1/0
+zupapa	0070	EC13	KILL LEVEL 8 BOS	Kill Level 8 Boss Now!	10B177/1/0

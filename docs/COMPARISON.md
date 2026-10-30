@@ -22,7 +22,7 @@ are in [Not compared](#not-compared).
 | Topic | UniBIOS 4.0 | Sprixe BIOS |
 |---|---|---|
 | Autofire | ◐ **As cheats**. Documented for the Metal Slug series, Sonic Wings 2 and 3, Ghost Pilots and Zed Blade (v2.1). | ◐ **As a setting**. A, B, C and D set one by one, at 10, 15 or 30 shots per second, remembered for each game. It only reaches games that read the controls through the BIOS: on player 1's A button, 89 of the 164 games see it fully, 25 partly, 35 never, and 15 were not measured. |
-| Cheats | ✓ **Yes**. More than 1,570 cheats, plus Patch Memory (v2.0) to add your own. | ◐ **Smaller**. 1,010 cheats for 152 games: 141 proven here, 869 imported from the MAME XML Cheats Collection. Fewer than UniBIOS. |
+| Cheats | ✓ **Yes**. More than 1,570 cheats, plus Patch Memory (v2.0) to add your own. | ◐ **Smaller**. 1,260 cheats for 154 games: 141 proven here, 1,119 imported from the MAME XML Cheats Collection. Fewer than UniBIOS. |
 | Soft-DIPs | ◐ **In test mode**. Also in the main menu on AES, after a soft reboot. The in-game menu has no soft-DIP entry (site screenshot; entries measured here on 2026-10-23). | ✓ **Yes**. GAME SETTINGS in the in-game menu, and the editor at boot. |
 | Soft-DIPs of a game never launched | ✕ **Documented limit**. Entering test mode by B+C+D before a new game has booted once corrupts its entry; the author's advice is to let it boot first. | ✓ **Handled**. The editor shows the cartridge defaults and saves a clean entry. A garbled entry left by another BIOS is checked value by value before the game sees it. |
 | Region and system mode | ✓ **Yes**. Region, and arcade or console, from the main menu. | ✓ **Yes**. REGION and MODE in the editor at boot. |

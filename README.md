@@ -2,8 +2,8 @@
 
 [![build](https://img.shields.io/github/actions/workflow/status/lid-labs/sprixe-bios/build.yml?branch=main&label=build)](https://github.com/lid-labs/sprixe-bios/actions/workflows/build.yml)
 [![license: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE)
-![test scenes: 163](https://img.shields.io/badge/test%20scenes-163-informational)
-![mutations killed: 209/209](https://img.shields.io/badge/mutations%20killed-209%2F209-informational)
+![test scenes: 164](https://img.shields.io/badge/test%20scenes-164-informational)
+![mutations killed: 210/210](https://img.shields.io/badge/mutations%20killed-210%2F210-informational)
 ![MAME catalogue: 161/164 play](https://img.shields.io/badge/MAME%20catalogue-161%2F164%20play-informational)
 ![runs on real MV-2F hardware](https://img.shields.io/badge/runs%20on-real%20MV--2F%20hardware-success)
 
@@ -61,7 +61,7 @@ cartridge. The in-game menu and autofire screens are over Metal Slug (© SNK).
 - Per-game autofire: buttons A to D set one by one, at 10, 15 or 30 shots per second, remembered
   for each game. It only reaches games that read the controls through the BIOS
   (see [Compatibility](#compatibility)).
-- Cheats for 152 games (1,010 cheats): 141 found and proven here under MAME, 869 imported from the
+- Cheats for 154 games (1,260 cheats): 141 found and proven here under MAME, 1,119 imported from the
   MAME XML Cheats Collection and only checked not to freeze the game.
 - Soft-DIPs during a game (GAME SETTINGS in the in-game menu), and the soft-DIP editor at boot.
 - Soft-DIPs of a game never launched: the editor shows the cartridge defaults and saves a clean
@@ -174,7 +174,7 @@ Sebastian Klötzer, for testing every image on a real MV-2F board and reporting 
 not show.
 
 Pugsy and the contributors of the [MAME XML Cheats Collection](https://www.mamecheat.co.uk/), for
-the imported cheats. Their list is in `measured/2026-10-30-cheats-importes.tsv`. The collection
+the imported cheats. Their list is in `measured/2026-10-30-cheats-importes.tsv` and `-importes-2.tsv`. The collection
 states no licence.
 
 ## License
