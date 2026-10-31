@@ -10,9 +10,9 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 
 - Cartridge CRC32: SMA and PVC protected cartridges are recognised. The screen names the protection,
   says BANKS NOT READ and that FIXED is no file's CRC, where it used to show bank figures that meant
-  nothing. A normal cartridge takes no write for this: the PVC test runs only on the NGH numbers of
-  the three PVC games, so a PVC cartridge with a changed NGH shows the normal display. Scenes
-  `crc-sma`, `crc-pvc` and one for each of the five other protected sets, eight mutations.
+  nothing. The PVC test writes only on the NGH numbers of the three PVC games, so a PVC cartridge
+  with a changed NGH is not named, and its bank line means nothing. Scenes `crc-sma`, `crc-pvc`,
+  one for each of the five other protected sets and three `crc-hack-*`, eight mutations.
 - MEMORY CARD: D copies every save to another card, asks before overwriting, refuses a card without
   the room, and never writes the source card (SAME CARD). In-game menu: RESTART TO CARD, after a
   confirmation, restarts the machine into the card manager; hidden under CHEATS/DEBUG OFF. A machine

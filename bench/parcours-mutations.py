@@ -1080,7 +1080,7 @@ MUTATIONS = {
         "le test de RAM laisse son motif dans la RAM de la cartouche PVC",
     ),
     "crc-pvc-sur-toutes": (
-        "crc-flottant crc-banques", "crc.s",
+        "crc-flottant crc-banques crc-hack-svc", "crc.s",
         [("        cmpi.w  #NGH_KOF2003, %d0\n        bne.s   .Lpas_pvc\n",
           "        nop                             | MUTATION : le test de RAM sur toute cartouche\n")],
         "une cartouche normale prend le test de RAM à $2FE000",

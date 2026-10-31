@@ -590,13 +590,17 @@ and `2026-10-25-debug-dips.tsv`; thresholds: `2026-10-25-parcours-crc-debug.tsv`
     knows what a flash cart does with it: MAME shows nothing of that. The word at `$108` must now be
     0268, 0269 or 0271, the IDs of Metal Slug 5, SVC Chaos and KOF 2003 in the comments of MAME
     0.286's `neogeo.cpp`. In the catalogue, 3 sets of 164 carry one of them, those three. ASSUMED: a real
-    cartridge carries the same number. So a normal cartridge takes no write on this screen, except
-    the bank words of a real bank chip at `$2FFFF0`; read in the code, not played by a scene: one
-    of these numbers on a cartridge that fails the RAM test stays normal. The price:
-    a PVC cartridge whose NGH was changed, a hack for instance, shows the normal display, and takes
-    the bank writes point 12 avoids on PVC. A hack keeping the number is still recognised. Ruled
-    out: a test without a write, as a read cannot tell RAM from a floating bus or a bank. A
-    read-only sign of PVC, or a hack seen in use, would reverse this.
+    cartridge carries the same number. So a normal cartridge takes no write at `$2FE000`. The bank
+    words at `$2FFFF0` remain: any cartridge whose window is neither the fixed P-ROM nor a single
+    word takes them, whether it has a bank chip or not, as nothing on this screen can tell. Read in
+    the code, not played by a scene: one of these numbers on a cartridge that fails the RAM test
+    stays normal. The price, measured under MAME with another word served at `$108`: no protection
+    is named. svc and mslug5 say BANKS NONE and take no write in the window; kof2003 says
+    BANKS 1 X 1024K, a figure that describes nothing, and takes three words at `$2FFFF0`. All three
+    return to the game, its picture 900 frames later equal to that of a run with its own number.
+    A hack keeping the number is still recognised. Ruled out: a test without a write, as a read
+    cannot tell RAM from a floating bus or a bank. A read-only sign of PVC, or a hack seen in use,
+    would reverse this.
 
 ## 21. Board switches 2 to 6 and 8
 

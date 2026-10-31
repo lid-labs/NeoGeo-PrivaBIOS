@@ -555,6 +555,11 @@
 #   crc-kof99     and crc-garou, crc-kof2000, crc-mslug5, crc-kof2003, on 2026-10-31: the same
 #                 screen on the five other protected sets (kof2003's picture is black, no font:
 #                 judged on the decoded tiles, as all of them are).
+#   crc-hack-svc  and crc-hack-mslug5, crc-hack-kof2003, on 2026-10-31: the game with another NGH
+#                 through `crc-ngh.lua`: no protection named, BANKS as recorded
+#                 (measured/2026-10-31-crc-sans-ecriture.tsv), no write in the window but bank
+#                 words, back to the menu, the TEST screen, then the game 900 frames after the
+#                 hand-over equal to a witness run with the game's own number.
 #   bf-crc        aof, like crc-fixe, under `bus-flottant.lua`, like the bf-* scenes: no floating
 #                 read, each frame equal to the free witness, the expected CRC on screen.
 #   bf-crc-banque mslug on the MV-6F, likewise: the banks read under REG_CRTFIX, FIXED and BANKS 1 X
@@ -857,7 +862,7 @@
 # Those of the protected cartridges, on 2026-10-31: crc-sma-ignoree (crc-sma), crc-pvc-ignoree,
 # crc-pvc-ram-perdue (crc-pvc), crc-toujours-protegee (crc-banques).
 # Those of the PVC test limited to the PVC games, on 2026-10-31: crc-pvc-sur-toutes (crc-flottant,
-# crc-banques), crc-ngh-mslug5 (crc-mslug5), crc-ngh-svc (crc-pvc), crc-ngh-kof2003 (crc-kof2003).
+# crc-banques, crc-hack-svc), crc-ngh-mslug5 (crc-mslug5), crc-ngh-svc (crc-pvc), crc-ngh-kof2003 (crc-kof2003).
 #
 # WHAT IT DOES NOT COVER: the hardware, outside the model of `bus-flottant.lua`; NO SOFT DIP DATA
 # on a real game (none of the 166 sets of the directory has a refused block: the scene is played
@@ -896,7 +901,7 @@ REF_SINUS="$PAQUET/measured/2026-10-28-parcours-sinus.tsv"
 REF_PANNEAU="$PAQUET/measured/2026-10-28-parcours-panneau.tsv"
 JOBS=$(( $( (sysctl -n hw.ncpu || nproc) 2>/dev/null || echo 4) - 2 )); [ "$JOBS" -ge 1 ] || JOBS=1
 CACHE=""
-SCENES_TOUTES="boot-ecran boot-saut calendrier carte demo-son partie-credit partie-start fin-demo fin-titre scores dip-temps dip-langue region autotests jukebox menu-hud menu-reprise menu-son cheats cheats-fenetre cheats-unefois restart ms-demo ms-select ms-garde aes-bascule aes-demo aes-start aes-menu aes-piece aes-retour dip-defauts dip-mmss dip-fois region-europe region-japon region-usa autotests-palette autotests-vram autotests-backup tests-entrees tests-barres tests-grille jukebox-pas jukebox-stop cheats-off partie-p2 carte-sauve ms-select-p2 aes-ms-select aes-pause aes-logo aes-logo-fin aes-fin aes-texte depart-force piece-son ms-seule jukebox-repete partie-p2-joint carte-chercher carte-supprimer carte-nom tests-p2 tests-dip dip-sans-donnees gs-compte gs-defauts gs-choix gs-mmss gs-fois gs-sans-donnees gs-banque me-ecran me-goto me-octet me-ligne me-page me-repete me-poke me-gel me-liste me-degel me-borne bf-editeur bf-banque bf-tests bf-jukebox sans-cartouche flash-cart cm-liste cm-libres cm-effacer cm-annuler cm-formater cm-non-formatee cm-sans-carte cm-protegee cm-insertion bf-carte aes-scores scores-gel bo-ecran ab-ecran bo-free-play bo-fp-p2 bo-fp-joint bo-no-continue bo-demo-muette bo-aes bf-borne cheats-vies bo-cd-menu bo-cd-gel dip-free-play dip-fp-p2 dip-fp-refus dip-fp-chaud dip-fp-reglage dip-fp-cabinet dip-setting geste-boot geste-jeu geste-partie demo-ssideki japon-intitules gs-japon gs-japon-garde crc-fixe crc-banques crc-miroir crc-flottant crc-sma crc-pvc crc-kof99 crc-garou crc-kof2000 crc-mslug5 crc-kof2003 bf-crc bf-crc-banque dd-effet dd-off dip-gel dip-gel-off dip-gel-boot dip-mahjong dip-mj-off dip-4p dip-4p-off af-tir af-sauve af-off af-mahjong boot-graphismes ms-son-slot2 dip-vierge dip-corrompue tests-mahjong jukebox-veille cm-copier cm-copier-tout menu-carte menu-carte-non sans-cartouche-carte alpha-trajectoire howto-preisle2 tests-sauvegarde dd-connu pn-menu-on pn-menu-off pn-valeur pn-verrou pn-jeu bram-sale"
+SCENES_TOUTES="boot-ecran boot-saut calendrier carte demo-son partie-credit partie-start fin-demo fin-titre scores dip-temps dip-langue region autotests jukebox menu-hud menu-reprise menu-son cheats cheats-fenetre cheats-unefois restart ms-demo ms-select ms-garde aes-bascule aes-demo aes-start aes-menu aes-piece aes-retour dip-defauts dip-mmss dip-fois region-europe region-japon region-usa autotests-palette autotests-vram autotests-backup tests-entrees tests-barres tests-grille jukebox-pas jukebox-stop cheats-off partie-p2 carte-sauve ms-select-p2 aes-ms-select aes-pause aes-logo aes-logo-fin aes-fin aes-texte depart-force piece-son ms-seule jukebox-repete partie-p2-joint carte-chercher carte-supprimer carte-nom tests-p2 tests-dip dip-sans-donnees gs-compte gs-defauts gs-choix gs-mmss gs-fois gs-sans-donnees gs-banque me-ecran me-goto me-octet me-ligne me-page me-repete me-poke me-gel me-liste me-degel me-borne bf-editeur bf-banque bf-tests bf-jukebox sans-cartouche flash-cart cm-liste cm-libres cm-effacer cm-annuler cm-formater cm-non-formatee cm-sans-carte cm-protegee cm-insertion bf-carte aes-scores scores-gel bo-ecran ab-ecran bo-free-play bo-fp-p2 bo-fp-joint bo-no-continue bo-demo-muette bo-aes bf-borne cheats-vies bo-cd-menu bo-cd-gel dip-free-play dip-fp-p2 dip-fp-refus dip-fp-chaud dip-fp-reglage dip-fp-cabinet dip-setting geste-boot geste-jeu geste-partie demo-ssideki japon-intitules gs-japon gs-japon-garde crc-fixe crc-banques crc-miroir crc-flottant crc-sma crc-pvc crc-kof99 crc-garou crc-kof2000 crc-mslug5 crc-kof2003 crc-hack-svc crc-hack-mslug5 crc-hack-kof2003 bf-crc bf-crc-banque dd-effet dd-off dip-gel dip-gel-off dip-gel-boot dip-mahjong dip-mj-off dip-4p dip-4p-off af-tir af-sauve af-off af-mahjong boot-graphismes ms-son-slot2 dip-vierge dip-corrompue tests-mahjong jukebox-veille cm-copier cm-copier-tout menu-carte menu-carte-non sans-cartouche-carte alpha-trajectoire howto-preisle2 tests-sauvegarde dd-connu pn-menu-on pn-menu-off pn-valeur pn-verrou pn-jeu bram-sale"
 SCENES="$SCENES_TOUTES"
 HASHPATH="${BIOS_HASHPATH:-}"
 while [ $# -gt 0 ]; do
@@ -1015,6 +1020,9 @@ case " $SCENES " in *" crc-sma "*) copier_set mslug3 ;; esac
 case " $SCENES " in *" crc-pvc "*) copier_set svc ;; esac
 for j in kof99 garou kof2000 mslug5 kof2003; do
   case " $SCENES " in *" crc-$j "*) copier_set $j ;; esac
+done
+for j in svc mslug5 kof2003; do
+  case " $SCENES " in *" crc-hack-$j "*) copier_set $j ;; esac
 done
 case " $SCENES " in *" dd-effet "*|*" dd-off "*|*" dd-connu "*) copier_set kof94 ;; esac
 # janshin (dip-mahjong, dip-mj-off: its own machine, the mahjong panel) and kizuna (dip-4p,
@@ -1451,6 +1459,7 @@ runs_de() {
     crc-sma) echo crc-sma ;;
     crc-pvc) echo crc-pvc ;;
     crc-kof99|crc-garou|crc-kof2000|crc-mslug5|crc-kof2003) echo "$1" ;;
+    crc-hack-svc|crc-hack-mslug5|crc-hack-kof2003) echo "$1 $1-t" ;;
     bf-crc) echo "bf-crc bf-crc-libre" ;;
     bf-crc-banque) echo "bf-crc-ms bf-crc-ms-libre" ;;
     dd-effet) echo "dd-1 dd-0" ;;
@@ -2084,6 +2093,15 @@ veut crc-pvc && lancer crc-pvc son.lua "svc -rompath $R" $EDIT J_APPUIS=$VERS_CR
 for j in kof99 garou kof2000 mslug5 kof2003; do
   veut crc-$j && lancer crc-$j son.lua "$j -rompath $R" $EDIT J_APPUIS=$VERS_CRC,950:START,980:START,1000:START \
     J_TEXTE=400,940,960,990 J_FIN=1300
+done
+# The price of the PVC test's limit: each PVC game with another NGH, against its witness, the same
+# path with its own number (read in `neogeo.cpp`), so the two differ by the screen alone.
+for x in svc:0269 mslug5:0268 kof2003:0271; do
+  j=${x%:*}
+  for y in "crc-hack-$j:0999" "crc-hack-$j-t:${x#*:}"; do
+    veut ${y%:*} && lancer ${y%:*} son.lua "$j -rompath $R" $EDIT J_AUSSI=$ICI/crc-ngh.lua CRCNGH=${y#*:} J_ECRITS=200000-2FFFFF \
+      J_APPUIS=$VERS_CRC,2400:START,2430:START,2460:START J_TEXTE=2390,2410,2440 J_REMISE=900 J_FIN=3500
+  done
 done
 veut crc-ms2 && lancer crc-ms2 son.lua "mslug2 -rompath $R" $EDIT J_ECRITS=200000-2FFFFF J_APPUIS=$VERS_CRC,1900:START,1930:START,1960:START \
   J_TEXTE=400,1100,$(seq -s, 1500 10 1890),1910,1940 J_FIN=2400
@@ -3897,6 +3915,23 @@ def crc_autre(jeu, sorte):
     (a,) = sain("crc-" + jeu)
     crc_protegee(a, sorte)
 
+def crc_hack(jeu, banques):
+    """A PVC game with another NGH: the normal display, `banques` the BANKS line MAME gave, only bank
+    words in the window, then the game as after the same path with its own number."""
+    a, t = sain("crc-hack-" + jeu, "crc-hack-" + jeu + "-t")
+    x = a.texte(2390)
+    dit(f"{a.nom}, trame 2390 : {' / '.join(l.strip() for l in x.splitlines() if l.strip())}")
+    exiger("NGH 0999" in x and "DONE" in x, "l'écran n'a pas fini sous le NGH changé")
+    exiger("PROTECTED" not in x and "NOT READ" not in x, "l'écran reconnaît une protection sous un NGH changé")
+    exiger(re.search(banques, x), f"la ligne BANKS n'est pas {banques}")
+    exiger("PVC PROTECTED CARTRIDGE" in t.texte(2390), "le témoin, sous son NGH, n'est pas reconnu")
+    crc_ecrits(a, 342, 2390, permis=("2FFFF0",) if "X 1024K" in banques else ())
+    exiger(re.search(r"> CARTRIDGE CRC", a.texte(2410)), "START ne rend pas le menu des tests sur CARTRIDGE CRC")
+    exiger("SOFT DIP SETTINGS" in a.texte(2440), "START ne rend pas l'écran TEST")
+    i, j = remise_image(a, 900), remise_image(t, 900)
+    exiger(i is not None and j is not None, "pas d'image 900 trames après la remise au jeu")
+    exiger(len(set(i)) > 1 and i == j, "le jeu ne repart pas comme son témoin")
+
 def bf_crc():
     c = crc_attendu("aof")
     bf_juge("bf-crc", [(400, r"READING FIXED"), (900, "FIXED %sK +%s" % (c[1], c[2])), (900, "BANKS NONE"), (990, "ART OF FIGHTING")])
@@ -3993,7 +4028,8 @@ JUGES = {"aes-bascule": aes_bascule, "aes-demo": aes_demo, "aes-start": aes_star
          "demo-ssideki": demo_ssideki,
          "crc-fixe": crc_fixe, "crc-banques": crc_banques, "crc-miroir": crc_miroir, "crc-flottant": crc_flottant, "crc-sma": crc_sma, "crc-pvc": crc_pvc,
          "crc-kof99": lambda: crc_autre("kof99", "SMA"), "crc-garou": lambda: crc_autre("garou", "SMA"), "crc-kof2000": lambda: crc_autre("kof2000", "SMA"),
-         "crc-mslug5": lambda: crc_autre("mslug5", "PVC"), "crc-kof2003": lambda: crc_autre("kof2003", "PVC"), "bf-crc": bf_crc,
+         "crc-mslug5": lambda: crc_autre("mslug5", "PVC"), "crc-kof2003": lambda: crc_autre("kof2003", "PVC"), "crc-hack-svc": lambda: crc_hack("svc", "BANKS NONE"), "crc-hack-mslug5": lambda: crc_hack("mslug5", "BANKS NONE"), "crc-hack-kof2003": lambda: crc_hack("kof2003", r"BANKS 1 X 1024K"),
+         "bf-crc": bf_crc,
          "bf-crc-banque": bf_crc_banque, "dd-effet": dd_effet, "dd-off": dd_off}
 # ---- the board switches and the gesture without a TEST button (record --ref-dip) ----
 def mode_a(run, n0, n1):

@@ -70,9 +70,10 @@
 |   PVC  $2FE000 is RAM on the cartridge (`m_cart_ram`, `protection_r`/`_w`): two
 |        complementary words read back, then the word put back. Two, because a floating bus
 |        cannot return both. Only if the NGH at $108 is that of a PVC game (read in
-|        `neogeo.cpp`: ID-0268, ID-0269, ID-0271), so a normal cartridge takes no write here
+|        `neogeo.cpp`: ID-0268, ID-0269, ID-0271), so a normal cartridge takes no write at $2FE000
 |        (ASSUMED: a real cartridge carries the same number as MAME's set).
-|        The price: a PVC cartridge with a changed NGH is treated as a normal one.
+|        The price: a PVC cartridge with a changed NGH is treated as a normal one, whatever
+|        that gives on its window (`measured/2026-10-31-crc-sans-ecriture.tsv`).
 | The screen then says which, BANKS NOT READ, and that FIXED is no file's CRC.
 |
 | THE DURATION: ~170 cycles per word (counted below), ~7.5 s per MiB at 12 MHz, plus one bank
