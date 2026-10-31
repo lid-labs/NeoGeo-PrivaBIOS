@@ -62,8 +62,8 @@
 | (`bench/crc-cartouche.py`).
 | PROTECTED CARTRIDGES bank elsewhere than at $2FFFF0, or through a scrambled word (read in
 | `neogeo.cpp`, `prot_sma.cpp`, `prot_pvc.cpp`), and their P-ROM is scrambled in the file: the
-| figures would be neither their banks nor a file's. So, once the window is known to be a
-| bank window, before any write at $2FFFF0:
+| figures would be neither their banks nor a file's. So, once the window is seen to differ
+| from the fixed P-ROM, even if it reads a single word, before any write at $2FFFF0:
 |   SMA  the word at $2FE446 reads $9A37, whatever the bank (`prot_9a37_r`). A read only.
 |        ASSUMED: no normal cartridge reads $9A37 there (none of 157 sets, in any bank:
 |        `measured/2026-10-31-crc-protegees.tsv`).
