@@ -49,6 +49,7 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 
 - In-game menu: a game can have up to 16 cheats (4 before). The menu shows 4 at a time and scrolls,
   with "CHEATS 5-8/12" under the title when some are hidden.
+- `docs/MENUS.md`: the CARTRIDGE CRC screen says its picture stays black on kof2003.
 - Site: a "Why another BIOS?" section replaces the comparison table, which stays in
   `docs/COMPARISON.md`. The README has the same section, shorter.
 - `docs/DECISIONS.md` and source comments: behaviours observed on other BIOSes are no longer
