@@ -2,8 +2,8 @@
 
 [![build](https://img.shields.io/github/actions/workflow/status/lid-labs/sprixe-bios/build.yml?branch=main&label=build)](https://github.com/lid-labs/sprixe-bios/actions/workflows/build.yml)
 [![license: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE)
-![test scenes: 168](https://img.shields.io/badge/test%20scenes-168-informational)
-![mutations killed: 222/222](https://img.shields.io/badge/mutations%20killed-222%2F222-informational)
+![test scenes: 170](https://img.shields.io/badge/test%20scenes-170-informational)
+![mutations killed: 226/226](https://img.shields.io/badge/mutations%20killed-226%2F226-informational)
 ![MAME catalogue: 161/164 play](https://img.shields.io/badge/MAME%20catalogue-161%2F164%20play-informational)
 ![runs on real MV-2F hardware](https://img.shields.io/badge/runs%20on-real%20MV--2F%20hardware-success)
 
@@ -79,7 +79,7 @@ cartridge. The in-game menu and autofire screens are over Metal Slug (© SNK).
   cheats, the memory editor, RESTART TO CARD and the debug dips. Board switch 7 also gives free play.
 - Boards without a TEST button: switch 1, or START + SELECT held at power-on, opens the test screen.
 - Cartridge CRC32 of the fixed P-ROM and of each bank, as the 68000 reads them. SMA and PVC
-  protected cartridges are not recognised yet.
+  protected cartridges are recognised: the screen says so and reads no bank.
 - RAM editor with value freezing, and debug dips. No VRAM viewer.
 - Input test for both joysticks and the mahjong panel. No 4-player page.
 - Hardware tests: work RAM, palette, VRAM and backup RAM checks, colour bars, crosshatch.

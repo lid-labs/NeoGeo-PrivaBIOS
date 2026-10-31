@@ -128,7 +128,7 @@ UP/DOWN chooses, wrapping around from WORK RAM, A starts, START goes back.
 | — | INPUT TEST ("down" × 4) | the state of the inputs; START held 1 s to leave. Board switch 3 at ON on opening: the mahjong panel page, 0 or 1 per key (A to N, PON to REACH, START, SELECT) |
 | — | COLOR BARS ("down" × 5) | colour bars; A changes page |
 | 3 | CROSSHATCH | an alignment test pattern |
-| 2 | CARTRIDGE CRC | the CRC32 of the cartridge's P-ROM, FIXED then BANKS, to compare with the romset's; START stops the computation (`DECISIONS.md` §20) |
+| 2 | CARTRIDGE CRC | the CRC32 of the cartridge's P-ROM, FIXED then BANKS, to compare with the romset's; a protected cartridge is named and its banks are not read; START stops the computation (`DECISIONS.md` §20) |
 | 1 | EXIT | back to the list |
 
 ### JUKEBOX

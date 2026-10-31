@@ -1057,9 +1057,33 @@ MUTATIONS = {
     ),
     "crc-flottant-ignore": (
         "crc-flottant", "crc.s",
-        [("        bsr     .Lconstante\n        beq.s   .Lsans_banque\n",
+        [("        tst.b   %d6\n        bne     .Lsans_banque\n",
           "        nop                             | MUTATION : la fenêtre constante compte\n")],
         "une fenêtre qui ne lit qu'un mot (pas de puce de banques) est comptée comme une banque",
+    ),
+    "crc-sma-ignoree": (
+        "crc-sma", "crc.s",
+        [("        cmpi.w  #0x9A37, MOT_SMA\n        beq.s   .Lprotegee\n",
+          "        nop                             | MUTATION : SMA jamais reconnue\n")],
+        "une cartouche SMA passe pour une cartouche à banques ordinaire",
+    ),
+    "crc-pvc-ignoree": (
+        "crc-pvc", "crc.s",
+        [("        not.w   %d0\n        move.w  %d0, (%a0)\n        cmp.w   (%a0), %d0\n        bne.s   .Lpas_pvc\n",
+          "        bra.s   .Lpas_pvc               | MUTATION : PVC jamais reconnue\n")],
+        "une cartouche PVC n'est pas reconnue : svc, à fenêtre constante, dit BANKS NONE",
+    ),
+    "crc-pvc-ram-perdue": (
+        "crc-pvc", "crc.s",
+        [("        move.w  %d2, (%a0)\n        lea     .Ltxt_pvc, %a2\n",
+          "        lea     .Ltxt_pvc, %a2          | MUTATION : le mot n'est pas rendu\n")],
+        "le test de RAM laisse son motif dans la RAM de la cartouche PVC",
+    ),
+    "crc-toujours-protegee": (
+        "crc-banques", "crc.s",
+        [("        cmpi.w  #0x9A37, MOT_SMA\n        beq.s   .Lprotegee\n",
+          "        bra.s   .Lprotegee              | MUTATION : toute cartouche à banques est protégée\n")],
+        "une cartouche à banques ordinaire est dite protégée",
     ),
     "crc-miroir-de-banque": (
         "crc-banques bf-crc-banque", "crc.s",

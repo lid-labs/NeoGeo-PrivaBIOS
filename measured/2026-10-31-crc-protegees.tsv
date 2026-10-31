@@ -1,0 +1,25 @@
+# Recognising protected cartridges on the CARTRIDGE CRC screen (src/c0/crc.s), on 2026-10-31. MAME 0.286, -bios euro,
+# -video none, -sound none, -nothrottle, non-merged romsets of $ROMS. Runs 1 and 2 keep yes/no answers and CRCs only: no ROM word.
+#
+# SOURCES READ: MAME 0.286 src/mame/neogeo/neogeo.cpp (handlers per cartridge type), src/devices/bus/neogeo/prot_sma.cpp
+# (prot_9a37_r), prot_pvc.cpp (m_cart_ram, protection_r/_w), sma.cpp, pvc.cpp.
+#
+# RUN 1, THE CATALOGUE: 164 sets, a lua probe at frame 120. pvc: two complementary words at $2FE000 read back. sma: the word at
+# $2FE446 equals $9A37, at the reset bank, then with each of the banks 0-7 written at $2FFFF0 (not asked once pvc says yes).
+# Result: the seven below answer; the 157 others answer no, in every bank. 2 files of the folder are not MAME sets (not run).
+#
+# RUN 2, THE SCREEN: our image ab59cd47…, its protection text one row lower than the final image's in each game's zip, TEST held 1-260, HARDWARE TESTS, CARTRIDGE CRC, the fix layer decoded
+# at frame 1200. fixe_zip: does the FIXED shown equal the one of bench/crc-cartouche.py? mslug2, a normal banked cartridge,
+# gave FIXED as on the old image, and its scene crc-banques passes.
+# kof2003 has no font: its picture is black, the state below is that of the decoded tiles.
+#
+# REFUTED: "a PVC window differs from a constant": svc's reads one word at its reset bank. The first order of the tests, the
+# constant window before the PVC test, gave BANKS NONE on svc (run of the scene crc-pvc).
+jeu	protection	sonde_sma_banques	sonde_pvc	ecran	banques	fixe_zip
+kof99	SMA	8/8	non	SMA PROTECTED CARTRIDGE	BANKS NOT READ	différent
+garou	SMA	8/8	non	SMA PROTECTED CARTRIDGE	BANKS NOT READ	différent
+mslug3	SMA	8/8	non	SMA PROTECTED CARTRIDGE	BANKS NOT READ	différent
+kof2000	SMA	8/8	non	SMA PROTECTED CARTRIDGE	BANKS NOT READ	différent
+mslug5	PVC	-	oui	PVC PROTECTED CARTRIDGE	BANKS NOT READ	différent
+svc	PVC	-	oui	PVC PROTECTED CARTRIDGE	BANKS NOT READ	différent
+kof2003	PVC	-	oui	PVC PROTECTED CARTRIDGE	BANKS NOT READ	différent
