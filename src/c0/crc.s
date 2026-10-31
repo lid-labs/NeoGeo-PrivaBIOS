@@ -69,8 +69,11 @@
 |        `measured/2026-10-31-crc-protegees.tsv`).
 |   PVC  $2FE000 is RAM on the cartridge (`m_cart_ram`, `protection_r`/`_w`): two
 |        complementary words read back, then the word put back. Two, because a floating bus
-|        cannot return both. A normal cartridge's latch may take this write for a bank
-|        (ASSUMED, on the hardware): bank 0 is written next if the window is not constant.
+|        cannot return both. Only if the NGH at $108 is that of a PVC game (read in
+|        `neogeo.cpp`: ID-0268, ID-0269, ID-0271), so a normal cartridge takes no write at $2FE000
+|        (ASSUMED: a real cartridge carries the same number as MAME's set).
+|        The price: a PVC cartridge with a changed NGH is treated as a normal one, whatever
+|        that gives on its window (`measured/2026-10-31-crc-sans-ecriture.tsv`).
 | The screen then says which, BANKS NOT READ, and that FIXED is no file's CRC.
 |
 | THE DURATION: ~170 cycles per word (counted below), ~7.5 s per MiB at 12 MHz, plus one bank
@@ -99,6 +102,9 @@
         .equ    FENETRE,  0x200000
         .equ    MOT_SMA,  0x2FE446      | reads $9A37 on an SMA cartridge (`prot_9a37_r`)
         .equ    RAM_PVC,  0x2FE000      | the PVC cartridge's RAM, below its registers
+        .equ    NGH_MSLUG5,  0x0268     | the PVC games (`neogeo.cpp`, their ID- comments)
+        .equ    NGH_SVC,     0x0269
+        .equ    NGH_KOF2003, 0x0271
 
         .equ    PAL_VIDE, 7
         .equ    MIO,      0x100000
@@ -235,7 +241,15 @@ _crc_cartouche:
         | Before any write at $2FFFF0, as above.
         bsr     .Lconstante
         seq     %d6
-        lea     RAM_PVC, %a0
+        | The RAM test writes: PVC games only, see the header.
+        move.w  0x108, %d0
+        cmpi.w  #NGH_MSLUG5, %d0
+        beq.s   1f
+        cmpi.w  #NGH_SVC, %d0
+        beq.s   1f
+        cmpi.w  #NGH_KOF2003, %d0
+        bne.s   .Lpas_pvc
+1:      lea     RAM_PVC, %a0
         move.w  (%a0), %d2
         move.w  #0x55AA, %d0
         move.w  %d0, (%a0)

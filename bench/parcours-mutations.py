@@ -1079,6 +1079,30 @@ MUTATIONS = {
           "        lea     .Ltxt_pvc, %a2          | MUTATION : le mot n'est pas rendu\n")],
         "le test de RAM laisse son motif dans la RAM de la cartouche PVC",
     ),
+    "crc-pvc-sur-toutes": (
+        "crc-flottant crc-banques crc-hack-svc", "crc.s",
+        [("        cmpi.w  #NGH_KOF2003, %d0\n        bne.s   .Lpas_pvc\n",
+          "        nop                             | MUTATION : le test de RAM sur toute cartouche\n")],
+        "une cartouche normale prend le test de RAM à $2FE000",
+    ),
+    "crc-ngh-mslug5": (
+        "crc-mslug5", "crc.s",
+        [("        cmpi.w  #NGH_MSLUG5, %d0\n        beq.s   1f\n",
+          "        nop                             | MUTATION : mslug5 oublié\n")],
+        "mslug5 n'est plus reconnu : son NGH manque à la liste",
+    ),
+    "crc-ngh-svc": (
+        "crc-pvc", "crc.s",
+        [("        cmpi.w  #NGH_SVC, %d0\n        beq.s   1f\n",
+          "        nop                             | MUTATION : svc oublié\n")],
+        "svc n'est plus reconnu : son NGH manque à la liste",
+    ),
+    "crc-ngh-kof2003": (
+        "crc-kof2003", "crc.s",
+        [("        cmpi.w  #NGH_KOF2003, %d0\n        bne.s   .Lpas_pvc\n",
+          "        bra.s   .Lpas_pvc               | MUTATION : kof2003 oublié\n")],
+        "kof2003 n'est plus reconnu : son NGH manque à la liste",
+    ),
     "crc-toujours-protegee": (
         "crc-banques", "crc.s",
         [("        cmpi.w  #0x9A37, MOT_SMA\n        beq.s   .Lprotegee\n",
