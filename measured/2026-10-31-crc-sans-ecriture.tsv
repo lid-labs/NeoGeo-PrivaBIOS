@@ -1,0 +1,18 @@
+# The PVC test of the CARTRIDGE CRC screen limited to the PVC games (src/c0/crc.s, docs/DECISIONS.md §20 pt 13), on 2026-10-31.
+# MAME 0.286, -bios euro, -video none, -sound none, -nothrottle, non-merged romsets of $ROMS. No ROM word is kept here.
+#
+# SOURCE READ: MAME 0.286 src/mame/neogeo/neogeo.cpp, comments above each ROM_START: ID-0268 mslug5, ID-0269 svc, ID-0271 kof2003.
+#
+# RUN 1, THE CATALOGUE: a lua probe at frame 200 compares the word at $108 with these three numbers. 166 sets tried, 164 ran: yes
+# on the three below, no on the 161 others. 2 files of the folder are not MAME sets (not run).
+#
+# RUN 2, THE SCREEN: the crc-* scenes on image 95d481bc…; the writes of the 68000 at $200000-$2FFFFF through a write tap (J_ECRITS
+# of son.lua), from the opening of the screen to the frame of the last reading.
+#
+# ASSUMED: a real cartridge carries the same number at $108, and flash carts do nothing else on this screen. Not tried on hardware.
+jeu	ngh_liste	ecrits_fenetre	ecran
+mslug5	oui	-	PVC PROTECTED CARTRIDGE
+svc	oui	-	PVC PROTECTED CARTRIDGE
+kof2003	oui	-	PVC PROTECTED CARTRIDGE
+aof, fenêtre constante (crc-flottant.lua)	non	0	BANKS NONE
+mslug2, à banques	non	0 hors $2FFFF0	BANKS 2 X 1024K

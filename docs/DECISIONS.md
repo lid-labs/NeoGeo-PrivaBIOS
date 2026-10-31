@@ -580,12 +580,22 @@ and `2026-10-25-debug-dips.tsv`; thresholds: `2026-10-25-parcours-crc-debug.tsv`
     copies of a cartridge can be compared by it, but on all seven it differs from the one
     `bench/crc-cartouche.py` computes from the zip. Only a read at `$2FE446` happens on SMA. PVC is
     probed by two complementary words at `$2FE000`, put back; a floating bus cannot return both.
-    That test runs even when the window reads a single word, as svc's does at reset, so a real
-    cartridge without a bank chip now takes this write; nothing is written at `$2FFFF0`. It comes
-    after the window is found to differ from the fixed P-ROM, so a cartridge of 1 MiB at most under
-    MAME takes no write. ASSUMED: the same behaviour on real SMA and PVC boards, none tried yet;
+    That test runs even when the window reads a single word, as svc's does at reset. Nothing is
+    written at `$2FFFF0`. ASSUMED: the same behaviour on real SMA and PVC boards, none tried yet;
     a run on one showing a normal BANKS line would reverse this. kof2003's screen stays black, as
     before (no font), though its state is right.
+13. **The PVC test writes only on a PVC game's NGH** (2026-10-31, `crc.s`;
+    `measured/2026-10-31-crc-sans-ecriture.tsv`). Point 12 first ran it on any cartridge whose window
+    differs from the fixed P-ROM, so a real ssideki took a write that point 2 refuses, and no one
+    knows what a flash cart does with it: MAME shows nothing of that. The word at `$108` must now be
+    0268, 0269 or 0271, the IDs of Metal Slug 5, SVC Chaos and KOF 2003 in the comments of MAME
+    0.286's `neogeo.cpp`. In the catalogue, 3 sets of 164 carry one of them, those three. So a normal
+    cartridge takes no write on this screen, except the bank words of a real bank chip at
+    `$2FFFF0`; a cartridge with one of these numbers that fails the RAM test stays normal. The price:
+    a PVC cartridge whose NGH was changed, a hack for instance, shows the normal display, and takes
+    the bank writes point 12 avoids on PVC. A hack keeping the number is still recognised. Ruled
+    out: a test without a write, as a read cannot tell RAM from a floating bus or a bank. A
+    read-only sign of PVC, or a hack seen in use, would reverse this.
 
 ## 21. Board switches 2 to 6 and 8
 

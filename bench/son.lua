@@ -30,6 +30,8 @@
 --               with mode 01: the first boot, the restart after a region change, the
 --               title after a coin —, in J_OUT/rKKKKK.bin. An instant of the GAME, whatever
 --               the time the BIOS took before; a later hand-over rewrites it
+--   J_ECRITS    "a-b" (hex): "f<n> ECRIT <adr> <val>" at each write of the 68000 in this range of
+--               addresses (the bank window, for the CARTRIDGE CRC screen)
 --   J_TEXTE     frames at which to write the decoded fix layer (rows 2 to 29, "fixNN |…|"),
 --               rebuilt from the writes to the LSPC as in `autotests.lua`
 --   J_TUILES    frames at which to write the RAW fix layer, same rebuild: "fNN tuNN" then the 40
@@ -165,6 +167,13 @@ _G.SONJIG.tbas = p:install_write_tap(0x3A0000, 0x3A001F, "bas", function(o, d, m
 -- slot of an MV-6F, which the mode/request pair does not tell (a SELECT in demo keeps 01/02).
 _G.SONJIG.tslot = p:install_write_tap(0x380020, 0x380021, "slot", function(o, d, mk)
   if (mk & 0xFF) ~= 0 then W("f%d SLOT %02X", n, d & 0xFF) end end)
+do
+  local a, b = (os.getenv("J_ECRITS") or ""):match("(%x+)-(%x+)")
+  if a then
+    _G.SONJIG.tecrits = p:install_write_tap(tonumber(a, 16), tonumber(b, 16), "ecrits", function(o, d)
+      W("f%d ECRIT %06X %04X", n, o, d & 0xFFFF) end)
+  end
+end
 _G.SONJIG.tpal = p:install_write_tap(0x400000, 0x401FFF, "pal", function() local s = src() pal[s] = pal[s] + 1 end)
 -- The fix layer rebuilt (REG_VRAMADDR / REG_VRAMRW / REG_VRAMMOD), and the writes counted.
 local X = { a = 0, mod = 1, v = {} }
