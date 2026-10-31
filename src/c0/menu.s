@@ -117,6 +117,13 @@
 | up to CH_MAX, scroll through it behind the choice (`.Lfenetre`); beyond MN_VIS, the
 | line under the title says which are shown ("CHEATS 5-8/12"). The choices do not change:
 | cheat k is always at "down" k + 2 times from RESUME, and the lines after it up to N.
+| THE CARD, 2026-10-31 (DECISIONS §33): one more line, RESTART TO CARD, just before AUTOFIRE, at
+| "up" four times from RESUME (three under CHEATS/DEBUG OFF), so that no earlier key path moves. It
+| restarts the machine like RESTART GAME, a mark left in backup RAM (CARTE_DEMANDE); `dip.s` reads
+| the mark at boot and opens the card manager. The frame does not grow: the help takes the last
+| blank line, line 9, and the save area stays that of 28 × 14. The mark's cell, $D001A8: read in
+| "Backup RAM", undocumented; measured, no write on 21 games (`reglages.s`, header); ASSUMED for the
+| rest of the catalogue.
 | Then GAME SETTINGS (`reglages-jeu.s`) and MEMORY EDITOR (`memoire.s`),
 | 2026-10-23, always there, AFTER the cheats: the key paths of the earlier records
 | (RESTART at "down", the first cheat at "down, down") remain; from RESUME, "up" leads
@@ -156,6 +163,9 @@
         .equ    STATUS_B, 0x380000
         .equ    PALETTES, 0x400000
         .equ    BORNE_RAM, 0x10FB20     | bit 3: CHEATS/DEBUG OFF (`reglages.s`)
+        .equ    CARTE_DEMANDE, 0xD001A8 | .b non-zero: open the card manager at boot (`dip.s`)
+        .equ    SRAMUNLOCK, 0x3A001D
+        .equ    SRAMLOCK, 0x3A000D
 
         .equ    SEUIL,    20            | SYSTEM_IO calls, gesture held
         .equ    S1,       0x5AC3        | the probe pair of `.Lsonder`, arbitrary choice
@@ -183,15 +193,15 @@
         .equ    MN_CASE0, 0x10F85C      | .w the top-left cell
         .equ    MN_CURS,  0x10F85E      | .w the cursor column
         .equ    MN_PAD,   0x10F860      | .w the margin of the fixed lines
-        | .w the last choice: 4 + N, or 3 + N under CHEATS/DEBUG OFF (GAME SETTINGS), set by
+        | .w the last choice: 5 + N, or 4 + N under CHEATS/DEBUG OFF (GAME SETTINGS), set by
         | `.Lmise_en_page`. Read by the loop in as many cycles as the old computation (MN_NCH + 3):
         | measured, two more tests per turn and per line moved RESTART GAME's restart from GAME
         | SETTINGS on ncombat one frame earlier (scene gs-mmss, RESET at 2417 instead of 2418).
         .equ    MN_DERNIER, 0x10F862
         .equ    MN_NVIS,  0x10F864      | .w cheat lines of the frame: N, at most MN_VIS
         .equ    MN_HAUT,  0x10F866      | .w the first cheat shown (`.Lfenetre`)
-        .equ    MN_CHOIX, 0x10F870      | .w line chosen: 0 RESUME, 1 RESTART, 2… the cheats, then
-                                        | AUTOFIRE (2 + N), GAME SETTINGS (3 + N), MEMORY EDITOR (4 + N)
+        .equ    MN_CHOIX, 0x10F870      | .w line chosen: 0 RESUME, 1 RESTART, 2… the cheats, then RESTART TO
+                                        | CARD (2 + N), AUTOFIRE (3 + N), GAME SETTINGS (4 + N), EDITOR (5 + N)
         .equ    MN_PALS,  0x10F872      | 3 .w: the palettes taken (title, chosen, text)
         .equ    MN_USAGE, 0x10F878      | .w one bit per palette seen on the fix layer
         .equ    MN_PAL,   0x10F880      | 3 palettes, 96 bytes
@@ -338,10 +348,10 @@ _menu_ouvrir:
         beq.s   .Lreprendre
         subq.w  #1, %d1
         beq.w   .Lrelance
-        | %d1: the choice minus 3 minus N — negative a cheat or AUTOFIRE, 0 GAME SETTINGS, 1 the editor.
-        | `subq #2` and `blt` instead of `subq #1` and `bcs`: same cycles, and GAME SETTINGS opens at
-        | the cycles from before AUTOFIRE (see `reglages-jeu.s`, THE CYCLES; measured, scene gs-mmss).
-        subq.w  #2, %d1
+        | %d1: the choice minus 4 minus N — negative a cheat, the card or AUTOFIRE, 0 GAME SETTINGS, 1
+        | the editor. `subq #3` and `blt` instead of `subq #1` and `bcs`: same cycles, and GAME SETTINGS
+        | opens at the cycles from before AUTOFIRE (see `reglages-jeu.s`, THE CYCLES; scene gs-mmss).
+        subq.w  #3, %d1
         sub.w   MN_NCH, %d1
         blt.s   4f
         beq.s   5f
@@ -352,9 +362,10 @@ _menu_ouvrir:
         bsr     .Lentrees               | a button still held (START) does not count
         bra     .Lboucle
 4:      add.w   MN_NCH, %d1
-        addq.w  #1, %d1                 | the choice minus 2: 0 to N − 1 a cheat, N AUTOFIRE (`autofire.s`)
+        addq.w  #2, %d1                 | the choice minus 2: below N a cheat, N the card, N + 1 AUTOFIRE
         cmp.w   MN_NCH, %d1
-        bne.s   7f
+        bcs.s   7f
+        beq.s   .Lvers_carte
         bsr     _af_ecran
         bra.s   6b
 7:      move.w  CH_ETATS, %d2           | a cheat: its bit toggled, and we stay in the menu
@@ -362,6 +373,13 @@ _menu_ouvrir:
         move.w  %d2, CH_ETATS
         bsr     .Ldessiner
         bra     .Lboucle
+
+| RESTART TO CARD: the mark, then the restart of RESTART GAME (see the header).
+.Lvers_carte:
+        move.b  %d0, SRAMUNLOCK
+        move.b  #1, CARTE_DEMANDE
+        move.b  %d0, SRAMLOCK
+        bra     .Lrelance
 
 | RESUME. Everything released first: a button still held on return would be a press for the
 | game. Then the screen given back, and the game at the line where it was.
@@ -663,7 +681,7 @@ _mn_entrees:
         move.w  CH_NB, %d0
         move.w  %d0, MN_NCH
         move.w  %d0, %d1
-        addq.w  #4, %d1                 | N + 4, MEMORY EDITOR
+        addq.w  #5, %d1                 | N + 5, MEMORY EDITOR
         btst    #3, BORNE_RAM
         beq.s   2f
         subq.w  #1, %d1                 | CHEATS/DEBUG OFF: GAME SETTINGS is the last
@@ -817,7 +835,7 @@ _mn_entrees:
         move.b  (%a3)+, (%a2)+
         move.b  (%a3)+, (%a2)+
         rts
-3:      cmpi.w  #7, %d0                 | MEMORY EDITOR, CHEATS/DEBUG OFF: the line blank
+3:      cmpi.w  #8, %d0                 | MEMORY EDITOR, CHEATS/DEBUG OFF: the line blank
         bne.s   7f
         btst    #3, BORNE_RAM
         bne.s   9f
@@ -945,9 +963,9 @@ _mn_sync:
         .ascii  "                    "
         .ascii  "   RESUME           "
         .ascii  "   RESTART GAME     "
+        .ascii  "   RESTART TO CARD  "
         .ascii  "   AUTOFIRE         "
         .ascii  "   GAME SETTINGS    "
         .ascii  "   MEMORY EDITOR    "
         .ascii  " UP/DOWN A/START:OK "
-        .ascii  "                    "
         .balign 2

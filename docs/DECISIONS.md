@@ -903,6 +903,44 @@ still found under MAME, without a third-party database.
 4. **The record format does not change** (32 bytes). Measured on 2026-10-29: the high area ends
    at $C0B416, that is 84 KiB free, room for more than 2,000 records.
 
+## 33. The card manager from the in-game menu, and COPY ALL
+
+On 2026-10-31 (public issue 57; `menu.s`, `dip.s`, `gestion-carte.s`). The choice of the menus was left open by
+the ticket, and taken here without the user: to be reviewed on the pull request.
+
+1. **One way in more: RESTART TO CARD, in the in-game menu.** A player already reaches the test
+   screen at every boot, so a boot gesture would add nothing; play is what had no way in.
+2. **It restarts the machine: the game in progress is lost, and the label says so.** The manager needs
+   the whole fix layer and, to copy, 1,920 bytes of RAM set aside in VRAM, $0000-$03BF; during a
+   pause, neither is ours (MN_FIX holds 392 cells, and the VRAM is the game's). UniBIOS manages the
+   card "in every mode" (`ATTENTES.md` §1), not read further: this is a **deliberate difference**.
+   What would reverse it: a windowed manager and a buffer measured free during play.
+3. **The way there is a mark in backup RAM**, $D001A8, which `dip.s` reads at boot and clears: the
+   boot clears the RAM, the mark must outlive it. $D001A8-$D001AF is undocumented, and no write was
+   measured there on 21 games (`reglages.s`, header); ASSUMED for the rest of the catalogue. Power cut between the mark and the boot: the manager
+   opens once, nothing else. The opening goes through the test screen, which sets up what the manager
+   expects; START returns to it.
+4. **The line is at "up" four times**, just before AUTOFIRE, so no earlier key path moves. The frame
+   does not grow, 28 × 14 being all that MN_FIX holds: the help takes its last blank line.
+5. **Not reached**: the title and the demo, where the in-game menu does not open, and the machine
+   without a cartridge (HARDWARE TESTS only). Both would need a new gesture or a new line for a
+   rarer need.
+6. **COPY ALL is D, on any line**: no new line, so the paths of the list stay ("up" × 2 is FORMAT CARD).
+   D was free; the help says it. On the mahjong panel, D is the panel's D key.
+7. **The source is never written.** A rereads the card in place; its directory and FAT 1 equal to the
+   kept ones: SAME CARD, nothing written. A card that really is another one with the same layout is
+   refused too: the price of not comparing the data. The copy of one save (§26) keeps its behaviour:
+   A on the source then OVERWRITE rewrites the same bytes.
+8. **Nothing is written that cannot finish.** SAVE wants its blocks free before it frees the old chain
+   (`card.s`, $03): the count follows that order, and a card too full says NOT ENOUGH BLOCKS before the
+   first write. A single confirmation covers every overwritten save. A write error stops the
+   copy where it is and shows CARD ERROR: the saves written so far stay.
+9. **The room**: the buffer of §26 grows by 192 bytes, the kept directory and FAT, and its VRAM
+   by 96 words, up to the tile map of sprite 14. A FAT with crossed chains adds up to more than 27
+   blocks: CARD ERROR 83, nothing overflows.
+10. **Proof**: scenes `cm-copier-tout` and `menu-carte`, mutations `ct-*` and `mc-*`
+    (`measured/2026-10-31-parcours-copie-tout.tsv`).
+
 ## Still to be decided
 
 - **The save state lock**: is there a write path to a flash cart? No public document describes

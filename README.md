@@ -2,8 +2,8 @@
 
 [![build](https://img.shields.io/github/actions/workflow/status/lid-labs/sprixe-bios/build.yml?branch=main&label=build)](https://github.com/lid-labs/sprixe-bios/actions/workflows/build.yml)
 [![license: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE)
-![test scenes: 164](https://img.shields.io/badge/test%20scenes-164-informational)
-![mutations killed: 210/210](https://img.shields.io/badge/mutations%20killed-210%2F210-informational)
+![test scenes: 166](https://img.shields.io/badge/test%20scenes-166-informational)
+![mutations killed: 218/218](https://img.shields.io/badge/mutations%20killed-218%2F218-informational)
 ![MAME catalogue: 161/164 play](https://img.shields.io/badge/MAME%20catalogue-161%2F164%20play-informational)
 ![runs on real MV-2F hardware](https://img.shields.io/badge/runs%20on-real%20MV--2F%20hardware-success)
 

@@ -53,17 +53,28 @@
 | THE BUFFER'S ROOM: 27 blocks of 64 bytes at most, 1,728 bytes (a 2 KiB card, the only
 | geometry served, `card.s`), when the manager's RAM has only 256 and that of the TEST screen
 | ($10F464-$10FAFF) holds the copy of the soft-DIP block from `dip.s`. The buffer is therefore the
-| game's work RAM, $100000-$1006BF, which the game does not use during the TEST screen; its 1,728
-| bytes are set aside in VRAM, $0000-$035F (the tile map of sprites 0 to 13, hidden by LSP_1st at
-| boot and never displayed by the TEST screen), before the read, and returned after the write or the
-| cancel: the RAM the boot restored for the game comes out intact. VRAM writes at the pace of `tests.s`.
+| game's work RAM, $100000-$10077F with the 192 bytes of COPY ALL, which the game does not use during
+| the TEST screen; these 1,920 bytes are set aside in VRAM, $0000-$03BF (the tile map of sprites 0 to
+| 14, hidden by LSP_1st at boot and never displayed by the TEST screen), before the read, and returned
+| after the write or the cancel: the RAM the boot restored for the game comes out intact. VRAM writes at the pace of `tests.s`.
+|
+| COPY ALL, on 2026-10-31 (DECISIONS §33). D, on any line: the directory and FAT 1 kept after the
+| buffer (COPIE_DIR), every save read through CARD ($02) one after the other into the buffer, then
+| "CHANGE CARD AND PRESS A", the wait of the copy, states 5 and 6 of V_CONF. A reads the card in
+| place again. Its directory and FAT equal to the kept ones: SAME CARD, nothing written, the wait goes
+| on; that is what keeps the source from being written. Otherwise the saves are counted against
+| the room, in CARD's order: SAVE wants its blocks free BEFORE it frees the old chain (`card.s`, $03),
+| so a save needs its blocks at its turn, and gives back those it replaces after. Too few: NOT
+| ENOUGH BLOCKS, nothing written, the wait goes on. Same NGH and sub-save on the target: "OVERWRITE
+| nn SAVES?", A writes. The whole buffer holds what one card can hold; a FAT whose chains cross
+| would add up to more than 27 blocks: CARD ERROR 83, like a FAT error.
 |
 | CARD'S INTERFACE is kept on entry and returned on exit ($10FCF4, $10FD00-$10FD17,
 | $10FDC4-$10FDD1): a game does not find, at launch, the traces of a call it did not
 | make. ASSUMED without effect; it is at zero at boot, the clearing in `c0.s` having put it there.
 |
 | THE RAM: $10F300-$10F3FF, above the BIOS stack (set at $10F300, it grows down) and below
-| the save area of `plantage.s` ($10F400) — 192 bytes of the record, the kept interface, four
+| the save area of `plantage.s` ($10F400) — 192 bytes of the record, the kept interface, the
 | variables; reset to zero on exit, as the boot had left it.
 | ==================================================================================
 
@@ -85,12 +96,16 @@
         .equ    V_ETAT,   0x10F3EA      | .b the record: $00, $80, $81, $85
         .equ    V_STB,    0x10F3EB      | .b REG_STATUS_B & $70 at the record
         .equ    V_CONF,   0x10F3EC      | .b 0 nothing, 1 delete, 2 format, 3 copy read (the target
-                                        | card awaited), 4 overwrite: waiting for A
+                                        | card awaited), 4 overwrite, 5 and 6 the same for COPY
+                                        | ALL: waiting for A
         .equ    V_SUB,    0x10F3ED      | .b the copy: its sub-save
         .equ    V_NGH,    0x10F3EE      | .w its NGH
         .equ    V_TAILLE, 0x10F3F0      | .w its size in bytes
+        .equ    V_ENTREE, 0x10F3F2      | .l COPY ALL: the next entry of COPIE_DIR
+        .equ    V_PTR,    0x10F3F6      | .l COPY ALL: where the next save is in the buffer
         .equ    COPIE_RAM, 0x100000     | the copy's buffer (see the header, THE COPY)
-        .equ    COPIE_MOTS, 27 * 64 / 2 | 864 words, the largest save of a 2 KiB card
+        .equ    COPIE_DIR, COPIE_RAM + 27 * 64 | COPY ALL: directory ($80) and FAT 1 ($40) kept
+        .equ    COPIE_MOTS, (27 * 64 + 192) / 2 | 960 words: a whole 2 KiB card, and that record
         .equ    START_C,  0x10FDC8      | BIOS_CARD_START
         .equ    SIZE_C,   0x10FDCC      | BIOS_CARD_SIZE
         .equ    RAM_FIN,  0x10F400
@@ -149,19 +164,21 @@ _gestion_carte:
         beq.s   1f
         cmpi.b  #3, V_CONF              | the copy is precisely waiting for another card
         beq.s   5f
-        cmpi.b  #4, V_CONF
-        bne.s   6f
-        move.b  #3, V_CONF              | overwrite targeted the old card: we wait for A again
+        cmpi.b  #5, V_CONF
+        beq.s   5f
+        cmpi.b  #3, V_CONF
+        bcs.s   6f
+        subq.b  #1, V_CONF              | overwrite targeted the old card: we wait for A again
         bra.s   5f
 6:      clr.b   V_CONF                  | a confirmation targeted the old card: abandoned
 5:      bsr     .Lreleve
         bsr     .Lborner
         bsr     .Lecran
-        cmpi.b  #3, V_CONF
-        bne.s   1f
+        cmpi.b  #3, V_CONF              | 3 or 5 here
+        bcs.s   1f
         lea     .Ltxt_changer, %a2
         bsr     .Lmessage
-1:      bsr     .Lentrees               | %d0 the edges: 0 up, 1 down, 4 A, 5 B, 6 START, 7 C
+1:      bsr     .Lentrees               | %d0 the edges: 0 up, 1 down, 2 D, 4 A, 5 B, 6 START, 7 C
         tst.b   V_CONF
         bne     .Lconfirmer
         btst    #6, %d0
@@ -184,6 +201,8 @@ _gestion_carte:
         bra     .Lboucle
 4:      btst    #7, %d0                 | C: copy the line's save
         bne     .Lcopier
+        btst    #2, %d0                 | D: COPY ALL
+        bne     .Lcopier_tout
         btst    #4, %d0                 | A
         beq     .Lboucle
         move.w  V_N, %d0
@@ -301,10 +320,13 @@ _gestion_carte:
 | THE WAIT FOR THE TARGET CARD (3) AND FOR THE OVERWRITE (4): A writes, or asks to overwrite; B or
 | START cancel, the game's RAM returned.
 .Lc_attente:
+        cmpi.b  #5, V_CONF
+        bcc     .Lt_attente
         btst    #4, %d0
         bne.s   2f
         andi.b  #0x60, %d0
         beq     .Lboucle
+.Lc_abandon:
         clr.b   V_CONF
         bsr     .Lrendre
         lea     .Ltxt_renonce, %a2
@@ -370,6 +392,187 @@ _gestion_carte:
         lea     F_LIGNE(%a6), %a2
 1:      bsr     .Lmessage
         bra     .Lboucle
+
+| ----------------------------------------------------------------------------------
+| COPY ALL (see the header). D: a readable card with at least one save, otherwise nothing.
+.Lcopier_tout:
+        tst.b   V_ETAT
+        bne     .Lboucle
+        cmpi.w  #2, V_N
+        beq     .Lboucle
+        bsr     .Lmettre_de_cote
+        lea     TAMPON, %a1
+        lea     COPIE_DIR, %a2
+        moveq   #192 / 4 - 1, %d1
+1:      move.l  (%a1)+, (%a2)+
+        dbra    %d1, 1b
+        bsr     .Lt_debut
+2:      bsr     .Lt_suivante
+        beq.s   3f
+        moveq   #0, %d1                 | crossed chains must not overflow the buffer
+        move.w  V_TAILLE, %d1
+        add.l   V_PTR, %d1
+        cmpi.l  #COPIE_DIR, %d1
+        bhi.s   4f
+        move.b  #0x02, CMD              | LOAD
+        bsr     .Lt_interface
+        jsr     _card
+        tst.b   REPONSE
+        bne.s   5f
+        bsr     .Lt_avancer
+        bra.s   2b
+3:      move.b  #5, V_CONF
+        lea     .Ltxt_changer, %a2
+        bsr     .Lmessage
+        bra     .Lboucle
+4:      bsr     .Lrendre
+        move.w  #0x83, %d4              | the answer of a FAT error
+        bra     .Lc_erreur
+5:      bsr     .Lrendre                | read in error: nothing waits
+        moveq   #0, %d4
+        move.b  REPONSE, %d4
+        bra     .Lc_erreur
+
+| THE WAIT (5) AND THE OVERWRITE (6) OF COPY ALL: A goes on, B or START cancel.
+.Lt_attente:
+        btst    #4, %d0
+        bne.s   2f
+        andi.b  #0x60, %d0
+        beq     .Lboucle
+        bra     .Lc_abandon
+2:      bsr     .Lreleve                | the card in place read again, as for the copy
+        bsr     .Lborner
+        bsr     .Lecran
+        cmpi.b  #0x80, V_ETAT
+        beq     .Lsans_carte            | the wait goes on
+        btst    #6, STATUS_B
+        bne     .Lprotegee
+        cmpi.b  #6, V_CONF
+        beq     .Lt_ecrire
+        tst.b   V_ETAT
+        bne     .Lt_ecrire              | not formatted, unknown: CARD will answer
+        lea     TAMPON, %a1             | the source still in place: never written
+        lea     COPIE_DIR, %a2
+        moveq   #192 / 4 - 1, %d1
+3:      cmpm.l  (%a1)+, (%a2)+
+        dbne    %d1, 3b
+        bne.s   4f
+        lea     .Ltxt_meme, %a2
+        bsr     .Lmessage
+        bra     .Lboucle
+4:      bsr     .Llibres                | %d3: the free blocks, save after save
+        move.w  %d0, %d3
+        moveq   #0, %d4                 | %d4: the saves replaced
+        bsr     .Lt_debut
+5:      bsr     .Lt_suivante
+        beq.s   9f
+        cmp.w   %d0, %d3
+        bcs.s   8f
+        sub.w   %d0, %d3
+        lea     TAMPON, %a3
+        moveq   #32 - 1, %d1
+6:      move.b  (%a3), %d2
+        cmpi.b  #0xFF, %d2
+        beq.s   7f
+        cmp.b   V_SUB, %d2
+        bne.s   7f
+        move.b  1(%a3), %d2
+        cmp.b   V_NGH, %d2
+        bne.s   7f
+        move.b  2(%a3), %d2
+        cmp.b   V_NGH + 1, %d2
+        bne.s   7f
+        addq.w  #1, %d4
+        bsr     .Lblocs                 | the old chain, freed after the save
+        add.w   %d0, %d3
+        bra.s   5b
+7:      addq.l  #4, %a3
+        dbra    %d1, 6b
+        bra.s   5b
+8:      lea     .Ltxt_pleine, %a2
+        bsr     .Lmessage
+        bra     .Lboucle
+9:      tst.w   %d4
+        beq.s   .Lt_ecrire
+        move.b  #6, V_CONF
+        lea     F_LIGNE(%a6), %a1       | OVERWRITE nn SAVES? A:YES B:NO
+        lea     .Ltxt_ecraser, %a2
+1:      move.b  (%a2)+, (%a1)+
+        bne.s   1b
+        subq.l  #1, %a1
+        move.w  %d4, %d0
+        bsr     .Ldecimal2
+        lea     .Ltxt_saves, %a2
+2:      move.b  (%a2)+, (%a1)+
+        bne.s   2b
+        subq.l  #1, %a1
+        lea     .Ltxt_oui_non, %a2
+3:      move.b  (%a2)+, (%a1)+
+        bne.s   3b
+        lea     F_LIGNE(%a6), %a2
+        bsr     .Lmessage
+        bra     .Lboucle
+
+| THE WRITE: every save in turn; the first error stops it and is shown.
+.Lt_ecrire:
+        clr.b   V_CONF
+        bsr     .Lt_debut
+1:      bsr     .Lt_suivante
+        beq.s   2f
+        move.b  #0x03, CMD              | SAVE
+        bsr     .Lt_interface
+        jsr     _card
+        tst.b   REPONSE
+        bne.s   2f
+        bsr     .Lt_avancer
+        bra.s   1b
+2:      bsr     .Lrendre
+        moveq   #0, %d4
+        move.b  REPONSE, %d4
+        lea     .Ltxt_copie, %a2
+        bra     .Lc_fin
+
+| The walk through the kept directory, from its first entry and the start of the buffer.
+.Lt_debut:
+        move.l  #COPIE_DIR, V_ENTREE
+        move.l  #COPIE_RAM, V_PTR
+        rts
+
+| THE NEXT SAVE of the kept directory: %a3 on its entry, V_SUB, V_NGH, V_TAILLE set, %d0 its blocks
+| and Z clear; none left: %d0 at 0 and Z set. An empty chain is skipped. Clobbers %d1, %d2, %a3, %a4.
+.Lt_suivante:
+        lea     COPIE_DIR + 0x80, %a4   | the kept FAT
+1:      movea.l V_ENTREE, %a3
+        cmpa.l  %a4, %a3
+        bcc.s   2f
+        addq.l  #4, V_ENTREE
+        cmpi.b  #0xFF, (%a3)
+        beq.s   1b
+        bsr     .Lblocs_de
+        tst.w   %d0
+        beq.s   1b
+        move.b  (%a3), V_SUB
+        move.b  1(%a3), V_NGH
+        move.b  2(%a3), V_NGH + 1
+        move.w  %d0, %d1
+        lsl.w   #6, %d1
+        move.w  %d1, V_TAILLE
+        tst.w   %d0
+        rts
+2:      moveq   #0, %d0
+        rts
+
+| CARD's interface for the save in turn, and the step to the next one in the buffer (clobbers %d0).
+.Lt_interface:
+        bsr.s   .Lc_interface
+        move.l  V_PTR, START_C
+        rts
+.Lt_avancer:
+        moveq   #0, %d0
+        move.w  V_TAILLE, %d0
+        add.l   %d0, V_PTR
+        move.b  %d0, WATCHDOG
+        rts
 
 | CARD's interface for the copy: NGH, sub-save, the buffer, the size.
 .Lc_interface:
@@ -518,7 +721,7 @@ _gestion_carte:
 
 | ----------------------------------------------------------------------------------
 | THE SCREEN, all of it: palettes after line $1F0 goes by, FIX_CLEAR, title, state,
-| header, list, help. Clobbers %d0-%d4, %a1-%a3.
+| header, list, help. Clobbers %d0-%d4, %a1-%a4.
 .Lecran:
         bsr     .Lsync
         lea     PALETTES + PAL_ALERTE * 32, %a1
@@ -585,7 +788,7 @@ _gestion_carte:
         bsr     .Lchaine
         | then the list, by falling through
 
-| THE VISIBLE LINES of the list. Clobbers %d0-%d4, %a1-%a3.
+| THE VISIBLE LINES of the list. Clobbers %d0-%d4, %a1-%a4.
 .Lliste:
         moveq   #0, %d4
 1:      move.w  %d4, -(%sp)
@@ -597,7 +800,7 @@ _gestion_carte:
         rts
 
 | VISIBLE LINE %d4 (0 to VISIBLES - 1), that of item %d6 + %d4: composed in the frame,
-| then written under palette 2 if it is chosen, 1 otherwise. Clobbers %d0-%d4, %a1-%a3.
+| then written under palette 2 if it is chosen, 1 otherwise. Clobbers %d0-%d4, %a1-%a4.
 .Lligne:
         lea     F_LIGNE(%a6), %a1
         moveq   #LARGEUR - 1, %d0
@@ -664,8 +867,10 @@ _gestion_carte:
 
 | THE BLOCKS of save %a3: its chain in FAT 1, from the first block up to $01. A
 | block outside 5-31, or more than 27 turns (a FAT that loops), stop the count. → %d0.
-| Clobbers %d1, %d2, %a2.
+| `.Lblocs_de`: in the FAT at %a4 (COPY ALL). Clobbers %d1, %d2; `.Lblocs`, %a4 too.
 .Lblocs:
+        lea     T_FAT, %a4
+.Lblocs_de:
         moveq   #0, %d0
         moveq   #0, %d1
         move.b  3(%a3), %d1
@@ -675,8 +880,7 @@ _gestion_carte:
         cmpi.w  #32, %d1
         bcc.s   2f
         addq.w  #1, %d0
-        lea     T_FAT, %a2
-        move.b  (%a2,%d1.w), %d1
+        move.b  (%a4,%d1.w), %d1
         cmpi.b  #1, %d1
         dbeq    %d2, 1b
 2:      rts
@@ -805,7 +1009,7 @@ _gestion_carte:
         dbra    %d4, 1b
 2:      rts
 
-| THE BUTTONS. Bits: 0 up, 1 down, 2 left, 3 right, 4 A, 5 B, 6 START, 7 C (the copy). %d5
+| THE BUTTONS. Bits: 0 up, 1 down, 2 D (COPY ALL), 4 A, 5 B, 6 START, 7 C (the copy). %d5
 | the previous state, updated; %d0 the edges. Clobbers %d1, %d2.
 .Lentrees:
         jsr     _panneau_p1             | %d0: P1, joystick or translated panel (`panneau.s`)
@@ -814,7 +1018,10 @@ _gestion_carte:
         move.b  %d2, %d1
         andi.b  #0x40, %d1              | C, bit 6 of REG_P1CNT
         add.b   %d1, %d1                | to bit 7
-        andi.b  #0x3F, %d2
+        btst    #7, %d2                 | D, to bit 2, where nothing else is read
+        beq.s   1f
+        addq.b  #4, %d1
+1:      andi.b  #0x33, %d2
         or.b    %d1, %d2
         move.b  STATUS_B, %d1
         not.b   %d1
@@ -875,6 +1082,9 @@ _gestion_carte:
 .Ltxt_changer:          .asciz  "CHANGE CARD AND PRESS A  B:NO"
 .Ltxt_ecraser:          .asciz  "OVERWRITE "
 .Ltxt_copie:            .asciz  "COPIED"
-.Ltxt_aide2:            .asciz  "START:BACK"
+.Ltxt_aide2:            .asciz  "D:COPY ALL  START:BACK"
+.Ltxt_meme:             .asciz  "SAME CARD  B:NO"
+.Ltxt_pleine:           .asciz  "NOT ENOUGH BLOCKS  B:NO"
+.Ltxt_saves:            .asciz  " SAVES"
 .Ltxt_vide:             .ascii  "                                "
         .balign 2

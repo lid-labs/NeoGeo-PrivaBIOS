@@ -1,7 +1,8 @@
 # The map of Sprixe BIOS menus
 
 Where each screen is, and the key that leads to it. Read in the code on 2026-10-25 (main at
-`703cf222`), AUTOFIRE added on 2026-10-27 (#1454), ABOUT on 2026-10-28:
+`703cf222`), AUTOFIRE added on 2026-10-27 (#1454), ABOUT on 2026-10-28, RESTART TO CARD and COPY
+ALL on 2026-10-31:
 the labels are those of the screen, the source of each screen is in parentheses. The controls
 are player 1's, edge-triggered (a press counts once).
 
@@ -14,7 +15,7 @@ Power-on
 │     ├── ABOUT ──► legal notices and credits (about.s)
 │     ├── CABINET SETTINGS ──► FREE PLAY, NO CONTINUE, DEMO SOUND, CHEATS/DEBUG (reglages.s), DEBUG DIPS (debug.s)
 │     ├── SCORE RESET
-│     ├── MEMORY CARD ──► list of saves, FORMAT CARD, EXIT (gestion-carte.s)
+│     ├── MEMORY CARD ──► list of saves, COPY ALL, FORMAT CARD, EXIT (gestion-carte.s)
 │     ├── MODE
 │     ├── HARDWARE TESTS ──► WORK RAM … CROSSHATCH, CARTRIDGE CRC (crc.s), EXIT (tests.s)
 │     ├── JUKEBOX (jukebox.s)
@@ -24,6 +25,7 @@ Power-on
       │     ├── RESUME
       │     ├── RESTART GAME
       │     ├── the game's cheats, ON/OFF (cheats.s)
+      │     ├── RESTART TO CARD ──► restart, then MEMORY CARD (gestion-carte.s)
       │     ├── AUTOFIRE (autofire.s)
       │     ├── GAME SETTINGS (reglages-jeu.s)
       │     └── MEMORY EDITOR (memoire.s)
@@ -107,6 +109,14 @@ B no). C on a save copies it: CHANGE CARD AND PRESS A, the card is changed, A wr
 new card already has that save, OVERWRITE ? asks for confirmation. B gives up. START goes back. No card: NO CARD; blank card: CARD NOT FORMATTED; protected card:
 WRITE PROTECTED.
 
+D, on any line, copies every save: CHANGE CARD AND PRESS A, the card is changed, A writes them all.
+If the new card already has some, OVERWRITE nn SAVES? asks for confirmation; the others stay. The
+card in place left unchanged shows SAME CARD, one without the room NOT ENOUGH BLOCKS: nothing is
+written, and the wait goes on. B gives up. The source card is never written (`DECISIONS.md` §33).
+
+The screen also opens from the in-game menu, RESTART TO CARD: the game is lost, as with RESTART
+GAME. START goes back to the test screen, on MEMORY CARD, and START again starts the game.
+
 ### HARDWARE TESTS
 
 UP/DOWN chooses, wrapping around from WORK RAM, A starts, START goes back.
@@ -142,12 +152,13 @@ the cursor. Beyond 4, the line under the title says which ones are shown ("CHEAT
 | — | RESUME | returns the game where it was |
 | "down" × 1 | RESTART GAME | restarts the machine |
 | "down" × 2 and following | one cheat per line, up to 16 | only for the games in the table (`measured/2026-10-25-cheats-table.tsv`) |
+| "up" × 4 | RESTART TO CARD | restarts the machine and opens the memory card manager; the game in progress is lost |
 | "up" × 3 | AUTOFIRE | autofire for A, B, C and D, kept for this game |
 | "up" × 2 | GAME SETTINGS | the game's soft-DIPs, during play |
 | "up" × 1 | MEMORY EDITOR | the game's RAM |
 
 **Under CHEATS/DEBUG at OFF**, the cheats and MEMORY EDITOR disappear: "up" × 1 then leads to
-GAME SETTINGS, "up" × 2 to AUTOFIRE.
+GAME SETTINGS, "up" × 2 to AUTOFIRE, "up" × 3 to RESTART TO CARD.
 
 ### AUTOFIRE
 

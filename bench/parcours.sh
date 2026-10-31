@@ -657,6 +657,17 @@
 #                 0044-00?", A, COPIED, same bytes; B abandons (cp-renonce): CANCELLED, then A is an
 #                 ordinary A (DELETE ?). The source is never written, and the game RAM set at
 #                 $100000 and $1006BE comes out intact (DECISIONS §26).
+#   cm-copier-tout  MEMORY CARD, D (COPY ALL), the fixture's fourteen saves on the source. On an empty
+#                 card (ct-vide): COPIED, and every save on the changed card, chain by chain, with the
+#                 bytes of the source. On a card holding 0044-00 and a foreign save (ct-cible):
+#                 "OVERWRITE 01 SAVES?", A, COPIED, the foreign save kept. On a card with 7 free
+#                 blocks (ct-pleine): NOT ENOUGH BLOCKS, nothing written, B cancels. The source left in
+#                 place (ct-meme): SAME CARD, nothing written, B cancels. The source is never written,
+#                 and the game RAM set at $100000 and $1006BE comes out intact (DECISIONS §33).
+#   menu-carte    aof in play, in-game menu, "up" four times: RESTART TO CARD, A. The machine
+#                 restarts, the manager opens by itself on the fixture; START, the TEST screen on
+#                 MEMORY CARD; START, the game. The mark is consumed: the next boot, the same NVRAM
+#                 (mc-apres), goes to the boot screen and the game (DECISIONS §33).
 #   tests-mahjong INPUT TEST, switch 3 at ON (DECISIONS §24): the MAHJONG PANEL page, each key
 #                 followed by 0 or 1. On aof's joystick, read in the three rows at once: A sets E, L
 #                 and REACH to 1, B sets F and M, up sets A, H and PON, START sets START; everything
@@ -809,7 +820,9 @@
 # (alpha-trajectoire, howto-preisle2), sinus-un-ffff (howto-preisle2 alone: its one-pixel
 # departure stays under the "tol_px" of alpha-trajectoire). 195 in all. Those of the save of an
 # already registered game, on 2026-10-28: restauration-avant-editeur (tests-sauvegarde),
-# dd-ecrase-a-la-restauration (dd-connu). 197 in all.
+# dd-ecrase-a-la-restauration (dd-connu). 197 in all. Those of COPY ALL and of RESTART TO CARD, on
+# 2026-10-31: ct-inerte, ct-premiere-seule, ct-source-ecrite, ct-sans-ecrasement, ct-sans-place,
+# ct-ram-perdue (cm-copier-tout), mc-inerte, mc-marque-collee (menu-carte).
 # Those of the menus on the
 # mahjong panel, on 2026-10-28 (record --ref-panneau), put to the test alone on the image
 # f1b21158…: pn-sans-traduction (pn-menu-on, pn-valeur, pn-verrou, pn-jeu), pn-sans-1b
@@ -861,7 +874,7 @@ REF_SINUS="$PAQUET/measured/2026-10-28-parcours-sinus.tsv"
 REF_PANNEAU="$PAQUET/measured/2026-10-28-parcours-panneau.tsv"
 JOBS=$(( $( (sysctl -n hw.ncpu || nproc) 2>/dev/null || echo 4) - 2 )); [ "$JOBS" -ge 1 ] || JOBS=1
 CACHE=""
-SCENES_TOUTES="boot-ecran boot-saut calendrier carte demo-son partie-credit partie-start fin-demo fin-titre scores dip-temps dip-langue region autotests jukebox menu-hud menu-reprise menu-son cheats cheats-fenetre cheats-unefois restart ms-demo ms-select ms-garde aes-bascule aes-demo aes-start aes-menu aes-piece aes-retour dip-defauts dip-mmss dip-fois region-europe region-japon region-usa autotests-palette autotests-vram autotests-backup tests-entrees tests-barres tests-grille jukebox-pas jukebox-stop cheats-off partie-p2 carte-sauve ms-select-p2 aes-ms-select aes-pause aes-logo aes-logo-fin aes-fin aes-texte depart-force piece-son ms-seule jukebox-repete partie-p2-joint carte-chercher carte-supprimer carte-nom tests-p2 tests-dip dip-sans-donnees gs-compte gs-defauts gs-choix gs-mmss gs-fois gs-sans-donnees gs-banque me-ecran me-goto me-octet me-ligne me-page me-repete me-poke me-gel me-liste me-degel me-borne bf-editeur bf-banque bf-tests bf-jukebox sans-cartouche flash-cart cm-liste cm-libres cm-effacer cm-annuler cm-formater cm-non-formatee cm-sans-carte cm-protegee cm-insertion bf-carte aes-scores scores-gel bo-ecran ab-ecran bo-free-play bo-fp-p2 bo-fp-joint bo-no-continue bo-demo-muette bo-aes bf-borne cheats-vies bo-cd-menu bo-cd-gel dip-free-play dip-fp-p2 dip-fp-refus dip-fp-chaud dip-fp-reglage dip-fp-cabinet dip-setting geste-boot geste-jeu geste-partie demo-ssideki japon-intitules gs-japon gs-japon-garde crc-fixe crc-banques crc-miroir crc-flottant bf-crc bf-crc-banque dd-effet dd-off dip-gel dip-gel-off dip-gel-boot dip-mahjong dip-mj-off dip-4p dip-4p-off af-tir af-sauve af-off af-mahjong boot-graphismes ms-son-slot2 dip-vierge dip-corrompue tests-mahjong jukebox-veille cm-copier alpha-trajectoire howto-preisle2 tests-sauvegarde dd-connu pn-menu-on pn-menu-off pn-valeur pn-verrou pn-jeu bram-sale"
+SCENES_TOUTES="boot-ecran boot-saut calendrier carte demo-son partie-credit partie-start fin-demo fin-titre scores dip-temps dip-langue region autotests jukebox menu-hud menu-reprise menu-son cheats cheats-fenetre cheats-unefois restart ms-demo ms-select ms-garde aes-bascule aes-demo aes-start aes-menu aes-piece aes-retour dip-defauts dip-mmss dip-fois region-europe region-japon region-usa autotests-palette autotests-vram autotests-backup tests-entrees tests-barres tests-grille jukebox-pas jukebox-stop cheats-off partie-p2 carte-sauve ms-select-p2 aes-ms-select aes-pause aes-logo aes-logo-fin aes-fin aes-texte depart-force piece-son ms-seule jukebox-repete partie-p2-joint carte-chercher carte-supprimer carte-nom tests-p2 tests-dip dip-sans-donnees gs-compte gs-defauts gs-choix gs-mmss gs-fois gs-sans-donnees gs-banque me-ecran me-goto me-octet me-ligne me-page me-repete me-poke me-gel me-liste me-degel me-borne bf-editeur bf-banque bf-tests bf-jukebox sans-cartouche flash-cart cm-liste cm-libres cm-effacer cm-annuler cm-formater cm-non-formatee cm-sans-carte cm-protegee cm-insertion bf-carte aes-scores scores-gel bo-ecran ab-ecran bo-free-play bo-fp-p2 bo-fp-joint bo-no-continue bo-demo-muette bo-aes bf-borne cheats-vies bo-cd-menu bo-cd-gel dip-free-play dip-fp-p2 dip-fp-refus dip-fp-chaud dip-fp-reglage dip-fp-cabinet dip-setting geste-boot geste-jeu geste-partie demo-ssideki japon-intitules gs-japon gs-japon-garde crc-fixe crc-banques crc-miroir crc-flottant bf-crc bf-crc-banque dd-effet dd-off dip-gel dip-gel-off dip-gel-boot dip-mahjong dip-mj-off dip-4p dip-4p-off af-tir af-sauve af-off af-mahjong boot-graphismes ms-son-slot2 dip-vierge dip-corrompue tests-mahjong jukebox-veille cm-copier cm-copier-tout menu-carte alpha-trajectoire howto-preisle2 tests-sauvegarde dd-connu pn-menu-on pn-menu-off pn-valeur pn-verrou pn-jeu bram-sale"
 SCENES="$SCENES_TOUTES"
 HASHPATH="${BIOS_HASHPATH:-}"
 while [ $# -gt 0 ]; do
@@ -1118,12 +1131,13 @@ assert libre[0] == 21, libre
 open(sys.argv[1], "wb").write(c)
 PY
 }
-case " $SCENES " in *" cm-liste "*|*" cm-libres "*|*" cm-protegee "*|*" cm-insertion "*|*" bf-carte "*|*" cm-copier "*) carte_fixture ;; esac
+case " $SCENES " in *" cm-liste "*|*" cm-libres "*|*" cm-protegee "*|*" cm-insertion "*|*" bf-carte "*|*" cm-copier "*|*" cm-copier-tout "*|*" menu-carte "*) carte_fixture ;; esac
 # THE CARDS OF THE COPY (cm-copier scene), drawn from the fixture: the source, where aof's save
 # (0044-00, block 5) carries a pattern; an empty formatted card; the target, the fixture itself,
-# where 0044-00 already exists (at zero).
-case " $SCENES " in *" cm-copier "*)
-  [ -s "$R/cartes/copie-vide.neo" ] || python3 -I -B - "$R/cartes" <<'PY' || { echo "cartes de la copie impossibles" >&2; exit 1; }
+# where 0044-00 already exists (at zero). For COPY ALL (cm-copier-tout), two more on the empty one: a
+# target with 0044-00 and a foreign save 0500-00, and one with 0500-00 alone on 20 blocks, 7 free.
+case " $SCENES " in *" cm-copier "*|*" cm-copier-tout "*)
+  [ -s "$R/cartes/copie-tout-pleine.neo" ] || python3 -I -B - "$R/cartes" <<'PY' || { echo "cartes de la copie impossibles" >&2; exit 1; }
 import sys
 d = sys.argv[1]
 f = bytearray(open(d + "/fixture.neo", "rb").read())
@@ -1141,6 +1155,22 @@ v[0x0D] = v[0x0E] = sum(fat) & 0xFF
 v[5 * 64:] = bytes(len(v) - 5 * 64)
 open(d + "/copie-vide.neo", "wb").write(v)
 open(d + "/copie-cible.neo", "wb").write(f)
+def avec(sauves):
+    c = bytearray(v)
+    fat = [2] * 5 + [0] * 59
+    bloc = 5
+    for k, (sub, ngh, n, motif) in enumerate(sauves):
+        c[0x40 + 4 * k:0x44 + 4 * k] = bytes((sub, ngh >> 8, ngh & 0xFF, bloc))
+        for j in range(n):
+            fat[bloc + j] = bloc + j + 1 if j < n - 1 else 1
+            c[(bloc + j) * 64:(bloc + j + 1) * 64] = bytes([motif]) * 64
+        bloc += n
+    c[0xC0:0x100] = bytes(fat)
+    c[0x100:0x140] = bytes(fat)
+    c[0x0D] = c[0x0E] = sum(fat) & 0xFF
+    return c
+open(d + "/copie-tout-cible.neo", "wb").write(avec([(0, 0x44, 1, 0), (0, 0x500, 1, 0x5A)]))
+open(d + "/copie-tout-pleine.neo", "wb").write(avec([(0, 0x500, 20, 0x5A)]))
 PY
   ;;
 esac
@@ -1420,6 +1450,8 @@ runs_de() {
     pn-jeu) echo "pn-j pn-j0" ;;
     jukebox-veille) echo "veille veille-0" ;;
     cm-copier) echo "cp-vide cp-cible cp-renonce" ;;
+    cm-copier-tout) echo "ct-vide ct-cible ct-pleine ct-meme" ;;
+    menu-carte) echo "mc-menu mc-apres" ;;
     alpha-trajectoire) for d in h hd d bd b bg g hg; do echo "at-$d at-$d-snk"; done ;;
     howto-preisle2) echo "hp hp-snk" ;;
   esac
@@ -1705,6 +1737,19 @@ if veut cp-cible; then CARTE_DE=$R/cartes/copie-source.neo; lancer cp-cible son.
   CE_ECHANGE=400:-,420:$R/cartes/copie-cible.neo J_APPUIS=$VERS_CARTE,360:C,440:A,470:A,510:START,530:START J_TEXTE=380,430,460,490 J_FIN=600; fi
 if veut cp-renonce; then CARTE_DE=$R/cartes/copie-source.neo; lancer cp-renonce son.lua "$NOTRE -memc @/carte.neo" $CP \
   J_APPUIS=$VERS_CARTE,360:C,400:B,440:A J_TEXTE=380,420,460 J_FIN=500; fi
+# COPY ALL: D at 360, the same changes of card and the same RAM. ct-meme: the source stays.
+CT="$CP"
+if veut ct-vide; then CARTE_DE=$R/cartes/copie-source.neo; lancer ct-vide son.lua "$NOTRE -memc @/carte.neo" $CT \
+  CE_ECHANGE=400:-,420:$R/cartes/copie-vide.neo J_APPUIS=$VERS_CARTE,360:D,440:A,480:START,500:START J_TEXTE=350,380,430,460 J_FIN=600; fi
+if veut ct-cible; then CARTE_DE=$R/cartes/copie-source.neo; lancer ct-cible son.lua "$NOTRE -memc @/carte.neo" $CT \
+  CE_ECHANGE=400:-,420:$R/cartes/copie-tout-cible.neo J_APPUIS=$VERS_CARTE,360:D,440:A,470:A,510:START,530:START J_TEXTE=380,430,460,490 J_FIN=600; fi
+if veut ct-pleine; then CARTE_DE=$R/cartes/copie-source.neo; lancer ct-pleine son.lua "$NOTRE -memc @/carte.neo" $CT \
+  CE_ECHANGE=400:-,420:$R/cartes/copie-tout-pleine.neo J_APPUIS=$VERS_CARTE,360:D,440:A,470:B,510:START,530:START J_TEXTE=380,430,460,490 J_FIN=600; fi
+if veut ct-meme; then CARTE_DE=$R/cartes/copie-source.neo; lancer ct-meme son.lua "$NOTRE -memc @/carte.neo" $CT \
+  J_APPUIS=$VERS_CARTE,360:D,400:A,440:B J_TEXTE=380,420,460 J_FIN=500; fi
+# RESTART TO CARD: the in-game menu, "up" four times, A; the reset comes a few frames later.
+if veut mc-menu; then CARTE_DE=$FIXTURE; lancer mc-menu son.lua "$NOTRE -memc @/carte.neo" $MENU_TEST \
+  J_APPUIS=2380:haut,2386:haut,2392:haut,2398:haut,2410:A,3000:START,3020:START J_TEXTE=2404,2800,2990,3010 J_FIN=3200; fi
 QUINZE="360:bas,366:bas,372:bas,378:bas,384:bas,390:bas,396:bas,402:bas,408:bas,414:bas,420:bas,426:bas,432:bas,438:bas,444:bas"
 if veut cm-liste; then CARTE_DE=$FIXTURE; lancer cm-liste son.lua "$NOTRE -memc @/carte.neo" $EDIT \
   J_APPUIS=$VERS_CARTE,$QUINZE,470:START,490:START J_TEXTE=350,450,480 J_FIN=700; fi
@@ -1944,6 +1989,7 @@ wait
 PIDS=""
 # The never-initialised entry: the two NVRAMs set further up.
 if veut vierge-n; then NV_DE=vierge-set-n; lancer vierge-n son.lua "$NOTRE" $VIERGE_EDIT; fi
+if veut mc-apres; then NV_DE=mc-menu; CARTE_DE=$FIXTURE; lancer mc-apres son.lua "$NOTRE -memc @/carte.neo" J_PIECE=0 J_START=0 J_TEXTE=100,400 J_FIN=500; fi
 if veut tests-sauv; then NV_DE=tests-sauv-set; lancer tests-sauv autotests.lua "$NOTRE" T_FIN=1200; fi
 if veut vierge-c; then NV_DE=vierge-set-c; lancer vierge-c son.lua "$NOTRE" $VIERGE_EDIT; fi
 if veut vierge-m; then NV_DE=vierge-set-m; lancer vierge-m son.lua "$MS_MSLUG" $VIERGE_EDIT_M; fi
@@ -4443,6 +4489,67 @@ def cm_copier():
     exiger(ram(r, 490) == [0x0123, 0x4567, 0x89AB, 0xCDEF, 0xCAFE], "cp-renonce : la RAM du jeu n'est pas rendue")
     exiger(open(os.path.join(r.d, "carte.neo"), "rb").read() == src, "cp-renonce : la carte a été écrite")
 
+def sauvegardes(c):
+    """Every save of card c, chain followed in FAT 1: (NGH, sub-save) → its bytes."""
+    out = {}
+    for k in range(32):
+        e = c[0x40 + 4 * k:0x44 + 4 * k]
+        if e[0] == 0xFF:
+            continue
+        b, d = e[3], b""
+        while 5 <= b < 32:
+            d += bytes(c[b * 64:(b + 1) * 64])
+            b = c[0xC0 + b]
+        out[(e[1] << 8 | e[2], e[0])] = d
+    return out
+
+def cm_copier_tout():
+    v, c, p, m = sain("ct-vide", "ct-cible", "ct-pleine", "ct-meme")
+    cartes = os.path.join(RUNS, "cp-vide", "..", "..", "roms", "cartes")
+    lire = lambda chemin: open(chemin, "rb").read()
+    src = lire(os.path.join(cartes, "copie-source.neo"))
+    tout = sauvegardes(src)
+    exiger(len(tout) == 14, f"{len(tout)} sauvegardes sur la source, 14 attendues")
+    RAM = [0x0123, 0x4567, 0x89AB, 0xCDEF, 0xCAFE]
+    ram = lambda run, n: [memoire(run, n, a) for a in ("100000", "100002", "100004", "100006", "1006BE")]
+    for run in (v, c, p, m):
+        exiger("D:COPY ALL" in cm_l(run, 380, 28), f"{run.nom} : l'aide ne dit pas D:COPY ALL")
+        exiger("CHANGE CARD AND PRESS A" in cm_l(run, 380, 24), f"{run.nom}, trame 380 : « {cm_l(run, 380, 24).strip()} »")
+        exiger(lire(os.path.join(run.d, "carte.neo")) == src, f"{run.nom} : la carte source a été écrite")
+    exiger("COPIED" in cm_l(v, 460, 24), f"ct-vide : « {cm_l(v, 460, 24).strip()} »")
+    cv = sauvegardes(lire(os.path.join(v.d, "carte-420.neo")))
+    exiger(cv == tout, f"ct-vide : {len(cv)} sauvegardes, {sum(1 for k in tout if cv.get(k) == tout[k])} égales à la source")
+    exiger(ram(v, 475) == RAM, "ct-vide : la RAM du jeu n'est pas rendue")
+    exiger("OVERWRITE 01 SAVES? A:YES B:NO" in cm_l(c, 460, 24), f"ct-cible : « {cm_l(c, 460, 24).strip()} »")
+    exiger("COPIED" in cm_l(c, 490, 24), f"ct-cible : « {cm_l(c, 490, 24).strip()} »")
+    cc = sauvegardes(lire(os.path.join(c.d, "carte-420.neo")))
+    etrangere = sauvegardes(lire(os.path.join(cartes, "copie-tout-cible.neo")))[(0x500, 0)]
+    exiger(cc.get((0x500, 0)) == etrangere, "ct-cible : la sauvegarde étrangère n'est pas gardée")
+    exiger({k: cc.get(k) for k in tout} == tout, "ct-cible : la source n'est pas toute copiée")
+    exiger(ram(c, 505) == RAM, "ct-cible : la RAM du jeu n'est pas rendue")
+    exiger("NOT ENOUGH BLOCKS" in cm_l(p, 460, 24), f"ct-pleine : « {cm_l(p, 460, 24).strip()} »")
+    exiger("CANCELLED" in cm_l(p, 490, 24), f"ct-pleine : « {cm_l(p, 490, 24).strip()} »")
+    exiger(lire(os.path.join(p.d, "carte-420.neo")) == lire(os.path.join(cartes, "copie-tout-pleine.neo")), "ct-pleine : la carte changée a été écrite")
+    exiger(ram(p, 505) == RAM, "ct-pleine : la RAM du jeu n'est pas rendue")
+    exiger("SAME CARD" in cm_l(m, 420, 24), f"ct-meme : « {cm_l(m, 420, 24).strip()} »")
+    exiger("CANCELLED" in cm_l(m, 460, 24), f"ct-meme : « {cm_l(m, 460, 24).strip()} »")
+    exiger(ram(m, 490) == RAM, "ct-meme : la RAM du jeu n'est pas rendue")
+    dit(f"ct-vide : {len(cv)} sauvegardes aux octets de la source ; ct-cible : 01 écrasée, l'étrangère gardée ; ct-pleine et ct-meme : rien d'écrit")
+
+def menu_carte():
+    m, a = sain("mc-menu", "mc-apres")
+    exiger("> RESTART TO CARD" in m.texte(2404), "le menu ne montre pas RESTART TO CARD à « haut » quatre fois")
+    rs = [n for n, r in m.ev if r == "RESET" and n > 2404]
+    exiger(rs, "pas de RESET après RESTART TO CARD")
+    cm_ouvert(m, 2800)
+    v = cm_liste_de(m, 2800)
+    dit(f"RESET à {rs[0]} ; trame 2800 : {len(v)} sauvegardes visibles, « {cm_l(m, 2800, 6).strip()} »")
+    exiger(len(v) == 13 and v[0][1] == "0044", "le gestionnaire n'a pas relu la carte")
+    exiger(re.search(r"> MEMORY CARD", m.texte(3010)), "START ne rend pas l'écran TEST sur MEMORY CARD")
+    remise_apres(m, 3010)
+    exiger("GAME NGH" in a.texte(100), "mc-apres : pas d'écran de boot")
+    exiger("MEMORY CARD" not in a.texte(400) and "SOFT DIP" not in a.texte(400), "mc-apres : la marque n'est pas consommée")
+
 def jukebox_veille():
     v, z = sain("veille", "veille-0")
     i7600, i7800, i8050, z7800 = v.img(7600), v.img(7800), v.img(8050), z.img(7800)
@@ -4511,7 +4618,7 @@ JUGES.update({"pn-menu-on": pn_menu_on, "pn-menu-off": pn_menu_off, "pn-valeur":
 
 JUGES.update({"boot-graphismes": boot_graphismes, "ms-son-slot2": ms_son_slot2, "dip-vierge": dip_vierge,
               "dip-corrompue": dip_corrompue, "tests-mahjong": tests_mahjong, "jukebox-veille": jukebox_veille,
-              "cm-copier": cm_copier})
+              "cm-copier": cm_copier, "cm-copier-tout": cm_copier_tout, "menu-carte": menu_carte})
 
 # ---- The sine table (record --ref-sinus) ----
 # The colours of alpham2's ship, recorded on an image of the witness run (b, g, r of the bgra

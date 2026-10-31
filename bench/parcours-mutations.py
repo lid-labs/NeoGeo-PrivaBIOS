@@ -820,7 +820,7 @@ MUTATIONS = {
     "cd-editeur-garde": (
         "bo-cd-menu", "menu.s",
         [
-         ('3:      cmpi.w  #7, %d0                 | MEMORY EDITOR, CHEATS/DEBUG OFF: the line blank\n        bne.s   7f\n        btst    #3, BORNE_RAM\n        bne.s   9f\n',
+         ('3:      cmpi.w  #8, %d0                 | MEMORY EDITOR, CHEATS/DEBUG OFF: the line blank\n        bne.s   7f\n        btst    #3, BORNE_RAM\n        bne.s   9f\n',
           '3:\n')],
         "CHEATS/DEBUG OFF : la ligne MEMORY EDITOR reste affichée",
     ),
@@ -917,12 +917,12 @@ MUTATIONS = {
     ),
     "geste-boot-ignore": (
         "geste-boot", "dip.s",
-        [("        btst    #1, STATUS_B\n        beq.s   3f\n2:      rts\n", "        btst    #1, STATUS_B\n2:      rts\n")],
+        [("        btst    #1, STATUS_B\n        beq.s   3f\n| RESTART", "        btst    #1, STATUS_B\n| RESTART")],
         "START + SELECT au boot n'ouvre plus l'écran TEST",
     ),
     "geste-boot-start-seul": (
         "geste-boot", "dip.s",
-        [("        btst    #1, STATUS_B\n        beq.s   3f\n2:      rts\n", "        bra.s   1f                      | MUTATION : SELECT oublié\n2:      rts\n")],
+        [("        btst    #1, STATUS_B\n        beq.s   3f\n| RESTART", "        bra.s   1f                      | MUTATION : SELECT oublié\n| RESTART")],
         "START seul tenu au boot ouvre l'écran TEST",
     ),
     "geste-jeu-ignore": (
@@ -1320,6 +1320,53 @@ MUTATIONS = {
         [("        jsr     _card\n        bsr     .Lrendre\n",
           "        jsr     _card\n        nop                             | MUTATION : la RAM du jeu non rendue\n        nop\n")],
         "la copie laisse la sauvegarde dans la RAM du jeu",
+    ),
+    # COPY ALL and RESTART TO CARD (DECISIONS §33).
+    "ct-inerte": (
+        "cm-copier-tout", "gestion-carte.s",
+        [("        btst    #2, %d0                 | D: COPY ALL\n        bne     .Lcopier_tout\n",
+          "        btst    #2, %d0                 | D: COPY ALL\n        nop                             | MUTATION\n        nop\n")],
+        "D ne copie rien",
+    ),
+    "ct-premiere-seule": (
+        "cm-copier-tout", "gestion-carte.s",
+        [("        tst.b   REPONSE\n        bne.s   2f\n        bsr     .Lt_avancer\n        bra.s   1b\n",
+          "        tst.b   REPONSE\n        bra.s   2f                      | MUTATION : la première seule\n        bsr     .Lt_avancer\n        bra.s   1b\n")],
+        "COPY ALL n'écrit que la première sauvegarde",
+    ),
+    "ct-source-ecrite": (
+        "cm-copier-tout", "gestion-carte.s",
+        [("        dbne    %d1, 3b\n        bne.s   4f\n",
+          "        dbne    %d1, 3b\n        bra.s   4f                      | MUTATION : la source pas reconnue\n")],
+        "COPY ALL écrit sur la carte source laissée en place",
+    ),
+    "ct-sans-ecrasement": (
+        "cm-copier-tout", "gestion-carte.s",
+        [("9:      tst.w   %d4\n        beq.s   .Lt_ecrire\n",
+          "9:      tst.w   %d4\n        bra.s   .Lt_ecrire              | MUTATION : écrasé sans demander\n")],
+        "COPY ALL écrase les sauvegardes de la cible sans demander",
+    ),
+    "ct-sans-place": (
+        "cm-copier-tout", "gestion-carte.s",
+        [("        cmp.w   %d0, %d3\n        bcs.s   8f\n",
+          "        cmp.w   %d0, %d3\n        nop                             | MUTATION : la place pas comptée\n")],
+        "COPY ALL écrit sur une carte trop pleine, la copie s'arrête en route",
+    ),
+    "ct-ram-perdue": (
+        "cm-copier-tout", "gestion-carte.s",
+        [("2:      bsr     .Lrendre\n        moveq   #0, %d4\n        move.b  REPONSE, %d4\n        lea     .Ltxt_copie, %a2\n        bra     .Lc_fin\n",
+          "2:      nop                             | MUTATION : la RAM du jeu non rendue\n        nop\n        moveq   #0, %d4\n        move.b  REPONSE, %d4\n        lea     .Ltxt_copie, %a2\n        bra     .Lc_fin\n")],
+        "COPY ALL laisse les sauvegardes dans la RAM du jeu",
+    ),
+    "mc-inerte": (
+        "menu-carte", "menu.s",
+        [("        move.b  #1, CARTE_DEMANDE\n", "        nop                             | MUTATION\n        nop\n        nop\n        nop\n")],
+        "RESTART TO CARD relance le jeu sans ouvrir le gestionnaire",
+    ),
+    "mc-marque-collee": (
+        "menu-carte", "dip.s",
+        [("        clr.b   CARTE_DEMANDE\n", "        nop                             | MUTATION\n        nop\n        nop\n")],
+        "la marque n'est pas consommée : chaque démarrage rouvre le gestionnaire",
     ),
     # The sine table (DECISIONS §18).
     "sinus-ff": (

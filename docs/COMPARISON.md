@@ -32,7 +32,7 @@ are in [Not compared](#not-compared).
 | Topic | UniBIOS 4.0 | Sprixe BIOS |
 |---|---|---|
 | High scores | ✓ **Yes**. On the memory card, AES hardware included (v3.1, "not fully tested" in its notes), with an option that stops the periodic wipe on MVS (v4.0). Forum users report scores neither saved nor read back (v3.1 to v3.3). | ◐ **Partly**. Kept in backup RAM in MVS and AES modes, with SCORE RESET to stop the periodic wipe. Not saved on the memory card. |
-| Memory card manager | ✓ **Yes**. Reachable in every mode. | ◐ **Partly**. In the test screen only: list, free blocks, delete, format, and copy one save to another card. No COPY ALL. |
+| Memory card manager | ✓ **Yes**. Reachable in every mode. | ◐ **Partly**. In the test screen, and from the in-game menu through a restart, which loses the game in progress: list, free blocks, delete, format, copy one save or all of them to another card. |
 
 ## Operators and repair
 
