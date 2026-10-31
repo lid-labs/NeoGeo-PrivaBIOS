@@ -586,12 +586,13 @@ and `2026-10-25-debug-dips.tsv`; thresholds: `2026-10-25-parcours-crc-debug.tsv`
     before (no font), though its state is right.
 13. **The PVC test writes only on a PVC game's NGH** (2026-10-31, `crc.s`;
     `measured/2026-10-31-crc-sans-ecriture.tsv`). Point 12 first ran it on any cartridge whose window
-    differs from the fixed P-ROM, so a real ssideki took a write that point 2 refuses, and no one
+    differs from the fixed P-ROM, so a real ssideki would take a write that point 2 refuses, and no one
     knows what a flash cart does with it: MAME shows nothing of that. The word at `$108` must now be
     0268, 0269 or 0271, the IDs of Metal Slug 5, SVC Chaos and KOF 2003 in the comments of MAME
-    0.286's `neogeo.cpp`. In the catalogue, 3 sets of 164 carry one of them, those three. So a normal
-    cartridge takes no write on this screen, except the bank words of a real bank chip at
-    `$2FFFF0`; a cartridge with one of these numbers that fails the RAM test stays normal. The price:
+    0.286's `neogeo.cpp`. In the catalogue, 3 sets of 164 carry one of them, those three. ASSUMED: a real
+    cartridge carries the same number. So a normal cartridge takes no write on this screen, except
+    the bank words of a real bank chip at `$2FFFF0`; read in the code, not played by a scene: one
+    of these numbers on a cartridge that fails the RAM test stays normal. The price:
     a PVC cartridge whose NGH was changed, a hack for instance, shows the normal display, and takes
     the bank writes point 12 avoids on PVC. A hack keeping the number is still recognised. Ruled
     out: a test without a write, as a read cannot tell RAM from a floating bus or a bank. A
