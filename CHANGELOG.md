@@ -6,6 +6,8 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 
 ## [Unreleased]
 
+## [0.1.0-beta.2] - 2026-10-31
+
 ### Added
 
 - Cartridge CRC32: under MAME, SMA and PVC protected cartridges are recognised; no real SMA or PVC
@@ -68,9 +70,10 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 
 ### Fixed
 
-- Formatting now clears the whole backup RAM, like the SNK BIOS. It stopped at `$D0007F`: on a board
-  whose backup RAM held other data, samsho4 showed its anti-copy WARNING, and so did the SNK BIOS
-  afterwards. A board already in that state needs its backup RAM cleared once.
+- Formatting now clears the whole backup RAM, like the SNK BIOS. It stopped at `$D0007F`: under MAME,
+  from a backup RAM holding other data, samsho4 then showed its anti-copy WARNING, and so did the SNK
+  BIOS. A tester's board showed the same WARNING after our BIOS, and clearing its backup RAM cured it;
+  that this was the cause on that board is not proven.
 - `bench/parcours-mutations.py --verifier`, run by the CI: an edited source comment can no longer
   break a mutation unnoticed. Two had been broken that way.
 - Source comments that contradicted the code next to them (cycle counts, menu line numbers, the
@@ -154,5 +157,6 @@ First public pre-release. Development history before it (October 2026) is summar
   `measured/2026-10-28-work-ram-restauree.tsv`). Scenes `tests-sauvegarde` and `dd-connu`, two
   mutations.
 
-[Unreleased]: https://github.com/lid-labs/sprixe-bios/compare/v0.1.0-beta.1...HEAD
+[Unreleased]: https://github.com/lid-labs/sprixe-bios/compare/v0.1.0-beta.2...HEAD
+[0.1.0-beta.2]: https://github.com/lid-labs/sprixe-bios/compare/v0.1.0-beta.1...v0.1.0-beta.2
 [0.1.0-beta.1]: https://github.com/lid-labs/sprixe-bios/releases/tag/v0.1.0-beta.1
