@@ -548,7 +548,7 @@ and `2026-10-25-debug-dips.tsv`; thresholds: `2026-10-25-parcours-crc-debug.tsv`
    `bench/crc-cartouche.py` computes from the zip on 8 games out of 10, and both CRCs of
    `hash/neogeo.xml` for mslug2 and kof97. Under MAME, a 512 KiB P-ROM is followed by zeros and
    gives a 1 MiB CRC. kof98 (p1 decrypted at load) and mslug3 (SMA banks) cannot be recomputed
-   outside MAME; cartridges that bank elsewhere than at `$2FFFF0` are not recognised.
+   outside MAME; protected cartridges are point 12.
 4. **The header word at `$10A` is not used**: it differs from the size of the P files on 44 of the
    119 sets recorded.
 5. **DEBUG DIPS is the fifth line of CABINET SETTINGS**: it moves no path. A screen of sixteen bits,
@@ -571,6 +571,21 @@ and `2026-10-25-debug-dips.tsv`; thresholds: `2026-10-25-parcours-crc-debug.tsv`
     `8c8caefa…`, the seven scenes and `geste-boot`, `japon-intitules`, `gs-fois`, `tests-grille`,
     `bf-tests`, `bo-ecran`, `gs-japon`, run alone, PASS. Full proof (NR, mutations, catalogue) at
     the final pass.
+12. **SMA and PVC cartridges are recognised, and their banks are not read** (2026-10-31, `crc.s`;
+    `measured/2026-10-31-crc-protegees.tsv`). Read in MAME 0.286: an SMA cartridge reads `$9A37` at
+    `$2FE446` and banks through a scrambled word at an address of its own; a PVC cartridge has RAM
+    at `$2FE000-$2FFFFF` and its bank registers inside it. So `$2FFFF0` does not select their banks,
+    and the old BANKS figure described nothing. The screen says which protection, BANKS NOT READ,
+    and FIXED IS NO FILE CRC. The FIXED figure stays: it is still what the 68000 reads, and two
+    copies of a cartridge can be compared by it, but on all seven it differs from the one
+    `bench/crc-cartouche.py` computes from the zip. Only a read at `$2FE446` happens on SMA. PVC is
+    probed by two complementary words at `$2FE000`, put back; a floating bus cannot return both.
+    That test runs even when the window reads a single word, as svc's does at reset, so a real
+    cartridge without a bank chip now takes this write; nothing is written at `$2FFFF0`. It comes
+    after the window is found to differ from the fixed P-ROM, so a cartridge of 1 MiB at most under
+    MAME takes no write. ASSUMED: the same behaviour on real SMA and PVC boards, none tried yet;
+    a run on one showing a normal BANKS line would reverse this. kof2003's screen stays black, as
+    before (no font), though its state is right.
 
 ## 21. Board switches 2 to 6 and 8
 

@@ -60,9 +60,18 @@
 | otherwise (mslug, crossed halves) or decrypted at load time (kof98) cannot: the
 | CRC is that of what the 68000 reads, the bench recomputes it from the zip
 | (`bench/crc-cartouche.py`).
-| Protected cartridges that bank elsewhere than at $2FFFF0 (read in `neogeo.cpp`: SMA,
-| PVC, at $2FFFC0, $2FFFE4…) are not recognised: their banks are those that $2FFFF0
-| gives under MAME, nothing more.
+| PROTECTED CARTRIDGES bank elsewhere than at $2FFFF0, or through a scrambled word (read in
+| `neogeo.cpp`, `prot_sma.cpp`, `prot_pvc.cpp`), and their P-ROM is scrambled in the file: the
+| figures would be neither their banks nor a file's. So, once the window is known to be a
+| bank window, before any write at $2FFFF0:
+|   SMA  the word at $2FE446 reads $9A37, whatever the bank (`prot_9a37_r`). A read only.
+|        ASSUMED: no normal cartridge reads $9A37 there (none of 157 sets, in any bank:
+|        `measured/2026-10-31-crc-protegees.tsv`).
+|   PVC  $2FE000 is RAM on the cartridge (`m_cart_ram`, `protection_r`/`_w`): two
+|        complementary words read back, then the word put back. Two, because a floating bus
+|        cannot return both. A normal cartridge's latch may take this write for a bank
+|        (ASSUMED, on the hardware): bank 0 is written next. Nothing is written at $2FFFF0.
+| The screen then says which, BANKS NOT READ, and that FIXED is no file's CRC.
 |
 | THE DURATION: ~170 cycles per word (counted below), ~7.5 s per MiB at 12 MHz, plus one bank
 | read again to see that it is a mirror. The watchdog is served every 4 KiB; the count of
@@ -88,6 +97,8 @@
         .equ    PALETTES, 0x400000
         .equ    BANQUE,   0x2FFFF0      | the bank word (`neogeo.cpp`, `write_banksel`)
         .equ    FENETRE,  0x200000
+        .equ    MOT_SMA,  0x2FE446      | reads $9A37 on an SMA cartridge (`prot_9a37_r`)
+        .equ    RAM_PVC,  0x2FE000      | the PVC cartridge's RAM, below its registers
 
         .equ    PAL_VIDE, 7
         .equ    MIO,      0x100000
@@ -99,6 +110,8 @@
         .equ    CASE_SLOT,   0x7000 + 3 * 32 + 6
         .equ    CASE_FIXE,   0x7000 + 3 * 32 + 9
         .equ    CASE_BANQ,   0x7000 + 3 * 32 + 12
+        .equ    CASE_PROT,   0x7000 + 3 * 32 + 13
+        .equ    CASE_PROT2,  0x7000 + 3 * 32 + 14
         .equ    CASE_ETAT,   0x7000 + 3 * 32 + 16
         .equ    CASE_AIDE1,  0x7000 + 3 * 32 + 25
         .equ    CASE_AIDE2,  0x7000 + 3 * 32 + 26
@@ -213,10 +226,41 @@ _crc_cartouche:
         bra     .Ltermine
 
 .Lbanques:
-        | The window that reads only a single word: no chip, the bus floating (see the header).
+        | PROTECTED? (see the header.) An SMA cartridge gets no write at all.
+        lea     .Ltxt_sma, %a2
+        cmpi.w  #0x9A37, MOT_SMA
+        beq.s   .Lprotegee
+        | The window that reads only a single word: no chip, the bus floating (see the header),
+        | unless the RAM below answers: svc's window reads one word at its reset bank (measured).
         | Before any write at $2FFFF0, as above.
         bsr     .Lconstante
-        beq.s   .Lsans_banque
+        seq     %d6
+        lea     RAM_PVC, %a0
+        move.w  (%a0), %d2
+        move.w  #0x55AA, %d0
+        move.w  %d0, (%a0)
+        cmp.w   (%a0), %d0
+        bne.s   .Lpas_pvc
+        not.w   %d0
+        move.w  %d0, (%a0)
+        cmp.w   (%a0), %d0
+        bne.s   .Lpas_pvc
+        move.w  %d2, (%a0)
+        lea     .Ltxt_pvc, %a2
+.Lprotegee:
+        move.w  #CASE_PROT, %d1
+        move.w  #0x1000, %d3
+        bsr     .Lchaine_en
+        move.w  #CASE_PROT2, %d1
+        lea     .Ltxt_pas_fichier, %a2
+        bsr     .Lchaine_en
+        move.w  #CASE_BANQ, %d1
+        lea     .Ltxt_non_lues, %a2
+        bsr     .Lchaine_en
+        bra     .Ltermine
+.Lpas_pvc:
+        tst.b   %d6
+        bne     .Lsans_banque
         move.w  #1, F_ECRIT(%a6)
         moveq   #-1, %d7                | the CRC of all the banks, one after the other
         moveq   #0, %d6                 | %d6: the bank
@@ -530,6 +574,10 @@ _crc_cartouche:
 .Ltxt_sans_banque: .asciz "BANKS NONE"
 .Ltxt_banques:    .asciz  "BANKS "
 .Ltxt_x1024:      .asciz  " X 1024K"
+.Ltxt_non_lues:   .asciz  "BANKS NOT READ"
+.Ltxt_sma:        .asciz  "SMA PROTECTED CARTRIDGE"
+.Ltxt_pvc:        .asciz  "PVC PROTECTED CARTRIDGE"
+.Ltxt_pas_fichier: .asciz "FIXED IS NO FILE CRC"
 .Ltxt_lit:        .asciz  "READING "
 .Ltxt_lit_fixe:   .asciz  "FIXED "
 .Ltxt_lit_banque: .asciz  "BANK "
