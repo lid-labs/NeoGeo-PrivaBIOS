@@ -70,7 +70,7 @@
 |   PVC  $2FE000 is RAM on the cartridge (`m_cart_ram`, `protection_r`/`_w`): two
 |        complementary words read back, then the word put back. Two, because a floating bus
 |        cannot return both. A normal cartridge's latch may take this write for a bank
-|        (ASSUMED, on the hardware): bank 0 is written next. Nothing is written at $2FFFF0.
+|        (ASSUMED, on the hardware): bank 0 is written next if the window is not constant.
 | The screen then says which, BANKS NOT READ, and that FIXED is no file's CRC.
 |
 | THE DURATION: ~170 cycles per word (counted below), ~7.5 s per MiB at 12 MHz, plus one bank

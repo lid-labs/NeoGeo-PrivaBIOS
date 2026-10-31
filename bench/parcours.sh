@@ -3855,7 +3855,9 @@ def crc_protegee(run, sorte):
     exiger(f"{sorte} PROTECTED CARTRIDGE" in t, f"l'écran ne dit pas {sorte} PROTECTED CARTRIDGE")
     exiger("BANKS NOT READ" in t and "X 1024K" not in t, "des banques sont annoncées")
     exiger("FIXED IS NO FILE CRC" in t and "DONE" in t, "l'écran n'a pas fini, ou ne dit pas que FIXED n'est pas un CRC de fichier")
+    exiger(re.search(r"> CARTRIDGE CRC", run.texte(960)), "START ne rend pas le menu des tests sur CARTRIDGE CRC")
     exiger("SOFT DIP SETTINGS" in run.texte(990), "START ne rend pas l'écran TEST")
+    exiger([k for k, x in run.ev if x == "REMISE" and k > 1000], "START ne rend pas la main au jeu")
 
 def crc_sma():
     (a,) = sain("crc-sma")

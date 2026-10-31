@@ -8,7 +8,7 @@
 # $2FE446 equals $9A37, at the reset bank, then with each of the banks 0-7 written at $2FFFF0 (not asked once pvc says yes).
 # Result: the seven below answer; the 157 others answer no, in every bank. 2 files of the folder are not MAME sets (not run).
 #
-# RUN 2, THE SCREEN: our image 83b335ee… in each game's zip, TEST held 1-260, HARDWARE TESTS, CARTRIDGE CRC, the fix layer decoded
+# RUN 2, THE SCREEN: our image ab59cd47…, its protection text one row lower than the final image's in each game's zip, TEST held 1-260, HARDWARE TESTS, CARTRIDGE CRC, the fix layer decoded
 # at frame 1200. fixe_zip: does the FIXED shown equal the one of bench/crc-cartouche.py? mslug2, a normal banked cartridge,
 # gave FIXED as on the old image, and its scene crc-banques passes.
 # kof2003 has no font: its picture is black, the state below is that of the decoded tiles.

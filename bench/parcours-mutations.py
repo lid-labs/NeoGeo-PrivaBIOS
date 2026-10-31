@@ -1071,7 +1071,7 @@ MUTATIONS = {
         "crc-pvc", "crc.s",
         [("        not.w   %d0\n        move.w  %d0, (%a0)\n        cmp.w   (%a0), %d0\n        bne.s   .Lpas_pvc\n",
           "        bra.s   .Lpas_pvc               | MUTATION : PVC jamais reconnue\n")],
-        "une cartouche PVC passe pour une cartouche à banques ordinaire",
+        "une cartouche PVC n'est pas reconnue : svc, à fenêtre constante, dit BANKS NONE",
     ),
     "crc-pvc-ram-perdue": (
         "crc-pvc", "crc.s",
