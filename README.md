@@ -78,8 +78,9 @@ cartridge. The in-game menu and autofire screens are over Metal Slug (© SNK).
 - Cabinet settings: FREE PLAY, NO CONTINUE, DEMO SOUND, and CHEATS/DEBUG OFF, which removes the
   cheats, the memory editor, RESTART TO CARD and the debug dips. Board switch 7 also gives free play.
 - Boards without a TEST button: switch 1, or START + SELECT held at power-on, opens the test screen.
-- Cartridge CRC32 of the fixed P-ROM and of each bank, as the 68000 reads them. SMA and PVC
-  protected cartridges are recognised: the screen says so and reads no bank.
+- Cartridge CRC32 of the fixed P-ROM and of each bank, as the 68000 reads them. Under MAME,
+  SMA and PVC protected cartridges are recognised: the screen says so and reads no bank. No real
+  SMA or PVC board tried yet.
 - RAM editor with value freezing, and debug dips. No VRAM viewer.
 - Input test for both joysticks and the mahjong panel. No 4-player page.
 - Hardware tests: work RAM, palette, VRAM and backup RAM checks, colour bars, crosshatch.
