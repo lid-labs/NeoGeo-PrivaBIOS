@@ -40,7 +40,7 @@ are in [Not compared](#not-compared).
 |---|---|---|
 | Keeping players out | ✓ **Yes**. Enable Arcade Protect (v2.1) puts the button codes behind the test button; the notes advise also disabling the in-game menu and input crossing. | ✓ **Yes**. CHEATS/DEBUG OFF in cabinet settings removes the cheats, the memory editor, RESTART TO CARD and the debug dips. |
 | Board without a TEST button | ✓ **Yes**. B+C+D on the splash screen opens test mode, with no JAMMA wiring. | ✓ **Yes**. Switch 1, or START + SELECT held at power-on, opens the test screen. |
-| Cartridge CRC32 | ✓ **Yes**. Since v1.1, against a database. Protected banks are shown as custom (v1.2). | ✓ **Yes**. The fixed P-ROM and each bank, as the 68000 reads them. SMA and PVC protected cartridges are recognised: the screen names the protection and reads no bank. |
+| Cartridge CRC32 | ✓ **Yes**. Since v1.1, against a database. Protected banks are shown as custom (v1.2). | ✓ **Yes**. The fixed P-ROM and each bank, as the 68000 reads them. Under MAME, SMA and PVC protected cartridges are recognised: the screen names the protection and reads no bank. No real SMA or PVC board tried yet. |
 | RAM and VRAM viewers, debug dips | ✓ **Yes**. RAM and VRAM viewers, debug dips, developer mode. | ◐ **Partly**. RAM editor with value freezing, and debug dips. No VRAM viewer. |
 | Crash screen | ✓ **Yes**. 68000 status on screen (v1.3). | ✓ **Yes**. SYSTEM CRASH: the exception, the registers and the game's NGH. |
 | Input test | ✓ **Yes**. 4-player adapter and mahjong panel (v3.2). | ◐ **Partly**. Joysticks and the mahjong panel. No 4-player page. |
