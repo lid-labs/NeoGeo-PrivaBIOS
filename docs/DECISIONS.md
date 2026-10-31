@@ -895,13 +895,61 @@ still found under MAME, without a third-party database.
 
 1. **16, no more**: one bit per cheat in CH_ETATS, which stays a word contiguous to GL_MASQUE. The
    hook thus keeps its single `tst.l` without cheat or freeze, whose cycles count (`cheats.s`).
-2. **A window in the menu, not a sub-screen**: 4 cheat lines at most, which scroll behind the
+2. **A window in the menu, not a sub-screen**: 4 cheat lines at most (3 since §33), which scroll behind the
    selection. The key paths stay those from before: cheat k at "down" k + 2 times, AUTOFIRE,
    GAME SETTINGS and MEMORY EDITOR at "up" 3, 2 and 1 times.
 3. **The table at the end of the high area** (`build/bios.ld`, section `.cheats`): in the middle of
    the code, it pushed `_mess_out` out of reach of the `bsr.w` in `int1.s`.
 4. **The record format does not change** (32 bytes). Measured on 2026-10-29: the high area ends
    at $C0B416, that is 84 KiB free, room for more than 2,000 records.
+
+## 33. The card manager from the in-game menu, and COPY ALL
+
+On 2026-10-31 (public issue 57; `menu.s`, `dip.s`, `tests.s`, `gestion-carte.s`). The choice of the menus was left
+open by the ticket; points 2, 4, 5, 11 and 12 follow the user's review of the pull request, the same day.
+
+1. **One way in more: RESTART TO CARD, in the in-game menu.** A player already reaches the test
+   screen at every boot, so a boot gesture would add nothing; play is what had no way in.
+2. **It restarts the machine: the game in progress is lost, and the label says so.** The manager needs
+   the whole fix layer and, to copy, 1,920 bytes of RAM set aside in VRAM, $0000-$03BF; during a
+   pause, neither is ours (MN_FIX holds 392 cells, and the VRAM is the game's). UniBIOS manages the
+   card "in every mode" (`ATTENTES.md` §1), not read further: this is a **deliberate difference**.
+   What would reverse it: a windowed manager and a buffer measured free during play.
+3. **The way there is a mark in backup RAM**, $D001A8, which `dip.s` reads at boot and clears: the
+   boot clears the RAM, the mark must outlive it. $D001A8-$D001AF is undocumented, and no write was
+   measured there on 21 games (`reglages.s`, header); ASSUMED for the rest of the catalogue. Power cut between the mark and the boot: the manager
+   opens once, nothing else. The opening goes through the test screen, which sets up what the manager
+   expects; START returns to it.
+4. **The line is at "up" four times**, just before AUTOFIRE, so no earlier key path moves. The frame
+   does not grow, 28 × 14 being all that MN_FIX holds, and keeps its blank line under the help: it
+   shows 3 cheats instead of 4, and the scroll of §32 does the rest.
+5. **Not reached**: the title and the demo, where the in-game menu does not open: that would need a
+   new gesture for a rarer need. The user accepted this, and the lost game of point 2. **The machine
+   without a cartridge is reached**: the line of HARDWARE TESTS that says EXIT says MEMORY CARD there,
+   since EXIT would only lead back to the same screen. No new gesture, and no line moves.
+6. **COPY ALL is D, on any line**: no new line, so the paths of the list stay ("up" × 2 is FORMAT CARD).
+   D was free; the help says it. On the mahjong panel, D is the panel's D key.
+7. **The source is never written.** A rereads the card in place; its directory and FAT 1 equal to the
+   kept ones: SAME CARD, nothing written. A card that really is another one with the same layout is
+   refused too: the price of not comparing the data. The copy of one save (§26) keeps its behaviour:
+   A on the source then OVERWRITE rewrites the same bytes.
+8. **Nothing is written that cannot finish.** SAVE wants its blocks free before it frees the old chain
+   (`card.s`, $03): the count follows that order, and a card too full says NOT ENOUGH BLOCKS before the
+   first write. A single confirmation covers every overwritten save. A write error stops the
+   copy where it is and shows CARD ERROR: the saves written so far stay.
+9. **The room**: the buffer of §26 grows by 192 bytes, the kept directory and FAT, and its VRAM
+   by 96 words, up to the tile map of sprite 14. A FAT with crossed chains adds up to more than 27
+   blocks: CARD ERROR 83, nothing overflows.
+10. **Proof**: scenes `cm-copier-tout`, `menu-carte`, `menu-carte-non` and `sans-cartouche-carte`,
+    mutations `ct-*`, `mc-*`, `menu-sans-marge` and `sc-carte-inerte`
+    (`measured/2026-10-31-parcours-copie-tout.tsv`).
+11. **RESTART TO CARD asks first**: A or START turn the line into LOSE GAME? A:YES, A alone goes on,
+    B, START, UP or DOWN give the line back. Unlike RESTART GAME, a player comes here to manage a
+    card, and the line sits next to AUTOFIRE: a single A must not lose the game. What would
+    reverse it: nothing measured, a choice of the user.
+12. **Hidden under CHEATS/DEBUG OFF**: that setting keeps players out, and this line leads to FORMAT
+    CARD. AUTOFIRE and GAME SETTINGS move up one line of the frame, so "down" × 2 is AUTOFIRE there,
+    and "up" × 3 is RESTART GAME. The test screen keeps its MEMORY CARD line: it needs a gesture at boot.
 
 ## Still to be decided
 

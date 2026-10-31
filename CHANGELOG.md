@@ -8,6 +8,12 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 
 ### Added
 
+- MEMORY CARD: D copies every save to another card, asks before overwriting, refuses a card without
+  the room, and never writes the source card (SAME CARD). In-game menu: RESTART TO CARD, after a
+  confirmation, restarts the machine into the card manager; hidden under CHEATS/DEBUG OFF. A machine
+  without a cartridge reaches the manager too, from HARDWARE TESTS. Scenes `cm-copier-tout`,
+  `menu-carte`, `menu-carte-non` and `sans-cartouche-carte`, twelve mutations.
+- In-game menu: the frame keeps a blank line under the help, and shows 3 cheats at a time, not 4.
 - 1,568 cheats imported from the MAME XML Cheats Collection (Pugsy and contributors): 154 games and
   1,709 cheats in all, among them one-shot cheats that switch themselves off once applied, and
   one entry per value for selections, six values at most.

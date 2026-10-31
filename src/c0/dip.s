@@ -219,6 +219,7 @@
         .equ    DIPSW,    0x300001      | on read: the board switches, active low
         .equ    P1CNT,    0x300000
         .equ    SYSTYPE,  0x300081
+        .equ    CARTE_DEMANDE, 0xD001A8 | .b non-zero: RESTART TO CARD (`menu.s`); ours, like $D001B0
         .equ    SOUND,    0x320000
         .equ    STATUS_B, 0x380000
         .equ    BRDFIX,   0x3A000B
@@ -294,7 +295,11 @@ _editeur_dip:
         bne.s   2f
         btst    #1, STATUS_B
         beq.s   3f
-2:      rts
+| RESTART TO CARD of the in-game menu (`menu.s`, DECISIONS §33): the mark opens this screen too,
+| and the manager over it.
+2:      tst.b   CARTE_DEMANDE
+        bne.s   1f
+        rts
 | A, B, C AND D OF P1 HELD ALL FOUR (REG_P1CNT bits 4-7 at 0, active low): the start-up
 | of the BlueRetro adapter, not a player (see the header). A single read: bits 4-7
 | at 0, the byte is below $10. Apart, after the `rts`: TEST, switch 1, START alone and
@@ -521,6 +526,12 @@ _dip_table:
         | THE STATE OF THE BUTTONS ON ENTRY: a button already held does not count.
         moveq   #0, %d5
         bsr     .Lentrees
+        tst.b   CARTE_DEMANDE           | RESTART TO CARD: the manager at once, the mark consumed
+        beq     .Lboucle
+        clr.b   CARTE_DEMANDE
+        move.w  %d6, %d7
+        subq.w  #5, %d7                 | the MEMORY CARD line, "up" five times
+        bsr     .Lch_carte
         bra     .Lboucle
 
 | THE SCREEN, whole. Palettes after the passing of line $1F0, then all the text.

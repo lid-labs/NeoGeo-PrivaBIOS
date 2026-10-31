@@ -1,0 +1,11 @@
+# COPY ALL and RESTART TO CARD (DECISIONS §33), on 2026-10-31: what the image measures in the scenes cm-copier-tout and
+# menu-carte of bench/parcours.sh. MAME 0.286, -video none, -sound none, -nothrottle, NVRAM per run, non-merged romsets of
+# $ROMS, only sp-s2.sp1 substituted. Image c006d587277830ea…. No threshold: each line is an exact expectation of the scene.
+# Rule of evidence: all of it measured here. The source card's bytes are compared whole, the saves chain by chain in FAT 1.
+scene	run	measured
+cm-copier-tout	ct-vide	14 saves on the changed card, all at the source's bytes; game RAM $100000 and $1006BE intact
+cm-copier-tout	ct-cible	OVERWRITE 01 SAVES?, then COPIED; foreign save 0500-00 kept
+cm-copier-tout	ct-pleine	NOT ENOUGH BLOCKS (7 free, 16 needed); changed card identical to its file; B: CANCELLED
+cm-copier-tout	ct-meme	SAME CARD; source identical to its file; B: CANCELLED
+menu-carte	mc-menu	RESET at frame 2430; frame 2800: manager open, 13 saves visible, FREE BLOCKS 11; START, > MEMORY CARD; START, the game
+menu-carte	mc-apres	same NVRAM, next boot: boot screen, no test screen

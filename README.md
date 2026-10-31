@@ -2,8 +2,8 @@
 
 [![build](https://img.shields.io/github/actions/workflow/status/lid-labs/sprixe-bios/build.yml?branch=main&label=build)](https://github.com/lid-labs/sprixe-bios/actions/workflows/build.yml)
 [![license: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE)
-![test scenes: 164](https://img.shields.io/badge/test%20scenes-164-informational)
-![mutations killed: 210/210](https://img.shields.io/badge/mutations%20killed-210%2F210-informational)
+![test scenes: 168](https://img.shields.io/badge/test%20scenes-168-informational)
+![mutations killed: 222/222](https://img.shields.io/badge/mutations%20killed-222%2F222-informational)
 ![MAME catalogue: 161/164 play](https://img.shields.io/badge/MAME%20catalogue-161%2F164%20play-informational)
 ![runs on real MV-2F hardware](https://img.shields.io/badge/runs%20on-real%20MV--2F%20hardware-success)
 
@@ -70,12 +70,13 @@ cartridge. The in-game menu and autofire screens are over Metal Slug (© SNK).
 **Saving**
 - High scores kept in backup RAM in MVS and AES modes, with SCORE RESET to stop the periodic wipe.
   Not saved on the memory card.
-- Memory card manager, in the test screen: list, free blocks, delete, format, and copy one save to
-  another card. No COPY ALL.
+- Memory card manager, in the test screen, from a machine without a cartridge, and from the in-game
+  menu through a restart, which loses the game in progress: list, free blocks, delete, format, copy
+  one save or all of them to another card.
 
 **Operators and repair**
 - Cabinet settings: FREE PLAY, NO CONTINUE, DEMO SOUND, and CHEATS/DEBUG OFF, which removes the
-  cheats, the memory editor and the debug dips. Board switch 7 also gives free play.
+  cheats, the memory editor, RESTART TO CARD and the debug dips. Board switch 7 also gives free play.
 - Boards without a TEST button: switch 1, or START + SELECT held at power-on, opens the test screen.
 - Cartridge CRC32 of the fixed P-ROM and of each bank, as the 68000 reads them. SMA and PVC
   protected cartridges are not recognised yet.

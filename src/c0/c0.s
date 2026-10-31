@@ -719,7 +719,8 @@ _slots_aucun:
         | BF_LIBRE, images from before and after the fix). The reference, for its part, keeps
         | control and displays its test screens without a reset (measured, ng_mv1, -bios
         | euro, `matrice.sh`, captures; `multislot.lua`: no read of $000122 over 700 frames).
-        | Here, the self-tests (`tests.s`), in a loop: START or EXIT bring you back there.
+        | Here, the self-tests (`tests.s`), in a loop: START brings you back there, and the line
+        | of EXIT opens the memory card manager (DECISIONS §33).
         | Under REG_BRDFIX and REG_SWPBIOS, which the detection left; the Z80 stays parked;
         | the backup RAM reopened for its test, non-destructive.
         cmpi.b  #0xFF, 0xD00058
@@ -862,7 +863,7 @@ _slot_present:
 _sans_cartouche:
         move.b  %d0, 0x3A001D           | REG_SRAMUNLOCK, for the backup RAM test
         jsr     _panneau_verrou         | switch 3, at opening (`panneau.s`)
-1:      jsr     _autotests              | registers preserved
+1:      jsr     _autotests_seul         | registers preserved
         bra.s   1b
 
 | ----------------------------------------------------------------------------------

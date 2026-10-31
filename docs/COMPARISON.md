@@ -32,13 +32,13 @@ are in [Not compared](#not-compared).
 | Topic | UniBIOS 4.0 | Sprixe BIOS |
 |---|---|---|
 | High scores | ✓ **Yes**. On the memory card, AES hardware included (v3.1, "not fully tested" in its notes), with an option that stops the periodic wipe on MVS (v4.0). Forum users report scores neither saved nor read back (v3.1 to v3.3). | ◐ **Partly**. Kept in backup RAM in MVS and AES modes, with SCORE RESET to stop the periodic wipe. Not saved on the memory card. |
-| Memory card manager | ✓ **Yes**. Reachable in every mode. | ◐ **Partly**. In the test screen only: list, free blocks, delete, format, and copy one save to another card. No COPY ALL. |
+| Memory card manager | ✓ **Yes**. Reachable in every mode. | ◐ **Partly**. In the test screen, on a machine without a cartridge, and from the in-game menu through a confirmed restart, which loses the game in progress, except under CHEATS/DEBUG OFF: list, free blocks, delete, format, copy one save or all of them to another card. |
 
 ## Operators and repair
 
 | Topic | UniBIOS 4.0 | Sprixe BIOS |
 |---|---|---|
-| Keeping players out | ✓ **Yes**. Enable Arcade Protect (v2.1) puts the button codes behind the test button; the notes advise also disabling the in-game menu and input crossing. | ✓ **Yes**. CHEATS/DEBUG OFF in cabinet settings removes the cheats, the memory editor and the debug dips. |
+| Keeping players out | ✓ **Yes**. Enable Arcade Protect (v2.1) puts the button codes behind the test button; the notes advise also disabling the in-game menu and input crossing. | ✓ **Yes**. CHEATS/DEBUG OFF in cabinet settings removes the cheats, the memory editor, RESTART TO CARD and the debug dips. |
 | Board without a TEST button | ✓ **Yes**. B+C+D on the splash screen opens test mode, with no JAMMA wiring. | ✓ **Yes**. Switch 1, or START + SELECT held at power-on, opens the test screen. |
 | Cartridge CRC32 | ✓ **Yes**. Since v1.1, against a database. Protected banks are shown as custom (v1.2). | ✓ **Yes**. The fixed P-ROM and each bank, as the 68000 reads them. SMA and PVC protected cartridges are not recognised yet. |
 | RAM and VRAM viewers, debug dips | ✓ **Yes**. RAM and VRAM viewers, debug dips, developer mode. | ◐ **Partly**. RAM editor with value freezing, and debug dips. No VRAM viewer. |
