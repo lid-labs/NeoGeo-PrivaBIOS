@@ -76,7 +76,7 @@
 |     MAME holds (item `m_vram_offset`), VRAM identical to the byte. ASSUMED: that
 |     reading REG_VRAMRW returns the word at the current address even right after a
 |     data write (the page says so only after an address write);
-|   - the fix layer: only the cells of the frame (20 × 10 without cheats, 28 × (10 + V) with V
+|   - the fix layer: only the cells of the frame (20 × 11 without cheats, 28 × (11 + V) with V
 |     cheat lines, 28 × 14 for the sub-screens, 392 at most), read through
 |     REG_VRAMRW before being written, given back afterwards;
 |   - three palettes of the current bank, the ones the fix layer does not use
@@ -109,8 +109,10 @@
 | `measured/2026-10-23-menu-en-jeu-son.tsv`).
 |
 | CHEATS/DEBUG OFF (CABINET SETTINGS of `dip.s`, bit 3 of BORNE_RAM, 2026-10-25): neither cheat
-| line (`_cheats_trouver` no longer gives an entry) nor MEMORY EDITOR — its line stays blank, and
-| the last choice is GAME SETTINGS: "up" from RESUME leads to it. The frame does not change size.
+| line (`_cheats_trouver` no longer gives an entry) nor MEMORY EDITOR nor, since 2026-10-31, RESTART
+| TO CARD, which leads to FORMAT CARD (DECISIONS §33). AUTOFIRE and GAME SETTINGS come up two lines
+| of the frame, the last two stay blank, and the last choice is GAME SETTINGS: "up" from RESUME
+| leads to it, "up, up" to AUTOFIRE. MN_BASE is N - 1 for the actions. The frame does not change size.
 | THE CHOICES: RESUME, RESTART GAME, then one line per cheat of the game (`cheats.s`), its name
 | and ON / OFF; A or START on a cheat line toggles its bit in CH_ETATS and the menu
 | stays open. THE WINDOW, 2026-10-29: MN_VIS cheat lines at most (V), and the game's N cheats,
@@ -118,10 +120,11 @@
 | line under the title says which are shown ("CHEATS 5-8/12"). The choices do not change:
 | cheat k is always at "down" k + 2 times from RESUME, and the lines after it up to N.
 | THE CARD, 2026-10-31 (DECISIONS §33): one more line, RESTART TO CARD, just before AUTOFIRE, at
-| "up" four times from RESUME (three under CHEATS/DEBUG OFF), so that no earlier key path moves. It
+| "up" four times from RESUME, so that no earlier key path moves. A or START turn the line into a
+| question, and A alone goes on: B, START, up or down give the line back (DECISIONS §33). It
 | restarts the machine like RESTART GAME, a mark left in backup RAM (CARTE_DEMANDE); `dip.s` reads
-| the mark at boot and opens the card manager. The frame does not grow: the help takes the last
-| blank line, line 9, and the save area stays that of 28 × 14. The mark's cell, $D001A8: read in
+| the mark at boot and opens the card manager. The frame gains its line: 11 fixed lines, the last
+| one blank under the help, so MN_VIS falls to 3 and the save area stays that of 28 × 14. The mark's cell, $D001A8: read in
 | "Backup RAM", undocumented; measured, no write on 21 games (`reglages.s`, header); ASSUMED for the
 | rest of the catalogue.
 | Then GAME SETTINGS (`reglages-jeu.s`) and MEMORY EDITOR (`memoire.s`),
@@ -131,8 +134,7 @@
 | is therefore no longer the one from before the cheats: two more lines.
 | AUTOFIRE (`autofire.s`, 2026-10-27, DECISIONS §22): one more line, BETWEEN THE CHEATS
 | AND GAME SETTINGS, at "up" three times from RESUME (two under CHEATS/DEBUG OFF): "down",
-| "down, down" and "up", "up, up" lead where they led. The frame does not grow: the blank
-| line under MEMORY EDITOR leaves it its place, and the help line stays where it was. The loop
+| "down, down" and "up", "up, up" lead where they led. The loop
 | keeps its cycles, and GAME SETTINGS opens at the same cycles as before (`reglages-jeu.s`, THE
 | CYCLES; see the choice, `.Lboucle`). AUTOFIRE stays under CHEATS/DEBUG OFF.
 | THE SUB-SCREENS (GAME SETTINGS, MEMORY EDITOR, AUTOFIRE) take a fixed frame of SOUS_NCOL ×
@@ -200,8 +202,10 @@
         .equ    MN_DERNIER, 0x10F862
         .equ    MN_NVIS,  0x10F864      | .w cheat lines of the frame: N, at most MN_VIS
         .equ    MN_HAUT,  0x10F866      | .w the first cheat shown (`.Lfenetre`)
+        .equ    MN_BASE,  0x10F868      | .w the actions' N: MN_NCH, less one under CHEATS/DEBUG OFF
         .equ    MN_CHOIX, 0x10F870      | .w line chosen: 0 RESUME, 1 RESTART, 2… the cheats, then RESTART TO
-                                        | CARD (2 + N), AUTOFIRE (3 + N), GAME SETTINGS (4 + N), EDITOR (5 + N)
+                                        | CARD (2 + N), AUTOFIRE (3 + N), GAME SETTINGS (4 + N), EDITOR (5 + N);
+                                        | CHEATS/DEBUG OFF: AUTOFIRE 2, GAME SETTINGS 3
         .equ    MN_PALS,  0x10F872      | 3 .w: the palettes taken (title, chosen, text)
         .equ    MN_USAGE, 0x10F878      | .w one bit per palette seen on the fix layer
         .equ    MN_PAL,   0x10F880      | 3 palettes, 96 bytes
@@ -218,19 +222,19 @@
         | editor (`memoire.s`).
 
         | The frame ("Fix layer": $7000 + 32 × column + line; lines 2-29 and columns 1-38
-        | visible, like `dip.s`). Without cheats: columns 10-29, lines 11-20. With V cheat lines
-        | (MN_NVIS): 28 columns (6-33), 10 + V lines starting at 11 − V/2 — the 16-character name and
+        | visible, like `dip.s`). Without cheats: columns 10-29, lines 10-20. With V cheat lines
+        | (MN_NVIS): 28 columns (6-33), 11 + V lines starting at 10 − V/2 — the 16-character name and
         | its state do not fit in 20.
         .equ    COL0,     10
         .equ    NCOL,     20
-        .equ    LIG0,     11
-        .equ    NLIG,     10
+        .equ    LIG0,     10
+        .equ    NLIG,     11
         .equ    COL0_C,   6
         .equ    NCOL_C,   28
         .equ    PAD_C,    4             | fixed lines centred in the 28 columns
         | The sub-screen frame: 28 × 14 = 392 cells, what MN_FIX holds; columns 6-33,
-        | lines 9-22. 28 × (10 + MN_VIS) fits in it too, hence MN_VIS = 4; the other cheats scroll.
-        .equ    MN_VIS,   4
+        | lines 9-22. 28 × (11 + MN_VIS) fits in it too, hence MN_VIS = 3; the other cheats scroll.
+        .equ    MN_VIS,   3
         .equ    SOUS_NCOL, 28
         .equ    SOUS_NLIG, 14
         .equ    SOUS_CASE0, 0x7000 + 32 * 6 + 9
@@ -348,11 +352,11 @@ _menu_ouvrir:
         beq.s   .Lreprendre
         subq.w  #1, %d1
         beq.w   .Lrelance
-        | %d1: the choice minus 4 minus N — negative a cheat, the card or AUTOFIRE, 0 GAME SETTINGS, 1
+        | %d1: the choice minus 4 minus MN_BASE — negative a cheat, the card or AUTOFIRE, 0 GAME SETTINGS, 1
         | the editor. `subq #3` and `blt` instead of `subq #1` and `bcs`: same cycles, and GAME SETTINGS
         | opens at the cycles from before AUTOFIRE (see `reglages-jeu.s`, THE CYCLES; scene gs-mmss).
         subq.w  #3, %d1
-        sub.w   MN_NCH, %d1
+        sub.w   MN_BASE, %d1
         blt.s   4f
         beq.s   5f
         bsr     _memoire_ecran          | `memoire.s`
@@ -361,25 +365,17 @@ _menu_ouvrir:
 6:      bsr     .Lsous_fermer
         bsr     .Lentrees               | a button still held (START) does not count
         bra     .Lboucle
-4:      add.w   MN_NCH, %d1
-        addq.w  #2, %d1                 | the choice minus 2: below N a cheat, N the card, N + 1 AUTOFIRE
-        cmp.w   MN_NCH, %d1
-        bcs.s   7f
-        beq.s   .Lvers_carte
+4:      addq.w  #2, %d1                 | below 0 a cheat, 0 the card, 1 AUTOFIRE
+        bmi.s   7f
+        beq     .Lvers_carte
         bsr     _af_ecran
         bra.s   6b
-7:      move.w  CH_ETATS, %d2           | a cheat: its bit toggled, and we stay in the menu
+7:      add.w   MN_NCH, %d1             | the cheat's index
+        move.w  CH_ETATS, %d2           | a cheat: its bit toggled, and we stay in the menu
         bchg    %d1, %d2
         move.w  %d2, CH_ETATS
         bsr     .Ldessiner
         bra     .Lboucle
-
-| RESTART TO CARD: the mark, then the restart of RESTART GAME (see the header).
-.Lvers_carte:
-        move.b  %d0, SRAMUNLOCK
-        move.b  #1, CARTE_DEMANDE
-        move.b  %d0, SRAMLOCK
-        bra     .Lrelance
 
 | RESUME. Everything released first: a button still held on return would be a press for the
 | game. Then the screen given back, and the game at the line where it was.
@@ -444,6 +440,31 @@ _menu_ouvrir:
         movem.l MN_REGS, %d0-%d7/%a0-%a6
         move.w  MN_SR, %sr              | the jig takes its "after" record here
         rts
+
+| RESTART TO CARD: the question on its line, then, on A, the mark and the restart of RESTART GAME
+| (see the header). A loop of its own: `.Lboucle` keeps its cycles, and this block, away from it, the short branch to RESUME.
+.Lvers_carte:
+        bsr     _mn_vider
+        move.w  MN_PAD, %d0
+        moveq   #2, %d1                 | the chosen line's role
+        moveq   #NCOL, %d4
+        lea     .Lperdre, %a3
+        bsr     _mn_texte
+        move.w  MN_NVIS, %d4
+        addq.w  #5, %d4
+        bsr     _mn_ligne
+1:      bsr     .Lsync
+        bsr     .Lentrees
+        btst    #4, %d0                 | A
+        bne.s   2f
+        andi.w  #0x0123, %d0            | B, START, up or down: the line given back
+        beq.s   1b
+        bsr     .Ldessiner
+        bra     .Lboucle
+2:      move.b  %d0, SRAMUNLOCK
+        move.b  #1, CARTE_DEMANDE
+        move.b  %d0, SRAMLOCK
+        bra     .Lrelance
 
 | RESTART GAME: without a kick, the watchdog restarts everything (`dip.s`). `_mn_relancer`: the
 | same, for GAME SETTINGS.
@@ -680,11 +701,13 @@ _mn_entrees:
 .Lmise_en_page:
         move.w  CH_NB, %d0
         move.w  %d0, MN_NCH
+        move.w  %d0, MN_BASE
         move.w  %d0, %d1
         addq.w  #5, %d1                 | N + 5, MEMORY EDITOR
         btst    #3, BORNE_RAM
         beq.s   2f
-        subq.w  #1, %d1                 | CHEATS/DEBUG OFF: GAME SETTINGS is the last
+        subq.w  #2, %d1                 | CHEATS/DEBUG OFF: GAME SETTINGS is the last
+        subq.w  #1, MN_BASE
 2:      move.w  %d1, MN_DERNIER
         cmpi.w  #MN_VIS, %d0
         bls.s   3f
@@ -791,7 +814,7 @@ _mn_entrees:
         rts
 
 | LINE %d4 OF THE FRAME, as characters in MN_BUF (NCOL_C bytes, spaces beyond
-| MN_NCOL). Lines 0-4 and the last five: `.Llignes` 0-9, shifted by MN_PAD; between
+| MN_NCOL). Lines 0-4 and the last six: `.Llignes` 0-10, shifted by MN_PAD; between
 | the two, the MN_NVIS cheats of the window: the name at MN_PAD + 3, the state "ON" / "OFF" at
 | MN_PAD + 20. Line 2, when cheats are hidden: `.Lrang`. Clobbers %d0-%d2, %a2, %a3.
 .Lconstruire:
@@ -808,7 +831,7 @@ _mn_entrees:
         cmp.w   MN_NVIS, %d0
         bcs.s   6f                      | k < V: cheat MN_HAUT + k
         move.w  %d4, %d0
-        sub.w   MN_NVIS, %d0            | fixed lines 5-9 (line − V ≥ 5 here)
+        sub.w   MN_NVIS, %d0            | fixed lines 5-10 (line − V ≥ 5 here)
         bra.s   3f
 8:      cmpi.w  #2, %d0
         bne.s   3f
@@ -835,10 +858,15 @@ _mn_entrees:
         move.b  (%a3)+, (%a2)+
         move.b  (%a3)+, (%a2)+
         rts
-3:      cmpi.w  #8, %d0                 | MEMORY EDITOR, CHEATS/DEBUG OFF: the line blank
-        bne.s   7f
+3:      cmpi.w  #5, %d0                 | lines 5-8 under CHEATS/DEBUG OFF (see the header)
+        bcs.s   7f
+        cmpi.w  #9, %d0
+        bcc.s   7f
         btst    #3, BORNE_RAM
-        bne.s   9f
+        beq.s   7f
+        addq.w  #1, %d0                 | AUTOFIRE and GAME SETTINGS, one line up
+        cmpi.w  #8, %d0
+        bcc.s   9f                      | MEMORY EDITOR and what follows: blank
 7:      lea     .Llignes, %a3           | 20 × %d0
         lsl.w   #2, %d0
         adda.w  %d0, %a3
@@ -968,4 +996,6 @@ _mn_sync:
         .ascii  "   GAME SETTINGS    "
         .ascii  "   MEMORY EDITOR    "
         .ascii  " UP/DOWN A/START:OK "
+        .ascii  "                    "
+.Lperdre: .ascii " > LOSE GAME? A:YES "
         .balign 2

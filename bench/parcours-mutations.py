@@ -820,14 +820,14 @@ MUTATIONS = {
     "cd-editeur-garde": (
         "bo-cd-menu", "menu.s",
         [
-         ('3:      cmpi.w  #8, %d0                 | MEMORY EDITOR, CHEATS/DEBUG OFF: the line blank\n        bne.s   7f\n        btst    #3, BORNE_RAM\n        bne.s   9f\n',
-          '3:\n')],
+         ('        cmpi.w  #8, %d0\n        bcc.s   9f                      | MEMORY EDITOR and what follows: blank\n',
+          '')],
         "CHEATS/DEBUG OFF : la ligne MEMORY EDITOR reste affichée",
     ),
     "cd-dernier-choix": (
         "bo-cd-menu", "menu.s",
         [
-         ('        subq.w  #1, %d1                 | CHEATS/DEBUG OFF: GAME SETTINGS is the last\n',
+         ('        subq.w  #2, %d1                 | CHEATS/DEBUG OFF: GAME SETTINGS is the last\n',
           '        nop                             | MUTATION : la ligne en blanc reste choisissable\n')],
         "CHEATS/DEBUG OFF : « haut » depuis RESUME mène à la ligne en blanc de MEMORY EDITOR, qui l'ouvre",
     ),
@@ -1367,6 +1367,29 @@ MUTATIONS = {
         "menu-carte", "dip.s",
         [("        clr.b   CARTE_DEMANDE\n", "        nop                             | MUTATION\n        nop\n        nop\n")],
         "la marque n'est pas consommée : chaque démarrage rouvre le gestionnaire",
+    ),
+    "mc-sous-cd": (
+        "menu-carte", "menu.s",
+        [("        addq.w  #1, %d0                 | AUTOFIRE and GAME SETTINGS, one line up\n", "        nop                             | MUTATION\n"),
+         ("        subq.w  #2, %d1                 | CHEATS/DEBUG OFF: GAME SETTINGS is the last\n        subq.w  #1, MN_BASE\n",
+          "        subq.w  #1, %d1                 | MUTATION\n")],
+        "CHEATS/DEBUG OFF laisse RESTART TO CARD, et FORMAT CARD derrière",
+    ),
+    "mc-sans-question": (
+        "menu-carte-non", "menu.s",
+        [("1:      bsr     .Lsync\n        bsr     .Lentrees\n        btst    #4, %d0                 | A\n        bne.s   2f\n",
+          "1:      bsr     .Lsync\n        bsr     .Lentrees\n        btst    #4, %d0                 | A\n        bra.s   2f                      | MUTATION : sans attendre le second A\n")],
+        "un seul A sur RESTART TO CARD relance la machine",
+    ),
+    "menu-sans-marge": (
+        "menu-hud", "menu.s",
+        [("        .equ    NLIG,     11\n", "        .equ    NLIG,     10\n")],
+        "l'aide prend la dernière ligne du cadre",
+    ),
+    "sc-carte-inerte": (
+        "sans-cartouche-carte", "tests.s",
+        [("        jsr     _gestion_carte          | registers returned\n", "        nop                             | MUTATION\n        nop\n        nop\n")],
+        "sans cartouche, la ligne MEMORY CARD n'ouvre rien",
     ),
     # The sine table (DECISIONS §18).
     "sinus-ff": (

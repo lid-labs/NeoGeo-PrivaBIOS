@@ -664,10 +664,18 @@
 #                 blocks (ct-pleine): NOT ENOUGH BLOCKS, nothing written, B cancels. The source left in
 #                 place (ct-meme): SAME CARD, nothing written, B cancels. The source is never written,
 #                 and the game RAM set at $100000 and $1006BE comes out intact (DECISIONS §33).
-#   menu-carte    aof in play, in-game menu, "up" four times: RESTART TO CARD, A. The machine
-#                 restarts, the manager opens by itself on the fixture; START, the TEST screen on
+#   menu-carte    aof in play, in-game menu, "up" four times: RESTART TO CARD, A, the question, A. The
+#                 machine restarts, the manager opens by itself on the fixture; START, the TEST screen on
 #                 MEMORY CARD; START, the game. The mark is consumed: the next boot, the same NVRAM
-#                 (mc-apres), goes to the boot screen and the game (DECISIONS §33).
+#                 (mc-apres), goes to the boot screen and the game. Under CHEATS/DEBUG OFF (mc-off), the
+#                 line is absent, and "up" then leads to GAME SETTINGS, AUTOFIRE, RESTART GAME (DECISIONS §33).
+#   menu-carte-non the same line: START opens the question and START refuses it, A opens it and B
+#                 refuses it, RESTART TO CARD back each time; "down" four times, RESUME, A: no
+#                 restart in the whole run, and the frame's line under the help stays (DECISIONS §33).
+#   sans-cartouche-carte ng_mv1 without a cartridge, the fixture in the slot: HARDWARE TESTS, "up" once
+#                 from WORK RAM: MEMORY CARD where the machine with a game has EXIT, A, the manager on
+#                 the fixture; D, the card changed for an empty one, A: every save copied, the source
+#                 untouched; START, HARDWARE TESTS (DECISIONS §33).
 #   tests-mahjong INPUT TEST, switch 3 at ON (DECISIONS §24): the MAHJONG PANEL page, each key
 #                 followed by 0 or 1. On aof's joystick, read in the three rows at once: A sets E, L
 #                 and REACH to 1, B sets F and M, up sets A, H and PON, START sets START; everything
@@ -822,7 +830,8 @@
 # already registered game, on 2026-10-28: restauration-avant-editeur (tests-sauvegarde),
 # dd-ecrase-a-la-restauration (dd-connu). 197 in all. Those of COPY ALL and of RESTART TO CARD, on
 # 2026-10-31: ct-inerte, ct-premiere-seule, ct-source-ecrite, ct-sans-ecrasement, ct-sans-place,
-# ct-ram-perdue (cm-copier-tout), mc-inerte, mc-marque-collee (menu-carte).
+# ct-ram-perdue (cm-copier-tout), mc-inerte, mc-marque-collee, mc-sous-cd (menu-carte),
+# mc-sans-question (menu-carte-non), menu-sans-marge (menu-hud), sc-carte-inerte (sans-cartouche-carte).
 # Those of the menus on the
 # mahjong panel, on 2026-10-28 (record --ref-panneau), put to the test alone on the image
 # f1b21158…: pn-sans-traduction (pn-menu-on, pn-valeur, pn-verrou, pn-jeu), pn-sans-1b
@@ -874,7 +883,7 @@ REF_SINUS="$PAQUET/measured/2026-10-28-parcours-sinus.tsv"
 REF_PANNEAU="$PAQUET/measured/2026-10-28-parcours-panneau.tsv"
 JOBS=$(( $( (sysctl -n hw.ncpu || nproc) 2>/dev/null || echo 4) - 2 )); [ "$JOBS" -ge 1 ] || JOBS=1
 CACHE=""
-SCENES_TOUTES="boot-ecran boot-saut calendrier carte demo-son partie-credit partie-start fin-demo fin-titre scores dip-temps dip-langue region autotests jukebox menu-hud menu-reprise menu-son cheats cheats-fenetre cheats-unefois restart ms-demo ms-select ms-garde aes-bascule aes-demo aes-start aes-menu aes-piece aes-retour dip-defauts dip-mmss dip-fois region-europe region-japon region-usa autotests-palette autotests-vram autotests-backup tests-entrees tests-barres tests-grille jukebox-pas jukebox-stop cheats-off partie-p2 carte-sauve ms-select-p2 aes-ms-select aes-pause aes-logo aes-logo-fin aes-fin aes-texte depart-force piece-son ms-seule jukebox-repete partie-p2-joint carte-chercher carte-supprimer carte-nom tests-p2 tests-dip dip-sans-donnees gs-compte gs-defauts gs-choix gs-mmss gs-fois gs-sans-donnees gs-banque me-ecran me-goto me-octet me-ligne me-page me-repete me-poke me-gel me-liste me-degel me-borne bf-editeur bf-banque bf-tests bf-jukebox sans-cartouche flash-cart cm-liste cm-libres cm-effacer cm-annuler cm-formater cm-non-formatee cm-sans-carte cm-protegee cm-insertion bf-carte aes-scores scores-gel bo-ecran ab-ecran bo-free-play bo-fp-p2 bo-fp-joint bo-no-continue bo-demo-muette bo-aes bf-borne cheats-vies bo-cd-menu bo-cd-gel dip-free-play dip-fp-p2 dip-fp-refus dip-fp-chaud dip-fp-reglage dip-fp-cabinet dip-setting geste-boot geste-jeu geste-partie demo-ssideki japon-intitules gs-japon gs-japon-garde crc-fixe crc-banques crc-miroir crc-flottant bf-crc bf-crc-banque dd-effet dd-off dip-gel dip-gel-off dip-gel-boot dip-mahjong dip-mj-off dip-4p dip-4p-off af-tir af-sauve af-off af-mahjong boot-graphismes ms-son-slot2 dip-vierge dip-corrompue tests-mahjong jukebox-veille cm-copier cm-copier-tout menu-carte alpha-trajectoire howto-preisle2 tests-sauvegarde dd-connu pn-menu-on pn-menu-off pn-valeur pn-verrou pn-jeu bram-sale"
+SCENES_TOUTES="boot-ecran boot-saut calendrier carte demo-son partie-credit partie-start fin-demo fin-titre scores dip-temps dip-langue region autotests jukebox menu-hud menu-reprise menu-son cheats cheats-fenetre cheats-unefois restart ms-demo ms-select ms-garde aes-bascule aes-demo aes-start aes-menu aes-piece aes-retour dip-defauts dip-mmss dip-fois region-europe region-japon region-usa autotests-palette autotests-vram autotests-backup tests-entrees tests-barres tests-grille jukebox-pas jukebox-stop cheats-off partie-p2 carte-sauve ms-select-p2 aes-ms-select aes-pause aes-logo aes-logo-fin aes-fin aes-texte depart-force piece-son ms-seule jukebox-repete partie-p2-joint carte-chercher carte-supprimer carte-nom tests-p2 tests-dip dip-sans-donnees gs-compte gs-defauts gs-choix gs-mmss gs-fois gs-sans-donnees gs-banque me-ecran me-goto me-octet me-ligne me-page me-repete me-poke me-gel me-liste me-degel me-borne bf-editeur bf-banque bf-tests bf-jukebox sans-cartouche flash-cart cm-liste cm-libres cm-effacer cm-annuler cm-formater cm-non-formatee cm-sans-carte cm-protegee cm-insertion bf-carte aes-scores scores-gel bo-ecran ab-ecran bo-free-play bo-fp-p2 bo-fp-joint bo-no-continue bo-demo-muette bo-aes bf-borne cheats-vies bo-cd-menu bo-cd-gel dip-free-play dip-fp-p2 dip-fp-refus dip-fp-chaud dip-fp-reglage dip-fp-cabinet dip-setting geste-boot geste-jeu geste-partie demo-ssideki japon-intitules gs-japon gs-japon-garde crc-fixe crc-banques crc-miroir crc-flottant bf-crc bf-crc-banque dd-effet dd-off dip-gel dip-gel-off dip-gel-boot dip-mahjong dip-mj-off dip-4p dip-4p-off af-tir af-sauve af-off af-mahjong boot-graphismes ms-son-slot2 dip-vierge dip-corrompue tests-mahjong jukebox-veille cm-copier cm-copier-tout menu-carte menu-carte-non sans-cartouche-carte alpha-trajectoire howto-preisle2 tests-sauvegarde dd-connu pn-menu-on pn-menu-off pn-valeur pn-verrou pn-jeu bram-sale"
 SCENES="$SCENES_TOUTES"
 HASHPATH="${BIOS_HASHPATH:-}"
 while [ $# -gt 0 ]; do
@@ -1015,7 +1024,7 @@ for x in "ssideki|japon-intitules gs-japon" "bstars|gs-japon-garde"; do
   fi
 done
 # The MV-1 without a cartridge (sans-cartouche scene): the machine's set, our image substituted.
-case " $SCENES " in *" sans-cartouche "*)
+case " $SCENES " in *" sans-cartouche "*|*" sans-cartouche-carte "*)
   d="$R/ng_mv1.zip"
   [ -L "$d" ] && { echo "REFUS : $d est un lien symbolique" >&2; exit 1; }
   if [ ! -s "$d" ]; then
@@ -1131,12 +1140,12 @@ assert libre[0] == 21, libre
 open(sys.argv[1], "wb").write(c)
 PY
 }
-case " $SCENES " in *" cm-liste "*|*" cm-libres "*|*" cm-protegee "*|*" cm-insertion "*|*" bf-carte "*|*" cm-copier "*|*" cm-copier-tout "*|*" menu-carte "*) carte_fixture ;; esac
+case " $SCENES " in *" cm-liste "*|*" cm-libres "*|*" cm-protegee "*|*" cm-insertion "*|*" bf-carte "*|*" cm-copier "*|*" cm-copier-tout "*|*" menu-carte "*|*" menu-carte-non "*|*" sans-cartouche-carte "*) carte_fixture ;; esac
 # THE CARDS OF THE COPY (cm-copier scene), drawn from the fixture: the source, where aof's save
 # (0044-00, block 5) carries a pattern; an empty formatted card; the target, the fixture itself,
 # where 0044-00 already exists (at zero). For COPY ALL (cm-copier-tout), two more on the empty one: a
 # target with 0044-00 and a foreign save 0500-00, and one with 0500-00 alone on 20 blocks, 7 free.
-case " $SCENES " in *" cm-copier "*|*" cm-copier-tout "*)
+case " $SCENES " in *" cm-copier "*|*" cm-copier-tout "*|*" sans-cartouche-carte "*)
   [ -s "$R/cartes/copie-tout-pleine.neo" ] || python3 -I -B - "$R/cartes" <<'PY' || { echo "cartes de la copie impossibles" >&2; exit 1; }
 import sys
 d = sys.argv[1]
@@ -1451,7 +1460,9 @@ runs_de() {
     jukebox-veille) echo "veille veille-0" ;;
     cm-copier) echo "cp-vide cp-cible cp-renonce" ;;
     cm-copier-tout) echo "ct-vide ct-cible ct-pleine ct-meme" ;;
-    menu-carte) echo "mc-menu mc-apres" ;;
+    menu-carte) echo "mc-menu mc-apres bo-set-cd mc-off" ;;
+    menu-carte-non) echo "mc-non" ;;
+    sans-cartouche-carte) echo "sc-carte" ;;
     alpha-trajectoire) for d in h hd d bd b bg g hg; do echo "at-$d at-$d-snk"; done ;;
     howto-preisle2) echo "hp hp-snk" ;;
   esac
@@ -1655,16 +1666,18 @@ veut gs-def && lancer gs-def son.lua "$NOTRE" $MENU_TEST J_APPUIS=$VERS_GS,$CINQ
 veut gs-langue && lancer gs-langue son.lua "$NOTRE" $MENU_TEST J_APPUIS=$VERS_GS,2398:bas,2404:droite,2410:haut,2416:haut,2422:A \
   J_TEXTE=2409 J_REMISE=754 J_FIN=3500
 # ncombat (PLAY TIME 03:00 → 03:01, right) and puzzledp (CONTINUE INFINITE → WITHOUT, A), then
-# RESTART GAME ("up"), A at 2410: the relaunch at R = 2418 on ncombat and puzzledp,
-# measured on 2026-10-30 with the table of 154 games. This frame follows the phase of the watchdog wait,
+# RESTART GAME ("up"), A at 2410: the relaunch at R = 2418 on ncombat, 2417 on puzzledp,
+# measured on 2026-10-31 on image c006d587…. This frame follows the phase of the watchdog wait,
 # hence the cycles of the menu since its opening, where `_cheats_trouver` goes through the
 # whole table for an absent game: it moved with the reading of the panel, the cheats window
-# (2417), the table of 81 games (2418) and that of 98 games (2417 on puzzledp), that of 154 games (2418). The inputs after it are those of temps-nc1 and
+# (2417), the table of 81 games (2418) and that of 98 games (2417 on puzzledp), that of 154 games (2418),
+# and the menu's layout of DECISIONS §33 (2417 on puzzledp): the same image with 4 to 14 `nop` in
+# `.Lmise_en_page` gives 2418, with 1 to 3 or 16 gives 2417. The inputs after it are those of temps-nc1 and
 # fois1, shifted by R (coin at R + 900, START at R + 1000).
 veut gs-nc && lancer gs-nc son.lua "$MS_NC" $MENU_TEST J_APPUIS=$VERS_GS,2398:droite,2404:haut,2410:A,3318:piece:8,3418:START:8 \
   J_TEXTE=2403 J_IMAGES=3718,4418,5418 J_FIN=5419
-veut gs-pz && lancer gs-pz son.lua "$PZ" $MENU_TEST J_APPUIS=$VERS_GS,2398:A,2404:haut,2410:A,3318:piece:8,3418:START:8 \
-  J_TEXTE=2403 J_FIN=11418
+veut gs-pz && lancer gs-pz son.lua "$PZ" $MENU_TEST J_APPUIS=$VERS_GS,2398:A,2404:haut,2410:A,3317:piece:8,3417:START:8 \
+  J_TEXTE=2403 J_FIN=11417
 # NO SOFT DIP DATA in game, on the two fixtures (above), then START and RESUME.
 veut gs-nosd && lancer gs-nosd son.lua "aof -rompath $NOSD" $MENU_TEST J_APPUIS=$VERS_GS,2410:START,2416:bas,2422:bas,2428:A \
   J_TEXTE=2409 J_FIN=2700
@@ -1749,7 +1762,11 @@ if veut ct-meme; then CARTE_DE=$R/cartes/copie-source.neo; lancer ct-meme son.lu
   J_APPUIS=$VERS_CARTE,360:D,400:A,440:B J_TEXTE=380,420,460 J_FIN=500; fi
 # RESTART TO CARD: the in-game menu, "up" four times, A; the reset comes a few frames later.
 if veut mc-menu; then CARTE_DE=$FIXTURE; lancer mc-menu son.lua "$NOTRE -memc @/carte.neo" $MENU_TEST \
-  J_APPUIS=2380:haut,2386:haut,2392:haut,2398:haut,2410:A,3000:START,3020:START J_TEXTE=2404,2800,2990,3010 J_FIN=3200; fi
+  J_APPUIS=2380:haut,2386:haut,2392:haut,2398:haut,2410:A,2422:A,3000:START,3020:START J_TEXTE=2404,2416,2800,2990,3010 J_FIN=3200; fi
+if veut mc-non; then CARTE_DE=$FIXTURE; lancer mc-non son.lua "$NOTRE -memc @/carte.neo" $MENU_TEST \
+  J_APPUIS=2380:haut,2386:haut,2392:haut,2398:haut,2410:START,2422:START,2434:A,2446:B,2458:bas,2464:bas,2470:bas,2476:bas,2488:A J_TEXTE=2404,2416,2428,2440,2452,2482 J_FIN=2800; fi
+if veut sc-carte; then CARTE_DE=$R/cartes/copie-source.neo; lancer sc-carte son.lua "ng_mv1 -rompath $R -memc @/carte.neo" J_AUSSI=$ICI/carte-echange.lua J_PIECE=0 J_START=0 \
+  CE_ECHANGE=820:-,840:$R/cartes/copie-vide.neo J_APPUIS=720:haut,730:A,780:D,860:A,900:START J_TEXTE=715,725,770,800,880,930 J_FIN=1000; fi
 QUINZE="360:bas,366:bas,372:bas,378:bas,384:bas,390:bas,396:bas,402:bas,408:bas,414:bas,420:bas,426:bas,432:bas,438:bas,444:bas"
 if veut cm-liste; then CARTE_DE=$FIXTURE; lancer cm-liste son.lua "$NOTRE -memc @/carte.neo" $EDIT \
   J_APPUIS=$VERS_CARTE,$QUINZE,470:START,490:START J_TEXTE=350,450,480 J_FIN=700; fi
@@ -2014,6 +2031,7 @@ if veut bo-fp-p2; then NV_DE=bo-set-fp; lancer bo-fp-p2 son.lua "$NOTRE" $FP_NOT
 if veut bo-fp-joint; then NV_DE=bo-set-fp; lancer bo-fp-joint son.lua "$NOTRE" $FP_NOT J_PIECE=0 J_START=1000 J_APPUIS=2000:start2:8; fi
 # CHEATS/DEBUG at OFF: the in-game menu (up, down, A: RESUME), then the freeze set in the
 # engine's RAM.
+if veut mc-off; then NV_DE=bo-set-cd; lancer mc-off son.lua "$NOTRE" $MENU_TEST J_APPUIS=2380:haut,2390:haut,2400:haut J_TEXTE=2375,2385,2395,2405 J_FIN=2500; fi
 if veut bo-cd-menu; then NV_DE=bo-set-cd; lancer bo-cd-menu son.lua "$NOTRE" $MENU_TEST J_APPUIS=2380:haut,2390:bas,2400:A J_TEXTE=2375,2385,2395 J_HACHES=2200-3000 J_FIN=3000; fi
 if veut bo-cd-gel; then NV_DE=bo-set-cd; lancer bo-cd-gel son.lua "$NOTRE" J_POSER=2400@10FB08=000184066000 J_ZONES="146,10,173,29" J_HACHES=2200-4200 J_SUIVRE=108406:1,10FB08:2 J_FIN=4200; fi
 if veut bo-nc; then NV_DE=bo-set-nc; lancer bo-nc son.lua "$NOTRE" J_APPUIS=420:piece:8,6300:START:8 J_HACHES=6000-9000 J_SUIVRE=D00034:1,10FDB6:1 J_FIN=9000; fi
@@ -2467,6 +2485,7 @@ def menu_hud():
     cadre = (c1 - c0 + 1) * (r1 - r0 + 1)
     dedans = len(c) - len(hors)
     dit(f"pause {a}-{b}, cadre colonnes {c0}-{c1} lignes {r0}-{r1} ; trame {b - 1} contre {d0 - 1} : {dedans}/{cadre} cases du cadre, {len(hors)} hors du cadre {sorted(hors)[:6]}")
+    exiger((c0, c1, r0, r1) == (6, 33, 9, 22), f"cadre colonnes {c0}-{c1} lignes {r0}-{r1}, 6-33 et 9-22 attendues")
     exiger(len(hors) <= F("menu-hud", "hors_max"), f"{len(hors)} cases changent hors du cadre")
     exiger(dedans >= F("menu-hud", "cadre_min") * cadre, f"{dedans} cases du cadre sur {cadre}")
 
@@ -2516,13 +2535,13 @@ def cheats_fenetre():
     for n in (2415, 2421, 2427, 2433, 2463):
         dit(f"trame {n} : " + " | ".join(x.strip() for x in c.texte(n).split("\n") if x.strip()))
     a = c.texte(2421)
-    exiger(re.search(r"CHEATS 3-6/\d+", a), "à la 6e ligne, la fenêtre ne dit pas CHEATS 3-6/N")
+    exiger(re.search(r"CHEATS 4-6/\d+", a), "à la 6e ligne, la fenêtre ne dit pas CHEATS 4-6/N")
     exiger("P1 ALTERNATE OUT" in a and "P1 INFINITE LIFE" not in a, "le cheat choisi n'est pas dans la fenêtre")
     exiger(re.search(r"P1 ALTERNATE OUT +ON", c.texte(2427)), "le cheat caché n'est pas passé à ON")
     d = c.texte(2433)
-    exiger(re.search(r"CHEATS 4-7/\d+", d) and "P2 ALTERNATE OUT" in d, "le dernier cheat n'est pas dans la fenêtre")
+    exiger(re.search(r"CHEATS 5-7/\d+", d) and "P2 ALTERNATE OUT" in d, "le dernier cheat n'est pas dans la fenêtre")
     h = c.texte(2463)
-    exiger(re.search(r"CHEATS 2-5/\d+", h) and "P1 INFINITE LIFE" in h and "P1 ALTERNATE OUT" not in h, "la fenêtre ne remonte pas")
+    exiger(re.search(r"CHEATS 2-4/\d+", h) and "P1 INFINITE LIFE" in h and "P1 ALTERNATE OUT" not in h, "la fenêtre ne remonte pas")
     r, _ = reprise(c, p)
     k = range(r + 300, r + 1500)
     forces = sum(1 for n in k if c.f[n].get("m109052") == "3" and c.f[n].get("m109752") == "3")
@@ -3156,7 +3175,7 @@ def gs_mmss():
 def gs_fois():
     g, a, b = sain("gs-pz", "fois0", "fois1")
     exiger(re.search(r"CONTINUE +WITHOUT", g.texte(2403)), "A ne mène pas CONTINUE de INFINITE à WITHOUT")
-    R = relance(g, 2410)
+    R = relance(g, 2410, 2417)
     rg = premiere_remise(g, R + 1001) - R
     ra, rb = premiere_remise(a, 1001), premiere_remise(b, 1001)
     dit(f"le titre après la partie : R + {rg}, contre {rb} sans continue posé au boot et {ra} avec")
@@ -4539,7 +4558,9 @@ def cm_copier_tout():
 def menu_carte():
     m, a = sain("mc-menu", "mc-apres")
     exiger("> RESTART TO CARD" in m.texte(2404), "le menu ne montre pas RESTART TO CARD à « haut » quatre fois")
+    exiger("> LOSE GAME? A:YES" in m.texte(2416), "A sur RESTART TO CARD ne pose pas la question")
     rs = [n for n, r in m.ev if r == "RESET" and n > 2404]
+    exiger(rs and rs[0] > 2422, f"RESET à {rs[:1]}, avant le second A")
     exiger(rs, "pas de RESET après RESTART TO CARD")
     cm_ouvert(m, 2800)
     v = cm_liste_de(m, 2800)
@@ -4549,6 +4570,43 @@ def menu_carte():
     remise_apres(m, 3010)
     exiger("GAME NGH" in a.texte(100), "mc-apres : pas d'écran de boot")
     exiger("MEMORY CARD" not in a.texte(400) and "SOFT DIP" not in a.texte(400), "mc-apres : la marque n'est pas consommée")
+    (o,) = sain("mc-off")
+    t = [o.texte(n) for n in (2375, 2385, 2395, 2405)]
+    exiger("RESUME" in t[0] and "AUTOFIRE" in t[0], "mc-off : le menu n'est pas ouvert")
+    exiger(not any("RESTART TO CARD" in x for x in t), "CHEATS/DEBUG OFF : la ligne RESTART TO CARD est là")
+    for x, l in zip(t[1:], ("GAME SETTINGS", "AUTOFIRE", "RESTART GAME")):
+        exiger(re.search("> *" + l, x), f"mc-off : « haut » ne mène pas à {l}")
+
+def menu_carte_non():
+    (m,) = sain("mc-non")
+    rs = [n for n, r in m.ev if r == "RESET" and n > 2300]
+    exiger(not rs, f"RESET à {rs[:1]} : la question refusée relance la machine")
+    for n in (2416, 2440):
+        exiger("> LOSE GAME? A:YES" in m.texte(n), f"trame {n} : pas de question")
+    for n in (2404, 2428, 2452):
+        exiger("> RESTART TO CARD" in m.texte(n), f"trame {n} : la ligne n'est pas rendue")
+    exiger(re.search("> *RESUME", m.texte(2482)), "« bas » quatre fois ne mène pas à RESUME")
+    aide = [r for r, x in m.fix[2404].items() if "UP/DOWN A/START:OK" in x]
+    exiger(aide == [21], f"l'aide est en ligne {aide}, 21 attendue : le cadre finit en 22, ligne vide comprise")
+    p = m.pauses()
+    exiger(p and p[-1][1] < 2600, f"la partie ne reprend pas ({p[-1:]})")
+
+def sans_cartouche_carte():
+    (a,) = sain("sc-carte")
+    cartes = os.path.join(RUNS, "sc-carte", "..", "..", "roms", "cartes")
+    src = open(os.path.join(cartes, "copie-source.neo"), "rb").read()
+    exiger("HARDWARE TESTS" in a.texte(715), "pas d'écran HARDWARE TESTS")
+    exiger(re.search("> *MEMORY CARD", a.texte(725)), "« haut » depuis WORK RAM ne mène pas à MEMORY CARD")
+    exiger("EXIT  " not in a.texte(725), "la ligne EXIT reste, sans cartouche")
+    cm_ouvert(a, 770)
+    exiger(len(cm_liste_de(a, 770)) == 13, "le gestionnaire n'a pas relu la carte")
+    exiger("CHANGE CARD AND PRESS A" in cm_l(a, 800, 24), f"trame 800 : « {cm_l(a, 800, 24).strip()} »")
+    exiger("COPIED" in cm_l(a, 880, 24), f"trame 880 : « {cm_l(a, 880, 24).strip()} »")
+    c = sauvegardes(open(os.path.join(a.d, "carte-840.neo"), "rb").read())
+    exiger(c == sauvegardes(src), f"{len(c)} sauvegardes copiées")
+    exiger(open(os.path.join(a.d, "carte.neo"), "rb").read() == src, "la carte source a été écrite")
+    exiger("HARDWARE TESTS" in a.texte(930), "START ne rend pas HARDWARE TESTS")
+    dit(f"{len(c)} sauvegardes copiées sans cartouche, aux octets de la source")
 
 def jukebox_veille():
     v, z = sain("veille", "veille-0")
@@ -4618,7 +4676,8 @@ JUGES.update({"pn-menu-on": pn_menu_on, "pn-menu-off": pn_menu_off, "pn-valeur":
 
 JUGES.update({"boot-graphismes": boot_graphismes, "ms-son-slot2": ms_son_slot2, "dip-vierge": dip_vierge,
               "dip-corrompue": dip_corrompue, "tests-mahjong": tests_mahjong, "jukebox-veille": jukebox_veille,
-              "cm-copier": cm_copier, "cm-copier-tout": cm_copier_tout, "menu-carte": menu_carte})
+              "cm-copier": cm_copier, "cm-copier-tout": cm_copier_tout, "menu-carte": menu_carte, "menu-carte-non": menu_carte_non,
+              "sans-cartouche-carte": sans_cartouche_carte})
 
 # ---- The sine table (record --ref-sinus) ----
 # The colours of alpham2's ship, recorded on an image of the witness run (b, g, r of the bgra

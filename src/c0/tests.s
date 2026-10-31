@@ -5,7 +5,8 @@
 |
 | Called by `jsr _autotests` from the soft-DIP editor, IRQs masked (SR = $2700
 | since `_demarrage`), backup RAM unlocked, fix layer on the board's font
-| (REG_BRDFIX, set by `dip.s`). Exit: all registers given back, palettes 0-15 of
+| (REG_BRDFIX, set by `dip.s`). `_autotests_seul`: the same from `c0.s`, without a cartridge, where EXIT
+| would lead back here: its line is MEMORY CARD and opens the manager (DECISIONS §33). Exit: all registers given back, palettes 0-15 of
 | bank 0 at zero apart from the reference, bank 0 selected; the caller redraws its screen.
 |
 | NO ORACLE: neither the reference BIOS's tests nor those of a third-party BIOS are read.
@@ -35,7 +36,7 @@
 | ==================================================================================
 
         .section .haut, "ax"
-        .global _autotests
+        .global _autotests, _autotests_seul
 
         .equ    VRAMADDR, 0x3C0000
         .equ    VRAMRW,   0x3C0002
@@ -66,6 +67,7 @@
         .equ    R_TAILLE, 12
         .equ    N_MEM,    4             | the memory tests
         .equ    F_RES,    -(N_MEM * R_TAILLE)
+        .equ    F_SEUL,   F_RES - 2     | .w 1: no cartridge (see the header)
 
         | The layout: the menu line, column 3.
         .equ    CASE_TITRE, 0x7000 + 13 * 32 + 3       | 8×16, lines 3-4
@@ -75,9 +77,15 @@
         .equ    N_LIGNES,   9
 
 | ----------------------------------------------------------------------------------
+_autotests_seul:
+        movem.l %d0-%d7/%a0-%a6, -(%sp)
+        moveq   #1, %d4
+        bra.s   2f
 _autotests:
         movem.l %d0-%d7/%a0-%a6, -(%sp)
-        link    %a6, #F_RES
+        moveq   #0, %d4
+2:      link    %a6, #F_SEUL
+        move.w  %d4, F_SEUL(%a6)
         lea     F_RES(%a6), %a0
         moveq   #(N_MEM * R_TAILLE / 4) - 1, %d0
 1:      clr.l   (%a0)+
@@ -115,8 +123,13 @@ _autotests:
         beq.s   .Lboucle
 
 | RUN LINE %d7.
-        cmpi.w  #N_LIGNES - 1, %d7      | EXIT
+        cmpi.w  #N_LIGNES - 1, %d7      | EXIT, or MEMORY CARD
+        bne.s   1f
+        tst.w   F_SEUL(%a6)
         beq     .Lsortie
+        jsr     _gestion_carte          | registers returned
+        bra     .Lapres
+1:
         cmpi.w  #4, %d7
         bcc.s   .Lmire
         lea     F_RES(%a6), %a3         | a memory test: "TESTING" first
@@ -180,8 +193,8 @@ _autotests:
 | `c0.s`) + 60 (movem of `dip.s`) + 4 + 386 (its frame, `link #F_LIEN`: 22 × 12 of table, 32
 | of buffer, 4, 1, 1, 4, 4, eight bytes of states, 2, 2, 5 × 12 of the CABINET SETTINGS
 | sub-screen, and 4 of the 8×16 list) + 8
-| (bsr, jsr) + 60 (movem here) + 4 + 48 (this frame) + 16 (movem and jsr of the run) + 12 (three
-| calls at most; the test does not call `.Lsync`) = 602 bytes, so nothing below $10F0A6: the low
+| (bsr, jsr) + 60 (movem here) + 4 + 50 (this frame) + 16 (movem and jsr of the run) + 12 (three
+| calls at most; the test does not call `.Lsync`) = 604 bytes, so nothing below $10F0A4: the low
 | area $100000-$10EFFF is free and is tested without precaution; the game's save is restored
 | there after the editor (`_slot_present`, `c0.s`), which makes this test non-destructive for
 | the game. The high area $10F000-$10FFFF (4 KiB) is first copied into the low area
@@ -972,7 +985,12 @@ _autotests:
         bsr     .Lcar
         move.w  %d6, %d0
         lsl.w   #4, %d0
-        lea     .Lnoms, %a2
+        cmpi.w  #N_LIGNES - 1, %d6      | no cartridge: the name after EXIT
+        bne.s   2f
+        tst.w   F_SEUL(%a6)
+        beq.s   2f
+        addi.w  #16, %d0
+2:      lea     .Lnoms, %a2
         adda.w  %d0, %a2
         moveq   #16, %d4
         bsr     .Lecrire
@@ -1157,6 +1175,7 @@ _autotests:
         .ascii  "CROSSHATCH      "
         .ascii  "CARTRIDGE CRC   "
         .ascii  "EXIT            "
+        .ascii  "MEMORY CARD     "
 .Lpal_etats:                             | the palette of each state
         .word   0x1000, 0x5000, 0x6000, 0x2000
 .Letats:

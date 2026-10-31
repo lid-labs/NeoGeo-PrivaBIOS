@@ -895,7 +895,7 @@ still found under MAME, without a third-party database.
 
 1. **16, no more**: one bit per cheat in CH_ETATS, which stays a word contiguous to GL_MASQUE. The
    hook thus keeps its single `tst.l` without cheat or freeze, whose cycles count (`cheats.s`).
-2. **A window in the menu, not a sub-screen**: 4 cheat lines at most, which scroll behind the
+2. **A window in the menu, not a sub-screen**: 4 cheat lines at most (3 since §33), which scroll behind the
    selection. The key paths stay those from before: cheat k at "down" k + 2 times, AUTOFIRE,
    GAME SETTINGS and MEMORY EDITOR at "up" 3, 2 and 1 times.
 3. **The table at the end of the high area** (`build/bios.ld`, section `.cheats`): in the middle of
@@ -905,8 +905,8 @@ still found under MAME, without a third-party database.
 
 ## 33. The card manager from the in-game menu, and COPY ALL
 
-On 2026-10-31 (public issue 57; `menu.s`, `dip.s`, `gestion-carte.s`). The choice of the menus was left open by
-the ticket, and taken here without the user: to be reviewed on the pull request.
+On 2026-10-31 (public issue 57; `menu.s`, `dip.s`, `tests.s`, `gestion-carte.s`). The choice of the menus was left
+open by the ticket; points 2, 4, 5, 11 and 12 follow the user's review of the pull request, the same day.
 
 1. **One way in more: RESTART TO CARD, in the in-game menu.** A player already reaches the test
    screen at every boot, so a boot gesture would add nothing; play is what had no way in.
@@ -921,10 +921,12 @@ the ticket, and taken here without the user: to be reviewed on the pull request.
    opens once, nothing else. The opening goes through the test screen, which sets up what the manager
    expects; START returns to it.
 4. **The line is at "up" four times**, just before AUTOFIRE, so no earlier key path moves. The frame
-   does not grow, 28 × 14 being all that MN_FIX holds: the help takes its last blank line.
-5. **Not reached**: the title and the demo, where the in-game menu does not open, and the machine
-   without a cartridge (HARDWARE TESTS only). Both would need a new gesture or a new line for a
-   rarer need.
+   does not grow, 28 × 14 being all that MN_FIX holds, and keeps its blank line under the help: it
+   shows 3 cheats instead of 4, and the scroll of §32 does the rest.
+5. **Not reached**: the title and the demo, where the in-game menu does not open: that would need a
+   new gesture for a rarer need. The user accepted this, and the lost game of point 2. **The machine
+   without a cartridge is reached**: the line of HARDWARE TESTS that says EXIT says MEMORY CARD there,
+   since EXIT would only lead back to the same screen. No new gesture, and no line moves.
 6. **COPY ALL is D, on any line**: no new line, so the paths of the list stay ("up" × 2 is FORMAT CARD).
    D was free; the help says it. On the mahjong panel, D is the panel's D key.
 7. **The source is never written.** A rereads the card in place; its directory and FAT 1 equal to the
@@ -938,8 +940,16 @@ the ticket, and taken here without the user: to be reviewed on the pull request.
 9. **The room**: the buffer of §26 grows by 192 bytes, the kept directory and FAT, and its VRAM
    by 96 words, up to the tile map of sprite 14. A FAT with crossed chains adds up to more than 27
    blocks: CARD ERROR 83, nothing overflows.
-10. **Proof**: scenes `cm-copier-tout` and `menu-carte`, mutations `ct-*` and `mc-*`
+10. **Proof**: scenes `cm-copier-tout`, `menu-carte`, `menu-carte-non` and `sans-cartouche-carte`,
+    mutations `ct-*`, `mc-*`, `menu-sans-marge` and `sc-carte-inerte`
     (`measured/2026-10-31-parcours-copie-tout.tsv`).
+11. **RESTART TO CARD asks first**: A or START turn the line into LOSE GAME? A:YES, A alone goes on,
+    B, START, UP or DOWN give the line back. Unlike RESTART GAME, a player comes here to manage a
+    card, and the line sits next to AUTOFIRE: a single A must not lose the game. What would
+    reverse it: nothing measured, a choice of the user.
+12. **Hidden under CHEATS/DEBUG OFF**: that setting keeps players out, and this line leads to FORMAT
+    CARD. AUTOFIRE and GAME SETTINGS move up one line of the frame, so "down" × 2 is AUTOFIRE there,
+    and "up" × 3 is RESTART GAME. The test screen keeps its MEMORY CARD line: it needs a gesture at boot.
 
 ## Still to be decided
 

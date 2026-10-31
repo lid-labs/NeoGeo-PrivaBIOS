@@ -25,7 +25,7 @@ Power-on
       │     ├── RESUME
       │     ├── RESTART GAME
       │     ├── the game's cheats, ON/OFF (cheats.s)
-      │     ├── RESTART TO CARD ──► restart, then MEMORY CARD (gestion-carte.s)
+      │     ├── RESTART TO CARD ──► confirmation, restart, then MEMORY CARD (gestion-carte.s)
       │     ├── AUTOFIRE (autofire.s)
       │     ├── GAME SETTINGS (reglages-jeu.s)
       │     └── MEMORY EDITOR (memoire.s)
@@ -89,7 +89,7 @@ it is the list's START that saves, without a restart.
 | FREE PLAY | OFF, ON, DIP | START starts a game without a coin, P2 included. DIP: board switch 7 is at ON, which is enough; the line no longer changes |
 | NO CONTINUE | OFF, ON | START is refused during the continue countdown |
 | DEMO SOUND | ON, OFF | At OFF, the demos are silent; title and play keep the sound |
-| CHEATS/DEBUG | ON, OFF | At OFF, the in-game menu no longer offers cheats or MEMORY EDITOR |
+| CHEATS/DEBUG | ON, OFF | At OFF, the in-game menu no longer offers cheats, MEMORY EDITOR or RESTART TO CARD |
 | DEBUG DIPS | the mask in hexadecimal, or OFF | LEFT, RIGHT or A opens the debug dips screen; OFF under CHEATS/DEBUG OFF, and the line does not open |
 
 In AES mode, the first three show MVS ONLY and have no effect; CHEATS/DEBUG applies in both
@@ -115,7 +115,8 @@ card in place left unchanged shows SAME CARD, one without the room NOT ENOUGH BL
 written, and the wait goes on. B gives up. The source card is never written (`DECISIONS.md` §33).
 
 The screen also opens from the in-game menu, RESTART TO CARD: the game is lost, as with RESTART
-GAME. START goes back to the test screen, on MEMORY CARD, and START again starts the game.
+GAME. START goes back to the test screen, on MEMORY CARD, and START again starts the game. Without a
+cartridge, it opens from HARDWARE TESTS, and START goes back there.
 
 ### HARDWARE TESTS
 
@@ -144,21 +145,21 @@ together (without a TEST button), except with A, B, C and D all four held (the B
 boot). The game pauses, the music keeps playing.
 
 **Controls**: UP/DOWN chooses, A or START confirms. On a cheat line, A or START toggles ON/OFF
-and the menu stays open. A game has up to 16 cheats; the frame shows 4, and the list scrolls behind
-the cursor. Beyond 4, the line under the title says which ones are shown ("CHEATS 5-8/12").
+and the menu stays open. A game has up to 16 cheats; the frame shows 3, and the list scrolls behind
+the cursor. Beyond 3, the line under the title says which ones are shown ("CHEATS 5-7/12").
 
 | From RESUME | Line | What it does |
 |---|---|---|
 | — | RESUME | returns the game where it was |
 | "down" × 1 | RESTART GAME | restarts the machine |
 | "down" × 2 and following | one cheat per line, up to 16 | only for the games in the table (`measured/2026-10-25-cheats-table.tsv`) |
-| "up" × 4 | RESTART TO CARD | restarts the machine and opens the memory card manager; the game in progress is lost |
+| "up" × 4 | RESTART TO CARD | asks LOSE GAME? A:YES; A restarts the machine and opens the memory card manager, the game in progress being lost; B, START, UP or DOWN give the line back |
 | "up" × 3 | AUTOFIRE | autofire for A, B, C and D, kept for this game |
 | "up" × 2 | GAME SETTINGS | the game's soft-DIPs, during play |
 | "up" × 1 | MEMORY EDITOR | the game's RAM |
 
-**Under CHEATS/DEBUG at OFF**, the cheats and MEMORY EDITOR disappear: "up" × 1 then leads to
-GAME SETTINGS, "up" × 2 to AUTOFIRE, "up" × 3 to RESTART TO CARD.
+**Under CHEATS/DEBUG at OFF**, the cheats, RESTART TO CARD and MEMORY EDITOR disappear: "up" × 1
+then leads to GAME SETTINGS, "up" × 2 to AUTOFIRE, as does "down" × 2.
 
 ### AUTOFIRE
 
@@ -204,4 +205,5 @@ the bottom (FROZEN); the engine writes them again every frame.
   the conditions are in `io.s`.
 - **SYSTEM CRASH**: the exception or its possible causes, the registers and the game's NGH; START restarts.
 - **Without a cartridge**: the machine opens HARDWARE TESTS instead of rebooting in a loop
-  (`DECISIONS.md` §13).
+  (`DECISIONS.md` §13). The EXIT line, which would lead back there, is MEMORY CARD: "up" × 1 from
+  WORK RAM, then A opens the memory card manager (`DECISIONS.md` §33).

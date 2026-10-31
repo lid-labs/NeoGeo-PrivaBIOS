@@ -1,8 +1,9 @@
 | SPDX-License-Identifier: GPL-3.0-or-later
 | Copyright (C) 2026 Thibaut Lion
 | ==================================================================================
-| THE MEMORY CARD MANAGER — opened from the TEST screen (`dip.s`, MEMORY CARD line): the list
-| of the card's saves, the free blocks, deleting a save and formatting, each with a
+| THE MEMORY CARD MANAGER — opened from the TEST screen (`dip.s`, MEMORY CARD line), by the mark
+| of RESTART TO CARD (`menu.s`), or without a cartridge from HARDWARE TESTS (`tests.s`; DECISIONS
+| §33): the list of the card's saves, the free blocks, deleting a save and formatting, each with a
 | confirmation.
 |
 | NO ORACLE: neither another BIOS's manager nor a game's code is read. Written under the
@@ -10,10 +11,10 @@
 | "measured": a named record; "read in": a page of the NeoGeo Development Wiki;
 | "ASSUMED": neither one nor the other.
 |
-| CALL: `jsr _gestion_carte` from `dip.s`. All registers returned. The state at the call is
-| that of the TEST screen: REG_BRDFIX (the board's font), palettes 1-4 of `dip.s` in
+| CALL: `jsr _gestion_carte` from `dip.s` or `tests.s`. All registers returned. The state at the call is
+| that of the TEST screen: REG_BRDFIX (the board's font), palettes 1-4 of the caller in
 | bank 0, IRQs masked, backup RAM unlocked. On return, the same, palette 5 at zero
-| (like `jukebox.s`); `dip.s` redraws its screen.
+| (like `jukebox.s`); the caller redraws its screen.
 |
 | WHAT IS READ, and what is not. The card through `card.s`: `_carte_releve` for the list
 | (no write), CARD itself to delete ($04) and format ($00), through the interface that
