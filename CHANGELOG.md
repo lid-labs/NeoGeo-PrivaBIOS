@@ -6,6 +6,12 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Every imported cheat now has a recorded result under MAME: 1,464 ok, 4 leave play as their
+  FINISH title says, 100 could not be judged, none freezes the game
+  (`bench/cheats-recherche.py importes`, control `P1 CHAR RICHARD`).
+
 ### Changed
 
 - `docs/COMPARISON.md`: boot on flash carts is reported on a real BackBit, on an image older than

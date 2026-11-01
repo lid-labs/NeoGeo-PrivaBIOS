@@ -7,7 +7,8 @@
 --           (61,184 bytes per record; the frame of each record in C_OUT/ram.idx). The
 --           filtering is done outside MAME, on these records.
 --   forcer  the CAUSAL PROOF: from C_DEPUIS on, C_FORCER ("adr:size:value", hex,
---           size 1 or 2, commas) is written every frame by lua; the rest as `releve`.
+--           size 1 or 2, commas) is written every frame by lua, or at C_DEPUIS only if
+--           C_UNEFOIS is set; the rest as `releve`.
 --   menu    THE CHEAT THROUGH THE BIOS: the in-game menu opened by holding TEST (C_MENU, frame),
 --           then the presses of C_APPUIS; lua writes only C_FORCER, if given (BIOS_GAME_DIP, for
 --           a game whose soft-DIPs `c0.s` does not decode). A write tap on the game's work
@@ -47,6 +48,7 @@ local MODE = os.getenv("C_MODE") or "releve"
 local PAS = tonumber(os.getenv("C_PAS") or "10")
 local FIN = tonumber(os.getenv("C_FIN") or "3000")
 local DEPUIS = tonumber(os.getenv("C_DEPUIS") or "0")
+local UNEFOIS = (os.getenv("C_UNEFOIS") or "") ~= ""
 local m = manager.machine
 local cpu = m.devices[":maincpu"]
 local p = cpu.spaces["program"]
@@ -179,7 +181,7 @@ emu.register_frame_done(function()
   for _, t in ipairs(menus) do if n >= t and n < t + 40 then t_test = true end end
   test:set_value(t_test and 1 or 0)
   for k, c in pairs(champs) do c:set_value(tenus[k] and 1 or 0) end
-  if (MODE == "forcer" or MODE == "menu") and n >= DEPUIS then
+  if (MODE == "forcer" or MODE == "menu") and n >= DEPUIS and (not UNEFOIS or n == DEPUIS) then
     for _, f in ipairs(forcer) do if f[2] == 1 then p:write_u8(f[1], f[3]) else p:write_u16(f[1], f[3]) end end
   end
   local u = p:read_u8(0x10FDAF)

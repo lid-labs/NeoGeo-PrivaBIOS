@@ -6,8 +6,16 @@
     python3 -I -B bench/cheats-recherche.py releve [--jeux "<romsets>"] [--garder] [--jobs n] <roms> <travail>
     python3 -I -B bench/cheats-recherche.py action [--scenario s] [--jeux "<romsets>"] [--fin n] [--garder] <roms> <travail>
     python3 -I -B bench/cheats-recherche.py forcer <forcages.tsv> [--depuis n] [--fin n] [--images l] [--suivre l] <roms> <travail>
+    python3 -I -B bench/cheats-recherche.py importes [--jeux "<romsets>"] [--max n] [--jobs n] <roms> <travail>
     python3 -I -B bench/cheats-recherche.py bisecter <candidats.tsv> --categorie c [--scenario s] [--depuis n] [--fin n]
         [--max n] [--jeux "<romsets>"] <roms> <travail>
+
+IMPORTES. Each imported cheat (`measured/2026-10-30-cheats-importes*.tsv`) written by lua from frame
+3600 for 600 frames, against a witness of the game, on our image. It catches what shows: an exit of
+MAME (plantage), a picture frozen over three images (gel), play left (sortie). A witness out of
+play or frozen at 3600 gives sans_conclusion. It does not prove that a cheat does what its title
+says, and the writes are lua's, not the BIOS engine's. Control: P1 CHAR RICHARD on fatfury1, kept
+out of the table because it freezes the game, must come out gel, or the pass stops.
 
 BISECTER. The candidates of one category forced all together, then the group that holds cut in two.
 The defaults (actif scenario, --depuis 3600) are those of fighting games; in action, --depuis 700.
@@ -44,7 +52,7 @@ serve the sheets and judging the HUD.
 Clean room: no third-party cheat database. MAME's debugger (watchpoints) may tell WHO writes a
 cell; no game code is copied.
 """
-import argparse, collections, concurrent.futures as cf, hashlib, os, shutil, subprocess, sys
+import argparse, collections, concurrent.futures as cf, csv, glob, hashlib, os, shutil, subprocess, sys
 import numpy as np
 
 ICI = os.path.dirname(os.path.abspath(__file__))
@@ -72,6 +80,8 @@ SCENARIOS = {
     # P2 alone (on 2026-10-29): its coin, its START, and it walks forward jumping; P1 does not play.
     # Its lives, its bombs and its game over then read like P1's.
     "saut2": "400-407:pieceDeux,500-507:startDeux,1000-40000:droiteDeux,1000-40000%20:bDeux",
+    # Sets that a single START leaves on their title (imported cheats, on 2026-11-01).
+    "tenace": "400-407:piece,500-3500%120:START,600-3500%30:A",
     "action2": "400-407:pieceDeux,500-507:startDeux,600-40000%6:aDeux,1000-40000:droiteDeux,"
                "1500-40000%300:bDeux,1650-40000%400:cDeux",
 }
@@ -541,6 +551,93 @@ def cmd_bisecter(a):
     print("\n".join(lignes))
 
 
+IMPORTES_DEPUIS = 3600
+IMPORTES_IMAGES = "4000,4100,4200"
+IMPORTES_TENACE = ("androdun diggerma ghostlop lasthope nam1975 neobombe pbobbl2n pbobblen puzzldpr puzzledp "
+                   "quizdais quizkof s1945p sonicwi3 stakwin zedblade zintrckb").split()
+IMPORTES_CONTROLE = ("fatfury1", "CONTROLE RICHARD", "100331:1:5", "")
+
+
+def importes_liste():
+    """(game, name, C_FORCER, C_UNEFOIS) of each imported cheat. The -2 record is the one-shot batch."""
+    res = []
+    for f in sorted(glob.glob(os.path.join(PAQUET, "measured", "2026-10-30-cheats-importes*.tsv"))):
+        unefois = "1" if f.endswith("-2.tsv") else ""
+        for r in csv.DictReader(open(f, encoding="utf-8"), delimiter="\t", quoting=csv.QUOTE_NONE):
+            ecr = ",".join(":".join(w.split("/")) for w in r["ecritures"].split())
+            res.append((r["jeu"], r["nom"], ecr, unefois))
+    return res
+
+
+def importes_etat(user):
+    """(BIOS_USER_MODE at the first forced frame, first frame after it where that mode changes)."""
+    etat, sortie = "", ""
+    for n, x in user:
+        if n <= IMPORTES_DEPUIS:
+            etat = x
+        elif sortie == "":
+            sortie = n
+    return etat, sortie
+
+
+def importes_verdict(r, t):
+    """The verdict of run r against its game's witness t: (rc, fige, etat, sortie) both."""
+    if t[0] != 0 or t[1] or t[2] != "02":      # rc 3: the jig refuses a set without `:edge:joy`
+        return "sans_conclusion"
+    if r[0] != 0:
+        return "plantage"
+    if r[1]:
+        return "gel"
+    return "sortie" if r[3] != "" and t[3] == "" else "ok"
+
+
+def cmd_importes(a):
+    travail = os.path.abspath(a.travail)
+    img = image(travail)
+    liste = importes_liste()
+    if a.jeux:
+        liste = [c for c in liste if c[0] in a.jeux.split()]
+    liste = liste[:a.max] if a.max else liste
+    liste.append(IMPORTES_CONTROLE)
+    jeux = sorted({c[0] for c in liste})
+    for jeu in jeux:
+        rp = romset(os.path.abspath(a.roms), travail, jeu, img)
+    jobs = [(jeu, "temoin", "", "") for jeu in jeux] + liste
+
+    def run(job):
+        jeu, nom, f, unefois = job
+        o = os.path.join(travail, "importes", f"{jeu}-{hashlib.sha256((nom + f).encode()).hexdigest()[:12]}")
+        sc = "tenace" if jeu in IMPORTES_TENACE else "actif" if jeu in COMBAT else "action"
+        env = {"C_MODE": "forcer" if f else "releve", "C_ENTREES": SCENARIOS[sc],
+               "C_FIN": "4210", "C_PAS": "50", "C_DEPUIS": str(IMPORTES_DEPUIS), "C_FORCER": f, "C_UNEFOIS": unefois,
+               "C_IMAGES": IMPORTES_IMAGES}
+        rc = mame(jeu, rp, o, env)
+        imgs = [os.path.join(o, f"f{int(x):05d}.bin") for x in IMPORTES_IMAGES.split(",")]
+        imgs = [x for x in imgs if os.path.exists(x)]
+        h = {hashlib.sha256(open(x, "rb").read()).hexdigest() for x in imgs}
+        try:
+            u = journal(o)[2]
+        except FileNotFoundError:          # MAME did not start the jig
+            u = []
+        shutil.rmtree(o, ignore_errors=True)
+        return (rc, len(imgs) == 3 and len(h) == 1, *importes_etat(u))
+
+    with cf.ThreadPoolExecutor(a.jobs) as ex:
+        res = list(ex.map(run, jobs))
+    temoins = {j[0]: r for j, r in zip(jobs, res) if j[1] == "temoin"}
+    lignes = ["jeu\tnom\tverdict\trc\tfige\tuser_3600\tsortie_de_partie"]
+    controle = ""
+    for j, r in zip(jobs, res):
+        v = "temoin" if j[1] == "temoin" else importes_verdict(r, temoins[j[0]])
+        if j is IMPORTES_CONTROLE:
+            controle = v
+        lignes.append(f"{j[0]}\t{j[1]}\t{v}\t{r[0]}\t{'fige' if r[1] else ''}\t{r[2]}\t{r[3]}")
+    open(os.path.join(travail, "importes.tsv"), "w").write("\n".join(lignes) + "\n")
+    print("\n".join(l for l in lignes if "\tok\t" not in l))
+    if controle != "gel":
+        sys.exit(f"ECHEC : le contrôle RICHARD donne {controle}, pas gel")
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sp = p.add_subparsers(dest="cmd", required=True)
@@ -568,12 +665,16 @@ def main():
     bi.add_argument("--max", type=int, default=24, help="candidats par jeu, au plus")
     bi.add_argument("--fin", type=int, default=15000)
     bi.add_argument("--depuis", type=int, default=3600, help="trame du premier forçage (700 en action)")
-    for x in (r, f, bi, ac):
+    im = sp.add_parser("importes")
+    im.add_argument("--jeux", default="")
+    im.add_argument("--max", type=int, default=0, help="cheats essayés, au plus (0 : tous), pour mesurer le coût")
+    for x in (r, f, bi, ac, im):
         x.add_argument("--jobs", type=int, default=12)
         x.add_argument("roms")
         x.add_argument("travail")
     a = p.parse_args()
-    {"releve": cmd_releve, "forcer": cmd_forcer, "bisecter": cmd_bisecter, "action": cmd_action}[a.cmd](a)
+    {"releve": cmd_releve, "forcer": cmd_forcer, "bisecter": cmd_bisecter, "action": cmd_action,
+     "importes": cmd_importes}[a.cmd](a)
 
 
 if __name__ == "__main__":
