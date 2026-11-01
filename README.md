@@ -138,8 +138,8 @@ SNK BIOS and UniBIOS 4.0 (`bench/matrice.sh`, `measured/HISTORIQUE.md`):
 
 - 163 of 164 games play under each of Sprixe BIOS, the SNK BIOS and UniBIOS 4.0. This is judged
   on the picture, under MAME: it is not evidence for real hardware.
-- `mvstemp` shows a black screen under all three BIOSes: a development board whose subsystem MAME
-  does not emulate.
+- `mvstemp` stays black, with the same picture, under all three BIOSes. Its set carries an HD64180
+  program and MAME lists no such device; we assume, without proof, that this is the cause.
 
 Autofire, measured on player 1's A button: 89 games see it fully, 25 partly, 35 never (they read the
 joystick themselves), 15 were not measured ([`docs/AUTOFIRE.md`](docs/AUTOFIRE.md)).
