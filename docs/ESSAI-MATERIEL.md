@@ -197,7 +197,7 @@ Checked on this exact image: 12 targeted scenes PASS (sans-cartouche, flash-cart
 floating bus, AES mode). Neither the full regression nor the catalogue was run. No feedback from
 the board yet.
 
-## samsho4's WARNING — 2026-10-29 and 2026-10-30
+## samsho4's WARNING — 2026-10-29 to 2026-11-01
 
 **What the board showed.** On 2026-10-29, on the tester's board with a BackBit flash cart: samsho4
 shows "WARNING / THIS ROM CARTRIDGE IS FOR USE WITH ORIGINAL SNK BOARDS ONLY" at the start of a game.
@@ -212,3 +212,12 @@ clears everything, then trusted the signature. Fixed (`src/c0/c0.s`, scene `bram
 our first boot is not known, and the fix has not run on a board. It does not repair a board already
 signed with a non-zero `$D00100`: that backup RAM must be cleared once.
 
+**What the tester reported on 2026-10-31.** No WARNING since the backup RAM was cleared, on original
+cartridges and on the BackBit, also with a trace image that lacks the full format. So this does not
+prove the fix: under MAME too, a cleared backup RAM shows no WARNING before the fix. The trace holds
+only the BackBit menu (`BACB`), with `$D00100` at 0.
+
+**What this says of the flash cart fix, reported on 2026-11-01.** On the BackBit, a game now starts.
+By the maintainer's account, the tester's image is the one just before the import of the cheats
+(2026-10-30), after the flash cart fix (`ee79b62`, 2026-10-28). ASSUMED: that it carries the fix;
+its CRC was not recorded. No feedback from a NeoSD Pro.
