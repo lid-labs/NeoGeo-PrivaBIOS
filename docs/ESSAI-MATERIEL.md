@@ -197,11 +197,6 @@ Checked on this exact image: 12 targeted scenes PASS (sans-cartouche, flash-cart
 floating bus, AES mode). Neither the full regression nor the catalogue was run. No feedback from
 the board yet.
 
-**What the board showed, reported on 2026-11-01.** On the BackBit, a game now starts: samsho4 on
-2026-10-29, below. By the maintainer's account, the tester's image is the one just before the
-import of the cheats (2026-10-30), after the flash cart fix (`ee79b62`, 2026-10-28). ASSUMED: that
-it carries the fix; its CRC was not recorded. No feedback from a NeoSD Pro.
-
 ## samsho4's WARNING — 2026-10-29 to 2026-10-31
 
 **What the board showed.** On 2026-10-29, on the tester's board with a BackBit flash cart: samsho4
@@ -222,3 +217,7 @@ cartridges and on the BackBit, also with a trace image that lacks the full forma
 prove the fix: under MAME too, a cleared backup RAM shows no WARNING before the fix. The trace holds
 only the BackBit menu (`BACB`), with `$D00100` at 0.
 
+**What this says of the flash cart fix, reported on 2026-11-01.** On the BackBit, a game now starts.
+By the maintainer's account, the tester's image is the one just before the import of the cheats
+(2026-10-30), after the flash cart fix (`ee79b62`, 2026-10-28). ASSUMED: that it carries the fix;
+its CRC was not recorded. No feedback from a NeoSD Pro.

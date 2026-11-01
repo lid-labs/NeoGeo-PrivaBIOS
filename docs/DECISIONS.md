@@ -915,8 +915,8 @@ boot screen, GAME NGH 0000, an empty slot.
    sans-cartouche, HARDWARE TESTS judged at frame 700 instead of 400).
 4. **ASSUMED**: that a flash cart is silent during its first frames; measured only under MAME,
    where a cartridge silent for 30 frames (`bus-flottant.lua`, BF_ABSENTE) is found
-   (`measured/2026-10-28-carte-lente.tsv`). A game has since started on a real BackBit
-   (`ESSAI-MATERIEL.md`, image no. 16), which fits but does not measure the silence.
+   (`measured/2026-10-28-carte-lente.tsv`). A later report of a game started on a real BackBit
+   (`ESSAI-MATERIEL.md`, samsho4's WARNING) fits but does not measure the silence.
    **Not covered**: a slow flash cart next to a prompt cartridge, which the first scan finds
    without it.
 
