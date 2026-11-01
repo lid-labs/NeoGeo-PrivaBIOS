@@ -58,7 +58,7 @@ are in [Not compared](#not-compared).
 |---|---|---|
 | Systems | ✓ **MVS, AES and CD**. All MVS types, slot 1 and multi-slot, AES, and the three CD models (v3.3). | ◐ **MVS only**. An AES mode on MVS boards. No image for the AES console or CD systems. |
 | Real boards | ✓ **Yes**. Four third-party installers listed on its site. | ◐ **One**. A single MV-2F so far. |
-| Compatibility under MAME | 163 of 164 MAME sets play in our catalogue, judged on the picture. | 163 of 164, same test. Not evidence for real hardware. |
+| Compatibility under MAME | 163 of 164 MAME sets play in our catalogue, judged on the picture. | 162 of 164, same test, `irrmaze` left out (#70). Not evidence for real hardware. |
 
 ## Look and extras
 
