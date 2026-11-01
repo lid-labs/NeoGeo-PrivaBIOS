@@ -6,6 +6,11 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- `docs/COMPARISON.md`: boot on flash carts is reported on a real BackBit, on an image older than
+  the current one; the NeoSD Pro has no feedback yet.
+
 ## [0.1.0-beta.2] - 2026-10-31
 
 ### Added
