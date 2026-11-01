@@ -24,9 +24,12 @@ for n in SHOTS:gmatch("%d+") do shot[tonumber(n)] = true end
 for n in IMAGES:gmatch("%d+") do img[tonumber(n)] = true end
 
 local function F(p, n) local pt = manager.machine.ioport.ports[p]; return pt and pt.fields[n] end
-local coin    = F(":AUDIO_COIN", "Coin 1")
+-- vliner has no joystick port: MAME puts its coin in :IN5 and its panel in :DSW. Without these
+-- fallbacks nothing reaches it and it stays on its GAME CONFIG screen, read as frozen under all
+-- three BIOSes; Stop/Double Up leaves that screen.
+local coin    = F(":AUDIO_COIN", "Coin 1") or F(":IN5", "Coin 1")
 local start   = F(":edge:joy:START", "1 Player Start")
-local boutonA = F(":edge:joy:JOY1", "P1 A")
+local boutonA = F(":edge:joy:JOY1", "P1 A") or F(":DSW", "Stop/Double Up")
 local ecran   = manager.machine.screens:at(1)
 
 -- SPATIALLY COMPLETE signature: every pixel contributes to it. A first version summed one byte
