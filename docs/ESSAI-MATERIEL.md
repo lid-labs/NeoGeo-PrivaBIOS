@@ -197,7 +197,7 @@ Checked on this exact image: 12 targeted scenes PASS (sans-cartouche, flash-cart
 floating bus, AES mode). Neither the full regression nor the catalogue was run. No feedback from
 the board yet.
 
-## samsho4's WARNING — 2026-10-29 to 2026-10-31
+## samsho4's WARNING — 2026-10-29 to 2026-11-01
 
 **What the board showed.** On 2026-10-29, on the tester's board with a BackBit flash cart: samsho4
 shows "WARNING / THIS ROM CARTRIDGE IS FOR USE WITH ORIGINAL SNK BOARDS ONLY" at the start of a game.
