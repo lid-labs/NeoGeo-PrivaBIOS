@@ -101,7 +101,8 @@ one by one.
 
 1. **Game zips are non-merged**: each carries its own full copy of the BIOS set, and MAME looks in
    the game's zip **before** `neogeo.zip`. Replacing the BIOS in `neogeo.zip` alone does nothing — a
-   BIOS made entirely of zeros once gave a run identical to the real one.
+   BIOS made entirely of zeros once gave a run identical to the real one. `irrmaze` has no
+   `sp-s2.sp1` to replace: it loads its own `236-bios.sp1`, and `matrice.sh` substitutes that.
 2. **`WRONG CHECKSUMS` in MAME's log proves the substitution is active.** Its absence means MAME
    found the original BIOS elsewhere. `matrice.sh` checks it on every run (column `controle`).
 3. **Never write through a symbolic link.** An early version of the bench linked the user's ROMs, then

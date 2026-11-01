@@ -200,7 +200,7 @@ nothing to fire with A.
 - Riding Hero (NGM-006 ~ NGH-006) (`ridhero`) — A has no visible effect in the scripted session
 - Robo Army (`roboarmy`) — A has no visible effect in the scripted session
 - Soccer Brawl (NGM-031) (`socbrawl`) — A has no visible effect in the scripted session
-- The Irritating Maze / Ultra Denryu Iraira Bou (`irrmaze`) — MAME does not load another BIOS for this game
+- The Irritating Maze / Ultra Denryu Iraira Bou (`irrmaze`) — the run replaced `sp-s2.sp1`, which this set does not load
 - Thrash Rally (ALM-003 ~ ALH-003) (`trally`) — A has no visible effect in the scripted session
 - V-Liner (v0.7a) (`vliner`) — no standard joystick (panel or controller specific to the game)
 
