@@ -63,7 +63,7 @@ cartridge. The in-game menu and autofire screens are over Metal Slug (© SNK).
   (see [Compatibility](#compatibility)).
 - Cheats for 154 games (1,709 cheats): 141 found and proven here under MAME, 1,568 imported from the
   MAME XML Cheats Collection and not proven to do what they say. Under MAME, 1,468 of them keep the
-  game running over 600 frames, and 100 could not be judged
+  game running over 610 frames, and 100 could not be judged
   (`measured/2026-11-01-cheats-importes-passe.tsv`).
 - Soft-DIPs during a game (GAME SETTINGS in the in-game menu), and the soft-DIP editor at boot.
 - Soft-DIPs of a game never launched: the editor shows the cartridge defaults and saves a clean

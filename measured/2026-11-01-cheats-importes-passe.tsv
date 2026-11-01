@@ -1,10 +1,10 @@
 # Les cheats importes essayes sous MAME, le 2026-11-01 (#56). Image 95d481bc…, MAME 0.286, -bios euro, sans fenetre :
 # bench/cheats-recherche.py importes. Chaque cheat ecrit par lua des la trame 3600 (une seule fois pour les cheats a un coup)
 # jusqu'a la trame 4210, contre un temoin du jeu. Ecritures de lua, pas du moteur du BIOS.
-# ok : ni sortie de MAME, ni image figee aux trames 4000, 4100, 4200, ni sortie de partie. Cela ne prouve pas que le cheat fait
-# ce que dit son titre. sortie : a quitte la partie, pas le temoin (les quatre sont des FINISH, le titre l'annonce).
-# sans_conclusion : temoin hors partie ou fige a 3600, ou set refuse par le jig (rc 3, pas de :edge:joy).
-# Un temoin qui quitte lui-meme la partie avant 4210 (aof, bjourney, ctomaday, ghostlop, gpilots) ne juge plus la sortie.
+# ok : ni sortie de MAME, ni image figee aux trames 4000, 4100, 4200, ni sortie de partie avant le temoin. Cela ne prouve pas que le cheat fait
+# ce que dit son titre. sortie : a quitte la partie avant le temoin (les quatre sont des FINISH, le titre l'annonce).
+# sans_conclusion : temoin hors partie a 3600, fige ou sans images, ou set refuse par le jig (rc 3, pas de :edge:joy).
+# Un temoin qui quitte lui-meme la partie avant 4210 (aof, bjourney, ctomaday, ghostlop, gpilots) ne juge la sortie que jusque-la.
 # Compte : 1464 ok, 4 sortie, 100 sans_conclusion, 0 gel, 0 plantage sur 1568. Controle : CONTROLE RICHARD (fatfury1), hors
 # de la table car il gele le jeu, sort bien gel : la passe sait echouer.
 jeu	nom	verdict	rc	fige	user_3600	sortie_de_partie

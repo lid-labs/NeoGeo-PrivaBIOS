@@ -11,11 +11,13 @@
         [--max n] [--jeux "<romsets>"] <roms> <travail>
 
 IMPORTES. Each imported cheat (`measured/2026-10-30-cheats-importes*.tsv`) written by lua from frame
-3600 for 600 frames, against a witness of the game, on our image. It catches what shows: an exit of
-MAME (plantage), a picture frozen over three images (gel), play left (sortie). A witness out of
-play or frozen at 3600 gives sans_conclusion. It does not prove that a cheat does what its title
-says, and the writes are lua's, not the BIOS engine's. Control: P1 CHAR RICHARD on fatfury1, kept
-out of the table because it freezes the game, must come out gel, or the pass stops.
+3600 to 4210, against a witness of the game, on our image. It catches what shows: an exit of MAME
+(plantage), a picture frozen at frames 4000, 4100 and 4200 (gel), play left before the witness
+leaves it (sortie). A witness out of play at 3600, frozen, or without its images gives
+sans_conclusion, as does a set that the jig refuses. It does not prove that a cheat does what its
+title says, and the writes are lua's, not the BIOS engine's. Control: P1 CHAR RICHARD on fatfury1,
+kept out of the table because it freezes the game, must come out gel. The pass exits non-zero on
+that, on any gel or plantage, and on a sortie outside the FINISH cheats, whose title announces it.
 
 BISECTER. The candidates of one category forced all together, then the group that holds cut in two.
 The defaults (actif scenario, --depuis 3600) are those of fighting games; in action, --depuis 700.
@@ -80,10 +82,11 @@ SCENARIOS = {
     # P2 alone (on 2026-10-29): its coin, its START, and it walks forward jumping; P1 does not play.
     # Its lives, its bombs and its game over then read like P1's.
     "saut2": "400-407:pieceDeux,500-507:startDeux,1000-40000:droiteDeux,1000-40000%20:bDeux",
-    # Sets that a single START leaves on their title (imported cheats, on 2026-11-01).
-    "tenace": "400-407:piece,500-3500%120:START,600-3500%30:A",
     "action2": "400-407:pieceDeux,500-507:startDeux,600-40000%6:aDeux,1000-40000:droiteDeux,"
                "1500-40000%300:bDeux,1650-40000%400:cDeux",
+    # Sets that a single START left on their title in the imported cheats' pass (on 2026-11-01): 7
+    # of the 17 of IMPORTES_TENACE then reach play at 3600.
+    "tenace": "400-407:piece,500-3500%120:START,600-3500%30:A",
 }
 COMBAT_SC = ("passif", "actif")
 COMBAT = ("aof aof2 aof3 breakers breakrev doubledr fatfursp fatfury1 fatfury2 fatfury3 fightfev "
@@ -581,19 +584,22 @@ def importes_etat(user):
 
 
 def importes_verdict(r, t):
-    """The verdict of run r against its game's witness t: (rc, fige, etat, sortie) both."""
-    if t[0] != 0 or t[1] or t[2] != "02":      # rc 3: the jig refuses a set without `:edge:joy`
+    """The verdict of run r against its game's witness t: (rc, fige, etat, sortie, images) both."""
+    if t[0] != 0 or t[1] or t[2] != "02" or not t[4]:      # rc 3: the jig refuses a set without `:edge:joy`
         return "sans_conclusion"
     if r[0] != 0:
         return "plantage"
+    if not r[4]:
+        return "sans_conclusion"
     if r[1]:
         return "gel"
-    return "sortie" if r[3] != "" and t[3] == "" else "ok"
+    return "sortie" if r[3] != "" and (t[3] == "" or r[3] < t[3]) else "ok"
 
 
 def cmd_importes(a):
     travail = os.path.abspath(a.travail)
     img = image(travail)
+    shutil.rmtree(os.path.join(travail, "roms"), ignore_errors=True)   # `romset` would keep an older image
     liste = importes_liste()
     if a.jeux:
         liste = [c for c in liste if c[0] in a.jeux.split()]
@@ -619,23 +625,29 @@ def cmd_importes(a):
             u = journal(o)[2]
         except FileNotFoundError:          # MAME did not start the jig
             u = []
+        if rc == 0 and "WRONG CHECKSUMS" not in open(os.path.join(o, "mame.log"), errors="replace").read():
+            sys.exit(f"REFUS : {jeu} n'a pas tourné sur notre image")
         shutil.rmtree(o, ignore_errors=True)
-        return (rc, len(imgs) == 3 and len(h) == 1, *importes_etat(u))
+        return (rc, len(imgs) == 3 and len(h) == 1, *importes_etat(u), len(imgs) == 3)
 
     with cf.ThreadPoolExecutor(a.jobs) as ex:
         res = list(ex.map(run, jobs))
     temoins = {j[0]: r for j, r in zip(jobs, res) if j[1] == "temoin"}
     lignes = ["jeu\tnom\tverdict\trc\tfige\tuser_3600\tsortie_de_partie"]
-    controle = ""
+    controle, echecs = "", []
     for j, r in zip(jobs, res):
         v = "temoin" if j[1] == "temoin" else importes_verdict(r, temoins[j[0]])
         if j is IMPORTES_CONTROLE:
             controle = v
+        elif v in ("gel", "plantage") or (v == "sortie" and not j[1].startswith("FINISH")):
+            echecs.append(f"{j[0]} {j[1]} : {v}")
         lignes.append(f"{j[0]}\t{j[1]}\t{v}\t{r[0]}\t{'fige' if r[1] else ''}\t{r[2]}\t{r[3]}")
     open(os.path.join(travail, "importes.tsv"), "w").write("\n".join(lignes) + "\n")
     print("\n".join(l for l in lignes if "\tok\t" not in l))
     if controle != "gel":
-        sys.exit(f"ECHEC : le contrôle RICHARD donne {controle}, pas gel")
+        echecs.append(f"le contrôle RICHARD donne {controle}, pas gel")
+    if echecs:
+        sys.exit("ECHEC : " + " ; ".join(echecs))
 
 
 def main():
