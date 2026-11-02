@@ -11,6 +11,8 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 - Every imported cheat now has a recorded result under MAME: 1,464 ok, 4 leave play as their
   FINISH title says, 100 could not be judged, none freezes the game
   (`bench/cheats-recherche.py importes`, control `P1 CHAR RICHARD`).
+- `bench/crc-recensement.py`: the CARTRIDGE CRC screen against the romset files, on 154 sets: 138 equal,
+  8 differ, 8 not compared. Known defect: on rotd the screen shows 2 banks out of 7.
 
 ### Changed
 

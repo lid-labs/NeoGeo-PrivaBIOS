@@ -281,8 +281,8 @@ _crc_cartouche:
 .Lb_une:
         move.w  %d6, BANQUE
         | ITS SIGNATURE: the CRC of sixteen 4 KiB slices, one every 64 KiB (~0.5 s). Equal to
-        | that of an earlier bank: a mirror, end, without it. ASSUMED: two different banks
-        | do not agree on these spread-out 64 KiB.
+        | that of an earlier bank: a mirror, end, without it. REFUTED on rotd: different banks
+        | can agree on these 64 KiB, and it shows 2 banks of 7 (crc-recensement).
         move.l  %d7, -(%sp)
         moveq   #-1, %d7
         lea     .Ltable, %a1
