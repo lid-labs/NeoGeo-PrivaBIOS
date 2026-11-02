@@ -1,0 +1,66 @@
+name: Hardware report
+description: Sprixe BIOS tried on a real board, whatever the result.
+labels: [hardware]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        What to try is in [docs/TESTING.md](https://github.com/lid-labs/sprixe-bios/blob/main/docs/TESTING.md). Reports that something works are welcome too. Please do not attach ROMs, dumps or links to them.
+  - type: input
+    id: board
+    attributes:
+      label: Board
+      description: Model (MV-1C, MV-2F, MV-6F…), and slot used on a multi-slot board.
+    validations:
+      required: true
+  - type: input
+    id: crc
+    attributes:
+      label: CRC32 of the file you burnt
+      description: C4EA703B or 513041C0 for v0.1.0-beta.2.
+    validations:
+      required: true
+  - type: input
+    id: cartridge
+    attributes:
+      label: Cartridge or flash cart
+      description: Game, or flash cart model and firmware, and the game started from it.
+    validations:
+      required: true
+  - type: checkboxes
+    id: tried
+    attributes:
+      label: What you tried
+      options:
+        - label: Boot screen, and the game starts
+        - label: A full credit, to game over
+        - label: In-game menu (cheats, autofire)
+        - label: Test screen (TEST held, START + SELECT held, or switch 1)
+        - label: CARTRIDGE CRC screen
+        - label: Several slots of a multi-slot board
+  - type: dropdown
+    id: result
+    attributes:
+      label: Result
+      options:
+        - Everything I tried works
+        - Works with issues
+        - Does not boot
+        - Freezes or resets
+    validations:
+      required: true
+  - type: dropdown
+    id: original
+    attributes:
+      label: Same board and cartridge under the original SNK BIOS or UniBIOS
+      options:
+        - Works there
+        - Same problem there
+        - Not tried
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: What the screen shows (the CARTRIDGE CRC lines, an error, where it stops). A photo or a short video helps.
