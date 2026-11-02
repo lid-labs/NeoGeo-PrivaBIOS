@@ -540,15 +540,21 @@ and `2026-10-25-debug-dips.tsv`; thresholds: `2026-10-25-parcours-crc-debug.tsv`
 2. **Two CRC32s, the fixed P-ROM and the banks, read under REG_CRTFIX** (§13), each word low byte
    first: the order of MAME's files. FIXED is `$000000-$0FFFFF`, halved as long as the upper half is
    the mirror of the lower one (ASSUMED: a 512 KiB chip seen twice on a board). BANKS follows the
-   word at `$2FFFF0` (read in `neogeo.cpp`) up to the first bank already seen; none if the window
+   word at `$2FFFF0` (read in `neogeo.cpp`) up to the first bank already seen, judged on sixteen 4 KiB slices (REFUTED on
+   2026-11-02 as a proof of a mirror: rotd has 7 banks, those of one parity differ in one 4 KiB
+   block, and the screen shows 2); none if the window
    equals the fixed P-ROM, and nothing is then written to `$2FFFF0`. None either, since
    2026-10-29, if the window reads only one word, nothing written either: a real ssideki cartridge,
    without a bank chip, returns `$5700` everywhere there (`measured/2026-10-29-crc-ssideki-materiel.tsv`).
 3. **The CRC is that of what the 68000 reads, not that of a file.** It equals the one
-   `bench/crc-cartouche.py` computes from the zip on 8 games out of 10, and both CRCs of
-   `hash/neogeo.xml` for mslug2 and kof97. Under MAME, a 512 KiB P-ROM is followed by zeros and
-   gives a 1 MiB CRC. kof98 (p1 decrypted at load) and mslug3 (SMA banks) cannot be recomputed
-   outside MAME; protected cartridges are point 12.
+   `bench/crc-cartouche.py` computes from the zip on 138 of the 154 sets recorded
+   (`measured/2026-11-02-crc-recensement.tsv`), and both CRCs of `hash/neogeo.xml` for mslug2 and
+   kof97. Under MAME, a 512 KiB P-ROM is followed by zeros and gives a 1 MiB CRC. Of the 8 sets that
+   differ, kof98, kof2002, matrim, samsho5, samsh5sp and sbp are changed by MAME at load, and
+   fatfursp's bank reads differ from run to run. kof98's FIXED differs from its `p1` with no word
+   on the screen: the 68000 cannot tell a clear P-ROM from a decrypted one, so there is nothing to
+   test. The eighth, rotd, is a defect: see point 2's signature, below. Protected cartridges are
+   point 12.
 4. **The header word at `$10A` is not used**: it differs from the size of the P files on 44 of the
    119 sets recorded.
 5. **DEBUG DIPS is the fifth line of CABINET SETTINGS**: it moves no path. A screen of sixteen bits,

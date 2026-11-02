@@ -27,6 +27,7 @@ The scripts' own documentation is in their headers. This page is the map.
 | `generer-contrats.py` | Turns a bus trace from the co-simulator into contracts (`specs/traces/`). |
 | `generer-sinus.py` | Generates `src/c0/sinus.s`; `--verifier` checks the versioned file. |
 | `cheats-catalogue.sh` | Each cheat of the table turned ON through the in-game menu, against a witness run. |
+| `crc-recensement.py` | The CARTRIDGE CRC screen against `crc-cartouche.py`, set by set. |
 | `cheats-recherche.py` | The search for new cheats: RAM recorded and filtered, then candidates forced one by one. `importes` tries each imported cheat against a witness; it catches a crash, a frozen picture or play left, not a cheat that does nothing. Needs numpy. |
 | `*.lua` | MAME jigs: each measures one behaviour (taps on reads and writes, frame hashes, inputs). |
 | `tiers/construire.sh` | Builds the free third-party BIOSes (NeoPen, neogeo-bios) at pinned commits, for comparison. |
