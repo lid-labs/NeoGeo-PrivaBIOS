@@ -12,7 +12,7 @@ cheat's values written from frame 3600 to frame 4210 (once only for one-shot che
 taken at frames 4000, 4100 and 4200.
 
 - **ok**: MAME did not stop, the picture did not freeze, and the game did not leave play before the
-  test run did. This says that the cheat does not break the game over these 610 frames. It does
+  test run did, over 610 frames (less on 5 games, where the test run leaves play first). It does
   **not** say that the cheat does what its title says.
 - **Leave play**: the game left play before the test run. The four cheats concerned are FINISH
   cheats, which is what they announce.
