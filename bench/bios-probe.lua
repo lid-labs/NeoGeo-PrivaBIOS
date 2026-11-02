@@ -24,9 +24,16 @@ for n in SHOTS:gmatch("%d+") do shot[tonumber(n)] = true end
 for n in IMAGES:gmatch("%d+") do img[tonumber(n)] = true end
 
 local function F(p, n) local pt = manager.machine.ioport.ports[p]; return pt and pt.fields[n] end
-local coin    = F(":AUDIO_COIN", "Coin 1")
-local start   = F(":edge:joy:START", "1 Player Start")
-local boutonA = F(":edge:joy:JOY1", "P1 A")
+-- vliner has no joystick port: MAME puts its coin in :IN5 and its panel in :DSW. Without these
+-- fallbacks nothing reaches it and it stays on its GAME CONFIG screen, read as frozen under all
+-- three BIOSes; Stop/Double Up leaves that screen. Its Bet/Small and Start/Collect wait for frame
+-- 1000: on that screen Start opens a setting (measured), and every BIOS has left it by frame 900.
+-- Without a bet Start changes nothing: 35 records identical, only the coins move the picture.
+local coin    = F(":AUDIO_COIN", "Coin 1") or F(":IN5", "Coin 1")
+local joyStart = F(":edge:joy:START", "1 Player Start")
+local start   = joyStart or F(":DSW", "Start/Collect")
+local mise    = F(":DSW", "Bet/Small")
+local boutonA = F(":edge:joy:JOY1", "P1 A") or F(":DSW", "Stop/Double Up")
 local ecran   = manager.machine.screens:at(1)
 
 -- SPATIALLY COMPLETE signature: every pixel contributes to it. A first version summed one byte
@@ -56,7 +63,8 @@ emu.register_frame_done(function()
   -- cycle: coin, then start, then A — some BIOSes wait for an action button at their menu.
   local c = frame % 300
   if coin    then coin:set_value((c >= 0 and c < 8) and 1 or 0) end
-  if start   then start:set_value((c >= 100 and c < 108) and 1 or 0) end
+  if start   then start:set_value((c >= 100 and c < 108 and (joyStart or frame >= 1000)) and 1 or 0) end
+  if mise    then mise:set_value((c >= 50 and c < 58 and frame >= 1000) and 1 or 0) end
   if boutonA then boutonA:set_value((c >= 200 and c < 208) and 1 or 0) end
 
   if not shot[frame] then return end

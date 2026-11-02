@@ -20,6 +20,13 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 - `docs/COMPARISON.md`: boot on flash carts is reported on a real BackBit, on an image older than
   the current one; the NeoSD Pro has no feedback yet.
 
+### Fixed
+
+- Compatibility bench: `irrmaze` now really runs Sprixe BIOS, and `vliner` gets past its setup screen,
+  which was not a freeze, and starts a game. The MAME catalogue reads 162 of 164 under Sprixe BIOS and 163 under the SNK BIOS and
+  UniBIOS 4.0: `mvstemp` stays out, black under all three, and `irrmaze` is left out of ours, its button 1
+  not reaching player 1 (#70). The BIOS image does not change.
+
 ## [0.1.0-beta.2] - 2026-10-31
 
 ### Added

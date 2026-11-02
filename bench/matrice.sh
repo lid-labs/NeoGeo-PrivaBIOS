@@ -24,6 +24,7 @@
 #   BIOS_REF       SNK BIOS set of the `snk` column, MAME name (default euro; japan, us…).
 #                  The variants stay under `-bios euro`: it is the sp-s2.sp1 member of the euro
 #                  set that they replace, and their region is their own, not this one.
+#                  irrmaze ignores it: this set has no such option, see `option_bios`.
 #   BIOS_CACHE     folder where the runs of the snk and unibios40 columns are kept, and taken back
 #                  from: they depend on no image under test. The key covers MAME (version and
 #                  effective configuration, `-showconfig`), this script, bios-probe.lua, the day (the
@@ -43,6 +44,8 @@
 #  2. MAME accepts a BIOS with the wrong CRC, displaying "WRONG CHECKSUMS … the machine might not
 #     run correctly". That line in the log is the PROOF that the substitution is active;
 #     its absence means MAME found the real BIOS elsewhere.
+#     irrmaze has no sp-s2.sp1 to replace: MAME loads its own BIOS, 236-bios.sp1, and has no `euro`
+#     option for it (`mame -listbios irrmaze`), hence `membre_bios` and `option_bios` below.
 #  3. NEVER WRITE THROUGH A SYMBOLIC LINK. A first version linked the user's ROMs into the
 #     work folder then opened those paths for writing: it truncated a romset to 22 bytes.
 #     This script copies, and refuses to write to a link.
@@ -84,6 +87,10 @@ else
   VARIANTES="nullbios"
 fi
 
+# The BIOS member that a set really loads, and the `-bios` option that selects it.
+membre_bios() { case "$1" in irrmaze) echo 236-bios.sp1 ;; *) echo sp-s2.sp1 ;; esac; }
+option_bios() { case "$1" in irrmaze) echo asia-sp1 ;; *) echo "$2" ;; esac; }
+
 # Each variant of BIOS_VARIANTES is placed under the same member name, sp-s2.sp1, since that is
 # the file `-bios euro` makes MAME load. A zip is accepted as well as a bare image: third-party
 # projects ship sometimes one, sometimes the other, and requiring one format would make people
@@ -124,7 +131,7 @@ for g in $JEUX; do
   [ -s "$ROMS/$g.zip" ] || { echo "set introuvable : $ROMS/$g.zip"; exit 1; }
 done
 
-# One romset per variant, obtained by replacing the sole sp-s2.sp1 member of a COPY of the game's zip.
+# One romset per variant, obtained by replacing the sole BIOS member (`membre_bios`) of a COPY of the game's zip.
 #
 # TWO PRECAUTIONS, and both guard against the same accident: measuring one BIOS while
 # believing you measure another, without any message.
@@ -147,7 +154,9 @@ for v in $VARIANTES; do
     if [ -s "$d" ] && [ "$(cat "$marqueur" 2>/dev/null)" = "$empreinte" ]; then continue; fi
     rm -f "$d.part"
     cp "$ROMS/$g.zip" "$d.part"
-    ( cd "$WORK/img/$v" && zip -q -j -X "$d.part" sp-s2.sp1 )
+    m="$(membre_bios "$g")"
+    ( cd "$WORK/img/$v" && { [ "$m" = sp-s2.sp1 ] || { rm -f "$m"; cp sp-s2.sp1 "$m"; }; } \
+      && zip -q -j -X "$d.part" "$m" )
     mv "$d.part" "$d"
   done
   # The marker is set only once ALL the variant's romsets are built: interrupted
@@ -167,9 +176,9 @@ printf '%s\t%s\t%s\t%s\t%s\t%s\n' jeu bios verdict vifs_max vitesse_pct controle
 for g in $JEUX; do
   for v in snk unibios40 $VARIANTES; do
     case "$v" in
-      snk)       RP="$ROMS"; B="$REF" ;;
+      snk)       RP="$ROMS"; B="$(option_bios "$g" "$REF")" ;;
       unibios40) RP="$ROMS"; B=unibios40 ;;
-      *)         RP="$WORK/v-$v"; B=euro ;;
+      *)         RP="$WORK/v-$v"; B="$(option_bios "$g" euro)" ;;
     esac
     O="$WORK/M/$g-$v"; rm -rf "$O"; mkdir -p "$O"
     rc=0

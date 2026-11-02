@@ -4,7 +4,7 @@
 [![license: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE)
 ![test scenes: 178](https://img.shields.io/badge/test%20scenes-178-informational)
 ![mutations killed: 230/230](https://img.shields.io/badge/mutations%20killed-230%2F230-informational)
-![MAME catalogue: 161/164 play](https://img.shields.io/badge/MAME%20catalogue-161%2F164%20play-informational)
+![MAME catalogue: 162/164 sets play](https://img.shields.io/badge/MAME%20catalogue-162%2F164%20sets%20play-informational)
 ![runs on real MV-2F hardware](https://img.shields.io/badge/runs%20on-real%20MV--2F%20hardware-success)
 
 The test scene, mutation and catalogue figures are measured locally under MAME, with our own ROM
@@ -135,15 +135,19 @@ No ROM of any kind is provided by this repository.
 
 ## Compatibility
 
-Measured under MAME 0.286, on the 164 games of our MAME catalogue, each run under Sprixe BIOS, the
+Measured under MAME 0.286, on the 164 sets of our MAME catalogue, each run under Sprixe BIOS, the
 SNK BIOS and UniBIOS 4.0 (`bench/matrice.sh`, `measured/HISTORIQUE.md`):
 
-- 161 of 164 games play under Sprixe BIOS, 162 under the SNK BIOS and under UniBIOS 4.0. This is judged
-  on the picture, under MAME: it is not evidence for real hardware.
-- `mvstemp` and `vliner` freeze under all three BIOSes.
-- `irrmaze` cannot be judged: the harness fails to substitute the BIOS for that set.
+- 162 of 164 sets play under Sprixe BIOS, 163 under each of the SNK BIOS and UniBIOS 4.0. This is
+  judged on the picture, under MAME: it is not evidence for real hardware.
+- `irrmaze` is left out of our count: a game starts and the trackball works, but button 1 does not
+  reach player 1 under Sprixe BIOS, which its own BIOS does (#70).
+- A set is not always a game: the 164 include machines without a cartridge (`ng_mv1`, `ng_mv2f`,
+  `ng_mv4f`), a development-board program (`mvstemp`) and a prototype (`dragonsh`).
+- `mvstemp` stays black, with the same picture, under all three BIOSes. Its set carries an HD64180
+  program and MAME lists no such device; we assume, without proof, that this is the cause.
 
-Autofire, measured on player 1's A button: 89 games see it fully, 25 partly, 35 never (they read the
+Autofire, measured on player 1's A button: 89 sets see it fully, 25 partly, 35 never (they read the
 joystick themselves), 15 were not measured ([`docs/AUTOFIRE.md`](docs/AUTOFIRE.md)).
 
 On real hardware, Sprixe BIOS has run on one board so far, an MV-2F. Issues found there and fixed:
