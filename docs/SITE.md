@@ -10,11 +10,14 @@ https://bios.sprixe.dev/. It replaces the `sprixe.dev/bios` page of the Sprixe s
 | `index.html` | The whole page: header, figures, features, "Why another BIOS?", method, install, FAQ |
 | `site.css` | The styles. One dark appearance, in the colours of the BIOS screens |
 | `favicon.svg` | The tab icon |
+| `fonts/` | The three fonts (WOFF2) and their OFL licences |
 | `CNAME` | `bios.sprixe.dev` |
 | `serve.sh` | Local preview (not published) |
 
-There is no build step and no npm. The page loads three fonts from Google Fonts (Silkscreen,
-VT323, IBM Plex Sans), each with a system fallback.
+There is no build step and no npm. The page serves its three fonts itself, from `site/fonts/`
+(Silkscreen, VT323, IBM Plex Sans; latin subset of Google Fonts' WOFF2 files, SIL OFL 1.1, licences
+alongside, served unmodified, under their original names), each with a system fallback: the page
+requests nothing from a third party other than its host.
 
 **The screenshots are not copied into `site/`.** The page references them under `img/`; the Pages
 workflow copies `docs/screenshots/` there when it assembles the published artifact, and
