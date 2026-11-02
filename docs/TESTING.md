@@ -30,7 +30,7 @@ power-on, or START + SELECT held, or board switch 1 at ON.
    each slot, including with slot 1 empty; sound on slot 2 and beyond; the rotating demo; SELECT
    for player 1 and player 2.
 3. **SMA and PVC cartridges** ([#72](https://github.com/lid-labs/sprixe-bios/issues/72)): SMA is
-   kof99, garou, mslug3, kof2000; PVC is mslug5, svc, kof2003. Open HARDWARE TESTS, then CARTRIDGE
+   kof99, garou, mslug3, kof2000; PVC is mslug5, svc. Open HARDWARE TESTS, then CARTRIDGE
    CRC: the screen should name the protection and say BANKS NOT READ. Then check that the game
    starts normally.
 4. **Any other board and any game.** Does the boot screen show, does the game start, does a full
@@ -40,6 +40,7 @@ power-on, or START + SELECT held, or board switch 1 at ON.
 ## Known issues, no need to report
 
 - CARTRIDGE CRC shows 2 banks on rotd; it has 7 ([#74](https://github.com/lid-labs/sprixe-bios/issues/74)).
+- On kof2003, the CARTRIDGE CRC screen stays black under MAME: the game has no font for it.
 - Autofire reaches only the games that read the controls through the BIOS
   ([`AUTOFIRE.md`](AUTOFIRE.md)).
 - Imported cheats are checked not to freeze the game, not to do what their title says
