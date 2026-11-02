@@ -25,14 +25,14 @@ power-on, or START + SELECT held, or board switch 1 at ON.
 
 1. **Flash carts: NeoSD Pro, BackBit** ([#52](https://github.com/lid-labs/sprixe-bios/issues/52)).
    Does the flash cart's menu appear, and do games start from it? Image 15 stopped at the boot
-   screen on both; the current image waits for the cartridge longer.
+   screen on both.
 2. **A 4 or 6 slot board** ([#53](https://github.com/lid-labs/sprixe-bios/issues/53)). Boot from
    each slot, including with slot 1 empty; sound on slot 2 and beyond; the rotating demo; SELECT
    for player 1 and player 2.
 3. **SMA and PVC cartridges** ([#72](https://github.com/lid-labs/sprixe-bios/issues/72)): SMA is
-   kof99, garou, mslug3, kof2000; PVC is mslug5, svc. Open HARDWARE TESTS, then CARTRIDGE
+   kof99, garou, mslug3, kof2000; PVC is mslug5, svc, kof2003. Open HARDWARE TESTS, then CARTRIDGE
    CRC: the screen should name the protection and say BANKS NOT READ. Then check that the game
-   starts normally.
+   starts normally. On kof2003 the screen stays black under MAME: say what your board shows.
 4. **Any other board and any game.** Does the boot screen show, does the game start, does a full
    credit play through to game over? The in-game menu (TEST, or START + SELECT, held about a third
    of a second during play): do the cheats and autofire work on your game?
@@ -40,7 +40,6 @@ power-on, or START + SELECT held, or board switch 1 at ON.
 ## Known issues, no need to report
 
 - CARTRIDGE CRC shows 2 banks on rotd; it has 7 ([#74](https://github.com/lid-labs/sprixe-bios/issues/74)).
-- On kof2003, the CARTRIDGE CRC screen stays black under MAME: the game has no font for it.
 - Autofire reaches only the games that read the controls through the BIOS
   ([`AUTOFIRE.md`](AUTOFIRE.md)).
 - Imported cheats are checked not to freeze the game, not to do what their title says
