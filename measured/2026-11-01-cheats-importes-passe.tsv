@@ -1,0 +1,1733 @@
+# Les cheats importes essayes sous MAME, le 2026-11-01 (#56). Image 95d481bc…, MAME 0.286, -bios euro, sans fenetre :
+# bench/cheats-recherche.py importes. Chaque cheat ecrit par lua des la trame 3600 (une seule fois pour les cheats a un coup)
+# jusqu'a la trame 4210, contre un temoin du jeu. Ecritures de lua, pas du moteur du BIOS.
+# ok : ni sortie de MAME, ni image figee aux trames 4000, 4100, 4200, ni sortie de partie avant le temoin. Cela ne prouve pas que le cheat fait
+# ce que dit son titre. sortie : a quitte la partie avant le temoin (les quatre sont des FINISH, le titre l'annonce).
+# sans_conclusion : temoin hors partie a 3600, fige ou sans images, ou set refuse par le jig (rc 3, pas de :edge:joy).
+# Un temoin qui quitte lui-meme la partie avant 4210 (aof, bjourney, ctomaday, ghostlop, gpilots) ne juge la sortie que jusque-la.
+# Compte : 1464 ok, 4 sortie, 100 sans_conclusion, 0 gel, 0 plantage sur 1568. Controle : CONTROLE RICHARD (fatfury1), hors
+# de la table car il gele le jeu, sort bien gel : la passe sait echouer.
+jeu	nom	verdict	rc	fige	user_3600	sortie_de_partie
+2020bb	temoin	temoin	0		02	
+3countb	temoin	temoin	0		02	
+alpham2	temoin	temoin	0		02	
+androdun	temoin	temoin	0		02	
+aodk	temoin	temoin	0		02	
+aof	temoin	temoin	0		02	3887
+aof2	temoin	temoin	0		02	
+aof3	temoin	temoin	0		02	
+b2b	temoin	temoin	0		02	
+bakatono	temoin	temoin	3			
+bangbead	temoin	temoin	0		02	
+bjourney	temoin	temoin	0		02	3846
+blazstar	temoin	temoin	0		02	
+breakers	temoin	temoin	0		02	
+breakrev	temoin	temoin	0		02	
+bstars	temoin	temoin	0		02	
+bstars2	temoin	temoin	0		02	
+burningf	temoin	temoin	0		02	
+crswd2bl	temoin	temoin	0		02	
+crsword	temoin	temoin	0		02	
+ctomaday	temoin	temoin	0		02	3789
+cyberlip	temoin	temoin	0		02	
+diggerma	temoin	temoin	0		02	
+doubledr	temoin	temoin	0		02	
+eightman	temoin	temoin	0		02	
+fatfursp	temoin	temoin	0		02	
+fatfury1	temoin	temoin	0		02	
+fatfury2	temoin	temoin	0		02	
+fatfury3	temoin	temoin	0		02	
+fbfrenzy	temoin	temoin	0		02	
+fightfev	temoin	temoin	0		02	
+flipshot	temoin	temoin	0		02	
+galaxyfg	temoin	temoin	0		02	
+ganryu	temoin	temoin	0		02	
+garou	temoin	temoin	0		02	
+ghostlop	temoin	temoin	0		02	3754
+goalx3	temoin	temoin	0		02	
+gowcaizr	temoin	temoin	0		02	
+gpilots	temoin	temoin	0		02	3975
+gururin	temoin	temoin	0		02	
+ironclad	temoin	temoin	0		02	
+irrmaze	temoin	temoin	3			
+janshin	temoin	temoin	3			
+joyjoy	temoin	temoin	0		02	
+karnovr	temoin	temoin	0		02	
+kizuna	temoin	temoin	0		02	
+kof2000	temoin	temoin	0		02	
+kof2001	temoin	temoin	0		02	
+kof2002	temoin	temoin	0		02	
+kof2003	temoin	temoin	0		02	
+kof94	temoin	temoin	0		02	
+kof95	temoin	temoin	0		02	
+kof96	temoin	temoin	0		02	
+kof97	temoin	temoin	0		02	
+kof98	temoin	temoin	0		02	
+kof99	temoin	temoin	0		02	
+kotm	temoin	temoin	0		02	
+kotm2	temoin	temoin	0		02	
+lastblad	temoin	temoin	0		02	
+lastbld2	temoin	temoin	0		02	
+lasthope	temoin	temoin	0		00	
+lbowling	temoin	temoin	0		02	
+legendos	temoin	temoin	0		02	
+lresort	temoin	temoin	0		02	
+magdrop2	temoin	temoin	0		02	
+magdrop3	temoin	temoin	0		02	
+maglord	temoin	temoin	0		02	
+mahretsu	temoin	temoin	0		02	
+marukodq	temoin	temoin	0		02	
+matrim	temoin	temoin	0		02	
+miexchng	temoin	temoin	0		02	
+minasan	temoin	temoin	3			
+moshougi	temoin	temoin	0		02	
+mslug	temoin	temoin	0		02	
+mslug2	temoin	temoin	0		02	
+mslug3	temoin	temoin	0		02	
+mslug4	temoin	temoin	0		02	
+mslug5	temoin	temoin	0		02	
+mslugx	temoin	temoin	0		02	
+mutnat	temoin	temoin	0		02	
+nam1975	temoin	temoin	0		01	
+ncombat	temoin	temoin	0		02	
+ncommand	temoin	temoin	0		02	
+neobombe	temoin	temoin	0		01	
+neocup98	temoin	temoin	0		02	
+neodrift	temoin	temoin	0		02	
+neomrdo	temoin	temoin	0		02	
+ninjamas	temoin	temoin	0		02	
+nitd	temoin	temoin	0		02	
+overtop	temoin	temoin	0		02	
+panicbom	temoin	temoin	0		02	
+pbobbl2n	temoin	temoin	0		01	
+pbobblen	temoin	temoin	0		01	
+pgoal	temoin	temoin	0		02	
+pnyaa	temoin	temoin	0		02	
+popbounc	temoin	temoin	3			
+preisle2	temoin	temoin	0		02	
+pspikes2	temoin	temoin	0		02	
+pulstar	temoin	temoin	0		02	
+puzzldpr	temoin	temoin	0		01	
+puzzledp	temoin	temoin	0		01	
+quizdai2	temoin	temoin	0		02	
+quizdais	temoin	temoin	0		02	
+quizkof	temoin	temoin	0		01	
+ragnagrd	temoin	temoin	0		02	
+rbff1	temoin	temoin	0		02	
+rbff2	temoin	temoin	0		02	
+rbffspec	temoin	temoin	0		02	
+ridhero	temoin	temoin	0		02	
+roboarmy	temoin	temoin	0		02	
+rotd	temoin	temoin	0		02	
+s1945p	temoin	temoin	0		01	
+samsh5sp	temoin	temoin	0		02	
+samsho	temoin	temoin	0		02	
+samsho2	temoin	temoin	0		02	
+samsho3	temoin	temoin	0		02	
+samsho4	temoin	temoin	0		02	
+samsho5	temoin	temoin	0		02	
+savagere	temoin	temoin	0		02	
+sdodgeb	temoin	temoin	0		02	
+sengoku	temoin	temoin	0		02	
+sengoku2	temoin	temoin	0		02	
+sengoku3	temoin	temoin	0		02	
+shocktr2	temoin	temoin	0		02	
+shocktro	temoin	temoin	0		02	
+socbrawl	temoin	temoin	0		02	
+sonicwi2	temoin	temoin	0		02	
+sonicwi3	temoin	temoin	0		02	
+spinmast	temoin	temoin	0		02	
+ssideki	temoin	temoin	0		02	
+ssideki2	temoin	temoin	0		02	
+ssideki3	temoin	temoin	0		02	
+ssideki4	temoin	temoin	0		02	
+stakwin	temoin	temoin	0		02	
+stakwin2	temoin	temoin	0		02	
+strhoop	temoin	temoin	0		02	
+superspy	temoin	temoin	0		02	
+svc	temoin	temoin	0		02	
+tophuntr	temoin	temoin	0		02	
+tpgolf	temoin	temoin	0		02	
+trally	temoin	temoin	0		02	
+turfmast	temoin	temoin	0		02	
+twinspri	temoin	temoin	0		02	
+twsoc96	temoin	temoin	0		02	
+viewpoin	temoin	temoin	0		02	
+wakuwak7	temoin	temoin	0		02	
+wh1	temoin	temoin	0		02	
+wh2	temoin	temoin	0		02	
+wh2j	temoin	temoin	0		02	
+whp	temoin	temoin	0		02	
+wjammers	temoin	temoin	0		02	
+zedblade	temoin	temoin	0		02	
+zintrckb	temoin	temoin	0		01	
+zupapa	temoin	temoin	0		02	
+aodk	P1 DRAIN ALL ENR	ok	0		02	
+aodk	P2 DRAIN ALL ENR	ok	0		02	
+aof	P1 DRAIN ALL ENR	ok	0		02	3887
+aof	P2 DRAIN ALL ENR	ok	0		02	3887
+aof	P1 DRAIN ALL POW	ok	0		02	3887
+aof	P2 DRAIN ALL POW	ok	0		02	3887
+aof	FINISH THIS FIGH	ok	0		02	3887
+aof2	P1 DRAIN ALL ENR	ok	0		02	
+aof2	P2 DRAIN ALL ENR	ok	0		02	
+aof2	P1 DRAIN ALL POW	ok	0		02	
+aof2	P2 DRAIN ALL POW	ok	0		02	
+aof2	FINISH THIS FIGH	ok	0		02	
+aof2	NEXT FIGHT BOSS	ok	0		02	
+aof2	NEXT FIGHT SPEC	ok	0		02	
+aof3	P1 DRAIN ALL ENR	ok	0		02	
+aof3	P2 DRAIN ALL ENR	ok	0		02	
+aof3	P1 DRAIN ALL POW	ok	0		02	
+aof3	P2 DRAIN ALL POW	ok	0		02	
+aof3	FINISH THIS ROUN	ok	0		02	
+aof3	GO TO FIRST BOSS	ok	0		02	
+aof3	GO TO FINAL BOSS	ok	0		02	
+b2b	KILL BOSS WITH 1	ok	0		02	
+bangbead	P1 GET NO POW NO	ok	0		02	
+bangbead	P2 GET NO POW NO	ok	0		02	
+breakers	P1 DRAIN ALL ENR	ok	0		02	
+breakers	P2 DRAIN ALL ENR	ok	0		02	
+breakers	GOTO BOSS FIGHT	ok	0		02	
+breakrev	P1 DRAIN ALL ENR	ok	0		02	
+breakrev	P2 DRAIN ALL ENR	ok	0		02	
+breakrev	GOTO BOSS FIGHT	ok	0		02	
+bstars	SET STRIKES TO 2	ok	0		02	
+bstars	SET BALLS TO 3 N	ok	0		02	
+bstars	SET OUTS TO 2 NO	ok	0		02	
+bstars2	SET STRIKES TO 2	ok	0		02	
+bstars2	SET BALLS TO 3 N	ok	0		02	
+bstars2	SET OUTS TO 2 NO	ok	0		02	
+burningf	FINISH THIS STAG	ok	0		02	
+doubledr	P1 DRAIN ALL ENR	ok	0		02	
+doubledr	P2 DRAIN ALL ENR	ok	0		02	
+doubledr	UNLOCK SECRET CH	ok	0		02	
+eightman	P1 PERMANENT 8 2	ok	0		02	
+fatfursp	P1 DRAIN ALL ENR	ok	0		02	
+fatfursp	P2 DRAIN ALL ENR	ok	0		02	
+fatfursp	FINISH ROUND NOW	ok	0		02	
+fatfursp	P1 PLAY WITH RYO	ok	0		02	
+fatfursp	P2 PLAY WITH RYO	ok	0		02	
+fatfury1	QUICK TIMER ON N	ok	0		02	
+fatfury1	QUICK TIMER OFF	ok	0		02	
+fatfury1	P1 DRAIN ALL ENR	ok	0		02	
+fatfury1	P2 DRAIN ALL ENR	ok	0		02	
+fatfury1	DRAIN ALL ENRG N	ok	0		02	
+fatfury1	FINISH THIS ROUN	ok	0		02	
+fatfury2	P1 DRAIN ALL ENR	ok	0		02	
+fatfury2	P2 DRAIN ALL ENR	ok	0		02	
+fatfury2	FINISH ROUND NOW	ok	0		02	
+fatfury3	P1 DRAIN ALL ENR	ok	0		02	
+fatfury3	P2 DRAIN ALL ENR	ok	0		02	
+fatfury3	FINISH THIS ROUN	ok	0		02	
+fatfury3	P1 ROUNDS WON 2	ok	0		02	
+fatfury3	P2 ROUNDS WON 2	ok	0		02	
+fbfrenzy	FINISH QUARTER N	ok	0		02	
+fightfev	P1 DRAIN ALL ENR	ok	0		02	
+fightfev	P2 DRAIN ALL ENR	ok	0		02	
+fightfev	FINISH ROUND NOW	ok	0		02	
+flipshot	FINISH THIS ROUN	ok	0		02	
+galaxyfg	P1 DRAIN ALL ENR	ok	0		02	
+galaxyfg	P2 DRAIN ALL ENR	ok	0		02	
+galaxyfg	FIGHT YACOPU FIR	ok	0		02	
+galaxyfg	FIGHT FELDEN FIN	ok	0		02	
+galaxyfg	FIGHT ROUWE SECR	ok	0		02	
+garou	P1 DRAIN ALL ENR	ok	0		02	
+garou	P2 DRAIN ALL ENR	ok	0		02	
+garou	P1 DRAIN ALL POW	ok	0		02	
+garou	P2 DRAIN ALL POW	ok	0		02	
+garou	FINISH THIS ROUN	ok	0		02	
+garou	CURRENT NORMAL L	ok	0		02	
+garou	CURRENT SURVIVAL	ok	0		02	
+ghostlop	P1 FINISH CURREN	ok	0		02	3754
+ghostlop	P2 FINISH CURREN	ok	0		02	3754
+goalx3	P1 SET SCORE 99	ok	0		02	
+goalx3	P2 SET SCORE 99	ok	0		02	
+gowcaizr	P1 DRAIN ALL ENR	ok	0		02	
+gowcaizr	P2 DRAIN ALL ENR	ok	0		02	
+gowcaizr	FINISH THIS ROUN	ok	0		02	
+kizuna	P1 DRAIN ALL ENR	ok	0		02	
+kizuna	P2 DRAIN ALL ENR	ok	0		02	
+kof2001	P1 DRAIN ALL ENR	ok	0		02	
+kof2001	P2 DRAIN ALL ENR	ok	0		02	
+kof2001	FINISH THIS ROUN	ok	0		02	
+kof2002	P1 DRAIN ALL ENR	ok	0		02	
+kof2002	P2 DRAIN ALL ENR	ok	0		02	
+kof2002	P1 DRAIN ALL POW	ok	0		02	
+kof2003	FINISH THIS ROUN	sortie	0		02	3854
+kof94	P1 DRAIN ALL ENR	ok	0		02	
+kof94	P2 DRAIN ALL ENR	ok	0		02	
+kof94	FINISH ROUND NOW	ok	0		02	
+kof94	P1 PLAY WITH RUG	ok	0		02	
+kof94	P2 PLAY WITH RUG	ok	0		02	
+kof95	P1 DRAIN ALL ENR	ok	0		02	
+kof95	P2 DRAIN ALL ENR	ok	0		02	
+kof95	FINISH ROUND NOW	ok	0		02	
+kotm	DRAIN ENRG ENEMY	ok	0		02	
+kotm	DRAIN ENRG ENE 2	ok	0		02	
+kotm2	P1 MAX POW NOW!	ok	0		02	
+kotm2	P2 MAX POW NOW!	ok	0		02	
+lastblad	STORY PART 1 STA	ok	0		02	
+lastblad	STORY PART 2 STA	ok	0		02	
+lastblad	FIRST BOSS	ok	0		02	
+lastblad	FINAL BOSS.	ok	0		02	
+lastbld2	FINISH THIS FIGH	ok	0		02	
+lastbld2	GO TO CHAR BOSS	ok	0		02	
+lastbld2	GO TO FINAL BOSS	ok	0		02	
+legendos	DRAIN P1 S OPPON	ok	0		02	
+legendos	DRAIN P2 S OPPON	ok	0		02	
+marukodq	GOOD ANSWER ENDS	ok	0		02	
+matrim	FINISH THIS ROUN	ok	0		02	
+minasan	MAKE 2 STEP NOW!	sans_conclusion	3			
+mslugx	P1 GET 50 PRISON	ok	0		02	
+mslugx	P2 GET 50 PRISON	ok	0		02	
+neobombe	OPEN DISPLAYED D	sans_conclusion	0		01	
+neocup98	P1 SET SCORE 99	ok	0		02	
+neocup98	P2 SET SCORE 99	ok	0		02	
+ninjamas	P1 DRAIN ALL ENR	ok	0		02	
+ninjamas	P2 DRAIN ALL ENR	ok	0		02	
+ninjamas	P1 DRAIN ALL POW	ok	0		02	
+ninjamas	P2 DRAIN ALL POW	ok	0		02	
+ninjamas	GOTO TO FIRST BO	ok	0		02	
+ninjamas	GOTO TO FINAL BO	ok	0		02	
+ninjamas	GOTO ENDING NOW!	ok	0		02	
+nitd	KILL BOSS WITH 1	ok	0		02	
+nitd	GO TO FINAL STAG	ok	0		02	
+nitd	GO TO FINAL AREA	ok	0		02	
+pbobbl2n	FINISH THIS ROUN	sans_conclusion	0		01	
+pbobblen	QUICK FINISH CHE	sans_conclusion	0		01	
+pgoal	GO INTO INJURY T	ok	0		02	
+popbounc	FINISH THIS STAG	sans_conclusion	3			
+pspikes2	P1 DRAIN ALL ENR	ok	0		02	
+pspikes2	P2 DRAIN ALL ENR	ok	0		02	
+pspikes2	FINISH GAME NOW!	sortie	0		02	4118
+puzzldpr	LEVEL 39 WHEN LE	sans_conclusion	0		01	
+puzzledp	LEVEL 39 WHEN LE	sans_conclusion	0		01	
+quizdai2	ANSWER ENDS QUIZ	ok	0		02	
+quizkof	ANSWER ENDS QUIZ	sans_conclusion	0		01	
+ragnagrd	P1 DRAIN ALL ENR	ok	0		02	
+ragnagrd	P2 DRAIN ALL ENR	ok	0		02	
+ragnagrd	FINISH THIS ROUN	ok	0		02	
+rbff1	P1 DRAIN ALL ENR	ok	0		02	
+rbff1	P2 DRAIN ALL ENR	ok	0		02	
+rbff1	FINISH THIS ROUN	ok	0		02	
+rbff1	LEFT WALL WILL C	ok	0		02	
+rbff1	RIGHT WALL WILL	ok	0		02	
+rbff2	P1 DRAIN ALL ENR	ok	0		02	
+rbff2	P2 DRAIN ALL ENR	ok	0		02	
+rbff2	FINISH THIS ROUN	ok	0		02	
+rbff2	FIGHT KRAUSER NE	ok	0		02	
+rbff2	FIGHT GEESE NEXT	ok	0		02	
+rbff2	FIGHT ALFRED NEX	ok	0		02	
+rbff2	GOTO ENDING NEXT	ok	0		02	
+rbffspec	P1 DRAIN ALL ENR	ok	0		02	
+rbffspec	P2 DRAIN ALL ENR	ok	0		02	
+rbffspec	FINISH THIS ROUN	ok	0		02	
+rbffspec	GOTO BOSS KRAUSE	ok	0		02	
+rbffspec	GOTO SECRET BOSS	ok	0		02	
+rotd	P1 DRAIN ALL ENR	ok	0		02	
+rotd	P2 DRAIN ALL ENR	ok	0		02	
+rotd	P2 DRAIN ALL E 2	ok	0		02	
+rotd	P1 DRAIN ALL POW	ok	0		02	
+rotd	P2 DRAIN ALL POW	ok	0		02	
+samsh5sp	P1 DRAIN ALL ENR	ok	0		02	
+samsh5sp	P2 DRAIN ALL ENR	ok	0		02	
+samsh5sp	FINISH THIS ROUN	ok	0		02	
+samsho	FINISH THIS ROUN	ok	0		02	
+samsho	GOTO BOSS FIGHT	ok	0		02	
+samsho3	P1 DRAIN ALL ENR	ok	0		02	
+samsho3	P2 DRAIN ALL ENR	ok	0		02	
+samsho3	P1 DRAIN ALL POW	ok	0		02	
+samsho3	P2 DRAIN ALL POW	ok	0		02	
+samsho3	FINISH THIS ROUN	ok	0		02	
+samsho4	P1 DRAIN ALL ENR	ok	0		02	
+samsho4	P2 DRAIN ALL ENR	ok	0		02	
+samsho5	P1 DRAIN ALL ENR	ok	0		02	
+samsho5	P2 DRAIN ALL ENR	ok	0		02	
+samsho5	FINISH THIS ROUN	ok	0		02	
+savagere	FINISH THIS ROUN	sortie	0		02	4154
+sdodgeb	TIME UP NOW!	ok	0		02	
+sdodgeb	P1 DRAIN ALL POW	ok	0		02	
+sdodgeb	P2 DRAIN ALL POW	ok	0		02	
+sengoku2	P1 STANDARD WEAP	ok	0		02	
+sengoku2	P2 STANDARD WEAP	ok	0		02	
+sengoku2	P1 GET BLUE SPHE	ok	0		02	
+sengoku2	P1 GET PINK SPHE	ok	0		02	
+socbrawl	P2 NEVER SCORE A	ok	0		02	
+socbrawl	FINISH THIS GAME	ok	0		02	
+socbrawl	P1 SET SCORE 99	ok	0		02	
+socbrawl	P2 SET SCORE 99	ok	0		02	
+spinmast	DRAIN BOSS ENRG	ok	0		02	
+ssideki	FINISH THIS GAME	ok	0		02	
+ssideki	P1 SET SCORE 99	ok	0		02	
+ssideki	P1 PENALTIES S 2	ok	0		02	
+ssideki	P2 SET SCORE 99	ok	0		02	
+ssideki	P2 PENALTIES S 2	ok	0		02	
+ssideki2	P1 SET SCORE 99	ok	0		02	
+ssideki2	P2 SET SCORE 99	ok	0		02	
+ssideki3	P1 SET SCORE 99	ok	0		02	
+ssideki3	P2 SET SCORE 99	ok	0		02	
+ssideki4	P1 SET SCORE 99	ok	0		02	
+ssideki4	P2 SET SCORE 99	ok	0		02	
+strhoop	MAKE THIS THE SE	ok	0		02	
+strhoop	P1 GET 99 POINTS	ok	0		02	
+strhoop	P1 EMPTY SUPERSH	ok	0		02	
+strhoop	P2 GET 99 POINTS	ok	0		02	
+strhoop	P2 EMPTY SUPERSH	ok	0		02	
+twinspri	P1 GET AN INSTAN	ok	0		02	
+twinspri	P1 GET AN INST 2	ok	0		02	
+twinspri	P1 GET AN INST 3	ok	0		02	
+twinspri	P2 GET AN INSTAN	ok	0		02	
+twinspri	P2 GET AN INST 2	ok	0		02	
+twinspri	P2 GET AN INST 3	ok	0		02	
+twsoc96	FINISH THIS GAME	ok	0		02	
+twsoc96	P1 SET SCORE 99	ok	0		02	
+twsoc96	P2 SET SCORE 99	ok	0		02	
+wakuwak7	P1 DRAIN ALL ENR	ok	0		02	
+wakuwak7	P2 DRAIN ALL ENR	ok	0		02	
+wakuwak7	FINISH THIS ROUN	ok	0		02	
+wh1	P1 DRAIN ALL ENR	ok	0		02	
+wh1	P2 DRAIN ALL ENR	ok	0		02	
+wh1	FINISH THIS ROUN	ok	0		02	
+wh2	P1 DRAIN ALL ENR	ok	0		02	
+wh2	P2 DRAIN ALL ENR	ok	0		02	
+wh2	FINISH THIS ROUN	ok	0		02	
+wh2j	P1 DRAIN ALL ENR	ok	0		02	
+wh2j	P2 DRAIN ALL ENR	ok	0		02	
+wh2j	FINISH THIS ROUN	sortie	0		02	4131
+whp	P1 DRAIN ALL ENR	ok	0		02	
+whp	P2 DRAIN ALL ENR	ok	0		02	
+whp	P1 DRAIN ALL POW	ok	0		02	
+whp	P2 DRAIN ALL POW	ok	0		02	
+whp	FINISH THIS ROUN	ok	0		02	
+whp	P2 WINS NOW!	ok	0		02	
+whp	P2 WINS NOW! 2	ok	0		02	
+wjammers	FINISH SET NOW!	ok	0		02	
+wjammers	P1 SET SCORE 99	ok	0		02	
+wjammers	P2 SET SCORE 99	ok	0		02	
+zupapa	FINISH THIS ROUN	ok	0		02	
+zupapa	KILL 1ST BOSS NO	ok	0		02	
+zupapa	KILL CEMETERY BO	ok	0		02	
+zupapa	KILL JURASSIC BO	ok	0		02	
+zupapa	KILL JUNGLE BOSS	ok	0		02	
+zupapa	KILL LEVEL 7 BOS	ok	0		02	
+zupapa	KILL LEVEL 8 BOS	ok	0		02	
+alpham2	P1 LASE NORMAL	ok	0		02	
+alpham2	P1 LASE NORMAL+1	ok	0		02	
+alpham2	P1 LASE NORMAL+2	ok	0		02	
+alpham2	P1 LASE NORMAL+3	ok	0		02	
+alpham2	P1 MISS NORMAL	ok	0		02	
+alpham2	P1 MISS NORMAL+1	ok	0		02	
+aof	PERM WI P1	ok	0		02	3887
+aof	PERM WI P2	ok	0		02	3887
+aof	P1 CHAR RYO SAKA	ok	0		02	3887
+aof	P1 CHAR ROBERT G	ok	0		02	3887
+aof2	PERM WI P1	ok	0		02	
+aof2	PERM WI P2	ok	0		02	
+aof2	P1 OUTF REGULAR	ok	0		02	
+aof2	P1 OUTF ALTERNAT	ok	0		02	
+aof3	BIRTHDA ROBERT	ok	0		02	
+aof3	BIRTHDA RYO	ok	0		02	
+aof3	BIRTHDA KARMAN	ok	0		02	
+aof3	BIRTHDA KASUMI	ok	0		02	
+bangbead	P1 CHAR CHINTA	ok	0		02	
+bangbead	P1 CHAR SIREN	ok	0		02	
+bangbead	P1 CHAR HIROMU	ok	0		02	
+bangbead	P1 CHAR BLOODY W	ok	0		02	
+bangbead	P1 CHAR SIMON	ok	0		02	
+bangbead	P1 CHAR SURYA	ok	0		02	
+bangbead	P2 CHAR CHINTA	ok	0		02	
+bangbead	P2 CHAR SIREN	ok	0		02	
+bangbead	P2 CHAR HIROMU	ok	0		02	
+bangbead	P2 CHAR BLOODY W	ok	0		02	
+bangbead	P2 CHAR SIMON	ok	0		02	
+burningf	P1 CHAR RYU	ok	0		02	
+burningf	P1 CHAR DUKE	ok	0		02	
+burningf	P1 CHAR BILLY	ok	0		02	
+burningf	P2 CHAR RYU	ok	0		02	
+burningf	P2 CHAR DUKE	ok	0		02	
+burningf	P2 CHAR BILLY	ok	0		02	
+ctomaday	P1 SHIP ORIGINAL	ok	0		02	3789
+ctomaday	P1 SHIP WINGED S	ok	0		02	3789
+ctomaday	P1 SHIP MINI SHI	ok	0		02	3789
+ctomaday	P1 SHIP BIG SHIP	ok	0		02	3789
+ctomaday	P1 SHIP CARROT S	ok	0		02	3789
+ctomaday	P1 SHIP FISH SHI	ok	0		02	3789
+ctomaday	P2 SHIP ORIGINAL	ok	0		02	3789
+doubledr	P1 CHAR MAX CHAR	ok	0		02	
+doubledr	P1 CHAR MIN CHAR	ok	0		02	
+doubledr	P2 CHAR MAX CHAR	ok	0		02	
+doubledr	P2 CHAR MIN CHAR	ok	0		02	
+doubledr	P1 CHAR BILLY	ok	0		02	
+doubledr	P1 CHAR SUPER BI	ok	0		02	
+doubledr	P1 CHAR JIMMY	ok	0		02	
+doubledr	P1 CHAR SUPER JI	ok	0		02	
+doubledr	P1 CHAR MARIAN	ok	0		02	
+fatfury1	P1 CHAR TERRY BO	ok	0		02	
+fatfury1	P1 CHAR ANDY BOG	ok	0		02	
+fatfury1	P1 CHAR JOE HIGA	ok	0		02	
+fatfury1	P1 CHAR DUCK KIN	ok	0		02	
+fatfury1	P1 CHAR MICHAEL	ok	0		02	
+fatfury1	P2 CHAR TERRY BO	ok	0		02	
+fatfury2	STAGE TERRY U.S.	ok	0		02	
+fatfury2	STAGE ANDY ITALY	ok	0		02	
+fatfury2	STAGE JOE THAILA	ok	0		02	
+fatfury2	STAGE BIG BEAR A	ok	0		02	
+fatfury2	STAGE JUBEI JAPA	ok	0		02	
+fatfury2	STAGE CHENG HONG	ok	0		02	
+fatfury2	P1 CHAR TERRY	ok	0		02	
+fatfury2	P1 CHAR ANDY	ok	0		02	
+fatfury2	P1 CHAR JOE	ok	0		02	
+fatfury2	P1 CHAR BIG BEAR	ok	0		02	
+fatfury3	P1 COLO A COLOUR	ok	0		02	
+fatfury3	P1 COLO D COLOUR	ok	0		02	
+fatfury3	P2 COLO A COLOUR	ok	0		02	
+fatfury3	P2 COLO D COLOUR	ok	0		02	
+fatfury3	PERM. B SOUND BE	ok	0		02	
+fightfev	P1 CHAR HAN BAED	ok	0		02	
+fightfev	P1 CHAR MIYUKI	ok	0		02	
+fightfev	P1 CHAR ROPHEN H	ok	0		02	
+fightfev	P1 CHAR GOLRIO	ok	0		02	
+fightfev	P1 CHAR NICK COM	ok	0		02	
+fightfev	P1 CHAR CHINTAO	ok	0		02	
+fightfev	P2 CHAR HAN BAED	ok	0		02	
+fightfev	P2 CHAR MIYUKI	ok	0		02	
+fightfev	P2 CHAR ROPHEN H	ok	0		02	
+fightfev	P2 CHAR GOLRIO	ok	0		02	
+flipshot	P1 CHAR CHINTA N	ok	0		02	
+flipshot	P1 CHAR SIREN	ok	0		02	
+flipshot	P1 CHAR SAIMON	ok	0		02	
+flipshot	P1 CHAR MR. JUST	ok	0		02	
+flipshot	P1 CHAR BLOODY W	ok	0		02	
+flipshot	P1 CHAR BOSS	ok	0		02	
+flipshot	P2 CHAR CHINTA N	ok	0		02	
+flipshot	P2 CHAR SIREN	ok	0		02	
+flipshot	P2 CHAR SAIMON	ok	0		02	
+flipshot	P2 CHAR MR. JUST	ok	0		02	
+flipshot	P2 CHAR BLOODY W	ok	0		02	
+flipshot	P2 CHAR BOSS	ok	0		02	
+ganryu	P1 WEAP NORMAL	ok	0		02	
+ganryu	P1 WEAP SHURIKEN	ok	0		02	
+ganryu	P1 WEAP DYNAMITE	ok	0		02	
+ganryu	P1 WEAP FLYING B	ok	0		02	
+ganryu	P2 WEAP NORMAL	ok	0		02	
+ganryu	P2 WEAP SHURIKEN	ok	0		02	
+ganryu	P2 WEAP DYNAMITE	ok	0		02	
+ganryu	P2 WEAP FLYING B	ok	0		02	
+garou	P1 CHAR A COLOUR	ok	0		02	
+garou	P1 CHAR B COLOUR	ok	0		02	
+gururin	P1 PERM CLEAR	ok	0		02	
+gururin	P1 PERM PINK	ok	0		02	
+gururin	P1 PERM YELLOW	ok	0		02	
+gururin	P1 PERM PURPLE	ok	0		02	
+gururin	P1 PERM RED	ok	0		02	
+gururin	P1 PERM GREY	ok	0		02	
+gururin	P1 PERM CLEAR 2	ok	0		02	
+gururin	P1 PERM PINK 2	ok	0		02	
+gururin	P1 PERM YELLOW 2	ok	0		02	
+gururin	P1 PERM PURPLE 2	ok	0		02	
+gururin	P1 PERM RED 2	ok	0		02	
+gururin	P1 PERM GREY 2	ok	0		02	
+gururin	P1 PERM CLEAR 3	ok	0		02	
+gururin	P1 PERM PINK 3	ok	0		02	
+ironclad	P1 L-AR LASER	ok	0		02	
+ironclad	P1 L-AR H. MISSI	ok	0		02	
+ironclad	P1 L-AR FIRE ARM	ok	0		02	
+ironclad	P1 R-AR DRILL	ok	0		02	
+ironclad	P1 R-AR CHAINSAW	ok	0		02	
+ironclad	P1 R-AR STAB BAL	ok	0		02	
+ironclad	P2 L-AR LASER	ok	0		02	
+ironclad	P2 L-AR H. MISSI	ok	0		02	
+ironclad	P2 L-AR FIRE ARM	ok	0		02	
+joyjoy	P1 PERM RED	ok	0		02	
+joyjoy	P1 PERM PURPLE	ok	0		02	
+joyjoy	P1 PERM ORANGE	ok	0		02	
+joyjoy	P1 PERM BLUE	ok	0		02	
+joyjoy	P1 PERM YELLOW	ok	0		02	
+joyjoy	P1 PERM GREEN	ok	0		02	
+joyjoy	P2 PERM RED	ok	0		02	
+joyjoy	P2 PERM PURPLE	ok	0		02	
+joyjoy	P2 PERM ORANGE	ok	0		02	
+joyjoy	P2 PERM BLUE	ok	0		02	
+karnovr	P1 CHAR RAY	ok	0		02	
+karnovr	P1 CHAR FEILIN	ok	0		02	
+karnovr	P1 CHAR RYOKO	ok	0		02	
+karnovr	P1 CHAR MATLOCK	ok	0		02	
+karnovr	P1 CHAR SAMCHAY	ok	0		02	
+karnovr	P1 CHAR LEE	ok	0		02	
+karnovr	P2 CHAR RAY	ok	0		02	
+karnovr	P2 CHAR FEILIN	ok	0		02	
+karnovr	P2 CHAR RYOKO	ok	0		02	
+karnovr	P2 CHAR MATLOCK	ok	0		02	
+karnovr	P2 CHAR SAMCHAY	ok	0		02	
+karnovr	P2 CHAR LEE	ok	0		02	
+kof2001	P1 CHAR K	ok	0		02	
+kof2001	P1 CHAR MAXIMA	ok	0		02	
+kof2001	P1 CHAR WHIP	ok	0		02	
+kof2001	P1 CHAR LIN	ok	0		02	
+kof2001	P1 CHAR KYO	ok	0		02	
+kof2001	P1 CHAR BENIMARU	ok	0		02	
+kof2001	P1 CHAR K 2	ok	0		02	
+kof2003	P1 CHAR ASH	ok	0		02	
+kof2003	P1 CHAR DUOLON	ok	0		02	
+kof2003	P1 CHAR SHEN	ok	0		02	
+kof2003	P1 CHAR TERRY	ok	0		02	
+kof2003	P1 CHAR JOE	ok	0		02	
+kof2003	P1 CHAR TIZOC	ok	0		02	
+kof2003	P1 CHAR ASH 2	ok	0		02	
+kof2003	P1 CHAR DUOLON 2	ok	0		02	
+kof2003	P1 CHAR SHEN 2	ok	0		02	
+kof2003	P1 CHAR TERRY 2	ok	0		02	
+kof2003	P1 CHAR JOE 2	ok	0		02	
+kof2003	P1 CHAR TIZOC 2	ok	0		02	
+kof2003	P1 CHAR ASH 3	ok	0		02	
+kof2003	P1 CHAR DUOLON 3	ok	0		02	
+kof94	MAI S B BOUNCE	ok	0		02	
+kof94	MAI S B NEVER BO	ok	0		02	
+kof95	P1 1ST HEIDERN	ok	0		02	
+kof95	P1 1ST RALF	ok	0		02	
+kof95	P1 1ST CLARK	ok	0		02	
+kof95	P1 1ST ATHENA	ok	0		02	
+kof95	P1 1ST KENSOU	ok	0		02	
+kof95	P1 1ST CHIN	ok	0		02	
+kof96	P1 COLO A COLOUR	ok	0		02	
+kof96	P1 COLO D COLOUR	ok	0		02	
+kof96	P1 COLO A COLO 2	ok	0		02	
+kof97	P1 MODE ADVANCED	ok	0		02	
+kof97	P1 MODE EXTRA MO	ok	0		02	
+kof97	P2 MODE ADVANCED	ok	0		02	
+kof97	P2 MODE EXTRA MO	ok	0		02	
+kof97	P1 FIRS CHAR A	ok	0		02	
+kof97	P1 FIRS CHAR B	ok	0		02	
+kof97	P1 FIRS CHAR C	ok	0		02	
+kof98	P1 MODE ADVANCED	ok	0		02	
+kof98	P1 MODE EXTRA MO	ok	0		02	
+kof98	P2 MODE ADVANCED	ok	0		02	
+kof98	P2 MODE EXTRA MO	ok	0		02	
+kof98	P1 FIRS CHAR A	ok	0		02	
+kof98	P1 FIRS CHAR B	ok	0		02	
+kof98	P1 FIRS CHAR C	ok	0		02	
+kof98	P1 SECO CHAR A	ok	0		02	
+kof98	P1 SECO CHAR B	ok	0		02	
+kotm2	P1 CHAR SUPER GE	ok	0		02	
+kotm2	P1 CHAR ATOMIC G	ok	0		02	
+kotm2	P1 CHAR CYBER WO	ok	0		02	
+kotm2	P1 CHAR HUGE FRO	ok	0		02	
+kotm2	P2 CHAR SUPER GE	ok	0		02	
+kotm2	P2 CHAR ATOMIC G	ok	0		02	
+kotm2	P2 CHAR CYBER WO	ok	0		02	
+kotm2	P2 CHAR HUGE FRO	ok	0		02	
+lastblad	P1 CHAR KAEDE	ok	0		02	
+lastblad	P1 CHAR MORIYA	ok	0		02	
+lastblad	P1 CHAR YUKI	ok	0		02	
+lastblad	P1 CHAR OKINA	ok	0		02	
+lastblad	P1 CHAR AKARI	ok	0		02	
+lastblad	P1 CHAR JUZOH	ok	0		02	
+lastblad	P2 CHAR KAEDE	ok	0		02	
+lastblad	P2 CHAR MORIYA	ok	0		02	
+lastblad	P2 CHAR YUKI	ok	0		02	
+lastblad	P2 CHAR OKINA	ok	0		02	
+lastblad	P2 CHAR AKARI	ok	0		02	
+lastbld2	CONSTAN SHIMIJI	ok	0		02	
+lastbld2	CONSTAN BATTLE O	ok	0		02	
+lastbld2	CONSTAN 13 PORTT	ok	0		02	
+lastbld2	CONSTAN VILLAGE	ok	0		02	
+lastbld2	CONSTAN THE GRAV	ok	0		02	
+lastbld2	CONSTAN FOREST O	ok	0		02	
+lastbld2	P1 CHAR KAEDE	ok	0		02	
+lastbld2	P1 CHAR MORIYA	ok	0		02	
+lastbld2	P1 CHAR YUKI	ok	0		02	
+lastbld2	P1 CHAR OKINA	ok	0		02	
+magdrop3	P1 CARD FOOL	ok	0		02	
+magdrop3	P1 CARD MAGICIAN	ok	0		02	
+magdrop3	P1 CARD HIGH PRI	ok	0		02	
+magdrop3	P1 CARD EMPRESS	ok	0		02	
+magdrop3	P1 CARD EMPEROR	ok	0		02	
+magdrop3	P1 CARD HIEROPHA	ok	0		02	
+magdrop3	P2 CARD FOOL	ok	0		02	
+magdrop3	P2 CARD MAGICIAN	ok	0		02	
+magdrop3	P2 CARD HIGH PRI	ok	0		02	
+magdrop3	P2 CARD EMPRESS	ok	0		02	
+magdrop3	P2 CARD EMPEROR	ok	0		02	
+magdrop3	P2 CARD HIEROPHA	ok	0		02	
+maglord	P1 CHAR MAGICIAN	ok	0		02	
+maglord	P1 CHAR SHINOBI	ok	0		02	
+maglord	P1 CHAR WATERMAN	ok	0		02	
+maglord	P1 CHAR SAMURAI	ok	0		02	
+maglord	P1 CHAR DRAGON W	ok	0		02	
+maglord	P1 CHAR POSEIDON	ok	0		02	
+maglord	P2 CHAR MAGICIAN	ok	0		02	
+mslug2	P1 BODY NORMAL	ok	0		02	
+mslug2	P1 BODY FAT BLOA	ok	0		02	
+mslug2	P1 BODY MUMMY	ok	0		02	
+mslug3	P1 BOMB MORTAR G	ok	0		02	
+mslug3	P1 BOMB PETROL B	ok	0		02	
+mslug3	P1 BOMB ROCK	ok	0		02	
+mslug4	P1 BOMB NORMAL	ok	0		02	
+mslug4	P1 BOMB FIRE	ok	0		02	
+mslug5	P1 BOMB NORMAL	ok	0		02	
+mslugx	P1 BODY NORMAL	ok	0		02	
+mutnat	P1 SPEC NONE	ok	0		02	
+mutnat	P1 SPEC A	ok	0		02	
+mutnat	P1 SPEC B	ok	0		02	
+mutnat	P1 SPEC C	ok	0		02	
+mutnat	P1 SPEC D	ok	0		02	
+mutnat	P2 SPEC NONE	ok	0		02	
+mutnat	P2 SPEC A	ok	0		02	
+mutnat	P2 SPEC B	ok	0		02	
+nam1975	P1 WEAP FLAMETHR	sans_conclusion	0		01	
+nam1975	P1 WEAP BAZOOKA	sans_conclusion	0		01	
+nam1975	P1 WEAP MACHINE	sans_conclusion	0		01	
+nam1975	P2 WEAP FLAMETHR	sans_conclusion	0		01	
+nam1975	P2 WEAP BAZOOKA	sans_conclusion	0		01	
+nam1975	P2 WEAP MACHINE	sans_conclusion	0		01	
+ncombat	P1 CHAR JOE	ok	0		02	
+ncombat	P1 CHAR MUSASHI	ok	0		02	
+pbobblen	P1 HELP ENABLED	sans_conclusion	0		01	
+pbobblen	P1 HELP DISABLED	sans_conclusion	0		01	
+pbobblen	P2 HELP ENABLED	sans_conclusion	0		01	
+pbobblen	P2 HELP DISABLED	sans_conclusion	0		01	
+pbobblen	P1 PERM BLUE	sans_conclusion	0		01	
+pbobblen	P1 PERM RED	sans_conclusion	0		01	
+pbobblen	P1 PERM YELLOW	sans_conclusion	0		01	
+pbobblen	P1 PERM GREEN	sans_conclusion	0		01	
+pbobblen	P1 PERM PURPLE	sans_conclusion	0		01	
+pbobblen	P1 PERM ORANGE	sans_conclusion	0		01	
+pbobblen	P1 PERM BLUE 2	sans_conclusion	0		01	
+pbobblen	P1 PERM RED 2	sans_conclusion	0		01	
+pbobblen	P1 PERM YELLOW 2	sans_conclusion	0		01	
+pbobblen	P1 PERM GREEN 2	sans_conclusion	0		01	
+puzzldpr	P1 PERM BLUE	sans_conclusion	0		01	
+puzzldpr	P1 PERM RED	sans_conclusion	0		01	
+puzzldpr	P1 PERM ORANGE	sans_conclusion	0		01	
+puzzldpr	P1 PERM GREEN	sans_conclusion	0		01	
+puzzldpr	P1 PERM YELLOW	sans_conclusion	0		01	
+puzzldpr	P1 PERM GREY	sans_conclusion	0		01	
+puzzldpr	P1 PERM BLUE 2	sans_conclusion	0		01	
+puzzldpr	P1 PERM RED 2	sans_conclusion	0		01	
+puzzldpr	P1 PERM ORANGE 2	sans_conclusion	0		01	
+puzzldpr	P1 PERM GREEN 2	sans_conclusion	0		01	
+puzzldpr	P1 PERM YELLOW 2	sans_conclusion	0		01	
+puzzldpr	P1 PERM GREY 2	sans_conclusion	0		01	
+puzzldpr	P2 PERM BLUE	sans_conclusion	0		01	
+puzzledp	P1 PERM BLUE	sans_conclusion	0		01	
+puzzledp	P1 PERM RED	sans_conclusion	0		01	
+puzzledp	P1 PERM ORANGE	sans_conclusion	0		01	
+puzzledp	P1 PERM GREEN	sans_conclusion	0		01	
+puzzledp	P1 PERM YELLOW	sans_conclusion	0		01	
+puzzledp	P1 PERM GREY	sans_conclusion	0		01	
+puzzledp	P1 PERM BLUE 2	sans_conclusion	0		01	
+puzzledp	P1 PERM RED 2	sans_conclusion	0		01	
+puzzledp	P1 PERM ORANGE 2	sans_conclusion	0		01	
+puzzledp	P1 PERM GREEN 2	sans_conclusion	0		01	
+puzzledp	P1 PERM YELLOW 2	sans_conclusion	0		01	
+puzzledp	P1 PERM GREY 2	sans_conclusion	0		01	
+puzzledp	P2 PERM BLUE	sans_conclusion	0		01	
+quizdai2	PERM. A 3 ANSWER	ok	0		02	
+quizdai2	PERM. A 2 ANSWER	ok	0		02	
+quizdai2	PERM. A 1 ANSWER	ok	0		02	
+quizdai2	PERM. N 1	ok	0		02	
+quizdai2	PERM. N 3	ok	0		02	
+quizdai2	PERM. N 5	ok	0		02	
+quizdais	PERM. A 3 ANSWER	ok	0		02	
+quizdais	PERM. A 2 ANSWER	ok	0		02	
+rbff1	STAGE SOUTH TOWN	ok	0		02	
+rbff1	STAGE SOUTH TO 2	ok	0		02	
+rbff1	STAGE SOUTH TO 3	ok	0		02	
+rbffspec	P1 COLO A COLOUR	ok	0		02	
+rbffspec	P1 COLO D COLOUR	ok	0		02	
+s1945p	P1 PLAN P38 LIGH	sans_conclusion	0		01	
+s1945p	P1 PLAN F5U FLYI	sans_conclusion	0		01	
+s1945p	P1 PLAN SPITFIRE	sans_conclusion	0		01	
+s1945p	P1 PLAN TA-152 F	sans_conclusion	0		01	
+s1945p	P1 PLAN ZERO FIG	sans_conclusion	0		01	
+samsh5sp	P1 CHAR HAOHMARU	ok	0		02	
+samsho	P1 CHAR HAOHMARU	ok	0		02	
+samsho	P1 CHAR NAKORURU	ok	0		02	
+samsho	P1 CHAR HANZO	ok	0		02	
+samsho	P1 CHAR GALFORD	ok	0		02	
+samsho	P1 CHAR WANG-FU	ok	0		02	
+samsho	P1 CHAR UKYO	ok	0		02	
+samsho	P2 CHAR HAOHMARU	ok	0		02	
+samsho	P2 CHAR NAKORURU	ok	0		02	
+samsho	P2 CHAR HANZO	ok	0		02	
+samsho	P2 CHAR GALFORD	ok	0		02	
+samsho	P2 CHAR WANG-FU	ok	0		02	
+samsho	P2 CHAR UKYO	ok	0		02	
+samsho2	BACKGRO HAOHMARU	ok	0		02	
+samsho2	BACKGRO NAKORURU	ok	0		02	
+samsho2	BACKGRO HANZO	ok	0		02	
+samsho2	BACKGRO GALFORD	ok	0		02	
+samsho2	BACKGRO WAN-FU	ok	0		02	
+samsho2	BACKGRO UKYO	ok	0		02	
+samsho2	P1 CHAR HAOHMARU	ok	0		02	
+samsho2	P1 CHAR NAKORURU	ok	0		02	
+samsho2	P1 CHAR HANZO	ok	0		02	
+samsho2	P1 CHAR GALFORD	ok	0		02	
+samsho2	P1 CHAR WAN-FU	ok	0		02	
+samsho2	P1 CHAR UKYO	ok	0		02	
+samsho2	P2 CHAR HAOHMARU	ok	0		02	
+samsho2	P2 CHAR NAKORURU	ok	0		02	
+samsho2	P2 CHAR HANZO	ok	0		02	
+samsho3	P1 CHAR BEGINNER	ok	0		02	
+samsho3	P1 CHAR MEDIUM G	ok	0		02	
+samsho3	P1 CHAR UPPER GR	ok	0		02	
+samsho3	P2 CHAR BEGINNER	ok	0		02	
+samsho3	P2 CHAR MEDIUM G	ok	0		02	
+samsho3	P2 CHAR UPPER GR	ok	0		02	
+samsho4	P1 COLO A COLOUR	ok	0		02	
+samsho4	P1 COLO B COLOUR	ok	0		02	
+samsho4	P1 PLAY SLASH	ok	0		02	
+samsho4	P1 PLAY BUST	ok	0		02	
+samsho4	P1 CONT HUMAN CO	ok	0		02	
+samsho4	P1 CONT CPU CONT	ok	0		02	
+samsho5	P1 CHAR HAOHMARU	ok	0		02	
+samsho5	P1 CHAR NAKORURU	ok	0		02	
+savagere	CHARACT KING LEO	ok	0		02	
+savagere	CHARACT ANGRY CH	ok	0		02	
+sengoku	P1 WEAP NONE	ok	0		02	
+sengoku	P1 WEAP RED SPHE	ok	0		02	
+sengoku3	P1 WEAP SYURIKEN	ok	0		02	
+shocktr2	P1 WEAP NORMAL S	ok	0		02	
+shocktr2	P1 WEAP FIRE SHO	ok	0		02	
+shocktr2	P1 WEAP ROUND SH	ok	0		02	
+shocktr2	P1 WEAP MISSILE	ok	0		02	
+shocktr2	P1 WEAP BOOMERAN	ok	0		02	
+shocktro	P1 NORM NORMAL G	ok	0		02	
+sonicwi3	CHARACT P1 KEATO	ok	0		02	
+sonicwi3	CHARACT P1 BLAZE	ok	0		02	
+sonicwi3	CHARACT P1 HIEN	ok	0		02	
+sonicwi3	CHARACT P1 MAO M	ok	0		02	
+sonicwi3	CHARACT P1 CHAIK	ok	0		02	
+sonicwi3	CHARACT P1 SPANK	ok	0		02	
+ssideki2	P1 POWE FULL TEA	ok	0		02	
+ssideki2	P1 POWE ATTACK	ok	0		02	
+ssideki2	P1 POWE DEFENSE	ok	0		02	
+ssideki2	P1 POWE SPEED	ok	0		02	
+ssideki2	P1 POWE TEAMWORK	ok	0		02	
+ssideki2	P1 POWE ACE STRI	ok	0		02	
+ssideki2	P2 POWE FULL TEA	ok	0		02	
+ssideki2	P2 POWE ATTACK	ok	0		02	
+ssideki2	P2 POWE DEFENSE	ok	0		02	
+ssideki2	P2 POWE SPEED	ok	0		02	
+superspy	WEAP MACHINE GUN	ok	0		02	
+superspy	WEAPON PISTOL	ok	0		02	
+svc	SECRET HEAVEN AT	ok	0		02	
+svc	SECRET HELL RED	ok	0		02	
+svc	SECRET NOTHING B	ok	0		02	
+svc	P1 CHAR KYO	ok	0		02	
+turfmast	WIND PO NO WIND	ok	0		02	
+turfmast	WIND PO FULL WIN	ok	0		02	
+turfmast	SHOT PO 1 LINE G	ok	0		02	
+turfmast	SHOT PO 2 LINES	ok	0		02	
+turfmast	SHOT PO 3 LINES	ok	0		02	
+turfmast	SHOT PO 4 LINES	ok	0		02	
+turfmast	SHOT PO 5 LINES	ok	0		02	
+turfmast	SHOT PO 6 LINES	ok	0		02	
+turfmast	CLUB 1W 260 YARD	ok	0		02	
+turfmast	CLUB 3W 240 YARD	ok	0		02	
+turfmast	CLUB 4W 230 YARD	ok	0		02	
+turfmast	CLUB 1I 220 YARD	ok	0		02	
+viewpoin	P1 INFI INF PLAS	ok	0		02	
+viewpoin	P1 INFI INF FIRE	ok	0		02	
+viewpoin	P1 INFI INF HOMI	ok	0		02	
+viewpoin	P2 INFI INF PLAS	ok	0		02	
+viewpoin	P2 INFI INF FIRE	ok	0		02	
+viewpoin	P2 INFI INF HOMI	ok	0		02	
+wakuwak7	P1 CHAR RAI	ok	0		02	
+wakuwak7	P1 CHAR ARINA	ok	0		02	
+wakuwak7	P1 CHAR SLASH	ok	0		02	
+wakuwak7	P1 CHAR DANDY-J	ok	0		02	
+wakuwak7	P1 CHAR TESS	ok	0		02	
+wakuwak7	P1 CHAR MAURU	ok	0		02	
+wakuwak7	P2 CHAR RAI	ok	0		02	
+wakuwak7	P2 CHAR ARINA	ok	0		02	
+wakuwak7	P2 CHAR SLASH	ok	0		02	
+wakuwak7	P2 CHAR DANDY-J	ok	0		02	
+wakuwak7	P2 CHAR TESS	ok	0		02	
+wh1	P1 CHAR DRAGON	ok	0		02	
+wh1	P1 CHAR HANZO	ok	0		02	
+wh1	P1 CHAR MUSCLE P	ok	0		02	
+wh1	P1 CHAR J. CARN	ok	0		02	
+wh1	P1 CHAR JANNE	ok	0		02	
+wh1	P1 CHAR RASPUTIN	ok	0		02	
+wh1	P2 CHAR DRAGON	ok	0		02	
+wh1	P2 CHAR HANZO	ok	0		02	
+wh1	P2 CHAR MUSCLE P	ok	0		02	
+wh1	P2 CHAR J. CARN	ok	0		02	
+wjammers	COURT BEACH	ok	0		02	
+wjammers	COURT LAWN	ok	0		02	
+wjammers	COURT TILES	ok	0		02	
+wjammers	COURT CONCRETE	ok	0		02	
+wjammers	COURT CLAY	ok	0		02	
+wjammers	COURT STADIUM	ok	0		02	
+2020bb	INF SELECT TIME	ok	0		02	
+2020bb	INF GAME TIME	ok	0		02	
+2020bb	INF CONTINUES	ok	0		02	
+2020bb	INF TOTAL OUTS	ok	0		02	
+3countb	INFINITE TIME	ok	0		02	
+alpham2	P1 SPEC WEAP POW	ok	0		02	
+alpham2	P2 SPEC WEAP POW	ok	0		02	
+alpham2	P1 MAXIMUM GOLD	ok	0		02	
+alpham2	P1 RAPID FIRE LA	ok	0		02	
+alpham2	P1 RAPID FIRE MI	ok	0		02	
+alpham2	P2 MAXIMUM GOLD	ok	0		02	
+alpham2	P2 RAPID FIRE LA	ok	0		02	
+alpham2	P2 RAPID FIRE MI	ok	0		02	
+androdun	P2 INF LIVES	ok	0		02	
+androdun	P1 MAX SHOT POW	ok	0		02	
+androdun	P1 MAX BOMB POW	ok	0		02	
+androdun	P1 MAX MISSILE P	ok	0		02	
+androdun	P1 MAX UNIT POW	ok	0		02	
+androdun	P2 MAX SHOT POW	ok	0		02	
+androdun	P2 MAX BOMB POW	ok	0		02	
+androdun	P2 MAX MISSILE P	ok	0		02	
+androdun	P2 MAX UNIT POW	ok	0		02	
+androdun	P1 INF CONTINUES	ok	0		02	
+androdun	P1 PERFECT BONUS	ok	0		02	
+androdun	P2 INF CONTINUES	ok	0		02	
+aodk	INFINITE TIME	ok	0		02	
+aodk	P1 INF ENERGY	ok	0		02	
+aodk	P2 INF ENERGY	ok	0		02	
+aof	P2 INF ENERGY	ok	0		02	3887
+aof	P1 INF POWER	ok	0		02	3887
+aof	P2 INF POWER	ok	0		02	3887
+aof	P1 ALTERNATE OUT	ok	0		02	3887
+aof	P2 ALTERNATE OUT	ok	0		02	3887
+aof2	P1 INF ENERGY	ok	0		02	
+aof2	P2 INF ENERGY	ok	0		02	
+aof2	P1 INF POWER	ok	0		02	
+aof2	P2 INF POWER	ok	0		02	
+aof3	P1 INF ENERGY	ok	0		02	
+aof3	P2 INF ENERGY	ok	0		02	
+aof3	P1 INF POWER	ok	0		02	
+aof3	P2 INF POWER	ok	0		02	
+bakatono	INF MOVE TIME	sans_conclusion	3			
+bangbead	INFINITE TIME	ok	0		02	
+bangbead	P1 MAX MIRACLE P	ok	0		02	
+bangbead	P2 MAX MIRACLE P	ok	0		02	
+bjourney	INF SHOP TIME	ok	0		02	3846
+bjourney	P1 INF ENERGY	ok	0		02	3846
+bjourney	P1 1 COCOON FOR	ok	0		02	3846
+bjourney	P2 INF ENERGY	ok	0		02	3846
+bjourney	P2 1 COCOON FOR	ok	0		02	3846
+bjourney	P1 INVINCIBILITY	ok	0		02	3846
+bjourney	P2 INVINCIBILITY	ok	0		02	3846
+bjourney	P1 INF MONEY	ok	0		02	3846
+bjourney	P1 NEVER LOSE FL	ok	0		02	3846
+bjourney	P1 NEVER GET CUR	ok	0		02	3846
+bjourney	P1 THE CLUB	ok	0		02	3846
+bjourney	P1 THE SPIKES	ok	0		02	3846
+bjourney	P1 THE SPRING	ok	0		02	3846
+bjourney	P1 THE SWIN FIN	ok	0		02	3846
+blazstar	P1 MAX POWER	ok	0		02	
+blazstar	P2 MAX POWER	ok	0		02	
+breakers	P1 INF ENERGY	ok	0		02	
+breakers	P2 INF ENERGY	ok	0		02	
+breakers	P1 INFINITE CHI	ok	0		02	
+breakers	P1 PLAY WITH BAI	ok	0		02	
+breakers	P2 INFINITE CHI	ok	0		02	
+breakers	P2 PLAY WITH BAI	ok	0		02	
+breakrev	P1 INF ENERGY	ok	0		02	
+breakrev	P2 INF ENERGY	ok	0		02	
+breakrev	P1 INFINITE CHI	ok	0		02	
+breakrev	P1 PLAY WITH BAI	ok	0		02	
+breakrev	P2 INFINITE CHI	ok	0		02	
+breakrev	P2 PLAY WITH BAI	ok	0		02	
+bstars	INFINITE TIME	ok	0		02	
+bstars	INFINITE INNINGS	ok	0		02	
+bstars	INFINITE STRIKES	ok	0		02	
+bstars	INFINITE BALLS	ok	0		02	
+bstars	INFINITE OUTS	ok	0		02	
+bstars2	INFINITE TIME	ok	0		02	
+bstars2	P1 MAX POW	ok	0		02	
+bstars2	P2 MAX POW	ok	0		02	
+bstars2	INF TOTAL OUTS	ok	0		02	
+bstars2	INFINITE STRIKES	ok	0		02	
+bstars2	INFINITE BALLS	ok	0		02	
+bstars2	INFINITE OUTS	ok	0		02	
+bstars2	P1 WIN GAME	ok	0		02	
+bstars2	P2 WIN GAME	ok	0		02	
+burningf	INF CHAR SELECT	ok	0		02	
+burningf	P1 INF ENERGY	ok	0		02	
+burningf	P2 INF ENERGY	ok	0		02	
+burningf	P1 INF LIVES	ok	0		02	
+burningf	P2 INF LIVES	ok	0		02	
+burningf	INF CONTINUES	ok	0		02	
+crswd2bl	P1 INF ENERGY	ok	0		02	
+crswd2bl	P2 INF ENERGY	ok	0		02	
+crswd2bl	P1 INF BOMBS	ok	0		02	
+crswd2bl	P2 INF BOMBS	ok	0		02	
+crsword	P1 INF ENERGY	ok	0		02	
+crsword	P2 INF ENERGY	ok	0		02	
+crsword	P1 MAX WEAP POW	ok	0		02	
+crsword	P2 MAX WEAP POW	ok	0		02	
+crsword	P1 INF CONTINUES	ok	0		02	
+crsword	P1 INF MONEY	ok	0		02	
+crsword	P2 INF CONTINUES	ok	0		02	
+crsword	P2 INF MONEY	ok	0		02	
+ctomaday	P1 INF LIVES	ok	0		02	
+ctomaday	P1 INVINCIBILITY	ok	0		02	
+ctomaday	P2 INVINCIBILITY	ok	0		02	3789
+ctomaday	P1 MAX POW RIGHT	ok	0		02	3789
+ctomaday	P1 MAX POW LEFT	ok	0		02	3789
+ctomaday	P2 MAX POW RIGHT	ok	0		02	3789
+ctomaday	P2 MAX POW LEFT	ok	0		02	3789
+cyberlip	INFINITE TIME	ok	0		02	
+cyberlip	P2 INF LIVES	ok	0		02	
+cyberlip	P1 INF CONTINUES	ok	0		02	
+cyberlip	P1 INF AUTO GUN	ok	0		02	
+cyberlip	P1 INF WIDE GUN	ok	0		02	
+cyberlip	P1 INF BAZOOKA	ok	0		02	
+cyberlip	P1 INFINITE FIRE	ok	0		02	
+cyberlip	P1 INF GRENADES	ok	0		02	
+cyberlip	P2 INF CONTINUES	ok	0		02	
+cyberlip	P2 INF AUTO GUN	ok	0		02	
+cyberlip	P2 INF WIDE GUN	ok	0		02	
+cyberlip	P2 INF BAZOOKA	ok	0		02	
+cyberlip	P2 INFINITE FIRE	ok	0		02	
+cyberlip	P2 INF GRENADES	ok	0		02	
+diggerma	P1 INF ENERGY	ok	0		02	
+diggerma	P2 INF ENERGY	ok	0		02	
+diggerma	P1 INF LIVES	ok	0		02	
+diggerma	P2 INF LIVES	ok	0		02	
+diggerma	P1 INF BOMBS	ok	0		02	
+diggerma	P2 INF BOMBS	ok	0		02	
+doubledr	INF CHAR SELECTI	ok	0		02	
+doubledr	P1 INF ENERGY	ok	0		02	
+doubledr	P2 INF ENERGY	ok	0		02	
+eightman	INFINITE TIME	ok	0		02	
+eightman	P1 INF ENERGY	ok	0		02	
+eightman	P2 INF ENERGY	ok	0		02	
+eightman	P2 INF LIVES	ok	0		02	
+eightman	P1 INVINCIBILITY	ok	0		02	
+eightman	P2 INVINCIBILITY	ok	0		02	
+eightman	P1 MAX WEAP POW	ok	0		02	
+eightman	P1 PERMANENT 8 P	ok	0		02	
+eightman	P2 MAX WEAP POW	ok	0		02	
+eightman	P2 PERMANENT 8 P	ok	0		02	
+eightman	P1 INF BOMBS	ok	0		02	
+eightman	P2 INF BOMBS	ok	0		02	
+eightman	INF CONTINUES	ok	0		02	
+fatfursp	P1 INF ENERGY	ok	0		02	
+fatfursp	P2 INF ENERGY	ok	0		02	
+fatfury1	P1 INF ENERGY	ok	0		02	
+fatfury1	P2 INF ENERGY	ok	0		02	
+fatfury1	INF ENERGY CPU	ok	0		02	
+fatfury2	P1 INF ENERGY	ok	0		02	
+fatfury2	P2 INF ENERGY	ok	0		02	
+fatfury3	P1 INF ENERGY	ok	0		02	
+fatfury3	P2 INF ENERGY	ok	0		02	
+fatfury3	EASY SUPERS	ok	0		02	
+fatfury3	P1 INFINITE SDMS	ok	0		02	
+fatfury3	P2 INFINITE SDMS	ok	0		02	
+fbfrenzy	INFINITE TIME	ok	0		02	
+fbfrenzy	P1 SCORE 00	ok	0		02	
+fbfrenzy	P2 SCORE 00	ok	0		02	
+fightfev	P1 INF ENERGY	ok	0		02	
+fightfev	P2 INF ENERGY	ok	0		02	
+galaxyfg	INFINITE TIME	ok	0		02	
+galaxyfg	P1 INF ENERGY	ok	0		02	
+galaxyfg	P2 INF ENERGY	ok	0		02	
+galaxyfg	P1 PLAY WITH FEL	ok	0		02	
+galaxyfg	P2 PLAY WITH FEL	ok	0		02	
+ganryu	P2 INF LIVES	ok	0		02	
+ganryu	INVINCIBILITY	ok	0		02	
+ganryu	P1 INF WEAPONS	ok	0		02	
+ganryu	P2 INF WEAPONS	ok	0		02	
+garou	P1 INF ENERGY	ok	0		02	
+garou	P2 INF ENERGY	ok	0		02	
+garou	P1 INF POWER	ok	0		02	
+garou	P2 INF POWER	ok	0		02	
+garou	P1 INF CREDITS	ok	0		02	
+garou	P2 INF CREDITS	ok	0		02	
+ghostlop	INFINITE TIME	ok	0		02	3754
+goalx3	INFINITE TIME	ok	0		02	
+goalx3	P1 SCORE 0	ok	0		02	
+goalx3	P2 SCORE 0	ok	0		02	
+gowcaizr	P1 INF ENERGY	ok	0		02	
+gowcaizr	P2 INF ENERGY	ok	0		02	
+gpilots	P1 MAX WEAP POW	ok	0		02	3975
+gpilots	P2 MAX WEAP POW	ok	0		02	3975
+gpilots	P1 INF BOMBS	ok	0		02	3975
+gpilots	P2 INF BOMBS	ok	0		02	3975
+gpilots	INF CONTINUES	ok	0		02	3975
+gpilots	P1 MAXIMUM STARS	ok	0		02	3975
+gpilots	P2 MAXIMUM STARS	ok	0		02	3975
+gururin	NO MORE LEVEL GA	ok	0		02	
+ironclad	P1 INF ENERGY	ok	0		02	
+ironclad	P2 INF ENERGY	ok	0		02	
+ironclad	P1 MAXIMUM POWER	ok	0		02	
+ironclad	P2 MAXIMUM POWER	ok	0		02	
+ironclad	P1 MAXIMUM LEVEL	ok	0		02	
+ironclad	P2 MAXIMUM LEVEL	ok	0		02	
+irrmaze	INFINITE TIME	sans_conclusion	3			
+irrmaze	INFINITE LIVES	sans_conclusion	3			
+janshin	INF MOVE TIME	sans_conclusion	3			
+joyjoy	P1 INF CONTINUES	ok	0		02	
+joyjoy	P1 MIN PIECE SPE	ok	0		02	
+joyjoy	P1 MAX L-BALL	ok	0		02	
+joyjoy	P2 INF CONTINUES	ok	0		02	
+joyjoy	P2 MIN PIECE SPE	ok	0		02	
+joyjoy	P2 MAX L-BALL	ok	0		02	
+karnovr	P1 INF ENERGY	ok	0		02	
+karnovr	P2 INF ENERGY	ok	0		02	
+kizuna	P1 INF ENERGY	ok	0		02	
+kizuna	P2 INF ENERGY	ok	0		02	
+kof2000	INF SELECTION TI	ok	0		02	
+kof2000	P1 INF ENERGY	ok	0		02	
+kof2000	P2 INF ENERGY	ok	0		02	
+kof2000	P1 MAXIMUM POWER	ok	0		02	
+kof2000	P1 STUN GAUGE NE	ok	0		02	
+kof2000	P2 MAXIMUM POWER	ok	0		02	
+kof2000	P2 STUN GAUGE NE	ok	0		02	
+kof2000	MAI S BOOBS BOUN	ok	0		02	
+kof2000	9999 BATTLE POIN	ok	0		02	
+kof2000	9999 BATTLE PO 2	ok	0		02	
+kof2000	P1 INF STRIKERS	ok	0		02	
+kof2000	P1 NEVER GET DIZ	ok	0		02	
+kof2000	P1 NEVER GET GUA	ok	0		02	
+kof2000	P1 GUARD BAR NEV	ok	0		02	
+kof2000	P2 INF STRIKERS	ok	0		02	
+kof2001	INFINITE TIME	ok	0		02	
+kof2001	P1 INF ENERGY	ok	0		02	
+kof2001	P2 INF ENERGY	ok	0		02	
+kof2001	P1 MAXIMUM POW	ok	0		02	
+kof2001	P2 MAXIMUM POW	ok	0		02	
+kof2001	MAI S BOOBS BOUN	ok	0		02	
+kof2002	P1 INF ENERGY	ok	0		02	
+kof2002	P2 INF ENERGY	ok	0		02	
+kof2002	P1 MAXIMUM POWER	ok	0		02	
+kof2002	P1 INF STUN GAUG	ok	0		02	
+kof2002	P1 NEAR-INSTANT	ok	0		02	
+kof2002	P2 MAXIMUM POWER	ok	0		02	
+kof2002	P2 INF STUN GAUG	ok	0		02	
+kof2002	P2 NEAR-INSTANT	ok	0		02	
+kof2002	P1 INF GUARD BAR	ok	0		02	
+kof2002	P1 NEAR-INSTAN 2	ok	0		02	
+kof2002	P2 INF GUARD BAR	ok	0		02	
+kof2002	P2 NEAR-INSTAN 2	ok	0		02	
+kof94	P2 INF ENERGY	ok	0		02	
+kof94	P1 MAX POW	ok	0		02	
+kof94	P2 MAX POW	ok	0		02	
+kof95	BOSS CODE + TIME	ok	0		02	
+kof95	P2 INF ENERGY	ok	0		02	
+kof95	P1 MAX POW	ok	0		02	
+kof95	P2 MAX POW	ok	0		02	
+kof95	HIDDEN CHARS	ok	0		02	
+kof96	P1 INF ENERGY	ok	0		02	
+kof96	P2 INF ENERGY	ok	0		02	
+kof96	P1 STUN GAUGE NE	ok	0		02	
+kof96	P2 STUN GAUGE NE	ok	0		02	
+kof96	HIDDEN CHARS	ok	0		02	
+kof96	P1 NEVER GET DIZ	ok	0		02	
+kof96	P1 NEVER GET GUA	ok	0		02	
+kof96	P1 GUARD BAR NEV	ok	0		02	
+kof96	P2 NEVER GET DIZ	ok	0		02	
+kof96	P2 NEVER GET GUA	ok	0		02	
+kof96	P2 GUARD BAR NEV	ok	0		02	
+kof97	P1 INF ENERGY	ok	0		02	
+kof97	P2 INF ENERGY	ok	0		02	
+kof97	HIDDEN CHARS EXC	ok	0		02	
+kof97	BACKDROP RED	ok	0		02	
+kof97	P1 NEVER GET DIZ	ok	0		02	
+kof97	P1 NEVER GET GUA	ok	0		02	
+kof97	P2 NEVER GET DIZ	ok	0		02	
+kof97	P2 NEVER GET GUA	ok	0		02	
+kof98	P1 INF ENERGY	ok	0		02	
+kof98	P2 INF ENERGY	ok	0		02	
+kof98	P1 NEVER GET DIZ	ok	0		02	
+kof98	P1 NEVER GET GUA	ok	0		02	
+kof98	P2 NEVER GET DIZ	ok	0		02	
+kof98	P2 NEVER GET GUA	ok	0		02	
+kof99	P1 INF ENERGY	ok	0		02	
+kof99	P2 INF ENERGY	ok	0		02	
+kof99	P1 MAXIMUM POWER	ok	0		02	
+kof99	P1 STUN GAUGE NE	ok	0		02	
+kof99	P2 MAXIMUM POWER	ok	0		02	
+kof99	P2 STUN GAUGE NE	ok	0		02	
+kof99	9999 BATTLE POIN	ok	0		02	
+kof99	9999 BATTLE PO 2	ok	0		02	
+kof99	P1 INF STRIKERS	ok	0		02	
+kof99	P1 NEVER GET DIZ	ok	0		02	
+kof99	P1 NEVER GET GUA	ok	0		02	
+kof99	P1 GUARD BAR NEV	ok	0		02	
+kof99	P1 AUTOGUARD	ok	0		02	
+kof99	P1 ALL MOVES COM	ok	0		02	
+kotm	INF ENRG ENEMY 1	ok	0		02	
+kotm	INF ENRG ENEMY 2	ok	0		02	
+kotm	P1 INF ENERGY	ok	0		02	
+kotm	P2 INF ENERGY	ok	0		02	
+kotm	P1 MAXIMUM POWER	ok	0		02	
+kotm	P2 MAXIMUM POWER	ok	0		02	
+kotm2	P1 INF ENERGY	ok	0		02	
+kotm2	P2 INF ENERGY	ok	0		02	
+kotm2	P1 INF LIVES	ok	0		02	
+kotm2	P2 INF LIVES	ok	0		02	
+lastbld2	P1 INVINCIBILITY	ok	0		02	
+lastbld2	P2 INVINCIBILITY	ok	0		02	
+lasthope	INFINITE LIVES	sans_conclusion	0		00	
+lbowling	P1 INFINITE TIME	ok	0		02	
+lbowling	P2 INFINITE TIME	ok	0		02	
+lbowling	P3 INFINITE TIME	ok	0		02	
+lbowling	P4 INFINITE TIME	ok	0		02	
+legendos	P1 INFINITE TIME	ok	0		02	
+legendos	P2 INFINITE TIME	ok	0		02	
+legendos	P1 INF ENERGY	ok	0		02	
+legendos	P2 INF ENERGY	ok	0		02	
+lresort	P2 INF LIVES	ok	0		02	
+lresort	P1 INVINCIBILITY	ok	0		02	
+lresort	P2 INVINCIBILITY	ok	0		02	
+lresort	P1 MAXIMUM POWER	ok	0		02	
+lresort	P2 MAXIMUM POWER	ok	0		02	
+lresort	P1 MAXIMUM SPEED	ok	0		02	
+lresort	P1 INFINITE SHOT	ok	0		02	
+lresort	P1 INF POD SHOT	ok	0		02	
+lresort	P1 INF LASER	ok	0		02	
+lresort	P1 INF HOMING	ok	0		02	
+lresort	P1 INF GRENADE	ok	0		02	
+lresort	P2 MAXIMUM SPEED	ok	0		02	
+lresort	P2 INFINITE SHOT	ok	0		02	
+lresort	P2 INF POD SHOT	ok	0		02	
+magdrop2	NO MORE LEVEL GA	ok	0		02	
+magdrop2	P1 QUOTA 200	ok	0		02	
+magdrop2	P1 PLAY AS BLACK	ok	0		02	
+magdrop2	P2 QUOTA 200	ok	0		02	
+magdrop2	P2 PLAY AS BLACK	ok	0		02	
+magdrop3	NO MORE LEVEL GA	ok	0		02	
+magdrop3	UNLOCK SECRET CH	ok	0		02	
+magdrop3	P1 QUOTA 200	ok	0		02	
+magdrop3	P2 QUOTA 200	ok	0		02	
+maglord	INFINITE TIME	ok	0		02	
+maglord	P1 INF ENERGY	ok	0		02	
+maglord	P2 INF ENERGY	ok	0		02	
+maglord	P1 INVINCIBILITY	ok	0		02	
+maglord	P2 INVINCIBILITY	ok	0		02	
+maglord	P1 INF POWER	ok	0		02	
+maglord	P2 INF POWER	ok	0		02	
+mahretsu	INF MAIN GAME TI	ok	0		02	
+mahretsu	INF MOVE TIME	ok	0		02	
+marukodq	INF ANSWER TIME	ok	0		02	
+marukodq	P2 INF LIVES	ok	0		02	
+marukodq	ANSWER A CORRECT	ok	0		02	
+matrim	P1 MAXIMUM POW	ok	0		02	
+matrim	P2 MAXIMUM POW	ok	0		02	
+matrim	P1 SSS RANK	ok	0		02	
+matrim	P2 SSS RANK	ok	0		02	
+miexchng	NO MORE LEVEL GA	ok	0		02	
+miexchng	MAX CHAIN 09	ok	0		02	
+minasan	INF MOVE TIME	sans_conclusion	3			
+minasan	MAKE 1 STEP ALWA	sans_conclusion	3			
+moshougi	P1 INFINITE TIME	ok	0		02	
+moshougi	P2 INFINITE TIME	ok	0		02	
+moshougi	P1 INF PAWNS IN	ok	0		02	
+moshougi	P1 INF LANCES IN	ok	0		02	
+moshougi	P1 INF KNIGHTS I	ok	0		02	
+moshougi	P1 INF SILVERS I	ok	0		02	
+moshougi	P1 INF GOLDS IN	ok	0		02	
+moshougi	P1 INF BISHOPS I	ok	0		02	
+moshougi	P1 INF ROOKS IN	ok	0		02	
+moshougi	P2 INF PAWNS IN	ok	0		02	
+moshougi	P2 INF LANCES IN	ok	0		02	
+moshougi	P2 INF KNIGHTS I	ok	0		02	
+moshougi	P2 INF SILVERS I	ok	0		02	
+moshougi	P2 INF GOLDS IN	ok	0		02	
+moshougi	P2 INF BISHOPS I	ok	0		02	
+moshougi	P2 INF ROOKS IN	ok	0		02	
+mslug	P2 INF LIVES	ok	0		02	
+mslug	TANK INVINCIBLE	ok	0		02	
+mslug	P1 INVINCIBILITY	ok	0		02	
+mslug	P2 INVINCIBILITY	ok	0		02	
+mslug	P2 INF BOMBS	ok	0		02	
+mslug	INF TANK GAS	ok	0		02	
+mslug	INF TANK CANNON	ok	0		02	
+mslug	INF VEHICLE CANN	ok	0		02	
+mslug2	P1 INF VEHICLE E	ok	0		02	
+mslug2	P2 INF VEHICLE E	ok	0		02	
+mslug2	P2 INF LIVES	ok	0		02	
+mslug2	P1 INVINCIBILITY	ok	0		02	
+mslug2	P2 INVINCIBILITY	ok	0		02	
+mslug2	P1 INFINITE AMMO	ok	0		02	
+mslug2	P2 INF BOMBS	ok	0		02	
+mslug2	P2 INFINITE AMMO	ok	0		02	
+mslug2	P1 INF CANNON	ok	0		02	
+mslug2	P2 INF CANNON	ok	0		02	
+mslug3	INFINITE TIME	ok	0		02	
+mslug3	P2 INF LIVES	ok	0		02	
+mslug3	P1 INVINCIBILITY	ok	0		02	
+mslug3	P2 INVINCIBILITY	ok	0		02	
+mslug3	P1 INFINITE AMMO	ok	0		02	
+mslug3	P1 NO BOMB THROW	ok	0		02	
+mslug3	P2 INFINITE AMMO	ok	0		02	
+mslug3	P2 INF BOMBS	ok	0		02	
+mslug3	P2 NO BOMB THROW	ok	0		02	
+mslug3	P1 15 PRISONERS	ok	0		02	
+mslug3	P2 15 PRISONERS	ok	0		02	
+mslug4	P2 INF LIVES	ok	0		02	
+mslug4	P1 INVINCIBILITY	ok	0		02	
+mslug4	P1 INVINCIBLE FI	ok	0		02	
+mslug4	P2 INVINCIBILITY	ok	0		02	
+mslug4	P2 INVINCIBLE FI	ok	0		02	
+mslug4	P1 NO BOMB THROW	ok	0		02	
+mslug4	P2 INF BOMBS	ok	0		02	
+mslug4	P2 NO BOMB THROW	ok	0		02	
+mslug4	P1 INFINITE ARMS	ok	0		02	
+mslug4	P2 INFINITE ARMS	ok	0		02	
+mslug5	INFINITE TIME	ok	0		02	
+mslug5	INF CHAR SELECT	ok	0		02	
+mslug5	P2 INF LIVES	ok	0		02	
+mslug5	P1 INVINCIBILITY	ok	0		02	
+mslug5	P2 INVINCIBILITY	ok	0		02	
+mslug5	P2 INF BOMBS	ok	0		02	
+mslug5	P1 INF BULLETS	ok	0		02	
+mslug5	P1 INF CANNONS	ok	0		02	
+mslug5	P1 PIG	ok	0		02	
+mslug5	P1 15 PRISONERS	ok	0		02	
+mslug5	P2 INF BULLETS	ok	0		02	
+mslug5	P2 INF CANNONS	ok	0		02	
+mslugx	INFINITE TIME	ok	0		02	
+mslugx	P1 INF VEHICLE E	ok	0		02	
+mslugx	P2 INF VEHICLE E	ok	0		02	
+mslugx	P2 INF LIVES	ok	0		02	
+mslugx	P1 INVINCIBILITY	ok	0		02	
+mslugx	P2 INVINCIBILITY	ok	0		02	
+mslugx	P1 INFINITE AMMO	ok	0		02	
+mslugx	P1 INF BOMBS	ok	0		02	
+mslugx	P2 INFINITE AMMO	ok	0		02	
+mslugx	P2 INF BOMBS	ok	0		02	
+mslugx	P1 INF VEHICLE C	ok	0		02	
+mslugx	P2 INF VEHICLE C	ok	0		02	
+mutnat	INFINITE TIME	ok	0		02	
+mutnat	P1 INF ENERGY	ok	0		02	
+mutnat	P2 INF ENERGY	ok	0		02	
+mutnat	P1 INVINCIBILITY	ok	0		02	
+mutnat	P2 INVINCIBILITY	ok	0		02	
+mutnat	P1 INF ATTACK IT	ok	0		02	
+mutnat	P2 INF ATTACK IT	ok	0		02	
+nam1975	P1 INVINCIBILITY	sans_conclusion	0		01	
+nam1975	P2 INVINCIBILITY	sans_conclusion	0		01	
+nam1975	P1 INFINITE AMMO	sans_conclusion	0		01	
+nam1975	P2 INFINITE AMMO	sans_conclusion	0		01	
+nam1975	INF CONTINUES	sans_conclusion	0		01	
+nam1975	P1 INF GRENADES	sans_conclusion	0		01	
+nam1975	P2 INF GRENADES	sans_conclusion	0		01	
+ncombat	P1 INFINITE TIME	ok	0		02	
+ncombat	P2 INFINITE TIME	ok	0		02	
+ncombat	P1 INF ENERGY	ok	0		02	
+ncombat	P2 INF ENERGY	ok	0		02	
+ncombat	P2 INF LIVES	ok	0		02	
+ncombat	P1 INVINCIBILITY	ok	0		02	
+ncombat	P2 INVINCIBILITY	ok	0		02	
+ncombat	P1 MAX FIRE POW	ok	0		02	
+ncombat	P2 MAX FIRE POW	ok	0		02	
+ncombat	P1 INF CONTINUES	ok	0		02	
+ncombat	P1 MAXIMUM SPEED	ok	0		02	
+ncombat	P2 INF CONTINUES	ok	0		02	
+ncombat	P2 MAXIMUM SPEED	ok	0		02	
+ncommand	P1 INFINITE TIME	ok	0		02	
+ncommand	P2 INFINITE TIME	ok	0		02	
+ncommand	P2 INF ENERGY	ok	0		02	
+ncommand	P1 INVINCIBILITY	ok	0		02	
+ncommand	P2 INVINCIBILITY	ok	0		02	
+neocup98	INFINITE TIME	ok	0		02	
+neocup98	P1 SCORE 0	ok	0		02	
+neocup98	P2 SCORE 0	ok	0		02	
+neodrift	INFINITE TIME	ok	0		02	
+neodrift	STOP TOTAL TIME	ok	0		02	
+neodrift	STOP TOTAL TIM 2	ok	0		02	
+neodrift	STOP TOTAL TIM 3	ok	0		02	
+neodrift	STOP TOTAL TIM 4	ok	0		02	
+neodrift	STOP TOTAL TIM 5	ok	0		02	
+neodrift	STOP TOTAL TIM 6	ok	0		02	
+neodrift	STOP TOTAL TIM 7	ok	0		02	
+neomrdo	INF EXTRA BONUS	ok	0		02	
+neomrdo	P1 INVINCIBILITY	ok	0		02	
+neomrdo	P2 INVINCIBILITY	ok	0		02	
+ninjamas	P2 INF ENERGY	ok	0		02	
+ninjamas	P1 INF POWER	ok	0		02	
+ninjamas	P2 INF POWER	ok	0		02	
+ninjamas	BOSS CODE	ok	0		02	
+nitd	INFINITE TIME	ok	0		02	
+nitd	BIG DIAMOND EVER	ok	0		02	
+nitd	P1 INVINCIBILITY	ok	0		02	
+nitd	P2 INVINCIBILITY	ok	0		02	
+nitd	P1 FIRE POWER UP	ok	0		02	
+nitd	P1 SPEED POW UP	ok	0		02	
+nitd	P1 FIRING RANGE	ok	0		02	
+nitd	P2 FIRE POWER UP	ok	0		02	
+nitd	P2 SPEED POW UP	ok	0		02	
+nitd	P2 FIRING RANGE	ok	0		02	
+nitd	BONUS RATIO X 64	ok	0		02	
+overtop	INFINITE TIME	ok	0		02	
+overtop	INF SELECT TIME	ok	0		02	
+overtop	FINISH 1ST PLACE	ok	0		02	
+overtop	GO AT MAX SPEED	ok	0		02	
+panicbom	P1 MIN POWER UP	ok	0		02	
+panicbom	P2 MIN POWER UP	ok	0		02	
+panicbom	P1 NO MORE LEVEL	ok	0		02	
+panicbom	P2 NO MORE LEVEL	ok	0		02	
+pbobbl2n	P1 INFINITE TIME	sans_conclusion	0		01	
+pbobbl2n	P2 INFINITE TIME	sans_conclusion	0		01	
+pgoal	INF NORMAL TIME	ok	0		02	
+pnyaa	P1 FLOOD THE OPP	ok	0		02	
+pnyaa	MAX INTRUDERS AT	ok	0		02	
+popbounc	P1 INF LIVES	sans_conclusion	3			
+popbounc	P2 INF LIVES	sans_conclusion	3			
+preisle2	P1 INVINCIBILITY	ok	0		02	
+preisle2	P2 INVINCIBILITY	ok	0		02	
+preisle2	P1 MAX POWER UP	ok	0		02	
+preisle2	P2 MAX POWER UP	ok	0		02	
+preisle2	P1 INF BOMBS	ok	0		02	
+preisle2	P2 INF BOMBS	ok	0		02	
+preisle2	P1 999 STARS	ok	0		02	
+preisle2	P2 999 STARS	ok	0		02	
+pspikes2	P1 FULL ENERGY	ok	0		02	
+pspikes2	P2 FULL ENERGY	ok	0		02	
+pspikes2	P1 MAX POWER	ok	0		02	
+pspikes2	P2 MAX POWER	ok	0		02	
+pulstar	MAXIMUM SPEED	ok	0		02	
+pulstar	FULL CHARGE	ok	0		02	
+puzzldpr	INF TIME SOLO	sans_conclusion	0		01	
+puzzldpr	INF CONTINUES	sans_conclusion	0		01	
+puzzledp	INF TIME SOLO	sans_conclusion	0		01	
+puzzledp	INF CONTINUES	sans_conclusion	0		01	
+quizdai2	P2 INF LIVES	ok	0		02	
+quizdai2	RAPIDSHOT QUIZ G	ok	0		02	
+quizdai2	INFINITE GOLD	ok	0		02	
+quizdai2	ANSWER A CORRECT	ok	0		02	
+quizdais	P2 INF LIVES	ok	0		02	
+quizdais	2 GOOD ANSWERS N	ok	0		02	
+quizdais	ANSWER A CORRECT	ok	0		02	
+quizdais	P1 INF CONTINUES	ok	0		02	
+quizdais	P2 INF CONTINUES	ok	0		02	
+quizkof	INF BONUS TIME	sans_conclusion	0		01	
+quizkof	P2 INF LIVES	sans_conclusion	0		01	
+quizkof	FASTER ROUND PRO	sans_conclusion	0		01	
+quizkof	ANSWER A CORRECT	sans_conclusion	0		01	
+rbff1	P1 INF ENERGY	ok	0		02	
+rbff1	P2 INF ENERGY	ok	0		02	
+rbff1	P1 INF POWER	ok	0		02	
+rbff1	P2 INF POWER	ok	0		02	
+rbff1	LEFT WALL SOLID	ok	0		02	
+rbff1	RIGHT WALL SOLID	ok	0		02	
+rbff1	EASY SUPERS	ok	0		02	
+rbff2	P1 INF ENERGY	ok	0		02	
+rbff2	P2 INF ENERGY	ok	0		02	
+rbff2	P1 INF POWER	ok	0		02	
+rbff2	P2 INF POWER	ok	0		02	
+rbff2	P1 MOTION BLUR F	ok	0		02	
+rbff2	P1 MAX KAISER WA	ok	0		02	
+rbff2	P2 MOTION BLUR F	ok	0		02	
+rbff2	P2 MAX KAISER WA	ok	0		02	
+rbffspec	P1 INF SELECT TI	ok	0		02	
+rbffspec	P2 INF SELECT TI	ok	0		02	
+rbffspec	P1 INF ENERGY	ok	0		02	
+rbffspec	P2 INF ENERGY	ok	0		02	
+rbffspec	P1 INF POWER	ok	0		02	
+rbffspec	P2 INF POWER	ok	0		02	
+rbffspec	EASY SUPERS	ok	0		02	
+rbffspec	P1 QUICK ACTION	ok	0		02	
+rbffspec	P2 QUICK ACTION	ok	0		02	
+ridhero	INF TIME - W.G.P	ok	0		02	
+ridhero	INF TIME - STORY	ok	0		02	
+ridhero	INF TIME REMAINI	ok	0		02	
+ridhero	INFINITE TURBOS	ok	0		02	
+ridhero	WIN EVERY RACE A	ok	0		02	
+ridhero	RIDE AT MAX SPEE	ok	0		02	
+ridhero	INF MONEY STORY	ok	0		02	
+roboarmy	P1 INF ENERGY	ok	0		02	
+roboarmy	P2 INF ENERGY	ok	0		02	
+roboarmy	P2 INF LIVES	ok	0		02	
+roboarmy	P1 INF BOMBS	ok	0		02	
+roboarmy	P2 INF BOMBS	ok	0		02	
+rotd	INF CHAR SELECTI	ok	0		02	
+rotd	P1 NO WAIT TIME	ok	0		02	
+rotd	P2 NO WAIT TIME	ok	0		02	
+rotd	P1 INF ENRG ACTI	ok	0		02	
+rotd	P1 INF ENRG INAC	ok	0		02	
+rotd	P2 INF ENRG ACTI	ok	0		02	
+rotd	P2 INF ENRG INAC	ok	0		02	
+rotd	P1 INF POWER	ok	0		02	
+rotd	P2 INF POWER	ok	0		02	
+s1945p	P2 INF LIVES	sans_conclusion	0		01	
+s1945p	P1 MAX FIREPOWER	sans_conclusion	0		01	
+s1945p	P2 MAX FIREPOWER	sans_conclusion	0		01	
+s1945p	P1 INF BOMBS	sans_conclusion	0		01	
+s1945p	P1 INSTANT BOMBE	sans_conclusion	0		01	
+s1945p	P2 INF BOMBS	sans_conclusion	0		01	
+s1945p	P2 INSTANT BOMBE	sans_conclusion	0		01	
+s1945p	MISSION 1 LEVEL	sans_conclusion	0		01	
+s1945p	P1 INF SUPER SHO	sans_conclusion	0		01	
+s1945p	P2 INF SUPER SHO	sans_conclusion	0		01	
+samsh5sp	P1 INF ENERGY	ok	0		02	
+samsh5sp	P1 BLUE ENRG GAU	ok	0		02	
+samsh5sp	P2 INF ENERGY	ok	0		02	
+samsh5sp	P2 BLUE ENRG GAU	ok	0		02	
+samsh5sp	P1 MAXIMUM POWER	ok	0		02	
+samsh5sp	P1 MAX SWORD POW	ok	0		02	
+samsh5sp	P1 LONGER SWORD	ok	0		02	
+samsh5sp	P2 MAXIMUM POWER	ok	0		02	
+samsh5sp	P2 MAX SWORD POW	ok	0		02	
+samsh5sp	P2 LONGER SWORD	ok	0		02	
+samsho3	P1 INF ENERGY	ok	0		02	
+samsho3	P2 INF ENERGY	ok	0		02	
+samsho3	P1 INF POWER	ok	0		02	
+samsho3	P2 INF POWER	ok	0		02	
+samsho4	INFINITE TIME 2	ok	0		02	
+samsho4	P1 INF ENERGY	ok	0		02	
+samsho4	P2 INF ENERGY	ok	0		02	
+samsho4	P1 INF POWER	ok	0		02	
+samsho4	P1 POWER GAUGE	ok	0		02	
+samsho4	P2 INF POWER	ok	0		02	
+samsho4	P2 POWER GAUGE	ok	0		02	
+samsho5	P1 INF ENERGY	ok	0		02	
+samsho5	P1 BLUE ENRG GAU	ok	0		02	
+samsho5	P2 INF ENERGY	ok	0		02	
+samsho5	P2 BLUE ENRG GAU	ok	0		02	
+samsho5	P1 MAXIMUM POWER	ok	0		02	
+samsho5	P1 MAX SWORD POW	ok	0		02	
+samsho5	P1 LONGER SWORD	ok	0		02	
+samsho5	P2 MAXIMUM POWER	ok	0		02	
+samsho5	P2 MAX SWORD POW	ok	0		02	
+samsho5	P2 LONGER SWORD	ok	0		02	
+sdodgeb	P1 MAX POWER	ok	0		02	
+sdodgeb	P2 MAX POWER	ok	0		02	
+sengoku	P1 CHANGE TIME N	ok	0		02	
+sengoku	P1 CHANGE TIME S	ok	0		02	
+sengoku	P1 CHANGE TIME D	ok	0		02	
+sengoku	P2 CHANGE TIME N	ok	0		02	
+sengoku	P2 CHANGE TIME S	ok	0		02	
+sengoku	P2 CHANGE TIME D	ok	0		02	
+sengoku	P1 INF ENERGY	ok	0		02	
+sengoku	P2 INF ENERGY	ok	0		02	
+sengoku	P1 INF LIVES	ok	0		02	
+sengoku	P2 INF LIVES	ok	0		02	
+sengoku	P1 PERMANENT WEA	ok	0		02	
+sengoku	P2 PERMANENT WEA	ok	0		02	
+sengoku	P1 TRANSFORMATIO	ok	0		02	
+sengoku	P2 TRANSFORMATIO	ok	0		02	
+sengoku2	P1 INF NINJA MOR	ok	0		02	
+sengoku2	P1 INF OLD MAN M	ok	0		02	
+sengoku2	P1 INF DOG MORPH	ok	0		02	
+sengoku2	P2 INF NINJA MOR	ok	0		02	
+sengoku2	P2 INF OLD MAN M	ok	0		02	
+sengoku2	P2 INF DOG MORPH	ok	0		02	
+sengoku2	P1 INF ENERGY	ok	0		02	
+sengoku2	P2 INF ENERGY	ok	0		02	
+sengoku2	P1 PERMANENT WEA	ok	0		02	
+sengoku2	P2 PERMANENT WEA	ok	0		02	
+sengoku3	INFINITE TIME	ok	0		02	
+sengoku3	INF SELECT TIME	ok	0		02	
+sengoku3	P1 INF COMBO TIM	ok	0		02	
+sengoku3	P2 INF COMBO TIM	ok	0		02	
+sengoku3	P1 INF ENERGY	ok	0		02	
+sengoku3	P2 INF ENERGY	ok	0		02	
+sengoku3	P1 INVINCIBILITY	ok	0		02	
+sengoku3	P2 INVINCIBILITY	ok	0		02	
+sengoku3	ENABLE ALL CHARS	ok	0		02	
+sengoku3	P1 INF THROWING	ok	0		02	
+sengoku3	P1 INF MAGIC	ok	0		02	
+sengoku3	P2 INF THROWING	ok	0		02	
+sengoku3	P2 INF MAGIC	ok	0		02	
+shocktr2	INFINITE TIME	ok	0		02	
+shocktr2	P1 INVINCIBILITY	ok	0		02	
+shocktr2	P2 INVINCIBILITY	ok	0		02	
+shocktr2	P1 MAX POWER LV3	ok	0		02	
+shocktr2	P2 MAX POWER LV3	ok	0		02	
+shocktr2	P1 INFINITE AMMO	ok	0		02	
+shocktr2	P2 INFINITE AMMO	ok	0		02	
+shocktr2	P1 INF GRENADES	ok	0		02	
+shocktr2	P2 INF GRENADES	ok	0		02	
+shocktro	INFINITE TIME	ok	0		02	
+shocktro	P1 INF ENERGY	ok	0		02	
+shocktro	P2 INF ENERGY	ok	0		02	
+shocktro	P1 INVINCIBILITY	ok	0		02	
+shocktro	P2 INVINCIBILITY	ok	0		02	
+shocktro	P1 INF NORMAL AM	ok	0		02	
+shocktro	P1 INF SPEC AMMO	ok	0		02	
+shocktro	P1 INF SPEC AM 2	ok	0		02	
+shocktro	P1 INF SPEC AM 3	ok	0		02	
+shocktro	P2 INF NORMAL AM	ok	0		02	
+shocktro	P2 INF SPEC AMMO	ok	0		02	
+shocktro	P2 INF SPEC AM 2	ok	0		02	
+shocktro	P2 INF SPEC AM 3	ok	0		02	
+shocktro	P1 INF CREDITS H	ok	0		02	
+shocktro	P2 INF CREDITS H	ok	0		02	
+socbrawl	INFINITE TIME	ok	0		02	
+socbrawl	P1 MAX ENERGY	ok	0		02	
+socbrawl	P2 MAX ENERGY	ok	0		02	
+socbrawl	P1 SCORE 0	ok	0		02	
+socbrawl	P1 WIN PENALTY S	ok	0		02	
+socbrawl	P1 INF PENALTY K	ok	0		02	
+socbrawl	P2 SCORE 0	ok	0		02	
+socbrawl	P2 INF PENALTY K	ok	0		02	
+sonicwi2	P1 INF LIVES	ok	0		02	
+sonicwi2	P2 INF LIVES	ok	0		02	
+sonicwi2	P1 MAX FIRE POW	ok	0		02	
+sonicwi2	P2 MAX FIRE POW	ok	0		02	
+sonicwi2	P1 INF BOMBS	ok	0		02	
+sonicwi2	P2 INF BOMBS	ok	0		02	
+sonicwi2	P1 RAPID FIRE	ok	0		02	
+sonicwi2	P2 RAPID FIRE	ok	0		02	
+sonicwi3	P2 INF LIVES	ok	0		02	
+sonicwi3	P1 INVINCIBILITY	ok	0		02	
+sonicwi3	P2 INVINCIBILITY	ok	0		02	
+sonicwi3	P1 INF BOMBS	ok	0		02	
+sonicwi3	P2 INF BOMBS	ok	0		02	
+sonicwi3	ENEMIES CAN T FI	ok	0		02	
+sonicwi3	P1 RAPID FIRE	ok	0		02	
+sonicwi3	P2 RAPID FIRE	ok	0		02	
+spinmast	P1 INF ENERGY	ok	0		02	
+spinmast	P2 INF ENERGY	ok	0		02	
+spinmast	P1 INVINCIBILITY	ok	0		02	
+spinmast	P2 INVINCIBILITY	ok	0		02	
+spinmast	P1 INF BOMBS	ok	0		02	
+spinmast	P2 INF BOMBS	ok	0		02	
+ssideki	P1 SCORE 0	ok	0		02	
+ssideki	P1 PENALTIES SCO	ok	0		02	
+ssideki	P2 SCORE 0	ok	0		02	
+ssideki	P2 PENALTIES SCO	ok	0		02	
+ssideki2	INFINITE TIME	ok	0		02	
+ssideki2	P1 WIN TOSS	ok	0		02	
+ssideki2	P1 SCORE 0	ok	0		02	
+ssideki2	P2 SCORE 0	ok	0		02	
+ssideki3	INFINITE TIME	ok	0		02	
+ssideki3	P1 SCORE 0	ok	0		02	
+ssideki3	P2 SCORE 0	ok	0		02	
+ssideki4	INFINITE TIME	ok	0		02	
+ssideki4	P1 MAXIMUM POWER	ok	0		02	
+ssideki4	P2 MAXIMUM POWER	ok	0		02	
+ssideki4	P1 SCORE 0	ok	0		02	
+ssideki4	P1 TEAM SNK SUPE	ok	0		02	
+ssideki4	P2 SCORE 0	ok	0		02	
+ssideki4	P2 TEAM SNK SUPE	ok	0		02	
+stakwin	INF TIME IN TRAI	ok	0		02	
+stakwin	P1 POWER - 1	ok	0		02	
+stakwin	P1 POWER - 2	ok	0		02	
+stakwin	P1 POWER - 3	ok	0		02	
+stakwin	P1 POWER - 4	ok	0		02	
+stakwin	P1 POWER - 5	ok	0		02	
+stakwin	P1 POWER - 6	ok	0		02	
+stakwin	P1 POWER - 7	ok	0		02	
+stakwin	P1 INF MONEY	ok	0		02	
+stakwin	P1 EXTRA SPEED	ok	0		02	
+stakwin	P1 HAVE MAX SPEE	ok	0		02	
+stakwin	P1 HAVE MAX STAM	ok	0		02	
+stakwin	P1 HAVE MAX STRE	ok	0		02	
+stakwin	P2 INF MONEY	ok	0		02	
+stakwin	P2 EXTRA SPEED	ok	0		02	
+stakwin	P2 HAVE MAX SPEE	ok	0		02	
+stakwin2	INF SHOP TIME	ok	0		02	
+stakwin2	P1 INF POWER	ok	0		02	
+stakwin2	P2 INF POWER	ok	0		02	
+stakwin2	P1 INF MONEY	ok	0		02	
+stakwin2	P1 EXTRA SPEED	ok	0		02	
+stakwin2	P1 HAVE MAX SPEE	ok	0		02	
+stakwin2	P1 HAVE MAX STAM	ok	0		02	
+stakwin2	P1 HAVE MAX BURS	ok	0		02	
+stakwin2	P2 INF MONEY	ok	0		02	
+stakwin2	P2 EXTRA SPEED	ok	0		02	
+stakwin2	P2 HAVE MAX SPEE	ok	0		02	
+stakwin2	P2 HAVE MAX STAM	ok	0		02	
+stakwin2	P2 HAVE MAX BURS	ok	0		02	
+stakwin2	P1 ALL SPEC MOVE	ok	0		02	
+stakwin2	P2 ALL SPEC MOVE	ok	0		02	
+strhoop	INF SELECT TEAM	ok	0		02	
+strhoop	P1 0 POINTS	ok	0		02	
+strhoop	P1 SUPERSHOOT FU	ok	0		02	
+strhoop	P2 0 POINTS	ok	0		02	
+strhoop	P2 SUPERSHOOT FU	ok	0		02	
+superspy	INF KNIFE POWER	ok	0		02	
+superspy	INF PISTOL AMMO	ok	0		02	
+superspy	INF M. GUN AMMO	ok	0		02	
+svc	INFINITE TIME 2	ok	0		02	
+svc	INF TIME IN PSEL	ok	0		02	
+svc	P1 INF ENERGY	ok	0		02	
+svc	P2 INF ENERGY	ok	0		02	
+svc	P1 NO POWER	ok	0		02	
+svc	P2 NO POWER	ok	0		02	
+svc	STAGE 1 CLEAR TO	ok	0		02	
+svc	P1 INF EXCEED	ok	0		02	
+svc	P1 INF GUARD	ok	0		02	
+svc	P2 INF EXCEED	ok	0		02	
+svc	P2 INF GUARD	ok	0		02	
+tophuntr	INFINITE TIME	ok	0		02	
+tophuntr	P1 INF LIVES	ok	0		02	
+tophuntr	P2 INF LIVES	ok	0		02	
+tophuntr	P1 POWER	ok	0		02	
+tophuntr	P2 POWER	ok	0		02	
+tpgolf	INFINITE TIME	ok	0		02	
+tpgolf	INFINITE STROKES	ok	0		02	
+tpgolf	P1 INF HOLES	ok	0		02	
+tpgolf	P2 INF HOLES	ok	0		02	
+trally	INFINITE TIME	ok	0		02	
+turfmast	P1 INF STROKES	ok	0		02	
+turfmast	P1 INF HOLES	ok	0		02	
+turfmast	P2 INF STROKES	ok	0		02	
+turfmast	P2 INF HOLES	ok	0		02	
+twinspri	P1 INF ENERGY	ok	0		02	
+twinspri	P2 INF ENERGY	ok	0		02	
+twinspri	P1 INF LIVES	ok	0		02	
+twinspri	P1 INF POWER	ok	0		02	
+twinspri	P2 INF POWER	ok	0		02	
+twinspri	P1 INF BOMBS	ok	0		02	
+twinspri	P2 INF BOMBS	ok	0		02	
+twsoc96	P1 SCORE 0	ok	0		02	
+twsoc96	P1 WIN PENALTY S	ok	0		02	
+twsoc96	P2 SCORE 0	ok	0		02	
+viewpoin	P1 INVINCIBILITY	ok	0		02	
+viewpoin	P2 INVINCIBILITY	ok	0		02	
+viewpoin	P1 FAST FULL CHA	ok	0		02	
+viewpoin	P2 FAST FULL CHA	ok	0		02	
+wakuwak7	P1 INF ENERGY	ok	0		02	
+wakuwak7	P2 INF ENERGY	ok	0		02	
+wh1	P1 INF ENERGY	ok	0		02	
+wh1	P2 INF ENERGY	ok	0		02	
+wh2	P1 INF ENERGY	ok	0		02	
+wh2	P2 INF ENERGY	ok	0		02	
+wh2	DEATHMATCH PDOWN	ok	0		02	
+wh2	DEATHMATCH CPU D	ok	0		02	
+wh2j	P1 INF ENERGY	ok	0		02	
+wh2j	P2 INF ENERGY	ok	0		02	
+wh2j	ALWAYS ROUND 1	ok	0		02	
+wh2j	DEATHMATCH PDOWN	ok	0		02	
+wh2j	DEATHMATCH CPU D	ok	0		02	
+whp	P1 INF ENERGY	ok	0		02	
+whp	P2 INF ENERGY	ok	0		02	
+whp	P1 INVINCIBLE PA	ok	0		02	
+whp	P2 INVINCIBLE PA	ok	0		02	
+whp	P1 MAXIMUM POWER	ok	0		02	
+whp	P2 MAXIMUM POWER	ok	0		02	
+whp	ALWAYS WINS	ok	0		02	
+whp	P1 ALWAYS WINS	ok	0		02	
+wjammers	INF SET TIME	ok	0		02	
+wjammers	P1 SCORE 0	ok	0		02	
+wjammers	P2 SCORE 0	ok	0		02	
+zedblade	INF SELECT TIME	ok	0		02	
+zedblade	P1 INVINCIBILITY	ok	0		02	
+zedblade	P2 INVINCIBILITY	ok	0		02	
+zedblade	P1 INF BOMBS	ok	0		02	
+zedblade	P1 HYPERBOMB	ok	0		02	
+zedblade	P2 INF BOMBS	ok	0		02	
+zedblade	P2 HYPERBOMB	ok	0		02	
+zedblade	P1 INF CONTINUES	ok	0		02	
+zedblade	P1 MAX SHOT	ok	0		02	
+zedblade	P1 MAX MISSILE	ok	0		02	
+zedblade	P1 MAX REAR SHOT	ok	0		02	
+zedblade	P2 INF CONTINUES	ok	0		02	
+zedblade	P2 MAX SHOT	ok	0		02	
+zedblade	P2 MAX MISSILE	ok	0		02	
+zintrckb	INFINITE TIME	sans_conclusion	0		01	
+zintrckb	P1 INF ENERGY	sans_conclusion	0		01	
+zintrckb	P2 INF ENERGY	sans_conclusion	0		01	
+zintrckb	P1 INFINITE ITEM	sans_conclusion	0		01	
+zintrckb	P2 INFINITE ITEM	sans_conclusion	0		01	
+zupapa	INF BONUS TIME	ok	0		02	
+zupapa	P2 INF LIVES	ok	0		02	
+zupapa	P1 INVINCIBILITY	ok	0		02	
+zupapa	P2 INVINCIBILITY	ok	0		02	
+zupapa	P1 SPEED UP	ok	0		02	
+zupapa	P1 SUPER PUNCH	ok	0		02	
+zupapa	P2 SPEED UP	ok	0		02	
+zupapa	P2 SUPER PUNCH	ok	0		02	
+fatfury1	CONTROLE RICHARD	gel	0	fige	02	
