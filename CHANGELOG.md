@@ -17,6 +17,10 @@ All notable changes to Sprixe BIOS are listed here. The format follows
 
 ### Changed
 
+- Website and README: the download button and the install steps link the image of release
+  0.1.0-beta.2 (to update at each release, `docs/RELEASE.md`); the site serves its own fonts
+  instead of loading them from Google, and carries a legal notice; the boot screen is said to use
+  the board's font, not the BIOS's.
 - `docs/COMPARISON.md`: boot on flash carts is reported on a real BackBit, on an image older than
   the current one; the NeoSD Pro has no feedback yet.
 

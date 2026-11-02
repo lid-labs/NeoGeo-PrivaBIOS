@@ -7,6 +7,7 @@
 #   1. a machine path (home directories, macOS temporary directories, desktop);
 #   2. an e-mail address other than the GitHub and Anthropic noreply addresses. LICENSE and
 #      CODE_OF_CONDUCT.md are excluded: the contact address of the code of conduct is intended;
+#      so are the font licences site/fonts/OFL-*.txt, whose copyright notice the OFL requires to ship as is;
 #   3. a Google Drive or Google Docs link;
 #   4. a ticket number from the former private repository ("#" followed by four digits), in src/,
 #      bench/ and build/ only: docs/ and measured/ cite them as dated references. In assembly,
@@ -42,7 +43,7 @@ signaler "chemin de machine" "$chemins"
 
 # 2. E-mail addresses.
 adresses=$(git grep -nIoE '[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}' \
-    -- . ":!$moi" ':!LICENSE' ':!CODE_OF_CONDUCT.md' || rien $?)
+    -- . ":!$moi" ':!LICENSE' ':!CODE_OF_CONDUCT.md' ':!site/fonts/OFL-*.txt' || rien $?)
 adresses=$(printf '%s\n' "$adresses" \
     | grep -vE ':[^:]*@users\.noreply\.github\.com$|:noreply@anthropic\.com$|^$' || rien $?)
 signaler "adresse e-mail" "$adresses"

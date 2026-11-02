@@ -39,6 +39,10 @@ section, or an empty one.
 
 4. **Check the draft** in the repository's Releases: the notes, the two images
    (`sprixe-bios-X.Y.Z.rom`, `sprixe-bios-X.Y.Z-byteswapped.bin`) and `SHA256SUMS`. Then publish it.
+5. **Point the download links at it**, through a pull request: in `site/index.html`, the download
+   button, the two install cards, the release page links and `downloadUrl`/`softwareVersion` of the
+   structured data; in `README.md`, the Installation section. They name the version: GitHub's
+   `releases/latest` skips pre-releases, and the file names carry the version.
 
 The notes are the version's section of `CHANGELOG.md`, followed by a table of CRC32, 16-bit byte
 sum and SHA-256 for each image (`build/release.py`). To preview them locally, before tagging, on an
