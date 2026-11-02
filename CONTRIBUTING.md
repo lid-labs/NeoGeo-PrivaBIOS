@@ -2,7 +2,8 @@
 
 Thank you for helping. Questions and ideas go to
 [Discussions](https://github.com/lid-labs/sprixe-bios/discussions); bugs and compatibility reports go
-to [Issues](https://github.com/lid-labs/sprixe-bios/issues), using the templates.
+to [Issues](https://github.com/lid-labs/sprixe-bios/issues), using the templates. To test on a real
+board, see [`docs/TESTING.md`](docs/TESTING.md).
 
 ## Clean-room rules
 

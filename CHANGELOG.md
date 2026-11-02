@@ -13,6 +13,7 @@ All notable changes to Sprixe BIOS are listed here. The format follows
   (`bench/cheats-recherche.py importes`, control `CONTROLE RICHARD` on fatfury1). Game by game in `docs/CHEATS.md`.
 - `bench/crc-recensement.py`: the CARTRIDGE CRC screen against the romset files, on 154 sets: 138 equal,
   8 differ, 8 not compared. Known defect: on rotd the screen shows 2 banks out of 7.
+- `docs/TESTING.md` and a hardware report form: what to try on a real board, and how to report it.
 
 ### Changed
 

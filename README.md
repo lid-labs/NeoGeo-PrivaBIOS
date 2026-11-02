@@ -151,6 +151,7 @@ the cartridge header was read at the wrong moment (the board rebooted in a loop)
 TEST button could not reach the settings, and a BlueRetro wireless adapter holding every button at
 wake-up opened the test screen. Other MVS boards and AES consoles are untested.
 See [`docs/ESSAI-MATERIEL.md`](docs/ESSAI-MATERIEL.md).
+To help test it on your board, see [`docs/TESTING.md`](docs/TESTING.md).
 
 ## Method
 
