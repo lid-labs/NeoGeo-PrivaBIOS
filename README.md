@@ -36,7 +36,7 @@ Sprixe BIOS takes a different path: written from scratch, GPL-3.0, with its whol
 - Autofire as a setting: A, B, C and D one by one, remembered for each game.
 - Game settings changed from the in-game menu, during play.
 - Settings of a game that has never been launched: the editor saves a clean entry.
-- A boot screen drawn only with the BIOS font, nothing from the cartridge's graphics.
+- A boot screen drawn only with the board's font, nothing from the cartridge's graphics.
 - No continue and silent demo for the whole cabinet.
 
 It is a young project: a beta for MVS boards, tested on one real board so far.
@@ -88,7 +88,7 @@ cartridge. The in-game menu and autofire screens are over Metal Slug (© SNK).
 - Hardware tests: work RAM, palette, VRAM and backup RAM checks, colour bars, crosshatch.
 
 **Boot and multi-slot**
-- The boot screen uses only the BIOS font, nothing from the cartridge's graphics.
+- The boot screen uses only the board's font, nothing from the cartridge's graphics.
 - Multi-slot boards: SELECT changes game; tested on a six-slot MV-6F under MAME and on a real
   two-slot MV-2F.
 - AES mode on an MVS board: set MODE to AES and games show their home version.
