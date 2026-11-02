@@ -105,8 +105,11 @@ The menus, and the keys and board switches that lead to them, are mapped in
 
 ## Installation
 
-Build the image first ([`docs/BUILD.md`](docs/BUILD.md)). The build produces a 128 KiB file in MAME
-byte order, the same as `sp-s2.sp1` in `neogeo.zip`.
+Download the image of the latest release,
+[`sprixe-bios-0.1.0-beta.2.rom`](https://github.com/lid-labs/sprixe-bios/releases/download/v0.1.0-beta.2/sprixe-bios-0.1.0-beta.2.rom):
+a 128 KiB file in MAME byte order, the same as `sp-s2.sp1` in `neogeo.zip`. The
+[release page](https://github.com/lid-labs/sprixe-bios/releases/tag/v0.1.0-beta.2) also has it with its bytes swapped in pairs, and
+`SHA256SUMS`. To build it yourself, see [`docs/BUILD.md`](docs/BUILD.md).
 
 ### On an MVS board
 
@@ -131,7 +134,7 @@ board, nor after changing settings here, so treat scores and settings as things 
 4. MAME warns `WRONG CHECKSUMS` for `sp-s2.sp1`. That warning means Sprixe BIOS is the BIOS in use;
    without it, MAME found the original BIOS somewhere else.
 
-No ROM of any kind is provided by this repository.
+No game ROM and no SNK BIOS is provided by this repository.
 
 ## Compatibility
 
