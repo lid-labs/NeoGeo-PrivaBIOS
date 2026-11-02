@@ -8,7 +8,9 @@ the 68000 reads them under MAME, stand from what the romset's files give.
 
 Without games: the catalogue, less the seven protected sets (`measured/2026-10-31-crc-protegees.tsv`)
 and the bare boards.
-Writes <work-dir>/recensement.tsv, and stops if a run did not use our image or left the screen unread.
+Writes <work-dir>/recensement.tsv and prints the lines that are not "egal". Fails if a run did not use
+our image, left the screen unread (the sets of SANS_JOY only if the jig refused them), or if the
+catalogue's gaps are not those of ECARTS (`measured/2026-11-02-crc-recensement.tsv`).
 """
 import concurrent.futures as cf
 import os
@@ -19,11 +21,13 @@ import sys
 
 ICI = os.path.dirname(os.path.abspath(__file__))
 PAQUET = os.path.dirname(ICI)
-sys.path.insert(0, ICI)
-SANS_JOY = "bakatono irrmaze janshin minasan popbounc vliner".split()   # the jig refuses them: no `:edge:joy`
+SANS_JOY = "bakatono irrmaze janshin minasan popbounc vliner".split()   # the jig refuses them: no joystick port it knows
 PROTEGES = "kof99 garou mslug3 kof2000 mslug5 svc kof2003".split()
 TRAME = 4600   # eight banks at most, about 440 frames per MiB, from frame 342
 ENTREES = "270:haut,280:haut,290:haut,300:A,330:haut,336:haut,342:A"
+# The 8 gaps recorded on 2026-11-02, rotd's being a defect of the screen. Only the verdict is compared:
+# fatfursp's and sbp's BANKS change from one run to the next.
+ECARTS = "fatfursp kof2002 kof98 matrim rotd samsh5sp samsho5 sbp".split()
 ENTETE = "jeu\taffiche_fixed\taffiche_banks\thors_mame_fixed\thors_mame_banks\tverdict\tfichier_egal\tfichiers"
 
 
@@ -54,6 +58,8 @@ def ecran(rp, travail, jeu):
                         "-skip_gameinfo", "-autoboot_script", os.path.join(ICI, "son.lua")],
                        cwd=o, env=env, stdout=log, stderr=subprocess.STDOUT)
     if not os.path.exists(os.path.join(o, "son.txt")):
+        if "bouton inconnu" not in open(os.path.join(o, "mame.log"), errors="replace").read():
+            sys.exit(f"ECHEC : {jeu} n'a rien relevé")
         return None, None
     if "WRONG CHECKSUMS" not in open(os.path.join(o, "mame.log"), errors="replace").read():
         sys.exit(f"REFUS : {jeu} n'a pas tourné sur notre image")
@@ -88,6 +94,7 @@ def main():
     img = os.path.join(rp, "sp-s2.sp1")
     subprocess.run([os.path.join(PAQUET, "build/construire.sh"), os.path.join(PAQUET, "src/c0"), img],
                    env=dict(os.environ, BIOS_OBJ=os.path.join(travail, "obj")), check=True, stdout=subprocess.DEVNULL)
+    print("image", subprocess.run(["shasum", "-a", "256", img], capture_output=True, text=True).stdout.split()[0])
     for j in jeux:
         romset(roms, rp, j, img)
     with cf.ThreadPoolExecutor(12) as ex:
@@ -107,8 +114,12 @@ def main():
         lignes.append("\t".join((j, f"{f[1]} {f[2]}", " ".join(b[1].split()), f"{l[1]} {l[2]}", f"{l[3]} {l[4]}".strip(),
                                  verdict(l, f, b), egal, l[5])))
     open(os.path.join(travail, "recensement.tsv"), "w").write("\n".join(lignes) + "\n")
+    print("\n".join(l for l in lignes if "\tegal\t" not in l))
     if illisibles:
         sys.exit("ECHEC : écran illisible sur " + " ".join(illisibles))
+    ecarts = [l.split("\t")[0] for l in lignes if "\tdifferent\t" in l]
+    if not sys.argv[3:] and ecarts != ECARTS:
+        sys.exit("ECHEC : écarts " + " ".join(ecarts) + ", attendus " + " ".join(ECARTS))
 
 
 if __name__ == "__main__":

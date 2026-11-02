@@ -1,6 +1,6 @@
 # L'écran CARTRIDGE CRC contre bench/crc-cartouche.py, set par set, le 2026-11-02 (#62) : bench/crc-recensement.py. Image 95d481bc…, MAME 0.286,
 # -bios euro, sans fenêtre, le texte de l'écran lu à la trame 4600. 154 sets : le catalogue, moins les 7 protégés (measured/2026-10-31-crc-protegees.tsv)
-# et les cartes nues ng_mv1, ng_mv2f, ng_mv4f. Des CRC seulement, aucun octet de ROM.
+# et les cartes nues ng_mv1, ng_mv1f, ng_mv2f, ng_mv4f. Des CRC seulement, aucun octet de ROM.
 #
 # Compte : 138 egal, 8 different, 2 non_reconstruit (dragonsh, mvstemp : fichiers entrelacés), 6 non_lu (le jig refuse un set sans :edge:joy).
 # fichier_egal : le fichier de -listxml dont le CRC égale FIXED, sur 58 sets.
@@ -13,9 +13,9 @@
 # - kof2002, matrim, samsho5, samsh5sp : FIXED égal ; BANKS différent parce que MAME permute des blocs de 512 Kio au chargement (kof2002_decrypt_68k,
 #   matrim_decrypt_68k, samsho5_decrypt_68k, samsh5sp_decrypt_68k).
 # - sbp : FIXED différent, le jeu est modifié au chargement (neogeo_sbp_cart_device::patch) et MAME installe une protection dans la P-ROM fixe
-#   (neogeo.cpp, case NEOGEO_SBP, $000200-$001FFF). BANKS n'est pas reproductible, comme fatfursp.
+#   (neogeo.cpp, case NEOGEO_SBP, $000200-$001FFF). BANKS change d'un run à l'autre, comme fatfursp : 1 X 1024K avec A393B582, C0C309A0, puis 79F82A49.
 # - fatfursp : ROM_REGION 0x180000, soit 512 Kio dans la fenêtre d'1 Mio. La moitié basse de la fenêtre égale 058-p2.sp2, la moitié haute n'est pas à
-#   zéro. BANKS change d'un run à l'autre : 4 X 1024K 6DDA5299, puis 1 X 1024K avec 321A0FDD, 53652990, 27F84ACE, AC8FC090. SUPPOSÉ : MAME lit au-delà
+#   zéro. BANKS change d'un run à l'autre : 4 X 1024K 6DDA5299, puis 1 X 1024K avec 321A0FDD, 53652990, 27F84ACE, AC8FC090, 89344479. SUPPOSÉ : MAME lit au-delà
 #   de la région. Cela ne dit rien d'une vraie cartouche.
 # - rotd : UN DÉFAUT DE L'ÉCRAN, la seule ligne qui en soit un. Il montre 2 banques, il y en a 7 (lua, le 2026-11-02 : les banques 0-6 différentes, la 7
 #   retombe sur la 0). Les banques 0, 2, 4, 6 ne diffèrent que dans un bloc de 4 Kio sur 256, de même 1, 3, 5 : les seize tranches de la signature

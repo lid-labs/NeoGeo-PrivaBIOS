@@ -553,7 +553,7 @@ and `2026-10-25-debug-dips.tsv`; thresholds: `2026-10-25-parcours-crc-debug.tsv`
    differ, kof98, kof2002, matrim, samsho5, samsh5sp and sbp are changed by MAME at load, and
    fatfursp's bank reads differ from run to run. kof98's FIXED differs from its `p1` with no word
    on the screen: the 68000 cannot tell a clear P-ROM from a decrypted one, so there is nothing to
-   test. The eighth, rotd, is a defect: see point 2's signature, below. Protected cartridges are
+   test. The eighth, rotd, is a defect: see point 2's signature, above. Protected cartridges are
    point 12.
 4. **The header word at `$10A` is not used**: it differs from the size of the P files on 44 of the
    119 sets recorded.
