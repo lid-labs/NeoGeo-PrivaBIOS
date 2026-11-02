@@ -1,8 +1,7 @@
 # Imported cheats: what was checked
 
-Sprixe BIOS has 1,709 cheats for 154 games. 141 were found and proven here under MAME. The
-other 1,568 come from the MAME XML Cheats Collection (Pugsy and contributors), through
-`bench/cheats-importer.py`. This page says what was checked on those 1,568, game by game.
+Sprixe BIOS has 1,709 cheats for 154 games. 1,568 of them come from the MAME XML Cheats
+Collection (Pugsy and contributors), through `bench/cheats-importer.py`. This page says what was checked on those 1,568, game by game.
 
 ## What was measured, and what was not
 
@@ -30,8 +29,6 @@ in-game menu shows them, cut at 16 characters.
 
 ### Leave play (4)
 
-Each one does what its title says.
-
 | Game | Cheat |
 |---|---|
 | kof2003 | FINISH THIS ROUN |
@@ -45,16 +42,16 @@ Each one does what its title says.
 
 | Game | Cheats | Why |
 |---|---:|---|
-| bakatono | 1 | the bench cannot drive it (no standard joystick) |
-| irrmaze | 2 | the bench cannot drive it (no standard joystick) |
-| janshin | 1 | the bench cannot drive it (no standard joystick) |
+| bakatono | 1 | the bench refuses the set (no `:edge:joy` port) |
+| irrmaze | 2 | the bench refuses the set (no `:edge:joy` port) |
+| janshin | 1 | the bench refuses the set (no `:edge:joy` port) |
 | lasthope | 1 | the test run is not in play at frame 3600 |
-| minasan | 3 | the bench cannot drive it (no standard joystick) |
+| minasan | 3 | the bench refuses the set (no `:edge:joy` port) |
 | nam1975 | 13 | the test run is not in play at frame 3600 |
 | neobombe | 1 | the test run is not in play at frame 3600 |
 | pbobbl2n | 3 | the test run is not in play at frame 3600 |
 | pbobblen | 15 | the test run is not in play at frame 3600 |
-| popbounc | 3 | the bench cannot drive it (no standard joystick) |
+| popbounc | 3 | the bench refuses the set (no `:edge:joy` port) |
 | puzzldpr | 16 | the test run is not in play at frame 3600 |
 | puzzledp | 16 | the test run is not in play at frame 3600 |
 | quizkof | 5 | the test run is not in play at frame 3600 |
