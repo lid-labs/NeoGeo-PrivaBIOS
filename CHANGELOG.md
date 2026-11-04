@@ -6,6 +6,8 @@ All notable changes to PrivaBIOS are listed here. The format follows
 
 ## [Unreleased]
 
+## [0.1.0-beta.3] - 2026-11-04
+
 ### Added
 
 - Every imported cheat now has a recorded result under MAME: 1,464 ok, 4 leave play as their
@@ -17,10 +19,10 @@ All notable changes to PrivaBIOS are listed here. The format follows
 
 ### Changed
 
-- Website footer: "More retro projects at Sprixe" instead of "Part of Sprixe".
 - The BIOS is renamed PrivaBIOS (`docs/DECISIONS.md` §34): the boot screen says "PRIVABIOS" and
   "privabios.com", the ABOUT screen links `github.com/lid-labs/privabios`, the release files are
   called `privabios-<version>.rom`, and the website moves to https://privabios.com/.
+- Website footer: "More retro projects at Sprixe" instead of "Part of Sprixe".
 - Website and README: the download button and the install steps link the image of release
   0.1.0-beta.2 (to update at each release, `docs/RELEASE.md`); the site serves its own fonts
   instead of loading them from Google, and carries a legal notice; the boot screen is said to use
@@ -186,6 +188,7 @@ First public pre-release. Development history before it (October 2026) is summar
   `measured/2026-10-28-work-ram-restauree.tsv`). Scenes `tests-sauvegarde` and `dd-connu`, two
   mutations.
 
-[Unreleased]: https://github.com/lid-labs/privabios/compare/v0.1.0-beta.2...HEAD
+[Unreleased]: https://github.com/lid-labs/privabios/compare/v0.1.0-beta.3...HEAD
+[0.1.0-beta.3]: https://github.com/lid-labs/privabios/compare/v0.1.0-beta.2...v0.1.0-beta.3
 [0.1.0-beta.2]: https://github.com/lid-labs/privabios/compare/v0.1.0-beta.1...v0.1.0-beta.2
 [0.1.0-beta.1]: https://github.com/lid-labs/privabios/releases/tag/v0.1.0-beta.1
