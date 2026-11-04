@@ -12,10 +12,10 @@ accumulate under "## [Unreleased]", and the release renames them into a dated ve
 (`docs/RELEASE.md`). A section still "Unreleased" is therefore not publishable.
 
 Output, in <dossier-de-sortie>:
-  sprixe-bios-<version>.rom              the image as is, MAME order (`sp-s2.sp1`);
-  sprixe-bios-<version>-byteswapped.bin  the other order, for a programmer set the other way round;
-  SHA256SUMS                             both, in the format of `sha256sum -c`;
-  notes.md                               the CHANGELOG section, then the sums.
+  privabios-<version>.rom              the image as is, MAME order (`sp-s2.sp1`);
+  privabios-<version>-byteswapped.bin  the other order, for a programmer set the other way round;
+  SHA256SUMS                           both, in the format of `sha256sum -c`;
+  notes.md                             the CHANGELOG section, then the sums.
 """
 import datetime
 import hashlib
@@ -74,7 +74,7 @@ def main():
     inverse[0::2], inverse[1::2] = rom[1::2], rom[0::2]
 
     os.makedirs(sortie, exist_ok=True)
-    noms = {f"sprixe-bios-{version}.rom": rom, f"sprixe-bios-{version}-byteswapped.bin": bytes(inverse)}
+    noms = {f"privabios-{version}.rom": rom, f"privabios-{version}-byteswapped.bin": bytes(inverse)}
     sommes, lignes = [], []
     for nom, octets in noms.items():
         with open(os.path.join(sortie, nom), "wb") as f:

@@ -11,7 +11,7 @@
 #                 `<source>_s.o`): two simultaneous builds in the same directory mix together
 #                 without error. One directory per build keeps them apart;
 #                 `bench/non-regression.sh` does so.
-# NGDEVKIT_IMAGE  Docker image of the build toolchain (default: `sprixe-bios-build`). If absent,
+# NGDEVKIT_IMAGE  Docker image of the build toolchain (default: `privabios-build`). If absent,
 #                 it is built here from `docker/Dockerfile`: nothing is pulled from a registry.
 #
 # The source directory may be outside the repository (a throwaway copy, for example): it is
@@ -39,7 +39,7 @@ cd "$(dirname "$0")/.."
 SRC=${1:?usage: ./build/construire.sh <dossier-de-sources> [sortie.sp1]}
 OBJ=${BIOS_OBJ:-obj}
 OUT=${2:-$OBJ/bios.sp1}
-IMAGE=${NGDEVKIT_IMAGE:-sprixe-bios-build}
+IMAGE=${NGDEVKIT_IMAGE:-privabios-build}
 TAILLE=131072
 
 [ -d "$SRC" ] || { echo "dossier de sources introuvable : $SRC" >&2; exit 2; }

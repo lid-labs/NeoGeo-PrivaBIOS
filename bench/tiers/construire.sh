@@ -39,7 +39,7 @@ ICI="$(cd "$(dirname "$0")" && pwd)"
 mkdir -p "$WORK/src" "$WORK/images"
 WORK="$(cd "$WORK" && pwd)"
 
-docker build -q -t sprixe-bios-tiers "$ICI" >/dev/null
+docker build -q -t privabios-tiers "$ICI" >/dev/null
 
 cloner() { # <url> <sha> <directory>
   [ -d "$3/.git" ] || git clone --quiet --no-checkout "$1" "$3"
@@ -50,13 +50,13 @@ cloner() { # <url> <sha> <directory>
 cloner https://github.com/neogeo-projects/neogeo-bios.git "$NEOGEO_BIOS_SHA" "$WORK/src/neogeo-bios"
 cloner https://github.com/neogeodev/neopenbios.git        "$NEOPENBIOS_SHA"  "$WORK/src/neopenbios"
 
-docker run --rm --network none --user "$(id -u):$(id -g)" -v "$WORK/src/neogeo-bios:/src" -v "$WORK/images:/out" sprixe-bios-tiers bash -lc '
+docker run --rm --network none --user "$(id -u):$(id -g)" -v "$WORK/src/neogeo-bios:/src" -v "$WORK/images:/out" privabios-tiers bash -lc '
   rm -rf build
   cmake -S . -B build -DSYSTEM=MVS -DREGION=EUROPE >/dev/null
   cmake --build build --parallel >/dev/null
   cp build/neogeo/sp-s2.sp1 /out/neogeo-bios.sp1'
 
-docker run --rm --network none --user "$(id -u):$(id -g)" -v "$WORK/src/neopenbios:/src" -v "$WORK/images:/out" sprixe-bios-tiers bash -lc '
+docker run --rm --network none --user "$(id -u):$(id -g)" -v "$WORK/src/neopenbios:/src" -v "$WORK/images:/out" privabios-tiers bash -lc '
   make AS=m68k-linux-gnu-as GCC=m68k-linux-gnu-gcc LD=m68k-linux-gnu-ld OBJC=m68k-linux-gnu-objcopy >/dev/null
   cp neopenbios.bin /out/neopen-src.sp1'
 
