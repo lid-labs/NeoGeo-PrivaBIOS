@@ -17,6 +17,7 @@ All notable changes to PrivaBIOS are listed here. The format follows
 
 ### Changed
 
+- Website footer: "More retro projects at Sprixe" instead of "Part of Sprixe".
 - The BIOS is renamed PrivaBIOS (`docs/DECISIONS.md` §34): the boot screen says "PRIVABIOS" and
   "privabios.com", the ABOUT screen links `github.com/lid-labs/privabios`, the release files are
   called `privabios-<version>.rom`, and the website moves to https://privabios.com/.
