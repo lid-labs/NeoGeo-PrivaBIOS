@@ -6,6 +6,11 @@ All notable changes to PrivaBIOS are listed here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- Website, README and `docs/TESTING.md`: the download links and the file table point at release
+  0.1.0-beta.3.
+
 ## [0.1.0-beta.3] - 2026-11-04
 
 ### Added
