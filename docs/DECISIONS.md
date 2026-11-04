@@ -99,7 +99,7 @@ briefly and skippably. The user's choices, on 2026-10-20, open to revision: the 
 URL "sprixe.dev/rebios", about one second, skippable with any button; then, after the first video
 ("you can barely read it"), about three seconds with a reminder "PRESS A BUTTON TO SKIP". Written in
 `src/c0/ecran.s`. Revised on 2026-10-28 with the name (§29): the screen says "SPRIXE BIOS" and
-"sprixe.dev/bios".
+"sprixe.dev/bios"; on 2026-11-04 (§34), "PRIVABIOS" and "privabios.com".
 
 **Why.** Whoever burns an image must know what they are running and where to find its sources; the
 screen says so at every start-up.
@@ -121,7 +121,8 @@ skippable.
 
 ## 6. The name
 
-"ReBIOS" was a working name (2026-10-20). On 2026-10-28, the name becomes "Sprixe BIOS": see §29.
+"ReBIOS" was a working name (2026-10-20). On 2026-10-28, the name becomes "Sprixe BIOS": see §29;
+on 2026-11-04, "PrivaBIOS": see §34.
 
 ## 7. The compatibility target is written in black and white
 
@@ -867,7 +868,8 @@ be removed or rewritten. It would be removed, then rewritten in a clean room.
 
 ## 29. The name: Sprixe BIOS
 
-**Decided on 2026-10-28 by the user. Replaces the working name of §6.** The BIOS is called
+**Decided on 2026-10-28 by the user. Replaces the working name of §6. Replaced by §34 on
+2026-11-04.** The BIOS is called
 **Sprixe BIOS**, in two words. The boot screen says "SPRIXE BIOS" and "sprixe.dev/bios" (§5).
 
 **Why.**
@@ -986,6 +988,34 @@ open by the ticket; points 2, 4, 5, 11 and 12 follow the user's review of the pu
 12. **Hidden under CHEATS/DEBUG OFF**: that setting keeps players out, and this line leads to FORMAT
     CARD. AUTOFIRE and GAME SETTINGS move up one line of the frame, so "down" × 2 is AUTOFIRE there,
     and "up" × 3 is RESTART GAME. The test screen keeps its MEMORY CARD line: it needs a gesture at boot.
+
+## 34. The name: PrivaBIOS
+
+**Decided on 2026-11-04 by the user. Replaces §29.** The BIOS is called **PrivaBIOS**, in one word,
+from its author's pseudonym (privaloops). The boot screen says "PRIVABIOS" and "privabios.com"
+(§5), the ABOUT screen "GITHUB.COM/LID-LABS/PRIVABIOS"; the release files are called
+`privabios-<version>.rom` and `privabios-<version>-byteswapped.bin`.
+
+**Why.**
+
+- SPRIX Inc. holds SPRIX trademarks in class 9, which covers software and firmware
+  (international marks 1767190, filed 2023-10-23, and 1914317, filed 2026-03-05; read on
+  data.inpi.fr in November 2026). SPRIXE, one letter away, would likely meet an opposition: assumed,
+  not checked by a lawyer.
+- An invented word is distinctive. A descriptive one ("Big BIOS", "Grand BIOS") would be a weak
+  trademark, for a BIOS, with no hold on others using the same words.
+- On data.inpi.fr, on 2026-11-04: no PRIVABIOS mark. The closest is PRIVA NURO (Priva Holding
+  B.V., classes 9 and 42), greenhouse automation; that it does not conflict is assumed, not
+  checked by a lawyer. The domain `privabios.com` is held since the same day.
+
+**The trademark.** PRIVABIOS is not filed: the user files it if the project finds its users.
+
+**What does not change.** History keeps "Sprixe BIOS" and "ReBIOS": the dated entries, the
+releases v0.1.0-beta.1 and beta.2 and their file names, the `sprixe` column of the bench's
+matrices (an identifier that recorded results read), and the backup RAM signature `REBIOS` (§29).
+
+**What would overturn it**: prior rights on PRIVABIOS, or on a close mark in class 9 or 42,
+found before filing.
 
 ## Still to be decided
 

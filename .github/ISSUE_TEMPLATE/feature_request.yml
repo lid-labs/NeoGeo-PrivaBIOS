@@ -1,5 +1,5 @@
 name: Feature request
-description: Something Sprixe BIOS should do.
+description: Something PrivaBIOS should do.
 labels: [enhancement]
 body:
   - type: textarea

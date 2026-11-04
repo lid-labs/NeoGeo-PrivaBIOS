@@ -1,4 +1,4 @@
-# Releasing Sprixe BIOS
+# Releasing PrivaBIOS
 
 A release is a tag `vX.Y.Z` on `main`. Pushing it runs [`release.yml`](../.github/workflows/release.yml):
 the checks and build of [`build.yml`](../.github/workflows/build.yml), then a **draft** GitHub release
@@ -23,8 +23,8 @@ section, or an empty one.
      above it;
    - adds or updates the link references at the bottom of `CHANGELOG.md` (there are none before
      the first release):
-     `[Unreleased]: https://github.com/lid-labs/sprixe-bios/compare/vX.Y.Z...HEAD` and
-     `[X.Y.Z]: https://github.com/lid-labs/sprixe-bios/compare/vPREVIOUS...vX.Y.Z` (for the first
+     `[Unreleased]: https://github.com/lid-labs/privabios/compare/vX.Y.Z...HEAD` and
+     `[X.Y.Z]: https://github.com/lid-labs/privabios/compare/vPREVIOUS...vX.Y.Z` (for the first
      release, `.../releases/tag/vX.Y.Z`);
    - changes the version shown on the boot screen if it should (`src/c0/ecran.s`, `.Lversion`). This
      changes the image: update `build/expected-sha256.txt`, and the recorded fingerprint of the
@@ -33,12 +33,12 @@ section, or an empty one.
 
    ```bash
    git checkout main && git pull
-   git tag -a vX.Y.Z -m "Sprixe BIOS vX.Y.Z"
+   git tag -a vX.Y.Z -m "PrivaBIOS vX.Y.Z"
    git push origin vX.Y.Z
    ```
 
 4. **Check the draft** in the repository's Releases: the notes, the two images
-   (`sprixe-bios-X.Y.Z.rom`, `sprixe-bios-X.Y.Z-byteswapped.bin`) and `SHA256SUMS`. Then publish it.
+   (`privabios-X.Y.Z.rom`, `privabios-X.Y.Z-byteswapped.bin`) and `SHA256SUMS`. Then publish it.
 5. **Point the download links at it**, through a pull request: in `site/index.html`, the download
    button, the two install cards, the release page links and `downloadUrl`/`softwareVersion` of the
    structured data; in `README.md`, the Installation section. They name the version: GitHub's
@@ -49,7 +49,7 @@ sum and SHA-256 for each image (`build/release.py`). To preview them locally, be
 image built from the release commit:
 
 ```bash
-python3 -I build/release.py X.Y.Z sprixe-bios.sp1 dist
+python3 -I build/release.py X.Y.Z privabios.sp1 dist
 ```
 
 `dist/` is ignored by git. Entries must use inline links, `[text](url)`: link definitions are

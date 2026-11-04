@@ -1,6 +1,6 @@
 # Method
 
-How Sprixe BIOS was written, and how it is tested. This page says what was done, including what
+How PrivaBIOS was written, and how it is tested. This page says what was done, including what
 went wrong. The decisions behind it are in [`DECISIONS.md`](DECISIONS.md) (§1, §8, §28).
 
 ## What was not done
@@ -41,7 +41,7 @@ hardware reference. Each layer went to a fresh agent.
 
 We browsed the public source of the other free Neo Geo BIOS projects (NeoPen, nullbios,
 neogeo-bios) to survey the state of the art. None of that code was used: the agents that wrote
-Sprixe BIOS received only the generated contracts and public documentation.
+PrivaBIOS received only the generated contracts and public documentation.
 
 **4. Game program counters were used for diagnosis.** When a game hung, rebooted or refused to
 start, its PC told where it was waiting; the cause was then confirmed by forcing a value on our image
@@ -54,7 +54,7 @@ about what a language model may have seen during its training.
 
 ## The sine table incident
 
-Several games read a sine table from the BIOS ROM at `$C04000-$C041FF`. In Sprixe BIOS that area was
+Several games read a sine table from the BIOS ROM at `$C04000-$C041FF`. In PrivaBIOS that area was
 filled with `$FF`, and Alpha Mission II's ship drifted sideways.
 
 During the first investigation (28 October 2026), the agent in charge read four words of the SNK
@@ -72,7 +72,7 @@ notes of the first investigation are not published.
 
 The bench runs under MAME with your own ROM sets; none are provided. See [`BENCH.md`](BENCH.md).
 
-- **The catalogue** (`bench/matrice.sh`) boots every game of the set under Sprixe BIOS, the SNK BIOS
+- **The catalogue** (`bench/matrice.sh`) boots every game of the set under PrivaBIOS, the SNK BIOS
   and UniBIOS 4.0, and judges whether each one plays: the whole picture hashed per frame, crossed
   with the count of lit pixels, since a changing picture is not proof that a game runs.
 - **Scenes** (`bench/parcours.sh`): one or more per BIOS function the player can see. A scene plays a
@@ -84,13 +84,13 @@ The bench runs under MAME with your own ROM sets; none are provided. See [`BENCH
 - **Regression** (`bench/non-regression.sh`) chains the generator's tests, the build, the game matrix,
   the measuring scripts against their recorded results, and the scenes.
 
-## Where Sprixe BIOS differs on purpose
+## Where PrivaBIOS differs on purpose
 
-When the SNK BIOS does something we consider a defect, Sprixe BIOS may do otherwise. Each such
+When the SNK BIOS does something we consider a defect, PrivaBIOS may do otherwise. Each such
 difference is written down with its reason and its measurement in `DECISIONS.md` (for example §9,
 §10, §17, §21).
 
 ## Limits
 
-MAME is not the hardware. One real board, an MV-2F, has run Sprixe BIOS; it found defects MAME did
+MAME is not the hardware. One real board, an MV-2F, has run PrivaBIOS; it found defects MAME did
 not show ([`ESSAI-MATERIEL.md`](ESSAI-MATERIEL.md)). Other boards and the AES console are untested.

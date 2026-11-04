@@ -7,7 +7,7 @@ test it.
 
 Issue numbers (#NNNN) refer to the original private tracker. File paths that do not exist in this
 repository (for example `packages/…`, `board.h`, `neogeo-bus.ts`, `cosim.sh`) refer to the original
-private monorepo, where Sprixe BIOS was developed until its first public release.
+private monorepo, where PrivaBIOS was developed until its first public release.
 
 | File | Contents |
 |---|---|

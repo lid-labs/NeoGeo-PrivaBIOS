@@ -1,11 +1,11 @@
 name: Hardware report
-description: Sprixe BIOS tried on a real board, whatever the result.
+description: PrivaBIOS tried on a real board, whatever the result.
 labels: [hardware]
 body:
   - type: markdown
     attributes:
       value: |
-        What to try is in [docs/TESTING.md](https://github.com/lid-labs/sprixe-bios/blob/main/docs/TESTING.md). Reports that something works are welcome too. Please do not attach ROMs, dumps or links to them.
+        What to try is in [docs/TESTING.md](https://github.com/lid-labs/privabios/blob/main/docs/TESTING.md). Reports that something works are welcome too. Please do not attach ROMs, dumps or links to them.
   - type: input
     id: board
     attributes:

@@ -1,6 +1,6 @@
 # Autofire: the games where it works
 
-Sprixe BIOS has an autofire set game by game, in the in-game menu (`MENUS.md`, AUTOFIRE). It does
+PrivaBIOS has an autofire set game by game, in the in-game menu (`MENUS.md`, AUTOFIRE). It does
 not work on every game, and that is not something a setting would change: it is the game that
 decides where it reads its joystick. This page says, game by game, what was measured.
 

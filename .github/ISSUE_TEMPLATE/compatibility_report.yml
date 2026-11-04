@@ -1,5 +1,5 @@
 name: Compatibility report
-description: A game works, or does not, under Sprixe BIOS.
+description: A game works, or does not, under PrivaBIOS.
 labels: [compatibility]
 body:
   - type: markdown
@@ -42,7 +42,7 @@ body:
   - type: input
     id: crc
     attributes:
-      label: CRC32 of the Sprixe BIOS image
+      label: CRC32 of the PrivaBIOS image
     validations:
       required: true
   - type: dropdown

@@ -1,4 +1,4 @@
-# The map of Sprixe BIOS menus
+# The map of PrivaBIOS menus
 
 Where each screen is, and the key that leads to it. Read in the code on 2026-10-25 (main at
 `703cf222`), AUTOFIRE added on 2026-10-27 (#1454), ABOUT on 2026-10-28, RESTART TO CARD and COPY

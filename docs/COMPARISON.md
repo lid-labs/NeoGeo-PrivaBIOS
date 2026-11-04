@@ -1,4 +1,4 @@
-# Sprixe BIOS and UniBIOS 4.0
+# PrivaBIOS and UniBIOS 4.0
 
 UniBIOS is the reference of the Neo Geo scene, and this page exists to describe the two as they
 are. The UniBIOS column rests on three kinds of source. A cell is Documented unless it says
@@ -12,14 +12,14 @@ otherwise:
   the threads we could read and those we could not.
 - **Measured here**: observed running under MAME 0.286.
 
-The feature rows of the Sprixe BIOS column are measured, each by its own test scene. Everything is under MAME
-unless it says otherwise, and judged on picture or sound: Sprixe BIOS has run on one real board so
+The feature rows of the PrivaBIOS column are measured, each by its own test scene. Everything is under MAME
+unless it says otherwise, and judged on picture or sound: PrivaBIOS has run on one real board so
 far. A feature found neither on the site nor in the threads is not set against anything: those
 are in [Not compared](#not-compared).
 
 ## Playing
 
-| Topic | UniBIOS 4.0 | Sprixe BIOS |
+| Topic | UniBIOS 4.0 | PrivaBIOS |
 |---|---|---|
 | Autofire | ◐ **As cheats**. Documented for the Metal Slug series, Sonic Wings 2 and 3, Ghost Pilots and Zed Blade (v2.1). | ◐ **As a setting**. A, B, C and D set one by one, at 10, 15 or 30 shots per second, remembered for each game. It only reaches games that read the controls through the BIOS: on player 1's A button, 89 of the 164 games see it fully, 25 partly, 35 never, and 15 were not measured. |
 | Cheats | ✓ **Yes**. More than 1,570 cheats, plus Patch Memory (v2.0) to add your own. | ✓ **Yes**. 1,709 cheats for 154 games: 141 proven here, 1,568 imported from the MAME XML Cheats Collection and not proven one by one; under MAME, 1,464 of them pass, 4 leave play as announced, and 100 could not be judged. |
@@ -29,14 +29,14 @@ are in [Not compared](#not-compared).
 
 ## Saving
 
-| Topic | UniBIOS 4.0 | Sprixe BIOS |
+| Topic | UniBIOS 4.0 | PrivaBIOS |
 |---|---|---|
 | High scores | ✓ **Yes**. On the memory card, AES hardware included (v3.1, "not fully tested" in its notes), with an option that stops the periodic wipe on MVS (v4.0). Forum users report scores neither saved nor read back (v3.1 to v3.3). | ◐ **Partly**. Kept in backup RAM in MVS and AES modes, with SCORE RESET to stop the periodic wipe. Not saved on the memory card. |
 | Memory card manager | ✓ **Yes**. Reachable in every mode. | ◐ **Partly**. In the test screen, on a machine without a cartridge, and from the in-game menu through a confirmed restart, which loses the game in progress, except under CHEATS/DEBUG OFF: list, free blocks, delete, format, copy one save or all of them to another card. |
 
 ## Operators and repair
 
-| Topic | UniBIOS 4.0 | Sprixe BIOS |
+| Topic | UniBIOS 4.0 | PrivaBIOS |
 |---|---|---|
 | Keeping players out | ✓ **Yes**. Enable Arcade Protect (v2.1) puts the button codes behind the test button; the notes advise also disabling the in-game menu and input crossing. | ✓ **Yes**. CHEATS/DEBUG OFF in cabinet settings removes the cheats, the memory editor, RESTART TO CARD and the debug dips. |
 | Board without a TEST button | ✓ **Yes**. B+C+D on the splash screen opens test mode, with no JAMMA wiring. | ✓ **Yes**. Switch 1, or START + SELECT held at power-on, opens the test screen. |
@@ -47,14 +47,14 @@ are in [Not compared](#not-compared).
 
 ## Boot and multi-slot
 
-| Topic | UniBIOS 4.0 | Sprixe BIOS |
+| Topic | UniBIOS 4.0 | PrivaBIOS |
 |---|---|---|
 | Boot on flash and homebrew carts | ◐ **Reported**. Forum threads from 2018 describe a logo that comes out scrambled on slow flash boards, the earliest before v4.0; the author's known issues do not list it. v4.0 adds fixes specific to the NeoSD. Measured here on v4.0, with the cartridge graphics replaced by noise: the picture differs in 155 of 190 frames, 60 to 249 (`measured/2026-10-27-parcours-garanties.tsv`). | ◐ **BackBit only**. The boot screen uses only the BIOS font, and the same noise test changes none of frames 4 to 188 (earlier frames show power-on noise and are not judged). Image 15 stopped at boot on a real NeoSD Pro and a real BackBit. A game now starts on the BackBit, reported on an image older than the current one and not identified by its CRC; the NeoSD Pro has no feedback yet. |
 | Multi-slot boards | ◐ **Designed for them, with a documented bug**. Sound is missing when slot 1 is empty (known issues, "introduced in v4"), and fonts when KOF2003 is in slot 1 of a 4 or 6 slot board. Forums also report black screens and EXCEPTION ERROR HANDLING at boot on v4.0, and advise v3.2. Neither the missing sound nor these boots were reproduced here, under MAME; that says nothing of the boards where they were reported. | ◐ **Tested on two**. MV-6F under MAME: rotating demo, SELECT for P1 and P2, sound on slot 2 with slot 1 empty ([`DECISIONS.md`](DECISIONS.md) §23). Real MV-2F: games boot from both slots. Not tested on a real 4 or 6 slot board. |
 
 ## Hardware
 
-| Topic | UniBIOS 4.0 | Sprixe BIOS |
+| Topic | UniBIOS 4.0 | PrivaBIOS |
 |---|---|---|
 | Systems | ✓ **MVS, AES and CD**. All MVS types, slot 1 and multi-slot, AES, and the three CD models (v3.3). | ◐ **MVS only**. An AES mode on MVS boards. No image for the AES console or CD systems. |
 | Real boards | ✓ **Yes**. Four third-party installers listed on its site. | ◐ **One**. A single MV-2F so far. |
@@ -62,7 +62,7 @@ are in [Not compared](#not-compared).
 
 ## Look and extras
 
-| Topic | UniBIOS 4.0 | Sprixe BIOS |
+| Topic | UniBIOS 4.0 | PrivaBIOS |
 |---|---|---|
 | Jukebox | ✓ **Yes**. In the notes since v1.1, with fade-out (v2.1). | ✓ **Yes**. Outside games. |
 | Screen saver, menu colours | ✓ **Yes**. In-game menu blanking and menu colours (v2.3), jukebox screen saver (v3.1). | ◐ **Partly**. Screen saver in the jukebox: black screen after about two minutes, music keeps playing. No menu colours. |
@@ -74,7 +74,7 @@ are in [Not compared](#not-compared).
 
 ## Not compared
 
-Sprixe BIOS has this. UniBIOS's site does not settle whether it has an equivalent, so it gets
+PrivaBIOS has this. UniBIOS's site does not settle whether it has an equivalent, so it gets
 no column:
 
 - NO CONTINUE in cabinet settings.
