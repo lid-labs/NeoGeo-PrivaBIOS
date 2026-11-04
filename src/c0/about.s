@@ -126,7 +126,7 @@ _a_propos:
 | ----------------------------------------------------------------------------------
 | THE DATA. Each line: the cell (column 3), the palette, the text; a zero cell closes.
         .balign 2
-.Ltxt_nom:      .asciz  "SPRIXE BIOS "
+.Ltxt_nom:      .asciz  "PRIVABIOS "
         .balign 2
 .Llignes:
         .word   COL3 + 7, 0x1000
@@ -151,7 +151,7 @@ _a_propos:
         .asciz  "LICENSE AND SOURCE CODE:"
         .balign 2
         .word   COL3 + 17, 0x1000
-        .asciz  "GITHUB.COM/LID-LABS/SPRIXE-BIOS"
+        .asciz  "GITHUB.COM/LID-LABS/PRIVABIOS"
         .balign 2
         .word   COL3 + 20, 0x1000
         .asciz  "HARDWARE TESTING:"

@@ -70,8 +70,8 @@
 # column, with the measurement of the image at hand of 2026-10-23 next to it; "cell" = 8 × 8
 # pixels, the screen has 40 × 28 of them. Game aof unless stated otherwise.
 #   boot-ecran    without input, the image of frame 100, the CLOCK line masked (it carries the
-#                 host date), has the hash of the record; and the fix layer carries SPRIXE BIOS,
-#                 sprixe.dev/bios, v0.1 BETA, SYSTEM MVS, REGION EUROPE, CARD NONE, GAME NGH 0044.
+#                 host date), has the hash of the record; and the fix layer carries PRIVABIOS,
+#                 privabios.com, v0.1 BETA, SYSTEM MVS, REGION EUROPE, CARD NONE, GAME NGH 0044.
 #   boot-saut     A at frame 60: the boot pause ends at the latest at frame "fin_max",
 #                 against at least "fin_min" without A; at frame 100, fewer than "reste_max" of
 #                 the lit pixels of the boot screen are still lit identically.
@@ -2339,7 +2339,7 @@ def boot_ecran():
     e = hache(a.tobytes())
     dit(f"empreinte {e} (ligne CLOCK y {y0}-{y0 + 15} masquée), {allum} pixels allumés")
     exiger(str(e) == S("boot-ecran", "empreinte"), f"empreinte {e}, relevé {S('boot-ecran', 'empreinte')}")
-    for x in ("SPRIXE BIOS", "sprixe.dev/bios", "v0.1 BETA", "SYSTEM ....... MVS", "REGION ....... EUROPE", "CARD ......... NONE", "GAME NGH ..... 0044"):
+    for x in ("PRIVABIOS", "privabios.com", "v0.1 BETA", "SYSTEM ....... MVS", "REGION ....... EUROPE", "CARD ......... NONE", "GAME NGH ..... 0044"):
         exiger(x in t, f"plan fixe sans « {x} »")
 
 def boot_saut():
@@ -3624,9 +3624,9 @@ def ab_ecran():
     t = e.texte(340)
     dit("l'écran ABOUT : " + " / ".join(x.strip() for x in t.split("\n") if x.strip()))
     exiger("SOFT DIP SETTINGS" not in t, "A ne quitte pas la liste")
-    for m in ("SPRIXE BIOS", "0.1 BETA", "COPYRIGHT 2026 THIBAUT LION", "THIS PROGRAM COMES WITH",
+    for m in ("PRIVABIOS", "0.1 BETA", "COPYRIGHT 2026 THIBAUT LION", "THIS PROGRAM COMES WITH",
               "ABSOLUTELY NO WARRANTY.", "IT IS FREE SOFTWARE: YOU MAY", "REDISTRIBUTE IT UNDER THE GNU",
-              "GPL VERSION 3 OR LATER.", "LICENSE AND SOURCE CODE:", "GITHUB.COM/LID-LABS/SPRIXE-BIOS",
+              "GPL VERSION 3 OR LATER.", "LICENSE AND SOURCE CODE:", "GITHUB.COM/LID-LABS/PRIVABIOS",
               "HARDWARE TESTING:", "SEBASTIAN KLOETZER", "START:BACK"):
         exiger(m in t, f"trame 340 : pas de « {m} »")
     exiger("SOFT DIP SETTINGS" in e.texte(375) and l2[-8].startswith("> ABOUT"),

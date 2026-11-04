@@ -1,7 +1,7 @@
 | SPDX-License-Identifier: GPL-3.0-or-later
 | Copyright (C) 2026 Thibaut Lion
 | ==================================================================================
-| THE "Sprixe BIOS" BOOT SCREEN — about three seconds, skippable, only once per boot.
+| THE "PrivaBIOS" BOOT SCREEN — about three seconds, skippable, only once per boot.
 |
 | Called by `jsr` from `_demarrage` (`c0.s`), after BIOS_MESS_POINT is set and before the
 | sound handshake. Neither SYSTEM_RETURN nor the coin goes through it: their path
@@ -19,9 +19,9 @@
 | THE TIMELINE, in frames counted by the line counter (one frame = one pass of line $1F0,
 | like the hand-over in `c0.s`), 180 in all with PAUSE = 126, ≈ 3.04 s at 59.185 Hz:
 |   0       synchronisation, palettes set, fixed texts and values written in black;
-|   1-12    the title decodes: its letters go in pairs, pair p (0 to 5) draws random
-|           glyphs, then freezes at frame 2 + 2p, from left to right; the title's space
-|           stays empty;
+|   1-12    the title decodes: its letters go in pairs, pair p (0 to 4) draws random
+|           glyphs, then freezes at frame 2 + 2p, from left to right (the last at 10, then
+|           redrawn frozen); a space in the title would stay empty;
 |   13      the URL and the version light up;
 |   13-20   a white glint sweeps the title, one pair of letters per frame;
 |   21-45   five status lines, one every 5 frames: the label prints, then the value
@@ -48,7 +48,8 @@
 | full stop, the digits 3 to 9, J Q V Y Z, ":", "-", "?" and "!" all read at their ASCII
 | place. Lower-case letters other than c, d, e, i, o, p, r, s, v, x have not been seen,
 | except the "b" of "sprixe.dev/bios", read at its ASCII place on our capture of 2026-10-28
-| (aof, -bios euro, frame 100; not versioned).
+| (aof, -bios euro, frame 100; not versioned), and the "a" and "m" of "privabios.com", read
+| the same way on our capture of 2026-11-04 (same conditions; not versioned).
 | The randomly drawn glyphs come only from the characters of the record.
 |
 | THE COLOURS. Read in "Palettes": palette RAM at $400000, 256 palettes of 16 entries,
@@ -68,10 +69,10 @@
 | frame 0 with the others, entries 1 to 15 black, like `plantage.s` — its content at
 | power-on is written nowhere. It is reset to zero at the exit, with the others.
 | Palettes used, 1 to 14, and palette 0 in black:
-|   1-6  one per pair of title letters;   7  URL and version;   8  the labels;
+|   1-6  one per pair of title letters (1-5 for the nine letters);   7  URL and version;   8  the labels;
 |   9-13 one per line value, so that each lights up in turn;
 |   14   the reminder, which blinks on its own.
-| Per pair and not per letter: "SPRIXE BIOS" has eleven characters, and only the first
+| Per pair and not per letter: the title may have up to twelve characters, and only the first
 | 16 palettes serve the fix layer, 0 being taken by FIX_CLEAR and 15 by the board
 | switch 8 message.
 | Bank 0 is chosen: ASSUMED, nothing says which one is in place at power-on; the game
@@ -111,8 +112,8 @@
 
         | A cell of the fix layer, column c, row l ("Fix layer"). Rows 2-3 in the margin;
         | title, URL and version centred on column 19.
-        .equ    CASE_TITRE,   0x7000 + 14 * 32 + 4     | "SPRIXE BIOS", 11 characters, columns 14-24
-        .equ    CASE_URL,     0x7000 + 12 * 32 + 8     | 15 characters, columns 12-26
+        .equ    CASE_TITRE,   0x7000 + 15 * 32 + 4     | "PRIVABIOS", 9 characters, columns 15-23
+        .equ    CASE_URL,     0x7000 + 13 * 32 + 8     | 13 characters, columns 13-25
         .equ    CASE_VERSION, 0x7000 + 15 * 32 + 10    | "v0.1 BETA", 9 characters, columns 15-23
         .equ    CASE_LIGNES,  0x7000 +  7 * 32 + 15    | labels, columns 7-20, rows 15-24
         .equ    CASE_VALEURS, 0x7000 + 22 * 32 + 15    | values, from column 22
@@ -137,7 +138,7 @@
         .equ    T_FONDU,  T_PAUSE + PAUSE
         .equ    T_FIN,    T_FONDU + 7   | last frame; frame 0 is the synchronisation
         .equ    N_PAL,    14            | palettes used, 1 to N_PAL
-        .equ    N_TITRE,  11            | title characters, two per palette 1 to 6
+        .equ    N_TITRE,  9             | title characters, two per palette 1 to 5, the last alone
 
 _ecran_boot:
         movem.l %d0-%d7/%a0-%a6, -(%sp)
@@ -326,7 +327,7 @@ _ecran_boot:
         cmpi.b  #0x20, %d2              | the space does not decode
         beq.s   .Ldecode_poser
         move.w  %d4, %d5
-        lsr.w   #1, %d5                 | its pair, 0 to 5
+        lsr.w   #1, %d5                 | its pair, 0 to 4
         add.w   %d5, %d5
         addq.w  #2, %d5                 | its freezing frame: 2 + 2 × pair
         cmp.w   %d5, %d7
@@ -372,7 +373,7 @@ _ecran_boot:
 1:
 
         | THE GLINT, frames 13 to 20: pair h = frame - 13 in white, its neighbours in
-        | half-tone, the others in title colour. h = 6 and 7 finish leaving.
+        | half-tone, the others in title colour. h = 5 to 7 finish leaving.
         cmpi.w  #13, %d7
         bcs.s   .Lapres_reflet
         cmpi.w  #20, %d7
@@ -647,12 +648,12 @@ _ecran_boot:
 .Lrampe:
         .byte   3, 6, 8
 .Ltitre:
-        .ascii  "SPRIXE BIOS"
+        .ascii  "PRIVABIOS"
 | 32 characters, all measured; the last six repeat the first ones.
 .Lhasard:
         .ascii  "ABCDEFGHIKLMNOPRSTUWX0126/ABCDEF"
 .Lurl:
-        .asciz  "sprixe.dev/bios"
+        .asciz  "privabios.com"
 .Lversion:
 _txt_version:
         .asciz  "v0.1 BETA"
