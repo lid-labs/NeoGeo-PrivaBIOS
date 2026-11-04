@@ -106,9 +106,9 @@ The menus, and the keys and board switches that lead to them, are mapped in
 ## Installation
 
 Download the image of the latest release,
-[`sprixe-bios-0.1.0-beta.2.rom`](https://github.com/lid-labs/privabios/releases/download/v0.1.0-beta.2/sprixe-bios-0.1.0-beta.2.rom):
+[`privabios-0.1.0-beta.3.rom`](https://github.com/lid-labs/privabios/releases/download/v0.1.0-beta.3/privabios-0.1.0-beta.3.rom):
 a 128 KiB file in MAME byte order, the same as `sp-s2.sp1` in `neogeo.zip`. The
-[release page](https://github.com/lid-labs/privabios/releases/tag/v0.1.0-beta.2) also has it with its bytes swapped in pairs, and
+[release page](https://github.com/lid-labs/privabios/releases/tag/v0.1.0-beta.3) also has it with its bytes swapped in pairs, and
 `SHA256SUMS`. To build it yourself, see [`docs/BUILD.md`](docs/BUILD.md).
 
 ### On an MVS board

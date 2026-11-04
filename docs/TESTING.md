@@ -7,12 +7,12 @@ and how to report it. Reports that something works are as useful as reports that
 ## The image to test
 
 The current image is release
-[v0.1.0-beta.2](https://github.com/lid-labs/privabios/releases/tag/v0.1.0-beta.2):
+[v0.1.0-beta.3](https://github.com/lid-labs/privabios/releases/tag/v0.1.0-beta.3):
 
 | File | CRC32 | Use |
 |---|---|---|
-| `sprixe-bios-0.1.0-beta.2.rom` | `C4EA703B` | MAME byte order: burn it as is first |
-| `sprixe-bios-0.1.0-beta.2-byteswapped.bin` | `513041C0` | bytes swapped in pairs, if the board shows nothing with the first |
+| `privabios-0.1.0-beta.3.rom` | `462044E7` | MAME byte order: burn it as is first |
+| `privabios-0.1.0-beta.3-byteswapped.bin` | `C5B19350` | bytes swapped in pairs, if the board shows nothing with the first |
 
 The SHA-256 of both files are in the release's `SHA256SUMS`. Burn and install as the README says
 ([Installation](../README.md#on-an-mvs-board)), and write down your board's settings first: scores
