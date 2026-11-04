@@ -38,13 +38,16 @@
 # URL 8, version 10, lignes d'état 15-24, deux lignes vides avant le rappel), et la version dit
 # « v0.1 BETA ». Image 8d9a761141fbaa390c0d83f0aabf5d39fea23ba1376b2ffe28ad4f0a6b3f4c5c, mêmes
 # conditions ; l'empreinte d'avant était 1171988174 (4 634 pixels allumés, CLOCK y 152-167 masquée).
+# REMESURÉ LE 2026-11-04, boot-ecran seul : le BIOS s'appelle PrivaBIOS (DECISIONS §34), et
+# l'écran porte « PRIVABIOS » et « privabios.com ». Image a16eaa01d938a054127997700439a87df49e8d63d8830f413a5ab3342f478c7f,
+# mêmes conditions ; l'empreinte de « SPRIXE BIOS » était 3002034688 (4 867 pixels allumés).
 #
 # LES MUTATIONS (bench/parcours-mutations.py --eprouver, une à la fois sur une copie de src/c0) :
 # 21 éprouvées, 21 tuées, chacune par la scène visée — la liste et le motif de chaque échec sont
 # dans l'en-tête de bench/parcours.sh. Une 22e, REG_VRAMMOD non rendu à RESUME, a survécu : aof
 # repose le sien, rien de visible ne change ; remplacée par « le plan fixe non rendu ».
 scene	grandeur	seuil	mesure
-boot-ecran	empreinte	3002034688	3002034688 (4 867 pixels allumés, ligne CLOCK y 136-151 masquée)
+boot-ecran	empreinte	4233186191	4233186191 (4 723 pixels allumés, ligne CLOCK y 136-151 masquée)
 boot-saut	fin_max	80	68 (A à la trame 60)
 boot-saut	fin_min	170	188 (sans A)
 boot-saut	reste_max	0.10	0.000

@@ -1,5 +1,5 @@
 name: Bug report
-description: Sprixe BIOS does something wrong on a board or in MAME.
+description: PrivaBIOS does something wrong on a board or in MAME.
 labels: [bug]
 body:
   - type: markdown

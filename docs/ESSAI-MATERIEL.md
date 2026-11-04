@@ -7,8 +7,9 @@ the board showed and what was fixed. The videos and the raw reports stay outside
 An image is identified by its CRC32 or its SHA-256.
 
 **File names.** Since 2026-10-28, the BIOS is called Sprixe BIOS (`DECISIONS.md` §29): the
-upcoming images are called `sprixe-bios-v0.1.rom` and `sprixe-bios-v0.1-byteswapped.bin`. The
-register below keeps the names under which each image was sent.
+upcoming images are called `sprixe-bios-v0.1.rom` and `sprixe-bios-v0.1-byteswapped.bin`. Since
+2026-11-04, it is called PrivaBIOS (§34): the images are called `privabios-<version>.rom` and
+`privabios-<version>-byteswapped.bin`. The register below keeps the names under which each image was sent.
 
 ## The image format
 

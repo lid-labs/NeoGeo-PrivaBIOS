@@ -1,6 +1,6 @@
 # Imported cheats: what was checked
 
-Sprixe BIOS has 1,709 cheats for 154 games. 1,568 of them come from the MAME XML Cheats
+PrivaBIOS has 1,709 cheats for 154 games. 1,568 of them come from the MAME XML Cheats
 Collection (Pugsy and contributors), through `bench/cheats-importer.py`. This page says what was checked on those 1,568, game by game.
 
 ## What was measured, and what was not

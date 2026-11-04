@@ -1,13 +1,13 @@
-# Contributing to Sprixe BIOS
+# Contributing to PrivaBIOS
 
 Thank you for helping. Questions and ideas go to
-[Discussions](https://github.com/lid-labs/sprixe-bios/discussions); bugs and compatibility reports go
-to [Issues](https://github.com/lid-labs/sprixe-bios/issues), using the templates. To test on a real
+[Discussions](https://github.com/lid-labs/privabios/discussions); bugs and compatibility reports go
+to [Issues](https://github.com/lid-labs/privabios/issues), using the templates. To test on a real
 board, see [`docs/TESTING.md`](docs/TESTING.md).
 
 ## Clean-room rules
 
-Sprixe BIOS contains no code from SNK, UniBIOS or any game, and must stay that way
+PrivaBIOS contains no code from SNK, UniBIOS or any game, and must stay that way
 ([`docs/METHOD.md`](docs/METHOD.md)).
 
 You may observe a BIOS or a game while it runs: the picture, the sound, the RAM and the registers,
@@ -56,7 +56,7 @@ The bench runs under MAME with **your own** ROM sets; this repository never prov
 
 ```bash
 python3 -I bench/test_generer_contrats.py
-./build/construire.sh src/c0 /tmp/sprixe-bios.sp1
+./build/construire.sh src/c0 /tmp/privabios.sp1
 bench/non-regression.sh "$ROMS" <work-dir>
 ```
 

@@ -1,4 +1,4 @@
-# Building Sprixe BIOS
+# Building PrivaBIOS
 
 ## Requirements
 
@@ -10,10 +10,10 @@
 ## Build
 
 ```bash
-./build/construire.sh src/c0 sprixe-bios.sp1
+./build/construire.sh src/c0 privabios.sp1
 ```
 
-The first run builds the Docker image `sprixe-bios-build` from [`docker/Dockerfile`](../docker/Dockerfile).
+The first run builds the Docker image `privabios-build` from [`docker/Dockerfile`](../docker/Dockerfile).
 Nothing is pulled from a private registry: the image is Ubuntu 22.04 plus the `ngdevkit-toolchain`
 package (GNU binutils and GCC for `m68k-neogeo-elf`) from the public
 [ngdevkit PPA](https://launchpad.net/~dciabrin/+archive/ubuntu/ngdevkit).
@@ -24,7 +24,7 @@ The output is a 131,072-byte image in MAME byte order (bytes swapped in pairs), 
 To get the other byte order, for a programmer set the other way round:
 
 ```bash
-python3 -c 'import sys; d=open(sys.argv[1],"rb").read(); open(sys.argv[2],"wb").write(bytes(b for i in range(0,len(d),2) for b in (d[i+1],d[i])))' sprixe-bios.sp1 sprixe-bios-byteswapped.bin
+python3 -c 'import sys; d=open(sys.argv[1],"rb").read(); open(sys.argv[2],"wb").write(bytes(b for i in range(0,len(d),2) for b in (d[i+1],d[i])))' privabios.sp1 privabios-byteswapped.bin
 ```
 
 ## Reproducibility

@@ -1,6 +1,6 @@
-# Sprixe BIOS
+# PrivaBIOS
 
-[![build](https://img.shields.io/github/actions/workflow/status/lid-labs/sprixe-bios/build.yml?branch=main&label=build)](https://github.com/lid-labs/sprixe-bios/actions/workflows/build.yml)
+[![build](https://img.shields.io/github/actions/workflow/status/lid-labs/privabios/build.yml?branch=main&label=build)](https://github.com/lid-labs/privabios/actions/workflows/build.yml)
 [![license: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE)
 ![test scenes: 178](https://img.shields.io/badge/test%20scenes-178-informational)
 ![mutations killed: 230/230](https://img.shields.io/badge/mutations%20killed-230%2F230-informational)
@@ -12,26 +12,26 @@ sets ([`docs/BENCH.md`](docs/BENCH.md), [`measured/HISTORIQUE.md`](measured/HIST
 checks tracked files for private data, builds the image, checks its SHA-256 and runs the
 generators' tests; it does not run MAME.
 
-![The Sprixe BIOS boot screen](docs/screenshots/boot.gif)
+![The PrivaBIOS boot screen](docs/screenshots/boot.gif)
 
-Sprixe BIOS is a free, open-source replacement BIOS for the Neo Geo MVS arcade board, written from
+PrivaBIOS is a free, open-source replacement BIOS for the Neo Geo MVS arcade board, written from
 scratch in 68000 assembly and tested game by game. It plays the role players know from UniBIOS: hold
 START + SELECT during a game and a menu opens with the game's settings, cheats, a memory editor and
 autofire remembered for each game. Operators get free play, no continue and a silent demo for every
 game, and one switch that turns cheats and debug off for the whole board. None of its code comes
 from SNK or from any game. It is licensed under the GPL-3.0-or-later.
 
-Website: https://bios.sprixe.dev/ (sources in [`site/`](site/), see [`docs/SITE.md`](docs/SITE.md)).
+Website: https://privabios.com/ (sources in [`site/`](site/), see [`docs/SITE.md`](docs/SITE.md)).
 
 Status: in testing.
 
-Sprixe BIOS was developed under the working name ReBIOS; that name still appears in dated notes and
-in the backup RAM signature.
+PrivaBIOS was first published as Sprixe BIOS (v0.1.0-beta.1 and beta.2), and developed under the
+working name ReBIOS; those names still appear in dated notes, and ReBIOS in the backup RAM signature.
 
 ## Why another BIOS?
 
 UniBIOS is the reference on the Neo Geo, and Razoola's work has served players for two decades.
-Sprixe BIOS takes a different path: written from scratch, GPL-3.0, with its whole source open.
+PrivaBIOS takes a different path: written from scratch, GPL-3.0, with its whole source open.
 
 - Autofire as a setting: A, B, C and D one by one, remembered for each game.
 - Game settings changed from the in-game menu, during play.
@@ -45,8 +45,8 @@ The detail is in [`docs/COMPARISON.md`](docs/COMPARISON.md).
 ## Screenshots
 
 Taken under MAME 0.286 from the image this repository builds (SHA-256 `18da0b0a…`; the boot screen
-from `8d9a7611…`), with Magic Castle, a homebrew game made with the Sprixe studio, as the
-cartridge. The in-game menu and autofire screens are over Metal Slug (© SNK).
+from `a16eaa01…`, with Art of Fighting in the slot), with Magic Castle, a homebrew game made with
+the Sprixe studio, as the cartridge. The in-game menu and autofire screens are over Metal Slug (© SNK).
 
 | | | |
 |---|---|---|
@@ -106,15 +106,15 @@ The menus, and the keys and board switches that lead to them, are mapped in
 ## Installation
 
 Download the image of the latest release,
-[`sprixe-bios-0.1.0-beta.2.rom`](https://github.com/lid-labs/sprixe-bios/releases/download/v0.1.0-beta.2/sprixe-bios-0.1.0-beta.2.rom):
+[`sprixe-bios-0.1.0-beta.2.rom`](https://github.com/lid-labs/privabios/releases/download/v0.1.0-beta.2/sprixe-bios-0.1.0-beta.2.rom):
 a 128 KiB file in MAME byte order, the same as `sp-s2.sp1` in `neogeo.zip`. The
-[release page](https://github.com/lid-labs/sprixe-bios/releases/tag/v0.1.0-beta.2) also has it with its bytes swapped in pairs, and
+[release page](https://github.com/lid-labs/privabios/releases/tag/v0.1.0-beta.2) also has it with its bytes swapped in pairs, and
 `SHA256SUMS`. To build it yourself, see [`docs/BUILD.md`](docs/BUILD.md).
 
 ### On an MVS board
 
 This is a beta. Write down your board's settings first. Under MAME, moving from the SNK BIOS or
-UniBIOS 4.0 to Sprixe BIOS and back left the backup RAM's game data intact, with one game and no
+UniBIOS 4.0 to PrivaBIOS and back left the backup RAM's game data intact, with one game and no
 setting changed (`measured/2026-10-30-backup-ram-bascule.tsv`). That was not measured on a real
 board, nor after changing settings here, so treat scores and settings as things you could lose.
 
@@ -122,29 +122,29 @@ board, nor after changing settings here, so treat scores and settings as things 
    shows nothing, try the image with its bytes swapped in pairs.
 2. Keep the original BIOS chip. Swap it out, mind the notch. On some boards the BIOS chip is
    soldered and needs a socket first.
-3. Power on: the Sprixe BIOS screen shows for a moment, then the game starts.
+3. Power on: the PrivaBIOS screen shows for a moment, then the game starts.
 
 ### In MAME
 
 1. Work on copies of your sets.
-2. Replace `sp-s2.sp1` with the Sprixe BIOS file in `neogeo.zip`, **and also in the game's zip if
+2. Replace `sp-s2.sp1` with the PrivaBIOS file in `neogeo.zip`, **and also in the game's zip if
    your set is non-merged**: each of those zips carries its own copy of the BIOS, and MAME reads it
    first. Replacing it in `neogeo.zip` alone then changes nothing.
 3. Run the game with `-bios euro`.
-4. MAME warns `WRONG CHECKSUMS` for `sp-s2.sp1`. That warning means Sprixe BIOS is the BIOS in use;
+4. MAME warns `WRONG CHECKSUMS` for `sp-s2.sp1`. That warning means PrivaBIOS is the BIOS in use;
    without it, MAME found the original BIOS somewhere else.
 
 No game ROM and no SNK BIOS is provided by this repository.
 
 ## Compatibility
 
-Measured under MAME 0.286, on the 164 sets of our MAME catalogue, each run under Sprixe BIOS, the
+Measured under MAME 0.286, on the 164 sets of our MAME catalogue, each run under PrivaBIOS, the
 SNK BIOS and UniBIOS 4.0 (`bench/matrice.sh`, `measured/HISTORIQUE.md`):
 
-- 162 of 164 sets play under Sprixe BIOS, 163 under each of the SNK BIOS and UniBIOS 4.0. This is
+- 162 of 164 sets play under PrivaBIOS, 163 under each of the SNK BIOS and UniBIOS 4.0. This is
   judged on the picture, under MAME: it is not evidence for real hardware.
 - `irrmaze` is left out of our count: a game starts and the trackball works, but button 1 does not
-  reach player 1 under Sprixe BIOS, which its own BIOS does (#70).
+  reach player 1 under PrivaBIOS, which its own BIOS does (#70).
 - A set is not always a game: the 164 include machines without a cartridge (`ng_mv1`, `ng_mv2f`,
   `ng_mv4f`), a development-board program (`mvstemp`) and a prototype (`dragonsh`).
 - `mvstemp` stays black, with the same picture, under all three BIOSes. Its set carries an HD64180
@@ -153,7 +153,7 @@ SNK BIOS and UniBIOS 4.0 (`bench/matrice.sh`, `measured/HISTORIQUE.md`):
 Autofire, measured on player 1's A button: 89 sets see it fully, 25 partly, 35 never (they read the
 joystick themselves), 15 were not measured ([`docs/AUTOFIRE.md`](docs/AUTOFIRE.md)).
 
-On real hardware, Sprixe BIOS has run on one board so far, an MV-2F. Issues found there and fixed:
+On real hardware, PrivaBIOS has run on one board so far, an MV-2F. Issues found there and fixed:
 the cartridge header was read at the wrong moment (the board rebooted in a loop), a board without a
 TEST button could not reach the settings, and a BlueRetro wireless adapter holding every button at
 wake-up opened the test screen. Other MVS boards and AES consoles are untested.
@@ -178,7 +178,7 @@ deliberately breaking the BIOS. The full account, including one incident, is in
 ## Contributing
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md). Questions go to
-[Discussions](https://github.com/lid-labs/sprixe-bios/discussions).
+[Discussions](https://github.com/lid-labs/privabios/discussions).
 
 ## Thanks
 
@@ -193,5 +193,5 @@ states no licence.
 
 GPL-3.0-or-later. See [`LICENSE`](LICENSE).
 
-Neo Geo, MVS and AES are trademarks of SNK Corporation. Sprixe BIOS is not affiliated with SNK or
+Neo Geo, MVS and AES are trademarks of SNK Corporation. PrivaBIOS is not affiliated with SNK or
 with the author of UniBIOS.

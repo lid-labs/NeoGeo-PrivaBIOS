@@ -37,13 +37,13 @@ jobs:
 
       - name: Build the image
         run: |
-          BIOS_OBJ=obj ./build/construire.sh src/c0 sprixe-bios.sp1
-          sha256sum sprixe-bios.sp1
+          BIOS_OBJ=obj ./build/construire.sh src/c0 privabios.sp1
+          sha256sum privabios.sp1
 
       - name: Image matches build/expected-sha256.txt
         run: |
           read -r attendu < build/expected-sha256.txt
-          echo "$attendu  sprixe-bios.sp1" | sha256sum -c -
+          echo "$attendu  privabios.sp1" | sha256sum -c -
 
       - name: The slot diagnostic image and the harness still link
         run: |
@@ -52,5 +52,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: sprixe-bios
-          path: sprixe-bios.sp1
+          name: privabios
+          path: privabios.sp1

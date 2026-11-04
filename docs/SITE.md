@@ -1,7 +1,8 @@
 # The website
 
-The Sprixe BIOS website lives in [`site/`](../site/) and is meant to be served by GitHub Pages at
-https://bios.sprixe.dev/. It replaces the `sprixe.dev/bios` page of the Sprixe site.
+The PrivaBIOS website lives in [`site/`](../site/) and is served by GitHub Pages. Its domain is
+https://privabios.com/ once the steps of "The domain" below are done; until then it is served at
+https://bios.sprixe.dev/, its address under the name Sprixe BIOS.
 
 ## What is in `site/`
 
@@ -11,7 +12,7 @@ https://bios.sprixe.dev/. It replaces the `sprixe.dev/bios` page of the Sprixe s
 | `site.css` | The styles. One dark appearance, in the colours of the BIOS screens |
 | `favicon.svg` | The tab icon |
 | `fonts/` | The three fonts (WOFF2) and their OFL licences |
-| `CNAME` | `bios.sprixe.dev` |
+| `CNAME` | `privabios.com` |
 | `serve.sh` | Local preview (not published) |
 
 There is no build step and no npm. The page serves its three fonts itself, from `site/fonts/`
@@ -41,23 +42,21 @@ touches `site/**`, `docs/screenshots/**` or the workflow itself, and can also be
 (`workflow_dispatch`). It assembles `site/` with the screenshots and deploys them with
 `actions/upload-pages-artifact` and `actions/deploy-pages`, pinned by commit SHA.
 
-**It does nothing useful yet.** The repository is private, and GitHub Pages is not available on
-it: the deploy step will fail until the steps below are done.
+## The domain
 
-## Activation
+`privabios.com` is registered at Vercel, which also holds its DNS zone. To be done once, by a
+maintainer, after the rename to PrivaBIOS is merged:
 
-To be done once, by a maintainer, in this order. None of it has been done.
-
-1. **Make the repository public** (Settings → General → Danger Zone → Change visibility).
-2. **Enable Pages** (Settings → Pages → Build and deployment → Source: **GitHub Actions**).
-3. **Set the custom domain** in the same page: `bios.sprixe.dev`, then tick **Enforce HTTPS**
+1. **Rename the repository** `lid-labs/sprixe-bios` to `lid-labs/privabios` (Settings → General).
+   GitHub redirects the old URLs, clones included (GitHub
+   documentation, "Renaming a repository").
+2. **Create the DNS records** in the `privabios.com` zone: four `A` records for the apex, to the
+   GitHub Pages addresses listed in GitHub's documentation ("Managing a custom domain for your
+   GitHub Pages site"), and `CNAME` `www` → `lid-labs.github.io`.
+3. **Set the custom domain** in Settings → Pages: `privabios.com`, then tick **Enforce HTTPS**
    once the certificate is issued. With a workflow deployment, GitHub ignores the `CNAME` file in
    the artifact: the domain set here is what counts. `site/CNAME` stays as a record of the
    intended domain.
-4. **Create the DNS record** in the `sprixe.dev` zone, managed at Vercel:
-   `CNAME` `bios` → `lid-labs.github.io`.
-   Optionally, verify `sprixe.dev` for the `lid-labs` organisation (Organisation settings → Pages →
-   Add a domain, a `TXT` record), so that no other GitHub account can claim the subdomain.
-5. **Run the workflow** once (Actions → pages → Run workflow), or push a change to `site/`.
-6. **Redirect the old page**: in the Sprixe site, add a redirect
-   from `sprixe.dev/bios` to `https://bios.sprixe.dev/`, then remove the old page.
+4. **Redirect the old address**: `bios.sprixe.dev` (a `CNAME` to `lid-labs.github.io` in the
+   `sprixe.dev` zone, at Vercel) is no longer served by GitHub once the domain changes; it gets a
+   permanent redirect to `https://privabios.com/`.

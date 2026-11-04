@@ -1,10 +1,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Thibaut Lion
 #
-# Publishes the website (site/) on GitHub Pages, at bios.sprixe.dev. The screenshots are not
+# Publishes the website (site/) on GitHub Pages, at privabios.com. The screenshots are not
 # duplicated in site/: they are copied from docs/screenshots/ into img/ of the published artifact.
-# Inactive until the repository is public and Pages is enabled with GitHub Actions as the source:
-# see docs/SITE.md.
+# The domain is set up as described in docs/SITE.md.
 name: pages
 
 on:
