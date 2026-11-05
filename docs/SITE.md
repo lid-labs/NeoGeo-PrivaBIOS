@@ -17,8 +17,12 @@ https://bios.sprixe.dev/, its address under the name Sprixe BIOS.
 
 There is no build step and no npm. The page serves its three fonts itself, from `site/fonts/`
 (Silkscreen, VT323, IBM Plex Sans; latin subset of Google Fonts' WOFF2 files, SIL OFL 1.1, licences
-alongside, served unmodified, under their original names), each with a system fallback: the page
-requests nothing from a third party other than its host.
+alongside, served unmodified, under their original names), each with a system fallback. The only
+third-party requests go to [GoatCounter](https://www.goatcounter.com/), which counts the visits:
+the script `count.v5.js` from `gc.zgo.at`, pinned by its SRI hash, and the pageview it sends to
+`privabios.goatcounter.com`. GoatCounter stores aggregate counts only, no IP address, no full
+User-Agent and no tracker ID, and sets no cookies or other browser storage ([privacy
+policy](https://www.goatcounter.com/help/privacy), dated 8 June 2025, read on 5 November 2026).
 
 **The screenshots are not copied into `site/`.** The page references them under `img/`; the Pages
 workflow copies `docs/screenshots/` there when it assembles the published artifact, and
