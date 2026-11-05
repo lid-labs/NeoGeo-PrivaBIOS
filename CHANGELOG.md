@@ -6,6 +6,11 @@ All notable changes to PrivaBIOS are listed here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Website: visits are counted by GoatCounter, which stores no IP address and no tracker ID and sets
+  no cookies; the footer and `docs/SITE.md` say so.
+
 ### Changed
 
 - Website, README and `docs/TESTING.md`: the download links and the file table point at release
