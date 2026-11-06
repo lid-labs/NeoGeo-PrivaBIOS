@@ -1,8 +1,8 @@
 # Contributing to PrivaBIOS
 
 Thank you for helping. Questions and ideas go to
-[Discussions](https://github.com/lid-labs/privabios/discussions); bugs and compatibility reports go
-to [Issues](https://github.com/lid-labs/privabios/issues), using the templates. To test on a real
+[Discussions](https://github.com/lid-labs/NeoGeo-PrivaBIOS/discussions); bugs and compatibility reports go
+to [Issues](https://github.com/lid-labs/NeoGeo-PrivaBIOS/issues), using the templates. To test on a real
 board, see [`docs/TESTING.md`](docs/TESTING.md).
 
 ## Clean-room rules

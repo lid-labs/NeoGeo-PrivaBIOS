@@ -1,11 +1,13 @@
 # PrivaBIOS
 
-[![build](https://img.shields.io/github/actions/workflow/status/lid-labs/privabios/build.yml?branch=main&label=build)](https://github.com/lid-labs/privabios/actions/workflows/build.yml)
+[![build](https://img.shields.io/github/actions/workflow/status/lid-labs/NeoGeo-PrivaBIOS/build.yml?branch=main&label=build)](https://github.com/lid-labs/NeoGeo-PrivaBIOS/actions/workflows/build.yml)
 [![license: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE)
 ![test scenes: 178](https://img.shields.io/badge/test%20scenes-178-informational)
 ![mutations killed: 230/230](https://img.shields.io/badge/mutations%20killed-230%2F230-informational)
 ![MAME catalogue: 162/164 sets play](https://img.shields.io/badge/MAME%20catalogue-162%2F164%20sets%20play-informational)
 ![runs on real MV-2F hardware](https://img.shields.io/badge/runs%20on-real%20MV--2F%20hardware-success)
+
+**A free, open-source Neo Geo BIOS (NeoGeo MVS BIOS): a UniBIOS alternative written from scratch.**
 
 The test scene, mutation and catalogue figures are measured locally under MAME, with our own ROM
 sets ([`docs/BENCH.md`](docs/BENCH.md), [`measured/HISTORIQUE.md`](measured/HISTORIQUE.md)). The CI
@@ -27,6 +29,7 @@ Status: in testing.
 
 PrivaBIOS was first published as Sprixe BIOS (v0.1.0-beta.1 and beta.2), and developed under the
 working name ReBIOS; those names still appear in dated notes, and ReBIOS in the backup RAM signature.
+This repository was `lid-labs/privabios` until 2026-11-06; the old address redirects here.
 
 ## Why another BIOS?
 
@@ -106,9 +109,9 @@ The menus, and the keys and board switches that lead to them, are mapped in
 ## Installation
 
 Download the image of the latest release,
-[`privabios-0.1.0-beta.3.rom`](https://github.com/lid-labs/privabios/releases/download/v0.1.0-beta.3/privabios-0.1.0-beta.3.rom):
+[`privabios-0.1.0-beta.3.rom`](https://github.com/lid-labs/NeoGeo-PrivaBIOS/releases/download/v0.1.0-beta.3/privabios-0.1.0-beta.3.rom):
 a 128 KiB file in MAME byte order, the same as `sp-s2.sp1` in `neogeo.zip`. The
-[release page](https://github.com/lid-labs/privabios/releases/tag/v0.1.0-beta.3) also has it with its bytes swapped in pairs, and
+[release page](https://github.com/lid-labs/NeoGeo-PrivaBIOS/releases/tag/v0.1.0-beta.3) also has it with its bytes swapped in pairs, and
 `SHA256SUMS`. To build it yourself, see [`docs/BUILD.md`](docs/BUILD.md).
 
 ### On an MVS board
@@ -178,7 +181,7 @@ deliberately breaking the BIOS. The full account, including one incident, is in
 ## Contributing
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md). Questions go to
-[Discussions](https://github.com/lid-labs/privabios/discussions).
+[Discussions](https://github.com/lid-labs/NeoGeo-PrivaBIOS/discussions).
 
 ## Thanks
 

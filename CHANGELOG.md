@@ -14,6 +14,9 @@ All notable changes to PrivaBIOS are listed here. The format follows
 
 ### Changed
 
+- The repository is renamed `lid-labs/NeoGeo-PrivaBIOS`, to be found when searching GitHub for a
+  Neo Geo BIOS; the old address redirects. The links point at the new name; the ABOUT screen keeps
+  the old one (`docs/SITE.md`).
 - Website, README and `docs/TESTING.md`: the download links and the file table point at release
   0.1.0-beta.3.
 
@@ -199,7 +202,7 @@ First public pre-release. Development history before it (October 2026) is summar
   `measured/2026-10-28-work-ram-restauree.tsv`). Scenes `tests-sauvegarde` and `dd-connu`, two
   mutations.
 
-[Unreleased]: https://github.com/lid-labs/privabios/compare/v0.1.0-beta.3...HEAD
-[0.1.0-beta.3]: https://github.com/lid-labs/privabios/compare/v0.1.0-beta.2...v0.1.0-beta.3
-[0.1.0-beta.2]: https://github.com/lid-labs/privabios/compare/v0.1.0-beta.1...v0.1.0-beta.2
-[0.1.0-beta.1]: https://github.com/lid-labs/privabios/releases/tag/v0.1.0-beta.1
+[Unreleased]: https://github.com/lid-labs/NeoGeo-PrivaBIOS/compare/v0.1.0-beta.3...HEAD
+[0.1.0-beta.3]: https://github.com/lid-labs/NeoGeo-PrivaBIOS/compare/v0.1.0-beta.2...v0.1.0-beta.3
+[0.1.0-beta.2]: https://github.com/lid-labs/NeoGeo-PrivaBIOS/compare/v0.1.0-beta.1...v0.1.0-beta.2
+[0.1.0-beta.1]: https://github.com/lid-labs/NeoGeo-PrivaBIOS/releases/tag/v0.1.0-beta.1

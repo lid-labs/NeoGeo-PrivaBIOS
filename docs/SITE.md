@@ -52,7 +52,8 @@ touches `site/**`, `docs/screenshots/**` or the workflow itself, and can also be
 `privabios.com` is registered at Vercel, which also holds its DNS zone. To be done once, by a
 maintainer, after the rename to PrivaBIOS is merged:
 
-1. **Rename the repository** `lid-labs/sprixe-bios` to `lid-labs/privabios` (Settings → General).
+1. **Rename the repository** `lid-labs/sprixe-bios` to `lid-labs/privabios` (Settings → General;
+   done, then renamed again, see below).
    GitHub redirects the old URLs, clones included (GitHub
    documentation, "Renaming a repository").
 2. **Create the DNS records** in the `privabios.com` zone: four `A` records for the apex, to the
@@ -65,3 +66,18 @@ maintainer, after the rename to PrivaBIOS is merged:
 4. **Redirect the old address**: `bios.sprixe.dev` (a `CNAME` to `lid-labs.github.io` in the
    `sprixe.dev` zone, at Vercel) is no longer served by GitHub once the domain changes; it gets a
    permanent redirect to `https://privabios.com/`.
+
+## The repository name
+
+On 2026-11-06 the repository was renamed again, `lid-labs/privabios` to
+`lid-labs/NeoGeo-PrivaBIOS`, for GitHub's search; the product name stays PrivaBIOS. Measured that
+day on GitHub's web search (repositories, best match, signed in), before and after the rename, the
+short description already in place: "neo geo bios" went from 10th to 6th, "neogeo bios" from 9th
+to 8th, "neo geo mvs bios" from 4th to 3rd. In those results, GitHub highlights the name as
+`NeoGeo-PrivaBIOS` with `NeoGeo` marked for "neo geo" as for "neogeo", and `BIOS` marked inside
+`PrivaBIOS` for "bios".
+
+The ABOUT screen of the BIOS still shows `GITHUB.COM/LID-LABS/PRIVABIOS` (`src/c0/about.s`, scene
+in `bench/parcours.sh`): changing it would change the image, and the old address redirects. That
+redirect lasts only as long as no repository called `privabios` is created again under `lid-labs`
+(GitHub documentation, "Renaming a repository"): never create one.
