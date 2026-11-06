@@ -8,8 +8,10 @@ Guidance for AI coding agents working in this repository. Humans: see [`README.m
 PrivaBIOS is a free replacement BIOS for the Neo Geo MVS arcade board, written from scratch in
 68000 assembly (`src/c0/*.s`, GNU `as` syntax, `|` starts a comment), GPL-3.0-or-later. It is tested
 game by game under MAME, with Lua jigs and shell/Python drivers in `bench/`. The public repository is
-`lid-labs/privabios`; it was first published as Sprixe BIOS and developed under the working name
-ReBIOS, which still appear in dated notes, ReBIOS also in the backup RAM signature.
+`lid-labs/NeoGeo-PrivaBIOS` (`lid-labs/privabios` until 2026-11-06, still shown by the ABOUT screen
+and redirected: never create a repository under that name again); it was first published as Sprixe
+BIOS and developed under the working name ReBIOS, which still appear in dated notes, ReBIOS also in
+the backup RAM signature.
 
 ## Absolute rules
 

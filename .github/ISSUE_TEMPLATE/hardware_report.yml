@@ -5,7 +5,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        What to try is in [docs/TESTING.md](https://github.com/lid-labs/privabios/blob/main/docs/TESTING.md). Reports that something works are welcome too. Please do not attach ROMs, dumps or links to them.
+        What to try is in [docs/TESTING.md](https://github.com/lid-labs/NeoGeo-PrivaBIOS/blob/main/docs/TESTING.md). Reports that something works are welcome too. Please do not attach ROMs, dumps or links to them.
   - type: input
     id: board
     attributes:

@@ -23,8 +23,8 @@ section, or an empty one.
      above it;
    - adds or updates the link references at the bottom of `CHANGELOG.md` (there are none before
      the first release):
-     `[Unreleased]: https://github.com/lid-labs/privabios/compare/vX.Y.Z...HEAD` and
-     `[X.Y.Z]: https://github.com/lid-labs/privabios/compare/vPREVIOUS...vX.Y.Z` (for the first
+     `[Unreleased]: https://github.com/lid-labs/NeoGeo-PrivaBIOS/compare/vX.Y.Z...HEAD` and
+     `[X.Y.Z]: https://github.com/lid-labs/NeoGeo-PrivaBIOS/compare/vPREVIOUS...vX.Y.Z` (for the first
      release, `.../releases/tag/vX.Y.Z`);
    - changes the version shown on the boot screen if it should (`src/c0/ecran.s`, `.Lversion`). This
      changes the image: update `build/expected-sha256.txt`, and the recorded fingerprint of the
