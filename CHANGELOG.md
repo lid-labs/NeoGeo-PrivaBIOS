@@ -8,6 +8,7 @@ All notable changes to PrivaBIOS are listed here. The format follows
 
 ### Added
 
+- Website: a guide section, starting with "What does the Neo Geo BIOS actually do?".
 - Website: visits are counted by GoatCounter, which stores no IP address and no tracker ID and sets
   no cookies; the footer and `docs/SITE.md` say so.
 
