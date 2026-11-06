@@ -108,7 +108,7 @@ read) and of the assembler and linker (`.error` in `src/c0/cheats.s`, `ASSERT` i
 
 - `CHANGELOG.md`: one line under `## [Unreleased]` for any change a user can notice.
 - Public figures (scenes, mutations, games, cheats) are repeated across `README.md` (badges and
-  text), `docs/BENCH.md`, `docs/COMPARISON.md`, `site/index.html` and `CHANGELOG.md`: grep for
-  the old figure and update every copy.
+  text), `docs/BENCH.md`, `docs/COMPARISON.md`, `site/index.html`, `site/guide/` and
+  `CHANGELOG.md`: grep for the old figure and update every copy.
 - Conventional commits (`feat(cheats): …`, `fix(bench): …`, `docs: …`), signed off for the DCO:
   `git commit -s`.

@@ -8,7 +8,8 @@ https://bios.sprixe.dev/, its address under the name Sprixe BIOS.
 
 | File | Role |
 |---|---|
-| `index.html` | The whole page: header, figures, features, "Why another BIOS?", method, install, FAQ |
+| `index.html` | The home page: header, figures, features, "Why another BIOS?", method, install, FAQ |
+| `guide/` | The guides, one folder per article with its `index.html`, and the list in `guide/index.html`. Their images and styles are taken from the site's root (`/img/`, `/site.css`) |
 | `site.css` | The styles. One dark appearance, in the colours of the BIOS screens |
 | `favicon.svg` | The tab icon |
 | `fonts/` | The three fonts (WOFF2) and their OFL licences |
